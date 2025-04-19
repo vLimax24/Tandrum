@@ -8,6 +8,16 @@ export const getAllUser = query({
   },
 });
 
+export const getUserByClerkId = query({
+  args: { clerkId: v.string() },
+  handler: async (ctx, { clerkId }) => {
+    return await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
+      .first();
+  },
+});
+
 export const createUser = internalMutation({
   args: {
     email: v.any(),

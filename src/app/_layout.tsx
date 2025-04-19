@@ -1,8 +1,13 @@
 import "../global.css";
 import { useEffect } from "react";
-import { SplashScreen } from "expo-router";
+import { SplashScreen, useSegments, useRouter } from "expo-router";
 import { Stack, Slot } from "expo-router";
-import { ClerkProvider, ClerkLoaded, useAuth } from "@clerk/clerk-expo";
+import {
+  ClerkProvider,
+  ClerkLoaded,
+  useAuth,
+  useUser,
+} from "@clerk/clerk-expo";
 import { tokenCache } from "@/utils/cache";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
@@ -30,6 +35,23 @@ const InitialLayout = () => {
     Poppins_600SemiBold,
     Poppins_800ExtraBold,
   });
+
+  const { isLoaded, isSignedIn } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+  const user = useUser();
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const inTabsGroup = segments[0] === "(auth)";
+
+    if (isSignedIn && !inTabsGroup) {
+      router.replace("/(auth)/(tabs)/home");
+    } else if (!isSignedIn && inTabsGroup) {
+      router.replace("/(public)");
+    }
+  }, [isSignedIn]);
 
   useEffect(() => {
     if (fontsLoaded) {
