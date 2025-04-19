@@ -27,7 +27,7 @@ export default function Layout() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap;
 
-          if (route.name === "index")
+          if (route.name === "home")
             iconName = focused ? "home" : "home-outline";
           else if (route.name === "tree")
             iconName = focused ? "leaf" : "leaf-outline";
@@ -40,8 +40,9 @@ export default function Layout() {
           return <Ionicons name={iconName} size={24} color={color} />;
         },
       })}
+      initialRouteName="home"
     >
-      <Tabs.Screen name="index" options={{ title: "Home" }} />
+      <Tabs.Screen name="home" options={{ title: "Home" }} />
       <Tabs.Screen name="tree" options={{ title: "Tree" }} />
       <Tabs.Screen name="habits" options={{ title: "Habits" }} />
       <Tabs.Screen name="profile" options={{ title: "Profile" }} />
