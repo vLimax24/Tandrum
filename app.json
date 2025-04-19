@@ -12,9 +12,11 @@
         {
           "origin": "https://n"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "name": "Tandrum",
-    "slug": "Tandrum"
+    "slug": "Tandrum",
+    "newArchEnabled": true
   }
 }
