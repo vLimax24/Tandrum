@@ -13,9 +13,11 @@ export default defineSchema({
     language: v.string(),
     bio: v.optional(v.string()),
     partner: v.optional(v.array(v.id("users"))),
-  }).index("by_clerkId", ["clerkId"]),
+  })
+    .index("by_clerkId", ["clerkId"])
+    .index("by_username", ["name"]),
 
-  duo_connections: defineTable({
+  duoConnections: defineTable({
     user1: v.id("users"),
     user2: v.id("users"),
     created_at: v.number(),
@@ -27,9 +29,12 @@ export default defineSchema({
       })
     ),
     treeState: v.string(),
-  }),
+  })
+    .index("by_userPair", ["user1", "user2"])
+    .index("by_user1", ["user1"])
+    .index("by_user2", ["user2"]),
 
-  duo_habits: defineTable({
+  duoHabits: defineTable({
     duoId: v.id("duo_connections"),
     title: v.string(),
     keySkill: v.union(

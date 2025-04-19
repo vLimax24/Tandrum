@@ -77,3 +77,15 @@ export const updateUser = internalMutation({
     });
   },
 });
+
+export const getUserByUsername = query({
+  args: { username: v.string() },
+  handler: async (ctx, { username }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_username", (q) => q.eq("name", username))
+      .first();
+
+    return user ? { id: user._id, name: user.name } : null;
+  },
+});
