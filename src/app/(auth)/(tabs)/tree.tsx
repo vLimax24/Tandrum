@@ -6,6 +6,8 @@ import { api } from "../../../../convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
 import { Id } from "convex/_generated/dataModel";
 import { getTreeStageForLevel, getLevelData } from "@/utils/level";
+import { LevelDisplay } from "@/components/LevelDisplay";
+import { useDuo } from "@/hooks/useDuo";
 
 const treeImages: Record<string, any> = {
   sprout: require("../../../assets/Sprout.png"),
@@ -30,7 +32,7 @@ export default function TreeSection() {
     userId ? { userId } : undefined
   );
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const { selectedIndex, setSelectedIndex } = useDuo();
 
   useEffect(() => {
     if (connections && selectedIndex >= connections.length) {
@@ -139,6 +141,8 @@ export default function TreeSection() {
         <Text className="text-text">🍎 Fruits: {treeData.fruits}</Text>
         <Text className="text-text">💀 Decay: {treeData.decay}</Text>
       </View>
+
+      <LevelDisplay duo={selectedConnection} />
 
       {/* Growth log */}
       <Text className="text-lg font-semibold text-text mb-2">Growth Log:</Text>

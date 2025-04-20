@@ -12,7 +12,8 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
 import { useLiveTimers } from "@/hooks/useLiveTimer";
-import { getLevelData } from "@/utils/level";
+import { LevelDisplay } from "@/components/LevelDisplay";
+import { useDuo } from "@/hooks/useDuo";
 
 export default function HabitsSection() {
   const { user } = useUser();
@@ -24,7 +25,7 @@ export default function HabitsSection() {
     convexUser ? { userId: convexUser._id } : "skip"
   );
   const checkInHabit = useMutation(api.duoHabits.checkInHabit);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const { selectedIndex, setSelectedIndex } = useDuo();
 
   useEffect(() => {
     if (connections && selectedIndex >= connections.length) {
@@ -110,13 +111,6 @@ export default function HabitsSection() {
     );
   }
 
-  const {
-    level,
-    xpIntoLevel,
-    xpNeeded,
-    progressPercent: progress,
-  } = getLevelData(duo.trust_score);
-
   // render
   return (
     <>
@@ -151,26 +145,7 @@ export default function HabitsSection() {
           }}
         />
 
-        <View className="mb-4">
-          {/* Top: Level Numbers */}
-          <View className="flex-row justify-between items-center mb-1">
-            <Text className="text-text text-sm">Level {level}</Text>
-            <Text className="text-text text-sm">Level {level + 1}</Text>
-          </View>
-
-          {/* XP Progress Bar */}
-          <View className="h-4 bg-gray-300 rounded-full overflow-hidden">
-            <View
-              style={{ width: `${Math.min(100, progress * 100)}%` }}
-              className="h-full bg-primary"
-            />
-          </View>
-
-          {/* Bottom: XP Info */}
-          <Text className="text-xs text-gray-400 mt-1">
-            {xpIntoLevel} / {xpNeeded} XP bis zum nächsten Level
-          </Text>
-        </View>
+        <LevelDisplay duo={duo} />
 
         {/* Streak Display */}
         <View className="flex-row justify-between items-center mb-4">

@@ -109,7 +109,17 @@ const Page = () => {
       </Text>
 
       {isUserInConnection ? (
-        <Text className="text-primary text-lg">You're already in a duo 🌱</Text>
+        <>
+          <Text className="text-primary text-lg">
+            You're already in a duo 🌱
+          </Text>
+          <Pressable
+            className="bg-primary text-white py-3 px-6 rounded-md shadow-md"
+            onPress={() => setModalVisible(true)}
+          >
+            <Text className="font-semibold text-center">Start a Duo</Text>
+          </Pressable>
+        </>
       ) : (
         <>
           <Pressable

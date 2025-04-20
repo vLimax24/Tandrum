@@ -17,6 +17,7 @@ import {
   Poppins_600SemiBold,
   Poppins_800ExtraBold,
 } from "@expo-google-fonts/poppins";
+import { DuoProvider } from "@/hooks/useDuo";
 
 const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
@@ -69,7 +70,9 @@ export default function Layout() {
     >
       <ClerkLoaded>
         <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-          <InitialLayout />
+          <DuoProvider>
+            <InitialLayout />
+          </DuoProvider>
         </ConvexProviderWithClerk>
       </ClerkLoaded>
     </ClerkProvider>
