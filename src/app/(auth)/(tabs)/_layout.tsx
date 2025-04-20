@@ -1,11 +1,11 @@
+// app/(auth)/(tabs)/_layout.tsx
+import React from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function Layout() {
+export default function TabsLayout() {
   const insets = useSafeAreaInsets();
-
   return (
     <Tabs
       screenOptions={({ route }) => ({
@@ -13,31 +13,25 @@ export default function Layout() {
         tabBarStyle: {
           backgroundColor: "#fff",
           borderTopWidth: 1,
-          borderTopColor: "#e5e7eb", // Tailwind gray-200
+          borderTopColor: "#e5e7eb",
           height: 70 + insets.bottom,
           paddingBottom: insets.bottom + 10,
           paddingTop: 10,
         },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "600",
-        },
-        tabBarActiveTintColor: "#16a34a", // Tailwind green-600
-        tabBarInactiveTintColor: "#9ca3af", // Tailwind gray-400
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap;
-
-          if (route.name === "home")
-            iconName = focused ? "home" : "home-outline";
+        tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
+        tabBarActiveTintColor: "#16a34a",
+        tabBarInactiveTintColor: "#9ca3af",
+        tabBarIcon: ({ focused, color }) => {
+          let icon: keyof typeof Ionicons.glyphMap;
+          if (route.name === "home") icon = focused ? "home" : "home-outline";
           else if (route.name === "tree")
-            iconName = focused ? "leaf" : "leaf-outline";
+            icon = focused ? "leaf" : "leaf-outline";
           else if (route.name === "habits")
-            iconName = focused ? "checkbox" : "checkbox-outline";
+            icon = focused ? "checkbox" : "checkbox-outline";
           else if (route.name === "profile")
-            iconName = focused ? "person" : "person-outline";
-          else iconName = "ellipse-outline";
-
-          return <Ionicons name={iconName} size={24} color={color} />;
+            icon = focused ? "person" : "person-outline";
+          else icon = "ellipse-outline";
+          return <Ionicons name={icon} size={24} color={color} />;
         },
       })}
       initialRouteName="home"

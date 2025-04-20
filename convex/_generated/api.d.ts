@@ -15,7 +15,10 @@ import type {
 } from "convex/server";
 import type * as clerk from "../clerk.js";
 import type * as duoConnections from "../duoConnections.js";
+import type * as duoHabits from "../duoHabits.js";
+import type * as duoInvites from "../duoInvites.js";
 import type * as http from "../http.js";
+import type * as trees from "../trees.js";
 import type * as users from "../users.js";
 
 /**
@@ -29,7 +32,10 @@ import type * as users from "../users.js";
 declare const fullApi: ApiFromModules<{
   clerk: typeof clerk;
   duoConnections: typeof duoConnections;
+  duoHabits: typeof duoHabits;
+  duoInvites: typeof duoInvites;
   http: typeof http;
+  trees: typeof trees;
   users: typeof users;
 }>;
 export declare const api: FilterApi<

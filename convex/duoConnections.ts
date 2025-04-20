@@ -28,6 +28,7 @@ export const createConnection = mutation({
       trust_score: 0,
       shared_skills: [],
       treeState: "sprout",
+      streak: 0,
     });
   },
 });
@@ -48,5 +49,35 @@ export const isUserInConnection = query({
       .first();
 
     return !!asUser2;
+  },
+});
+
+export const getConnectionsForUser = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, { userId }) => {
+    const connections = await ctx.db
+      .query("duoConnections")
+      .withIndex("by_user1", (q) => q.eq("user1", userId))
+      .collect();
+
+    const reverseConnections = await ctx.db
+      .query("duoConnections")
+      .withIndex("by_user2", (q) => q.eq("user2", userId))
+      .collect();
+
+    const allConnections = [...connections, ...reverseConnections];
+
+    // Attach the partner's name to each connection
+    return await Promise.all(
+      allConnections.map(async (conn) => {
+        const partnerId = conn.user1 === userId ? conn.user2 : conn.user1;
+        const partner = await ctx.db.get(partnerId);
+
+        return {
+          ...conn,
+          partnerName: partner?.name ?? "Unknown",
+        };
+      })
+    );
   },
 });

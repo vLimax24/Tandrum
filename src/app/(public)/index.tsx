@@ -1,29 +1,44 @@
-import React from "react";
-import { Text, View, Image, TouchableOpacity } from "react-native";
-import { useSSO } from "@clerk/clerk-expo";
+import React, { useEffect } from "react";
+import { Text, View, Image, TouchableOpacity, Alert } from "react-native";
+import { useSSO, useUser } from "@clerk/clerk-expo";
 import { StatusBar } from "expo-status-bar";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Page() {
   const { startSSOFlow } = useSSO();
-  const data = useQuery(api.users.getAllUser);
-  console.log(data);
+  const { user } = useUser();
+  const clerkId = user?.id;
+
+  const convexUser = useQuery(
+    api.users.getUserByClerkId,
+    clerkId ? { clerkId } : "skip"
+  );
+
+  useEffect(() => {
+    const storeConvexUser = async () => {
+      if (convexUser) {
+        try {
+          await AsyncStorage.setItem("convexUser", JSON.stringify(convexUser));
+        } catch (e) {
+          console.error("Failed to save Convex user to AsyncStorage", e);
+        }
+      }
+    };
+    storeConvexUser();
+  }, [convexUser]);
 
   const handleGoogleLogin = async () => {
     try {
       const { createdSessionId, setActive } = await startSSOFlow({
         strategy: "oauth_google",
       });
-      console.log(
-        "🚀 ~ handleGoogleLogin ~ createdSessionId:",
-        createdSessionId
-      );
       if (createdSessionId) {
         setActive!({ session: createdSessionId });
       }
     } catch (error) {
-      console.error(error);
+      Alert.alert("Login failed", error.message);
     }
   };
 

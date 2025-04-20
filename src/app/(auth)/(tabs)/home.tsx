@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,10 +8,11 @@ import {
   Alert,
   TextInput,
 } from "react-native";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { useUser } from "@clerk/clerk-expo";
 import { api } from "../../../../convex/_generated/api";
 import QRCode from "react-native-qrcode-svg";
+import { Id } from "convex/_generated/dataModel";
 
 const Page = () => {
   const { user } = useUser();
@@ -25,6 +26,8 @@ const Page = () => {
     api.duoConnections.isUserInConnection,
     convexUser ? { userId: convexUser._id } : "skip"
   );
+
+  const sendInviteMutation = useMutation(api.duoInvites.sendInvite);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [username, setUsername] = useState("");
@@ -42,13 +45,54 @@ const Page = () => {
     Alert.alert("Copied!", "Invite link copied to clipboard");
   };
 
-  const sendInvite = (userId: string) => {
-    console.log("Sending invite to user with ID:", userId);
-    if (!userId) {
-      Alert.alert("Error", "No user found to send an invite.");
+  const sendInvite = async (toUserId: Id<"users">) => {
+    if (!convexUser?._id || !toUserId) {
+      Alert.alert("Error", "Missing user information.");
       return;
     }
+
+    try {
+      await sendInviteMutation({
+        from: convexUser._id,
+        to: toUserId,
+      });
+      Alert.alert("Invite Sent", "Your invite has been sent successfully!");
+      setModalVisible(false);
+    } catch (err) {
+      console.error("Failed to send invite:", err);
+      Alert.alert("Error", "Could not send invite. Please try again.");
+    }
   };
+
+  const incomingInvite = useQuery(
+    api.duoInvites.getIncomingInvite,
+    convexUser ? { userId: convexUser._id } : "skip"
+  );
+
+  const acceptInvite = useMutation(api.duoInvites.respondToInvite);
+
+  useEffect(() => {
+    if (incomingInvite) {
+      Alert.alert(
+        "Duo Invite 📬",
+        "Someone wants to team up with you!",
+        [
+          {
+            text: "Reject",
+            style: "destructive",
+            onPress: () =>
+              acceptInvite({ inviteId: incomingInvite._id, accept: false }),
+          },
+          {
+            text: "Accept",
+            onPress: () =>
+              acceptInvite({ inviteId: incomingInvite._id, accept: true }),
+          },
+        ],
+        { cancelable: false }
+      );
+    }
+  }, [incomingInvite]);
 
   if (!convexUser || isUserInConnection === undefined) {
     return (
