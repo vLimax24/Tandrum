@@ -47,7 +47,7 @@ export const respondToInvite = mutation({
         user1: invite.from,
         user2: invite.to,
         created_at: Date.now(),
-        trust_score: 50,
+        trust_score: 0,
         shared_skills: [],
         treeState: "sprout",
         streak: 0,

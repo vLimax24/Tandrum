@@ -29,7 +29,8 @@ export default defineSchema({
       })
     ),
     treeState: v.string(),
-    streak: v.number(), // Shared streak for the duo
+    streak: v.number(),
+    streakDate: v.optional(v.number()),
   })
     .index("by_userPair", ["user1", "user2"])
     .index("by_user1", ["user1"])

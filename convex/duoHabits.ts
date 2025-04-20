@@ -41,31 +41,35 @@ export const checkInHabit = mutation({
 
       const today = new Date();
       const startOfDay = new Date(today.setHours(0, 0, 0, 0)).getTime();
-      const lastStreakDate =
-        habit.checkin_history?.[userIsA ? "userA" : "userB"]?.streakDate;
 
-      // Increase trust score
-      const newTrustPoints = duoConnection.trust_score + 1; // Adjust based on your logic for increasing trust
-      await ctx.db.patch(duoConnection._id, { trust_score: newTrustPoints });
+      // Check if the streak has already been increased for the day
+      const streakIncreasedToday = duoConnection.streakDate === startOfDay;
 
-      // Increase streak if not already increased today
-      if (!lastStreakDate || lastStreakDate < startOfDay) {
+      if (!streakIncreasedToday) {
         const newStreak = duoConnection.streak + 1;
+
+        // Update streak for the duo connection
         await ctx.db.patch(duoConnection._id, {
           streak: newStreak,
+          streakDate: startOfDay, // Track the last date streak was increased
         });
 
-        await ctx.db.patch(habitId, {
-          checkin_history: {
-            ...habit.checkin_history,
-            [userIsA ? "userA" : "userB"]: {
-              streakDate: startOfDay,
-              userA: userIsA,
-              userB: !userIsA,
-            },
+        // Update checkin history for both users with today's streak date
+        const newCheckinHistory = {
+          ...habit.checkin_history,
+          [userIsA ? "userA" : "userB"]: {
+            streakDate: startOfDay,
+            userA: userIsA,
+            userB: !userIsA, // Always track the other user as well
           },
-        });
+        };
+
+        await ctx.db.patch(habitId, { checkin_history: newCheckinHistory });
       }
+
+      // Increase trust score (always increase trust score if both users checked in)
+      const newTrustPoints = duoConnection.trust_score + 1;
+      await ctx.db.patch(duoConnection._id, { trust_score: newTrustPoints });
     }
   },
 });

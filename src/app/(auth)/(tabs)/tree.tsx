@@ -1,51 +1,65 @@
-// components/TreeSection.tsx
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, ScrollView } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
 import { Id } from "convex/_generated/dataModel";
+import { getTreeStageForLevel, getLevelData } from "@/utils/level";
 
 const treeImages: Record<string, any> = {
   sprout: require("../../../assets/Sprout.png"),
-  smallTree: require("../../../assets/Sprout.png"),
+  smallTree: require("../../../assets/Baum-Klein.png"),
   mediumTree: require("../../../assets/Sprout.png"),
   grownTree: require("../../../assets/Sprout.png"),
 };
 
 export default function TreeSection() {
   const { user } = useUser();
+  const updateTreeStage = useMutation(api.trees.updateTreeStage);
 
-  // 1) Always invoke these hooks in the same order:
+  const clerkId = user?.id;
   const convexUser = useQuery(
     api.users.getUserByClerkId,
-    user?.id ? { clerkId: user.id } : "skip"
+    clerkId ? { clerkId } : undefined
   );
 
+  const userId = convexUser?._id;
   const connections = useQuery(
     api.duoConnections.getConnectionsForUser,
-    convexUser ? { userId: convexUser._id } : "skip"
+    userId ? { userId } : undefined
   );
 
-  // selected duo index
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // reset index if connection list shrinks
   useEffect(() => {
     if (connections && selectedIndex >= connections.length) {
       setSelectedIndex(0);
     }
   }, [connections]);
 
+  const selectedConnection = connections?.[selectedIndex];
   const treeData = useQuery(
     api.trees.getTreeForDuo,
-    connections && connections.length > 0
-      ? { duoId: connections[selectedIndex]._id as Id<"duoConnections"> }
-      : "skip"
+    selectedConnection
+      ? { duoId: selectedConnection._id as Id<"duoConnections"> }
+      : undefined
   );
 
-  // 2) conditional rendering only after all hooks
+  // Check if the tree stage matches the level, update if not
+  useEffect(() => {
+    if (!treeData || !selectedConnection) return;
+
+    const currentTrust = selectedConnection.trust_score ?? 0;
+    const { level } = getLevelData(currentTrust);
+    const expectedStage = getTreeStageForLevel(level);
+
+    if (treeData.stage !== expectedStage) {
+      updateTreeStage({ duoId: selectedConnection._id });
+    }
+  }, [treeData, selectedConnection, updateTreeStage]);
+
+  // Conditional UI rendering
   if (!convexUser) {
     return (
       <View className="flex-1 justify-center items-center bg-background">
@@ -53,6 +67,7 @@ export default function TreeSection() {
       </View>
     );
   }
+
   if (!connections) {
     return (
       <View className="flex-1 justify-center items-center bg-background">
@@ -60,6 +75,7 @@ export default function TreeSection() {
       </View>
     );
   }
+
   if (connections.length === 0) {
     return (
       <View className="flex-1 justify-center items-center bg-background">
@@ -67,6 +83,7 @@ export default function TreeSection() {
       </View>
     );
   }
+
   if (!treeData) {
     return (
       <View className="flex-1 justify-center items-center bg-background">

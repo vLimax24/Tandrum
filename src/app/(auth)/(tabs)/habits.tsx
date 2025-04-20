@@ -11,12 +11,13 @@ import RNPickerSelect from "react-native-picker-select";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
-import { Id } from "convex/_generated/dataModel";
+import { useLiveTimers } from "@/hooks/useLiveTimer";
+import { getLevelData } from "@/utils/level";
 
 export default function HabitsSection() {
   const { user } = useUser();
   const clerkId = user.id;
-
+  const { timeToday, timeWeek } = useLiveTimers();
   const convexUser = useQuery(api.users.getUserByClerkId, { clerkId });
   const connections = useQuery(
     api.duoConnections.getConnectionsForUser,
@@ -24,6 +25,7 @@ export default function HabitsSection() {
   );
   const checkInHabit = useMutation(api.duoHabits.checkInHabit);
   const [selectedIndex, setSelectedIndex] = useState(0);
+
   useEffect(() => {
     if (connections && selectedIndex >= connections.length) {
       setSelectedIndex(0);
@@ -68,25 +70,52 @@ export default function HabitsSection() {
   const weekly = habits.filter((h) => h.frequency === "weekly");
   const amI_A = convexUser._id === duo.user1;
 
-  // daily countdown → midnight
-  const endOfDay = new Date(now);
-  endOfDay.setHours(24, 0, 0, 0);
-  const msDaily = endOfDay.getTime() - now;
-  const h = String(Math.floor(msDaily / 3600e3)).padStart(2, "0");
-  const m = String(Math.floor((msDaily % 3600e3) / 60e3)).padStart(2, "0");
-  const s = String(Math.floor((msDaily % 60e3) / 1e3)).padStart(2, "0");
-  const dailyLabel = `${h}:${m}:${s}`;
+  // Labels for Daily and Weekly Tasks
+  const dailyLabel = timeToday;
+  const weeklyLabel = timeWeek;
 
-  // weekly countdown → next Monday 00:00
-  const d = new Date(now);
-  const day = d.getDay(); // 0=Sun,1=Mon...
-  const daysToMon = (8 - day) % 7;
-  const endOfWeek = new Date(now + daysToMon * 86400e3);
-  endOfWeek.setHours(0, 0, 0, 0);
-  const msWeek = endOfWeek.getTime() - now;
-  const daysLeft = Math.ceil(msWeek / 86400e3);
-  const weeklyLabel =
-    msWeek > 86400e3 ? `${daysLeft} Tage` : `${daysLeft} Tage`;
+  const currentDayOfWeek = new Date().getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]; // Correct order: Monday to Sunday
+
+  const totalStreak = duo.streak; // Total streak count
+
+  // We need to calculate the days in the streak, starting from the current day
+  let streakDates = [];
+  for (let i = 0; i < totalStreak; i++) {
+    // Going backwards from today (currentDayOfWeek), wrap the day correctly using modulo
+    const streakDay = (currentDayOfWeek - i + 7) % 7;
+    streakDates.push(streakDay);
+  }
+
+  // Now reorder the days so that Monday is the first day
+  const streakDisplay = [];
+  for (let i = 0; i < 7; i++) {
+    // Correctly map the days to show the current week starting with Monday
+    const dayIndex = (i + 1) % 7; // 0 = Monday, 6 = Sunday
+    const isStreakDay = streakDates.includes(dayIndex);
+
+    streakDisplay.push(
+      <View
+        key={i}
+        className={`w-12 h-12 rounded-full border-2 mx-1 flex items-center justify-center ${
+          isStreakDay ? "bg-accent border-accent" : "border-gray-300"
+        }`}
+      >
+        <Text
+          className={`text-xs ${isStreakDay ? "text-background" : "text-gray-400"}`}
+        >
+          {daysOfWeek[dayIndex]}
+        </Text>
+      </View>
+    );
+  }
+
+  const {
+    level,
+    xpIntoLevel,
+    xpNeeded,
+    progressPercent: progress,
+  } = getLevelData(duo.trust_score);
 
   // render
   return (
@@ -121,6 +150,37 @@ export default function HabitsSection() {
             },
           }}
         />
+
+        <View className="mb-4">
+          {/* Top: Level Numbers */}
+          <View className="flex-row justify-between items-center mb-1">
+            <Text className="text-text text-sm">Level {level}</Text>
+            <Text className="text-text text-sm">Level {level + 1}</Text>
+          </View>
+
+          {/* XP Progress Bar */}
+          <View className="h-4 bg-gray-300 rounded-full overflow-hidden">
+            <View
+              style={{ width: `${Math.min(100, progress * 100)}%` }}
+              className="h-full bg-primary"
+            />
+          </View>
+
+          {/* Bottom: XP Info */}
+          <Text className="text-xs text-gray-400 mt-1">
+            {xpIntoLevel} / {xpNeeded} XP bis zum nächsten Level
+          </Text>
+        </View>
+
+        {/* Streak Display */}
+        <View className="flex-row justify-between items-center mb-4">
+          <Text className="text-lg font-semibold text-text">
+            Streak: {totalStreak} Tage
+          </Text>
+        </View>
+        <View className="flex-row justify-start items-center mb-4">
+          {streakDisplay}
+        </View>
 
         {/* Daily header */}
         <View className="flex-row justify-between items-center mb-2">
@@ -166,9 +226,6 @@ export default function HabitsSection() {
 
                   // Call the checkInHabit mutation
                   await checkInHabit({ habitId, userIsA });
-
-                  // Optionally, update local state to reflect the check-in (to avoid waiting for server response)
-                  // This can be handled via state management to immediately update UI
                 }}
               >
                 {(amI_A ? doneA : doneB) && (
@@ -176,7 +233,7 @@ export default function HabitsSection() {
                 )}
               </Pressable>
 
-              {/* Partner's checkmark (non-interactive) */}
+              {/* Partner's checkmark */}
               <View
                 className={`w-8 h-8 rounded-full border-2 mx-1 ${
                   (amI_A ? doneB : doneA)
@@ -221,14 +278,9 @@ export default function HabitsSection() {
                     : "border-gray-300"
                 } flex items-center justify-center`}
                 onPress={async () => {
-                  const habitId = h._id; // Get the habit ID
-                  const userIsA = amI_A; // Determine if the current user is "A"
-
-                  // Call the checkInHabit mutation
+                  const habitId = h._id;
+                  const userIsA = amI_A;
                   await checkInHabit({ habitId, userIsA });
-
-                  // Optionally, update local state to reflect the check-in (to avoid waiting for server response)
-                  // This can be handled via state management to immediately update UI
                 }}
               >
                 {(amI_A ? doneA : doneB) && (
@@ -252,102 +304,70 @@ export default function HabitsSection() {
           );
         })}
 
-        {/* Create button */}
+        {/* Add Habit Button */}
         <Pressable
-          className="mt-8 bg-primary py-4 rounded-lg items-center"
+          className="bg-primary rounded-full p-3 mt-6"
           onPress={() => setModalVisible(true)}
         >
-          <Text className="text-background font-semibold">
-            Aufgabe Erstellen
-          </Text>
+          <Text className="text-background font-semibold">Neue Gewohnheit</Text>
         </Pressable>
       </ScrollView>
 
-      {/* ✨ Create Habit Modal */}
-      <Modal
-        visible={modalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        {/* Dark semi-transparent background */}
-        <View
-          className="flex-1 justify-center items-center"
-          style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
-        >
-          {/* Modal Card */}
-          <View className="w-full max-w-md mx-4 bg-background rounded-2xl p-6 shadow-lg">
-            <Text className="text-2xl font-semibold text-text mb-2">
-              Neue Aufgabe
-            </Text>
-            <Text className="text-sm text-text mb-4">
-              Erstelle eine neue Gewohnheit für dein Duo.
+      {/* Modal */}
+      <Modal visible={modalVisible} transparent>
+        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg w-80">
+            <Text className="text-xl font-semibold text-text mb-4">
+              Neue Gewohnheit
             </Text>
 
-            {/* Title Input */}
             <TextInput
-              className="border border-gray-300 text-text bg-white px-4 py-2 rounded-lg mb-4"
-              placeholder="Titel eingeben"
-              placeholderTextColor="#999"
+              className="border-b-2 border-gray-300 p-2 mb-4"
+              placeholder="Titel der Gewohnheit"
               value={newTitle}
               onChangeText={setNewTitle}
             />
-
-            {/* Frequency Picker */}
-            <View className="mb-6">
-              <RNPickerSelect
-                onValueChange={(v) => setNewFreq(v)}
-                value={newFreq}
-                items={[
-                  { label: "Täglich", value: "daily" },
-                  { label: "Wöchentlich", value: "weekly" },
-                ]}
-                style={{
-                  inputIOS: {
-                    paddingVertical: 12,
-                    paddingHorizontal: 16,
-                    backgroundColor: "#fff",
-                    borderRadius: 8,
-                    borderColor: "#d1d5db",
-                    borderWidth: 1,
-                    color: "#111827",
-                    fontSize: 16,
-                  },
-                  inputAndroid: {
-                    paddingVertical: 12,
-                    paddingHorizontal: 16,
-                    backgroundColor: "#fff",
-                    borderRadius: 8,
-                    borderColor: "#d1d5db",
-                    borderWidth: 1,
-                    color: "#111827",
-                    fontSize: 16,
-                  },
-                }}
-              />
-            </View>
-
-            {/* Buttons */}
-            <View className="flex-row justify-end space-x-4">
-              <Pressable onPress={() => setModalVisible(false)}>
-                <Text className="text-text text-base">Abbrechen</Text>
-              </Pressable>
-              <Pressable
-                onPress={async () => {
-                  await createHabit({
-                    duoId: connections[selectedIndex]._id,
-                    title: newTitle,
-                    frequency: newFreq,
-                  });
-                  setNewTitle("");
-                  setNewFreq("daily");
-                  setModalVisible(false);
-                }}
-                className="bg-accent px-5 py-2 rounded-lg"
-              >
-                <Text className="text-background font-semibold">Erstellen</Text>
-              </Pressable>
-            </View>
+            <RNPickerSelect
+              onValueChange={(value) => setNewFreq(value)}
+              value={newFreq}
+              items={[
+                { label: "Täglich", value: "daily" },
+                { label: "Wöchentlich", value: "weekly" },
+              ]}
+              style={{
+                inputIOS: {
+                  backgroundColor: "#f5f5f5",
+                  color: "#333",
+                  padding: 12,
+                  borderRadius: 8,
+                  marginBottom: 16,
+                },
+                inputAndroid: {
+                  backgroundColor: "#f5f5f5",
+                  color: "#333",
+                  padding: 12,
+                  borderRadius: 8,
+                  marginBottom: 16,
+                },
+              }}
+            />
+            <Pressable
+              onPress={async () => {
+                await createHabit({
+                  title: newTitle,
+                  frequency: newFreq,
+                  duoId: duo._id,
+                });
+                setNewTitle("");
+                setNewFreq("daily");
+                setModalVisible(false);
+              }}
+              className="bg-primary p-3 rounded-lg mt-4"
+            >
+              <Text className="text-background font-semibold text-center">
+                Erstellen
+              </Text>
+            </Pressable>
           </View>
         </View>
       </Modal>
