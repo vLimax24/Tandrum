@@ -13,7 +13,9 @@
           "origin": "https://n"
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "name": "Tandrum",
     "slug": "Tandrum",

@@ -1,10 +1,5 @@
-import {
-  internalMutation,
-  internalQuery,
-  query,
-  mutation,
-} from "./_generated/server";
-import { v, ConvexError } from "convex/values";
+import { query, mutation } from "./_generated/server";
+import { v } from "convex/values";
 
 export const createConnection = mutation({
   args: {

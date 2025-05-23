@@ -27,9 +27,9 @@ export const checkInHabit = mutation({
     // Update check-in time for the current user
     await ctx.db.patch(habitId, { [key]: now });
 
-    // Check if the other person has also checked in
+    const partnerCheckin = habit[partnerKey];
     const otherUserCheckedIn =
-      habit[partnerKey] && now - habit[partnerKey] < 86400e3;
+      typeof partnerCheckin === "number" && now - partnerCheckin < 86400e3;
 
     if (otherUserCheckedIn) {
       const duoConnection = await ctx.db

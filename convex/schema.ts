@@ -88,4 +88,7 @@ export default defineSchema({
       )
     ),
   }).index("by_duoId", ["duoId"]),
+  emails: defineTable({
+    email: v.string(),
+  }).index("by_email", ["email"]),
 });
