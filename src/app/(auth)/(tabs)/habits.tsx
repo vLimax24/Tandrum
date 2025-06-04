@@ -335,47 +335,78 @@ export default function HabitsSection() {
       </ScrollView>
 
       {/* Modal */}
-      <Modal visible={modalVisible} transparent>
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
-          <View className="bg-white p-6 rounded-lg w-80">
-            <Text className="text-xl font-semibold text-text mb-4">
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+        className="z-50"
+      >
+        <Pressable
+          className="flex-1 bg-black/60 justify-center items-center"
+          onPress={() => setModalVisible(false)}
+        >
+          <Pressable
+            className="w-11/12 max-w-md bg-white rounded-2xl px-6 py-7 shadow-lg"
+            onPress={(e) => e.stopPropagation()}
+          >
+            <Text className="text-2xl font-bold text-gray-900 mb-6 text-center">
               Neue Gewohnheit
             </Text>
-
             <TextInput
-              className="border-b-2 border-gray-300 p-2 mb-4"
+              className="bg-gray-100 rounded-lg px-4 py-3 text-base text-gray-900 mb-4 border border-gray-200 focus:border-accent"
               placeholder="Titel der Gewohnheit"
+              placeholderTextColor="#A3A3A3"
               value={newTitle}
               onChangeText={setNewTitle}
+              autoFocus
+              returnKeyType="done"
+              maxLength={32}
             />
-            <RNPickerSelect
-              onValueChange={(value) => setNewFreq(value)}
-              value={newFreq}
-              items={[
-                { label: "Täglich", value: "daily" },
-                { label: "Wöchentlich", value: "weekly" },
-              ]}
-              style={{
-                inputIOS: {
-                  backgroundColor: "#f5f5f5",
-                  color: "#333",
-                  padding: 12,
-                  borderRadius: 8,
-                  marginBottom: 16,
-                },
-                inputAndroid: {
-                  backgroundColor: "#f5f5f5",
-                  color: "#333",
-                  padding: 12,
-                  borderRadius: 8,
-                  marginBottom: 16,
-                },
-              }}
-            />
+            <View className="mb-4">
+              <RNPickerSelect
+                onValueChange={setNewFreq}
+                value={newFreq}
+                items={[
+                  { label: "Täglich", value: "daily" },
+                  { label: "Wöchentlich", value: "weekly" },
+                ]}
+                useNativeAndroidPickerStyle={false}
+                style={{
+                  inputIOS: {
+                    backgroundColor: "#f3f4f6",
+                    color: "#111827",
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    borderRadius: 10,
+                    fontSize: 16,
+                  },
+                  inputAndroid: {
+                    backgroundColor: "#f3f4f6",
+                    color: "#111827",
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    borderRadius: 10,
+                    fontSize: 16,
+                  },
+                  iconContainer: {
+                    top: 18,
+                    right: 12,
+                  },
+                  placeholder: {
+                    color: "#A3A3A3",
+                  },
+                }}
+                Icon={() => (
+                  <Text style={{ color: "#A3A3A3", fontSize: 18 }}>▼</Text>
+                )}
+              />
+            </View>
             <Pressable
               onPress={async () => {
+                if (!newTitle.trim()) return;
                 await createHabit({
-                  title: newTitle,
+                  title: newTitle.trim(),
                   frequency: newFreq,
                   duoId: duo._id,
                 });
@@ -383,14 +414,17 @@ export default function HabitsSection() {
                 setNewFreq("daily");
                 setModalVisible(false);
               }}
-              className="bg-primary p-3 rounded-lg mt-4"
+              className={`bg-accent rounded-xl py-3 mt-2 ${
+                !newTitle.trim() ? "opacity-50" : ""
+              }`}
+              disabled={!newTitle.trim()}
             >
-              <Text className="text-background font-semibold text-center">
+              <Text className="text-white text-base font-semibold text-center">
                 Erstellen
               </Text>
             </Pressable>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </>
   );

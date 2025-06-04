@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  StatusBar,
+} from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
