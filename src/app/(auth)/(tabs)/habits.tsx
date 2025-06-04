@@ -6,6 +6,7 @@ import {
   ScrollView,
   Modal,
   TextInput,
+  Image,
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { useQuery, useMutation } from "convex/react";
@@ -26,6 +27,16 @@ export default function HabitsSection() {
   );
   const checkInHabit = useMutation(api.duoHabits.checkInHabit);
   const { selectedIndex, setSelectedIndex } = useDuo();
+
+  const treeImages: Record<string, any> = {
+    sprout: require("../../../assets/Sprout.png"),
+    smallTree: require("../../../assets/Baum-Klein.png"),
+    mediumTree: require("../../../assets/Sprout.png"),
+    grownTree: require("../../../assets/Sprout.png"),
+    orange: require("../../../assets/orange.png"),
+    leaf: require("../../../assets/ShowcaseLeaf.png"),
+    calendar: require("../../../assets/calendar.png"),
+  };
 
   useEffect(() => {
     if (connections && selectedIndex >= connections.length) {
@@ -114,36 +125,71 @@ export default function HabitsSection() {
   // render
   return (
     <>
-      <ScrollView className="flex-1 bg-background p-4">
-        <Text className="text-2xl font-semibold text-text mb-4">
-          Gewohnheiten
-        </Text>
+      <ScrollView className="flex-1 bg-background py-16 px-5">
+        <Text className="text-text text-4xl font-semibold mb-2">Habits</Text>
 
-        {/* Duo selector */}
-        <RNPickerSelect
-          onValueChange={(v) => setSelectedIndex(v)}
-          value={selectedIndex}
-          items={connections.map((c, i) => ({
-            label: `Duo mit ${c.partnerName}`,
-            value: i,
-          }))}
-          style={{
-            inputIOS: {
-              backgroundColor: "#444",
-              color: "#fff",
-              padding: 12,
-              borderRadius: 8,
-              marginBottom: 16,
-            },
-            inputAndroid: {
-              backgroundColor: "#444",
-              color: "#fff",
-              padding: 12,
-              borderRadius: 8,
-              marginBottom: 16,
-            },
-          }}
-        />
+        <View className="mb-6">
+          <Text className="text-lg font-semibold text-text mb-2">
+            Select Duo
+          </Text>
+          <View className="bg-primary rounded-lg px-4 py-2 flex-row items-center">
+            <Image
+              source={treeImages["leaf"]}
+              style={{ width: 20, height: 20, marginRight: 8 }}
+            />
+            <View
+              style={{
+                flex: 1,
+                position: "relative",
+                justifyContent: "center",
+              }}
+            >
+              <RNPickerSelect
+                onValueChange={setSelectedIndex}
+                value={selectedIndex}
+                items={connections.map((c, i) => ({
+                  label: `Duo with ${c.partnerName}`,
+                  value: i,
+                }))}
+                useNativeAndroidPickerStyle={false}
+                style={{
+                  inputIOS: {
+                    color: "#fff",
+                    fontSize: 16,
+                    fontWeight: "500",
+                    paddingVertical: 10,
+                    paddingRight: 32,
+                    paddingLeft: 8,
+                    borderRadius: 8,
+                    backgroundColor: "transparent",
+                  },
+                  inputAndroid: {
+                    color: "#fff",
+                    fontSize: 16,
+                    fontWeight: "500",
+                    paddingVertical: 10,
+                    paddingRight: 32,
+                    paddingLeft: 8,
+                    borderRadius: 8,
+                    backgroundColor: "transparent",
+                  },
+                  iconContainer: {
+                    position: "absolute",
+                    right: 8,
+                    top: "50%",
+                    marginTop: -12,
+                  },
+                  placeholder: {
+                    color: "#fff",
+                  },
+                }}
+                Icon={() => (
+                  <Text style={{ color: "#fff", fontSize: 18 }}>▼</Text>
+                )}
+              />
+            </View>
+          </View>
+        </View>
 
         <LevelDisplay duo={duo} />
 

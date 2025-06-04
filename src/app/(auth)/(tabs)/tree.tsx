@@ -122,7 +122,7 @@ export default function TreeSection() {
     );
 
   return (
-    <ScrollView className="flex-1 bg-background py-16 px-5 pb-10">
+    <ScrollView className="flex-1 bg-background py-16 px-5">
       <Text className="text-text text-4xl font-semibold mb-2">Tree</Text>
       <View className="mb-6">
         <Text className="text-lg font-semibold text-text mb-2">Select Duo</Text>
