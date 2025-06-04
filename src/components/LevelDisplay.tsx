@@ -19,7 +19,7 @@ export const LevelDisplay = ({ duo }: { duo: Doc<"duoConnections"> }) => {
       </View>
 
       {/* XP Progress Bar */}
-      <View className="h-4 bg-gray-300 rounded-full overflow-hidden">
+      <View className="h-4 bg-[#dfdfdf] rounded-full overflow-hidden">
         <View
           style={{ width: `${Math.min(100, progress * 100)}%` }}
           className="h-full bg-primary"
