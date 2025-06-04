@@ -1,11 +1,12 @@
-// app/(auth)/(tabs)/_layout.tsx
 import React from "react";
+import { Pressable, View } from "react-native";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={({ route }) => ({
@@ -18,9 +19,29 @@ export default function TabsLayout() {
           paddingBottom: insets.bottom + 10,
           paddingTop: 10,
         },
-        tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: "600" },
         tabBarActiveTintColor: "#16a34a",
         tabBarInactiveTintColor: "#9ca3af",
+
+        tabBarButton: (props) => (
+          <Pressable
+            {...props}
+            android_ripple={null}
+            android_disableSound={true}
+            style={({ pressed }) => [
+              {
+                flex: 1,
+                justifyContent: "center",
+              },
+              props.style,
+            ]}
+          >
+            <View style={{ alignItems: "center", justifyContent: "center" }}>
+              {props.children}
+            </View>
+          </Pressable>
+        ),
+
         tabBarIcon: ({ focused, color }) => {
           let icon: keyof typeof Ionicons.glyphMap;
           if (route.name === "home") icon = focused ? "home" : "home-outline";
