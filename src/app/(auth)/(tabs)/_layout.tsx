@@ -26,6 +26,8 @@ export default function TabsLayout() {
         tabBarButton: (props) => (
           <Pressable
             {...props}
+            accessible={props.accessible}
+            accessibilityRole={props.accessibilityRole}
             android_ripple={null}
             android_disableSound={true}
             style={({ pressed }) => [
