@@ -13,6 +13,7 @@ import {
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "convex/_generated/dataModel";
+import DecorationDetailModal from "./DecorationDetailModal";
 
 const treeImages: Record<string, any> = {
   leaf: require("../../src/assets/ShowcaseLeaf.png"),
@@ -78,9 +79,14 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   const [selectedItem, setSelectedItem] = useState<"leaf" | "fruit" | null>(
     null
   );
-  const [selectedDecoration, setSelectedDecoration] = useState<number | null>(
-    null
-  );
+  const [selectedDecoration, setSelectedDecoration] = useState<{
+    decoration: {
+      type: "leaf" | "fruit";
+      position: { x: number; y: number };
+      buff?: { xpMultiplier: number };
+    };
+    index: number;
+  } | null>(null);
 
   const updateTreeDecorations = useMutation(api.trees.updateTreeDecorations);
   const removeTreeDecoration = useMutation(api.trees.removeTreeDecoration);
@@ -192,30 +198,25 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     const decoration = treeData.decorations?.[index];
     if (!decoration) return;
 
-    const itemDef = itemDefinitions[decoration.type];
+    setSelectedDecoration({
+      decoration,
+      index,
+    });
+  };
 
-    Alert.alert(
-      `${itemDef.name} ${itemDef.icon}`,
-      `${itemDef.description}\n\nActive Ability: ${itemDef.ability}\n${itemDef.abilityDescription}\n\nWould you like to remove this decoration?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await removeTreeDecoration({
-                duoId: treeData.duoId,
-                decorationIndex: index,
-              });
-              onInventoryUpdate?.();
-            } catch (err: any) {
-              Alert.alert("Removal Error", err.message);
-            }
-          },
-        },
-      ]
-    );
+  const handleRemoveDecoration = async () => {
+    if (!selectedDecoration) return;
+
+    try {
+      await removeTreeDecoration({
+        duoId: treeData.duoId,
+        decorationIndex: selectedDecoration.index,
+      });
+      setSelectedDecoration(null);
+      onInventoryUpdate?.();
+    } catch (err: any) {
+      Alert.alert("Removal Error", err.message);
+    }
   };
 
   const renderSlots = () => {
@@ -223,9 +224,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
 
     const slotPositions = getSlotPositions();
     return (
-      <View
-        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-      >
+      <View className="absolute top-0 left-0 right-0 bottom-0">
         {slotPositions.map((slot) => (
           <TouchableOpacity
             key={slot.id}
@@ -234,24 +233,10 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
               position: "absolute",
               left: slot.x - 20,
               top: slot.y - 20,
-              width: 40,
-              height: 40,
-              backgroundColor: "rgba(59, 130, 246, 0.9)",
-              borderRadius: 20,
-              justifyContent: "center",
-              alignItems: "center",
-              borderWidth: 3,
-              borderColor: "#3b82f6",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.25,
-              shadowRadius: 4,
-              elevation: 5,
             }}
+            className="w-10 h-10 bg-[rgba(59,130,246,0.9)] rounded-full justify-center items-center border-3 border-[#3b82f6] shadow-lg"
           >
-            <Text style={{ color: "white", fontSize: 20, fontWeight: "bold" }}>
-              +
-            </Text>
+            <Text className="text-white text-xl font-bold">+</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -262,9 +247,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     if (!treeData.decorations) return null;
 
     return (
-      <View
-        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-      >
+      <View className="absolute top-0 left-0 right-0 bottom-0">
         {treeData.decorations.map((decoration, index) => (
           <TouchableOpacity
             key={index}
@@ -276,20 +259,9 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             }}
           >
             <View
+              className="w-12 h-12 rounded-full bg-[rgba(255,255,255,0.9)] border-2 justify-center items-center shadow-lg"
               style={{
-                width: 50,
-                height: 50,
-                borderRadius: 25,
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                borderWidth: 2,
                 borderColor: itemDefinitions[decoration.type].color,
-                justifyContent: "center",
-                alignItems: "center",
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.25,
-                shadowRadius: 4,
-                elevation: 5,
               }}
             >
               <Image
@@ -298,7 +270,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                     ? treeImages.leaf
                     : treeImages.orange
                 }
-                style={{ width: 30, height: 30 }}
+                className="w-8 h-8"
               />
             </View>
           </TouchableOpacity>
@@ -316,97 +288,45 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       <TouchableOpacity
         onPress={() => handleItemSelect(type)}
         disabled={!isAvailable}
-        style={{
-          backgroundColor: isAvailable ? itemDef.bgColor : "#f9fafb",
-          borderColor: isAvailable ? itemDef.borderColor : "#e5e7eb",
-          borderWidth: 2,
-          borderRadius: 16,
-          padding: 16,
-          marginBottom: 12,
-          opacity: isAvailable ? 1 : 0.6,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.1,
-          shadowRadius: 2,
-          elevation: 2,
-        }}
+        className={`border-2 rounded-2xl p-4 mb-3 shadow-sm ${
+          isAvailable
+            ? `bg-[${itemDef.bgColor}] border-[${itemDef.borderColor}] opacity-100`
+            : "bg-[#f9fafb] border-[#e5e7eb] opacity-60"
+        }`}
       >
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 8,
-          }}
-        >
+        <View className="flex-row items-center mb-2">
           <View
-            style={{
-              width: 60,
-              height: 60,
-              borderRadius: 30,
-              backgroundColor: "white",
-              justifyContent: "center",
-              alignItems: "center",
-              marginRight: 16,
-              borderWidth: 2,
-              borderColor: itemDef.borderColor,
-            }}
+            className={`w-15 h-15 rounded-full bg-white justify-center items-center mr-4 border-2`}
+            style={{ borderColor: itemDef.borderColor }}
           >
             <Image
               source={type === "leaf" ? treeImages.leaf : treeImages.orange}
-              style={{ width: 40, height: 40 }}
+              className="w-10 h-10"
             />
           </View>
-          <View style={{ flex: 1 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginBottom: 4,
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontWeight: "bold",
-                  color: "#1f2937",
-                  marginRight: 8,
-                }}
-              >
+          <View className="flex-1">
+            <View className="flex-row items-center mb-1">
+              <Text className="text-lg font-bold text-[#1f2937] mr-2">
                 {itemDef.name}
               </Text>
-              <Text style={{ fontSize: 16 }}>{itemDef.icon}</Text>
+              <Text className="text-base">{itemDef.icon}</Text>
             </View>
-            <Text style={{ fontSize: 14, color: "#6b7280", marginBottom: 4 }}>
+            <Text className="text-sm text-[#6b7280] mb-1">
               {itemDef.description}
             </Text>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
+            <View className="flex-row items-center justify-between">
               <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: "600",
-                  color: itemDef.color,
-                }}
+                className="text-base font-semibold"
+                style={{ color: itemDef.color }}
               >
                 Count: {count}
               </Text>
               {isAvailable && (
                 <View
-                  style={{
-                    backgroundColor: itemDef.color,
-                    paddingHorizontal: 12,
-                    paddingVertical: 4,
-                    borderRadius: 12,
-                  }}
+                  className="px-3 py-1 rounded-xl"
+                  style={{ backgroundColor: itemDef.color }}
                 >
-                  <Text
-                    style={{ color: "white", fontSize: 12, fontWeight: "600" }}
-                  >
+                  <Text className="text-white text-xs font-semibold">
                     EQUIP
                   </Text>
                 </View>
@@ -415,25 +335,16 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
           </View>
         </View>
         <View
-          style={{
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
-            borderRadius: 8,
-            padding: 8,
-            borderLeftWidth: 4,
-            borderLeftColor: itemDef.color,
-          }}
+          className="bg-[rgba(255,255,255,0.8)] rounded-lg p-2 border-l-4"
+          style={{ borderLeftColor: itemDef.color }}
         >
           <Text
-            style={{
-              fontSize: 12,
-              fontWeight: "600",
-              color: itemDef.color,
-              marginBottom: 2,
-            }}
+            className="text-xs font-semibold mb-1"
+            style={{ color: itemDef.color }}
           >
             ABILITY: {itemDef.ability}
           </Text>
-          <Text style={{ fontSize: 11, color: "#6b7280" }}>
+          <Text className="text-xs text-[#6b7280]">
             {itemDef.abilityDescription}
           </Text>
         </View>
@@ -441,36 +352,47 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     );
   };
 
+  const renderInventorySection = () => {
+    return (
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Fruits Section */}
+        <View className="mb-6">
+          <View className="flex-row items-center mb-4">
+            <Text className="text-xl font-bold text-[#1f2937]">🍊 Fruits</Text>
+            <View className="ml-2 bg-[#f3f4f6] px-2 py-1 rounded-full">
+              <Text className="text-xs text-[#6b7280] font-medium">
+                {treeData.fruits} available
+              </Text>
+            </View>
+          </View>
+          {renderInventoryItem("fruit")}
+        </View>
+
+        {/* Leaves Section */}
+        <View className="mb-6">
+          <View className="flex-row items-center mb-4">
+            <Text className="text-xl font-bold text-[#1f2937]">🍃 Leaves</Text>
+            <View className="ml-2 bg-[#f3f4f6] px-2 py-1 rounded-full">
+              <Text className="text-xs text-[#6b7280] font-medium">
+                {treeData.leaves} available
+              </Text>
+            </View>
+          </View>
+          {renderInventoryItem("leaf")}
+        </View>
+      </ScrollView>
+    );
+  };
+
   const renderEquippedItems = () => {
     if (!treeData.decorations || treeData.decorations.length === 0) {
       return (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 40,
-          }}
-        >
-          <Text style={{ fontSize: 48, marginBottom: 16 }}>🌲</Text>
-          <Text
-            style={{
-              fontSize: 18,
-              fontWeight: "600",
-              color: "#6b7280",
-              textAlign: "center",
-            }}
-          >
+        <View className="flex-1 justify-center items-center p-10">
+          <Text className="text-5xl mb-4">🌲</Text>
+          <Text className="text-lg font-semibold text-[#6b7280] text-center">
             No Items Equipped
           </Text>
-          <Text
-            style={{
-              fontSize: 14,
-              color: "#9ca3af",
-              textAlign: "center",
-              marginTop: 8,
-            }}
-          >
+          <Text className="text-sm text-[#9ca3af] text-center mt-2">
             Equip items from your inventory to enhance your tree's abilities
           </Text>
         </View>
@@ -485,39 +407,12 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             <TouchableOpacity
               key={index}
               onPress={() => handleDecorationPress(index)}
-              style={{
-                backgroundColor: itemDef.bgColor,
-                borderColor: itemDef.borderColor,
-                borderWidth: 2,
-                borderRadius: 16,
-                padding: 16,
-                marginBottom: 12,
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 0.1,
-                shadowRadius: 2,
-                elevation: 2,
-              }}
+              className={`bg-[${itemDef.bgColor}] border-[${itemDef.borderColor}] border-2 rounded-2xl p-4 mb-3 shadow-sm`}
             >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginBottom: 8,
-                }}
-              >
+              <View className="flex-row items-center mb-2">
                 <View
-                  style={{
-                    width: 50,
-                    height: 50,
-                    borderRadius: 25,
-                    backgroundColor: "white",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    marginRight: 16,
-                    borderWidth: 2,
-                    borderColor: itemDef.borderColor,
-                  }}
+                  className={`w-12 h-12 rounded-full bg-white justify-center items-center mr-4 border-2`}
+                  style={{ borderColor: itemDef.borderColor }}
                 >
                   <Image
                     source={
@@ -525,86 +420,42 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                         ? treeImages.leaf
                         : treeImages.orange
                     }
-                    style={{ width: 30, height: 30 }}
+                    className="w-8 h-8"
                   />
                 </View>
-                <View style={{ flex: 1 }}>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      marginBottom: 4,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        fontWeight: "bold",
-                        color: "#1f2937",
-                        marginRight: 8,
-                      }}
-                    >
+                <View className="flex-1">
+                  <View className="flex-row items-center mb-1">
+                    <Text className="text-base font-bold text-[#1f2937] mr-2">
                       {itemDef.name}
                     </Text>
-                    <Text style={{ fontSize: 14 }}>{itemDef.icon}</Text>
-                    <View
-                      style={{
-                        backgroundColor: "#10b981",
-                        paddingHorizontal: 8,
-                        paddingVertical: 2,
-                        borderRadius: 8,
-                        marginLeft: 8,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: "white",
-                          fontSize: 10,
-                          fontWeight: "600",
-                        }}
-                      >
+                    <Text className="text-sm">{itemDef.icon}</Text>
+                    <View className="bg-[#10b981] px-2 py-1 rounded-lg ml-2">
+                      <Text className="text-white text-xs font-semibold">
                         ACTIVE
                       </Text>
                     </View>
                   </View>
-                  <Text style={{ fontSize: 12, color: "#6b7280" }}>
+                  <Text className="text-xs text-[#6b7280]">
                     Position: Slot {index + 1}
                   </Text>
                 </View>
               </View>
               <View
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  borderRadius: 8,
-                  padding: 12,
-                  borderLeftWidth: 4,
-                  borderLeftColor: itemDef.color,
-                }}
+                className="bg-[rgba(255,255,255,0.9)] rounded-lg p-3 border-l-4"
+                style={{ borderLeftColor: itemDef.color }}
               >
                 <Text
-                  style={{
-                    fontSize: 12,
-                    fontWeight: "600",
-                    color: itemDef.color,
-                    marginBottom: 4,
-                  }}
+                  className="text-xs font-semibold mb-1"
+                  style={{ color: itemDef.color }}
                 >
                   ACTIVE ABILITY: {itemDef.ability}
                 </Text>
-                <Text
-                  style={{ fontSize: 11, color: "#6b7280", marginBottom: 8 }}
-                >
+                <Text className="text-xs text-[#6b7280] mb-2">
                   {itemDef.abilityDescription}
                 </Text>
                 {decoration.buff && (
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text
-                      style={{
-                        fontSize: 10,
-                        color: "#059669",
-                        fontWeight: "600",
-                      }}
-                    >
+                  <View className="flex-row items-center">
+                    <Text className="text-xs text-[#059669] font-semibold">
                       ⚡ XP Multiplier: {decoration.buff.xpMultiplier}x
                     </Text>
                   </View>
@@ -624,36 +475,14 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       {/* Enhanced Inventory Button */}
       <TouchableOpacity
         onPress={() => setShowInventory(true)}
-        style={{
-          backgroundColor: "#3b82f6",
-          borderRadius: 16,
-          paddingHorizontal: 20,
-          paddingVertical: 12,
-          marginBottom: 16,
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.25,
-          shadowRadius: 4,
-          elevation: 5,
-        }}
+        className="bg-[#3b82f6] rounded-2xl px-5 py-3 mb-4 flex-row items-center justify-center shadow-lg"
       >
-        <Text style={{ color: "white", fontSize: 18, marginRight: 8 }}>🎒</Text>
-        <Text style={{ color: "white", fontSize: 16, fontWeight: "600" }}>
+        <Text className="text-white text-lg mr-2">🎒</Text>
+        <Text className="text-white text-base font-semibold">
           Tree Management
         </Text>
-        <View
-          style={{
-            backgroundColor: "rgba(255, 255, 255, 0.2)",
-            borderRadius: 10,
-            paddingHorizontal: 8,
-            paddingVertical: 2,
-            marginLeft: 8,
-          }}
-        >
-          <Text style={{ color: "white", fontSize: 12, fontWeight: "600" }}>
+        <View className="bg-[rgba(255,255,255,0.2)] rounded-xl px-2 py-1 ml-2">
+          <Text className="text-white text-xs font-semibold">
             {currentDecorations}/{maxAllowed}
           </Text>
         </View>
@@ -670,27 +499,9 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             setShowSlots(false);
             setSelectedItem(null);
           }}
-          style={{
-            backgroundColor: "#ef4444",
-            borderRadius: 12,
-            paddingHorizontal: 20,
-            paddingVertical: 10,
-            marginBottom: 16,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 4,
-            elevation: 5,
-          }}
+          className="bg-[#ef4444] rounded-xl px-5 py-3 mb-4 shadow-lg"
         >
-          <Text
-            style={{
-              color: "white",
-              fontSize: 16,
-              fontWeight: "600",
-              textAlign: "center",
-            }}
-          >
+          <Text className="text-white text-base font-semibold text-center">
             Cancel Placement
           </Text>
         </TouchableOpacity>
@@ -703,113 +514,53 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         transparent={true}
         onRequestClose={() => setShowInventory(false)}
       >
-        <View style={{ flex: 1, backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-          <View
-            style={{
-              flex: 1,
-              marginTop: 60,
-              backgroundColor: "white",
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-              paddingTop: 20,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: -4 },
-              shadowOpacity: 0.25,
-              shadowRadius: 8,
-              elevation: 10,
-            }}
-          >
+        <View className="flex-1 bg-[rgba(0,0,0,0.5)]">
+          <View className="flex-1 mt-15 bg-white rounded-t-3xl pt-5 shadow-2xl">
             {/* Header */}
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                paddingHorizontal: 24,
-                marginBottom: 20,
-              }}
-            >
+            <View className="flex-row justify-between items-center px-6 mb-5">
               <View>
-                <Text
-                  style={{ fontSize: 24, fontWeight: "bold", color: "#1f2937" }}
-                >
+                <Text className="text-2xl font-bold text-[#1f2937]">
                   Tree Management
                 </Text>
-                <Text style={{ fontSize: 14, color: "#6b7280", marginTop: 2 }}>
+                <Text className="text-sm text-[#6b7280] mt-1">
                   {treeData.stage} • {currentDecorations}/{maxAllowed} slots
                   used
                 </Text>
               </View>
               <TouchableOpacity
                 onPress={() => setShowInventory(false)}
-                style={{
-                  backgroundColor: "#f3f4f6",
-                  borderRadius: 20,
-                  width: 40,
-                  height: 40,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
+                className="bg-[#f3f4f6] rounded-full w-10 h-10 justify-center items-center"
               >
-                <Text
-                  style={{ color: "#6b7280", fontSize: 18, fontWeight: "bold" }}
-                >
-                  ×
-                </Text>
+                <Text className="text-[#6b7280] text-lg font-bold">×</Text>
               </TouchableOpacity>
             </View>
 
             {/* Enhanced Tabs */}
-            <View
-              style={{
-                flexDirection: "row",
-                marginHorizontal: 24,
-                marginBottom: 20,
-                backgroundColor: "#f8fafc",
-                borderRadius: 12,
-                padding: 4,
-              }}
-            >
+            <View className="flex-row mx-6 mb-5 bg-[#f8fafc] rounded-xl p-1">
               <TouchableOpacity
                 onPress={() => setActiveTab("inventory")}
-                style={{
-                  flex: 1,
-                  paddingVertical: 12,
-                  paddingHorizontal: 16,
-                  borderRadius: 8,
-                  backgroundColor:
-                    activeTab === "inventory" ? "#3b82f6" : "transparent",
-                }}
+                className={`flex-1 py-3 px-4 rounded-lg ${
+                  activeTab === "inventory" ? "bg-[#3b82f6]" : "bg-transparent"
+                }`}
               >
                 <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 16,
-                    fontWeight: "600",
-                    color: activeTab === "inventory" ? "white" : "#6b7280",
-                  }}
+                  className={`text-center text-base font-semibold ${
+                    activeTab === "inventory" ? "text-white" : "text-[#6b7280]"
+                  }`}
                 >
                   Inventory
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setActiveTab("equipped")}
-                style={{
-                  flex: 1,
-                  paddingVertical: 12,
-                  paddingHorizontal: 16,
-                  borderRadius: 8,
-                  backgroundColor:
-                    activeTab === "equipped" ? "#3b82f6" : "transparent",
-                }}
+                className={`flex-1 py-3 px-4 rounded-lg ${
+                  activeTab === "equipped" ? "bg-[#3b82f6]" : "bg-transparent"
+                }`}
               >
                 <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 16,
-                    fontWeight: "600",
-                    color: activeTab === "equipped" ? "white" : "#6b7280",
-                  }}
+                  className={`text-center text-base font-semibold ${
+                    activeTab === "equipped" ? "text-white" : "text-[#6b7280]"
+                  }`}
                 >
                   Equipped
                 </Text>
@@ -817,29 +568,15 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             </View>
 
             {/* Content */}
-            <View style={{ flex: 1, paddingHorizontal: 24 }}>
-              {activeTab === "inventory" ? (
-                <ScrollView showsVerticalScrollIndicator={false}>
-                  {renderInventoryItem("leaf")}
-                  {renderInventoryItem("fruit")}
-                </ScrollView>
-              ) : (
-                renderEquippedItems()
-              )}
+            <View className="flex-1 px-6">
+              {activeTab === "inventory"
+                ? renderInventorySection()
+                : renderEquippedItems()}
             </View>
 
             {/* Footer */}
-            <View
-              style={{
-                paddingHorizontal: 24,
-                paddingVertical: 16,
-                borderTopWidth: 1,
-                borderTopColor: "#e5e7eb",
-              }}
-            >
-              <Text
-                style={{ fontSize: 12, color: "#9ca3af", textAlign: "center" }}
-              >
+            <View className="px-6 py-4 border-t border-[#e5e7eb]">
+              <Text className="text-xs text-[#9ca3af] text-center">
                 {activeTab === "inventory"
                   ? "Tap an item to equip it on your tree"
                   : "Tap equipped items to view details or remove them"}
@@ -848,6 +585,21 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
           </View>
         </View>
       </Modal>
+
+      {/* Decoration Detail Modal */}
+      <DecorationDetailModal
+        visible={selectedDecoration !== null}
+        onClose={() => setSelectedDecoration(null)}
+        onRemove={handleRemoveDecoration}
+        decoration={selectedDecoration?.decoration || null}
+        itemDefinition={
+          selectedDecoration?.decoration
+            ? itemDefinitions[selectedDecoration.decoration.type]
+            : null
+        }
+        treeImages={treeImages}
+        slotIndex={selectedDecoration?.index || 0}
+      />
     </>
   );
 };
