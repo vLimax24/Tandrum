@@ -15,6 +15,7 @@ import { Id } from "convex/_generated/dataModel";
 import { getTreeStageForLevel, getLevelData } from "@/utils/level";
 import { LevelDisplay } from "@/components/LevelDisplay";
 import { useDuo } from "@/hooks/useDuo";
+import TreeInventory from "@/components/TreeInventory"; // Import the new component
 
 const treeImages: Record<string, any> = {
   sprout: require("../../../assets/Sprout.png"),
@@ -29,6 +30,9 @@ const treeImages: Record<string, any> = {
 export default function TreeSection() {
   const { user } = useUser();
   const updateTreeStage = useMutation(api.trees.updateTreeStage);
+
+  // Add refresh trigger for inventory updates
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const clerkId = user?.id;
   const convexUser = useQuery(
@@ -101,6 +105,13 @@ export default function TreeSection() {
       ...prev,
       [dateStr]: !prev[dateStr],
     }));
+  };
+
+  // Handler for inventory updates
+  const handleInventoryUpdate = () => {
+    setRefreshTrigger((prev) => prev + 1);
+    // Reset refresh trigger after a short delay
+    setTimeout(() => setRefreshTrigger(0), 2000);
   };
 
   if (!convexUser)
@@ -187,14 +198,30 @@ export default function TreeSection() {
           </View>
         </View>
       </View>
-      <View className="items-center mb-6">
+
+      {/* Tree Display with Inventory Integration */}
+      <View className="items-center mb-6 relative">
         <Image
           source={treeImages[treeData.stage]}
           style={{ width: 180, height: 180 }}
           resizeMode="contain"
         />
+        {/* TreeInventory component will render slots and decorations over the tree */}
       </View>
-      <View className="flex-row justify-between bg-white py-4 px-5 rounded-lg mb-6 bg-primary">
+
+      {/* Tree Inventory Component */}
+      <TreeInventory
+        treeData={{
+          duoId: selectedConnection._id as Id<"duoConnections">,
+          stage: treeData.stage,
+          leaves: treeData.leaves,
+          fruits: treeData.fruits,
+          decorations: treeData.decorations || [],
+        }}
+        onInventoryUpdate={handleInventoryUpdate}
+      />
+
+      <View className="flex-row justify-between py-4 px-5 rounded-lg mb-6 bg-primary">
         <View className="flex flex-row items-center gap-2">
           <Image
             source={treeImages["leaf"]}
