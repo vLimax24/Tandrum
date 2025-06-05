@@ -25,6 +25,7 @@
     "expo-clipboard": "~7.1.4",
     "expo-constants": "~17.1.6",
     "expo-font": "~13.3.1",
+    "expo-linear-gradient": "~14.1.5",
     "expo-linking": "~7.1.5",
     "expo-router": "^5.0.7",
     "expo-secure-store": "~14.2.3",
@@ -46,8 +47,7 @@
     "react-navigation": "^5.0.0",
     "svix": "^1.64.1",
     "tailwind-merge": "^3.2.0",
-    "tailwindcss": "^3.4.0",
-    "undefined": "react-navigation/material-top-tabs"
+    "tailwindcss": "^3.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
