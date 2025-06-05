@@ -13,6 +13,8 @@ module.exports = {
       error: "#F04438",
       background: "#f2f3f4",
       text: "#1E293B",
+      white: "#FFFFFF",
+      black: "#000000",
     },
   },
   future: {
