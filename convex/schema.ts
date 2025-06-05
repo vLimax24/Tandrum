@@ -53,7 +53,7 @@ export default defineSchema({
       v.object({
         userA: v.boolean(),
         userB: v.boolean(),
-        streakDate: v.optional(v.number()), // Optional streak date for each user's check-in
+        streakDate: v.optional(v.number()),
       })
     ),
     last_checkin_at: v.number(),
@@ -79,6 +79,24 @@ export default defineSchema({
     leaves: v.number(),
     fruits: v.number(),
     decay: v.number(),
+    // Now each decoration can carry an optional "buff" object.
+    decorations: v.optional(
+      v.array(
+        v.object({
+          type: v.union(v.literal("leaf"), v.literal("fruit")),
+          position: v.object({
+            x: v.number(),
+            y: v.number(),
+          }),
+          buff: v.optional(
+            v.object({
+              xpMultiplier: v.number(),
+              // You can add more buff fields here if needed later
+            })
+          ),
+        })
+      )
+    ),
     growth_log: v.array(
       v.record(
         v.string(),
@@ -88,6 +106,7 @@ export default defineSchema({
       )
     ),
   }).index("by_duoId", ["duoId"]),
+
   emails: defineTable({
     email: v.string(),
   }).index("by_email", ["email"]),
