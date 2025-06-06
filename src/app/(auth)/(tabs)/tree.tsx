@@ -18,12 +18,12 @@ import { useDuo } from "@/hooks/useDuo";
 import TreeInventory from "@/components/TreeInventory";
 
 const treeImages: Record<string, any> = {
-  sprout: require("../../../assets/Sprout.png"),
-  smallTree: require("../../../assets/Baum-Klein.png"),
-  mediumTree: require("../../../assets/Sprout.png"),
-  grownTree: require("../../../assets/Sprout.png"),
+  sprout: require("../../../assets/tree-1.png"),
+  smallTree: require("../../../assets/tree-2.png"),
+  mediumTree: require("../../../assets/tree-1.png"),
+  grownTree: require("../../../assets/tree-1.png"),
   orange: require("../../../assets/orange.png"),
-  leaf: require("../../../assets/ShowcaseLeaf.png"),
+  leaf: require("../../../assets/hemp-leaf.png"),
   calendar: require("../../../assets/calendar.png"),
 };
 

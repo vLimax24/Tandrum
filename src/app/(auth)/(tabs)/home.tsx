@@ -7,13 +7,13 @@ import { getLevelData } from "@/utils/level";
 import { StartDuoModal } from "@/components/StartDuoModel/index";
 
 const images: Record<string, any> = {
-  sprout: require("../../../assets/Sprout.png"),
-  smallTree: require("../../../assets/Baum-Klein.png"),
-  mediumTree: require("../../../assets/Sprout.png"),
-  grownTree: require("../../../assets/Sprout.png"),
-  streak: require("../../../assets/Streak.png"),
-  showCaseLeaf: require("../../../assets/ShowcaseLeaf.png"),
-  arrow: require("../../../assets/Pfeil.png"),
+  sprout: require("../../../assets/tree-1.png"),
+  smallTree: require("../../../assets/tree-2.png"),
+  mediumTree: require("../../../assets/tree-1.png"),
+  grownTree: require("../../../assets/tree-1.png"),
+  streak: require("../../../assets/fire-small.png"),
+  showCaseLeaf: require("../../../assets/hemp-leaf.png"),
+  arrow: require("../../../assets/arrow-up-blue.png"),
 };
 
 const Page = () => {

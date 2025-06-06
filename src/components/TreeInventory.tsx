@@ -16,7 +16,7 @@ import { Id } from "convex/_generated/dataModel";
 import DecorationDetailModal from "./DecorationDetailModal";
 
 const treeImages: Record<string, any> = {
-  leaf: require("../../src/assets/ShowcaseLeaf.png"),
+  leaf: require("../../src/assets/hemp-leaf.png"),
   orange: require("../../src/assets/orange.png"),
 };
 

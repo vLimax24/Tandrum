@@ -46,7 +46,7 @@ export default function Page() {
     <>
       <View className="flex flex-1 items-center p-5">
         <Image
-          source={require("../../assets/Baum-Klein.png")}
+          source={require("../../assets/tree-2.png")}
           style={{ width: 400, height: 400, resizeMode: "contain" }}
         />
         <TouchableOpacity

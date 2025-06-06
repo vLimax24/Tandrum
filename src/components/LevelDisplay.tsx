@@ -5,9 +5,9 @@ import { Doc } from "convex/_generated/dataModel";
 
 // Use the same tree images from your TreeSection
 const treeImages: Record<string, any> = {
-  leaf: require("../assets/ShowcaseLeaf.png"),
+  leaf: require("../assets/hemp-leaf.png"),
   orange: require("../assets/orange.png"),
-  sprout: require("../assets/Sprout.png"),
+  sprout: require("../assets/tree-1.png"),
 };
 
 export const LevelDisplay = ({ duo }: { duo: Doc<"duoConnections"> }) => {
