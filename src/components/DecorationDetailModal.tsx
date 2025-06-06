@@ -105,7 +105,7 @@ const DecorationDetailModal: React.FC<DecorationDetailModalProps> = ({
               onPress={onClose}
               className="absolute top-4 right-4 w-8 h-8 bg-[rgba(255,255,255,0.2)] rounded-full justify-center items-center"
             >
-              <Text className="text-white text-lg font-bold">×</Text>
+              <Text className="text-black text-lg font-bold">×</Text>
             </TouchableOpacity>
 
             {/* Item icon and basic info */}
@@ -130,27 +130,19 @@ const DecorationDetailModal: React.FC<DecorationDetailModalProps> = ({
                 />
               </View>
 
-              <View className="items-center">
+              <View className="items-center justify-center">
                 <View className="flex-row items-center mb-2">
-                  <Text className="text-white text-xl font-bold mr-2">
+                  <Text className="text-black text-xl font-bold mr-2">
                     {itemDefinition.name}
-                  </Text>
-                  <Text className="text-white text-lg">
-                    {itemDefinition.icon}
                   </Text>
                 </View>
 
-                <View className="flex-row items-center space-x-2">
+                <View className="flex-row items-center">
                   <View
                     className={`${rarityConfig.badge} px-3 py-1 rounded-full`}
                   >
                     <Text className="text-white text-xs font-bold uppercase tracking-wide">
                       {itemDefinition.rarity}
-                    </Text>
-                  </View>
-                  <View className="bg-[rgba(255,255,255,0.2)] px-3 py-1 rounded-full">
-                    <Text className="text-white text-xs font-semibold">
-                      Slot {slotIndex + 1}
                     </Text>
                   </View>
                 </View>
@@ -243,7 +235,7 @@ const DecorationDetailModal: React.FC<DecorationDetailModalProps> = ({
 
           {/* Action Buttons */}
           <View className="px-6 pb-6">
-            <View className="flex-row space-x-3">
+            <View className="flex-row gap-2">
               <TouchableOpacity
                 onPress={onClose}
                 className="flex-1 bg-[#f3f4f6] border border-[#d1d5db] rounded-2xl py-4 px-6"

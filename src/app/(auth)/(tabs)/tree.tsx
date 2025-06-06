@@ -15,7 +15,7 @@ import { Id } from "convex/_generated/dataModel";
 import { getTreeStageForLevel, getLevelData } from "@/utils/level";
 import { LevelDisplay } from "@/components/LevelDisplay";
 import { useDuo } from "@/hooks/useDuo";
-import TreeInventory from "@/components/TreeInventory"; // Import the new component
+import TreeInventory from "@/components/TreeInventory";
 
 const treeImages: Record<string, any> = {
   sprout: require("../../../assets/Sprout.png"),
@@ -154,6 +154,7 @@ export default function TreeSection() {
           >
             <RNPickerSelect
               onValueChange={setSelectedIndex}
+              placeholder={{}}
               value={selectedIndex}
               items={connections.map((c, i) => ({
                 label: `Duo with ${c.partnerName}`,
@@ -186,9 +187,6 @@ export default function TreeSection() {
                   right: 8,
                   top: "50%",
                   marginTop: -12,
-                },
-                placeholder: {
-                  color: "#fff",
                 },
               }}
               Icon={() => (

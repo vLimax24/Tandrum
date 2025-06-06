@@ -31,7 +31,7 @@ const itemDefinitions = {
     color: "#16a34a",
     bgColor: "#f0fdf4",
     borderColor: "#bbf7d0",
-    icon: "🍃",
+    icon: "",
   },
   fruit: {
     name: "Golden Orange",
@@ -42,7 +42,7 @@ const itemDefinitions = {
     color: "#ea580c",
     bgColor: "#fff7ed",
     borderColor: "#fed7aa",
-    icon: "🍊",
+    icon: "",
   },
 };
 
@@ -259,7 +259,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             }}
           >
             <View
-              className="w-12 h-12 rounded-full bg-[rgba(255,255,255,0.9)] border-2 justify-center items-center shadow-lg"
+              className="w-8 h-8 rounded-full bg-[rgba(255,255,255,0.9)] border-2 justify-center items-center shadow-lg"
               style={{
                 borderColor: itemDefinitions[decoration.type].color,
               }}
