@@ -1,98 +1,396 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Dimensions } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Doc } from "../../convex/_generated/dataModel";
 
-interface StreakVisualizationProps {
-  streak: number;
-  streakDate?: number;
-}
-
-export const StreakVisualization: React.FC<StreakVisualizationProps> = ({
-  streak,
-  streakDate,
-}) => {
-  const getDaysOfWeek = () => {
-    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const today = new Date();
-    const currentDay = today.getDay();
-    const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
-    const monday = new Date(today);
-    monday.setDate(today.getDate() + mondayOffset);
-
-    return days.map((day, index) => {
-      const date = new Date(monday);
-      date.setDate(monday.getDate() + index);
-
-      const isToday = date.toDateString() === today.toDateString();
-      const isInStreak =
-        streak > 0 &&
-        streakDate &&
-        date >= new Date(streakDate) &&
-        date <= today &&
-        Math.floor((date.getTime() - streakDate) / (1000 * 60 * 60 * 24)) <
-          streak;
-
-      return {
-        day,
-        date,
-        isToday,
-        isInStreak,
-      };
-    });
+// Enhanced Streak Display with Enterprise Glass Design
+const getStreakColors = (streak) => {
+  if (streak >= 30)
+    return {
+      primary: "#8B5CF6", // Purple for 30+ days
+      secondary: "#A78BFA",
+      background: "rgba(139, 92, 246, 0.08)",
+      border: "rgba(139, 92, 246, 0.2)",
+      glow: "#8B5CF6",
+    };
+  if (streak >= 14)
+    return {
+      primary: "#F59E0B", // Amber for 14+ days
+      secondary: "#FBBF24",
+      background: "rgba(245, 158, 11, 0.08)",
+      border: "rgba(245, 158, 11, 0.2)",
+      glow: "#F59E0B",
+    };
+  if (streak >= 7)
+    return {
+      primary: "#06B6D4", // Cyan for 7+ days
+      secondary: "#22D3EE",
+      background: "rgba(6, 182, 212, 0.08)",
+      border: "rgba(6, 182, 212, 0.2)",
+      glow: "#06B6D4",
+    };
+  return {
+    primary: "#10B981", // Green for < 7 days
+    secondary: "#34D399",
+    background: "rgba(16, 185, 129, 0.08)",
+    border: "rgba(16, 185, 129, 0.2)",
+    glow: "#10B981",
   };
+};
 
-  const weekDays = getDaysOfWeek();
+export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
+  duo,
+}) => {
+  const streakColors = getStreakColors(duo.streak || 0);
+  const { width: screenWidth } = Dimensions.get("window");
 
-  return (
-    <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-      <View className="flex-row justify-between items-center mb-4">
-        <View>
-          <Text className="text-gray-900 font-semibold text-lg">
-            Current Streak
-          </Text>
-          <Text className="text-gray-500 text-sm">
-            {streak} consecutive day{streak !== 1 ? "s" : ""}
-          </Text>
-        </View>
-        <View className="bg-gradient-to-r from-accent to-primary rounded-full px-4 py-2">
-          <Text className="text-white font-bold text-xl">{streak}</Text>
-        </View>
-      </View>
+  const calculateStreakDisplay = () => {
+    const currentDate = new Date();
+    const streakStartDate = duo.streakDate
+      ? new Date(duo.streakDate)
+      : currentDate;
+    const totalStreak = duo.streak || 0;
 
-      <View className="flex-row justify-between">
-        {weekDays.map((dayInfo, index) => (
+    const streakDisplay = [];
+    const daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"];
+    const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+    // Calculate circle size based on screen width with more spacing
+    const circleSize = Math.min((screenWidth - 120) / 7 - 8, 40);
+
+    // Get current week's Monday
+    const currentDay = currentDate.getDay();
+    const monday = new Date(currentDate);
+    monday.setDate(
+      currentDate.getDate() - (currentDay === 0 ? 6 : currentDay - 1)
+    );
+
+    for (let i = 0; i < 7; i++) {
+      const dayDate = new Date(monday);
+      dayDate.setDate(monday.getDate() + i);
+
+      // Check if this day is within the streak period
+      const isStreakDay =
+        totalStreak > 0 &&
+        dayDate >= streakStartDate &&
+        dayDate <= currentDate &&
+        Math.floor(
+          (dayDate.getTime() - streakStartDate.getTime()) /
+            (1000 * 60 * 60 * 24)
+        ) < totalStreak;
+
+      const isToday = dayDate.toDateString() === currentDate.toDateString();
+
+      streakDisplay.push(
+        <View key={i} className="items-center" style={{ marginHorizontal: 4 }}>
           <View
-            key={index}
-            className={`w-12 h-12 rounded-full border-2 flex items-center justify-center ${
-              dayInfo.isInStreak
-                ? "bg-accent border-accent shadow-md"
-                : dayInfo.isToday
-                  ? "border-accent border-opacity-50 bg-accent bg-opacity-10"
-                  : "border-gray-200 bg-gray-50"
+            className={`rounded-full border-2 flex items-center justify-center relative ${
+              isStreakDay
+                ? "shadow-lg"
+                : isToday
+                  ? "bg-[#f0fdf4]"
+                  : "border-[#e5e7eb] bg-[#f9fafb]"
             }`}
+            style={{
+              width: circleSize,
+              height: circleSize,
+              backgroundColor: isStreakDay ? streakColors.primary : undefined,
+              borderColor: isStreakDay
+                ? streakColors.primary
+                : isToday
+                  ? `${streakColors.primary}66` // 40% opacity
+                  : "#e5e7eb",
+              shadowColor: isStreakDay ? streakColors.primary : "transparent",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: isStreakDay ? 0.3 : 0,
+              shadowRadius: 4,
+              elevation: isStreakDay ? 4 : 0,
+            }}
           >
             <Text
-              className={`text-xs font-medium ${
-                dayInfo.isInStreak
+              className={`text-xs font-bold ${
+                isStreakDay
                   ? "text-white"
-                  : dayInfo.isToday
-                    ? "text-accent"
-                    : "text-gray-400"
+                  : isToday
+                    ? "text-[#10b981]"
+                    : "text-[#9ca3af]"
               }`}
+              style={{
+                color: isStreakDay
+                  ? "white"
+                  : isToday
+                    ? streakColors.primary
+                    : "#9ca3af",
+              }}
             >
-              {dayInfo.day}
+              {daysOfWeek[i]}
             </Text>
-            {dayInfo.isToday && (
-              <View className="absolute -bottom-1 w-1 h-1 bg-accent rounded-full" />
+            {isToday && (
+              <View
+                className="absolute -bottom-1 w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: streakColors.primary }}
+              />
             )}
           </View>
-        ))}
-      </View>
+          <Text className="text-[#6b7280] text-xs mt-1 font-medium">
+            {dayLabels[i]}
+          </Text>
+        </View>
+      );
+    }
 
-      {streak === 0 && (
-        <Text className="text-center text-gray-400 text-sm mt-3">
-          Complete habits together to start your streak! 🌱
-        </Text>
-      )}
+    return streakDisplay;
+  };
+
+  return (
+    <View className="mb-6 relative">
+      {/* Glass container with backdrop blur effect */}
+      <View
+        className="rounded-3xl p-1 shadow-2xl"
+        style={{
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          borderWidth: 1,
+          borderColor: "rgba(255, 255, 255, 0.3)",
+          shadowColor: streakColors.glow,
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.15,
+          shadowRadius: 24,
+          elevation: 12,
+        }}
+      >
+        {/* Inner gradient border */}
+        <LinearGradient
+          colors={[streakColors.border, "rgba(255, 255, 255, 0.1)"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{
+            borderRadius: 20,
+            padding: 1,
+          }}
+        >
+          {/* Main content container */}
+          <View
+            className="rounded-2xl p-6 relative overflow-hidden"
+            style={{
+              backgroundColor: streakColors.background,
+            }}
+          >
+            {/* Animated background orbs */}
+            <View className="absolute inset-0">
+              <View
+                className="absolute rounded-full opacity-20"
+                style={{
+                  width: 120,
+                  height: 120,
+                  backgroundColor: streakColors.primary,
+                  top: -60,
+                  right: -60,
+                  transform: [{ scale: 0.8 }],
+                }}
+              />
+              <View
+                className="absolute rounded-full opacity-10"
+                style={{
+                  width: 80,
+                  height: 80,
+                  backgroundColor: streakColors.secondary,
+                  bottom: -40,
+                  left: -40,
+                }}
+              />
+            </View>
+
+            {/* Header Section */}
+            <View className="flex-row justify-between items-start mb-8 relative z-10">
+              <View className="flex-1" style={{ marginRight: 16 }}>
+                <View className="flex-row items-center mb-2">
+                  <View
+                    className="w-3 h-3 rounded-full mr-3"
+                    style={{ backgroundColor: streakColors.primary }}
+                  />
+                  <Text className="text-[#111827] font-bold text-2xl tracking-tight">
+                    Current Streak
+                  </Text>
+                </View>
+                <Text
+                  className="text-[#6b7280] text-base font-medium"
+                  style={{ lineHeight: 20 }}
+                >
+                  {duo.streak || 0} consecutive days of shared success
+                </Text>
+
+                {/* Streak milestone indicator */}
+                {(duo.streak || 0) > 0 && (
+                  <View className="mt-3 flex-row">
+                    <View
+                      className="px-3 py-1.5 rounded-full"
+                      style={{
+                        backgroundColor: streakColors.background,
+                        borderWidth: 1,
+                        borderColor: streakColors.border,
+                        minWidth: 90,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Text
+                        className="text-xs font-bold uppercase tracking-wider"
+                        style={{ color: streakColors.primary }}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {(duo.streak || 0) >= 30
+                          ? "🏆 LEGEND"
+                          : (duo.streak || 0) >= 14
+                            ? "🔥 ON FIRE"
+                            : (duo.streak || 0) >= 7
+                              ? "⚡ UNSTOPPABLE"
+                              : "🌱 GROWING"}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              </View>
+
+              {/* Main streak counter */}
+              <View className="relative">
+                {/* Glow effect */}
+                <View
+                  className="absolute inset-0 rounded-3xl"
+                  style={{
+                    backgroundColor: streakColors.primary,
+                    opacity: 0.15,
+                    transform: [{ scale: 1.1 }],
+                    shadowColor: streakColors.glow,
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 12,
+                    elevation: 8,
+                  }}
+                />
+
+                {/* Glass counter container */}
+                <LinearGradient
+                  colors={[
+                    `${streakColors.primary}E6`, // 90% opacity
+                    `${streakColors.secondary}CC`, // 80% opacity
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    borderRadius: 24,
+                    padding: 20,
+                    minWidth: 80,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderWidth: 1,
+                    borderColor: "rgba(255, 255, 255, 0.3)",
+                  }}
+                >
+                  <Text className="text-white font-black text-3xl tracking-tight">
+                    {duo.streak || 0}
+                  </Text>
+                  <Text className="text-white text-xs font-semibold opacity-90 mt-1">
+                    DAYS
+                  </Text>
+                </LinearGradient>
+              </View>
+            </View>
+
+            {/* Progress indicators */}
+            <View className="relative z-10">
+              <View className="flex-row justify-between items-center mb-4">
+                <Text className="text-[#374151] font-semibold text-sm flex-1">
+                  This Week's Journey
+                </Text>
+                <View className="flex-row items-center ml-2">
+                  <View
+                    className="w-2 h-2 rounded-full mr-2"
+                    style={{ backgroundColor: streakColors.primary }}
+                  />
+                  <Text
+                    className="text-xs font-medium"
+                    style={{ color: streakColors.primary }}
+                  >
+                    Active Days
+                  </Text>
+                </View>
+              </View>
+
+              {/* Week progress container with glass effect */}
+              <View
+                className="rounded-2xl p-4 relative overflow-hidden"
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.6)",
+                  borderWidth: 1,
+                  borderColor: "rgba(255, 255, 255, 0.4)",
+                  marginTop: 8,
+                }}
+              >
+                {/* Subtle gradient overlay */}
+                <LinearGradient
+                  colors={[
+                    "rgba(255, 255, 255, 0.8)",
+                    "rgba(255, 255, 255, 0.4)",
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    borderRadius: 16,
+                  }}
+                />
+
+                <View className="flex-row justify-between items-center relative z-10">
+                  {calculateStreakDisplay()}
+                </View>
+              </View>
+
+              {/* Next milestone indicator */}
+              {(duo.streak || 0) < 30 && (
+                <View className="mt-4 flex-row items-center justify-center">
+                  <View
+                    className="flex-row items-center px-4 py-2 rounded-full"
+                    style={{
+                      backgroundColor: "rgba(255, 255, 255, 0.7)",
+                      borderWidth: 1,
+                      borderColor: "rgba(255, 255, 255, 0.3)",
+                    }}
+                  >
+                    <Text className="text-[#6b7280] text-xs font-medium mr-2">
+                      Next milestone:
+                    </Text>
+                    <Text
+                      className="text-xs font-bold"
+                      style={{ color: streakColors.primary }}
+                    >
+                      {(duo.streak || 0) < 7
+                        ? "7 days"
+                        : (duo.streak || 0) < 14
+                          ? "14 days"
+                          : "30 days"}
+                    </Text>
+                    <Text className="text-[#6b7280] text-xs font-medium ml-1">
+                      (
+                      {((duo.streak || 0) < 7
+                        ? 7
+                        : (duo.streak || 0) < 14
+                          ? 14
+                          : 30) - (duo.streak || 0)}{" "}
+                      to go)
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          </View>
+        </LinearGradient>
+      </View>
     </View>
   );
 };

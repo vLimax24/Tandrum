@@ -9,6 +9,9 @@ import {
   Image,
   Alert,
   ActivityIndicator,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { useQuery, useMutation } from "convex/react";
@@ -18,6 +21,10 @@ import { useLiveTimers } from "@/hooks/useLiveTimer";
 import { LevelDisplay } from "@/components/LevelDisplay";
 import { useDuo } from "@/hooks/useDuo";
 import { Id } from "../../../../convex/_generated/dataModel";
+import { LinearGradient } from "expo-linear-gradient";
+import { StreakVisualization } from "@/components/StreakVisualization";
+
+const { width: screenWidth } = Dimensions.get("window");
 
 export default function HabitsSection() {
   const { user } = useUser();
@@ -33,12 +40,12 @@ export default function HabitsSection() {
   const { selectedIndex, setSelectedIndex } = useDuo();
 
   const treeImages: Record<string, any> = {
-    sprout: require("../../../assets/Sprout.png"),
-    smallTree: require("../../../assets/Baum-Klein.png"),
-    mediumTree: require("../../../assets/Sprout.png"),
-    grownTree: require("../../../assets/Sprout.png"),
+    sprout: require("../../../assets/tree-1.png"),
+    smallTree: require("../../../assets/tree-2.png"),
+    mediumTree: require("../../../assets/tree-1.png"),
+    grownTree: require("../../../assets/tree-1.png"),
     orange: require("../../../assets/orange.png"),
-    leaf: require("../../../assets/ShowcaseLeaf.png"),
+    leaf: require("../../../assets/hemp-leaf.png"),
     calendar: require("../../../assets/calendar.png"),
   };
 
@@ -60,6 +67,7 @@ export default function HabitsSection() {
   const [newFreq, setNewFreq] = useState<"daily" | "weekly">("daily");
   const [isCreating, setIsCreating] = useState(false);
   const [validationError, setValidationError] = useState("");
+  const [modalOpacity] = useState(new Animated.Value(0));
 
   // Enhanced validation function
   const validateHabitTitle = (title: string): string => {
@@ -98,29 +106,59 @@ export default function HabitsSection() {
     return () => clearInterval(id);
   }, []);
 
+  // Modal animation handlers
+  const showModal = () => {
+    setModalVisible(true);
+    Animated.timing(modalOpacity, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const hideModal = () => {
+    Animated.timing(modalOpacity, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      setModalVisible(false);
+      setNewTitle("");
+      setValidationError("");
+    });
+  };
+
   if (!convexUser || !connections || !habits) {
     return (
-      <View className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator size="large" color="#10B981" />
-        <Text className="text-text mt-4 text-lg">Loading your habits...</Text>
+      <View className="flex-1 justify-center items-center bg-[#f8fafc]">
+        <View className="bg-white rounded-3xl p-8 shadow-lg">
+          <ActivityIndicator size="large" color="#10B981" />
+          <Text className="text-[#374151] mt-4 text-lg font-medium text-center">
+            Loading your habits...
+          </Text>
+        </View>
       </View>
     );
   }
 
   if (connections.length === 0) {
     return (
-      <View className="flex-1 justify-center items-center bg-background px-8">
-        <Image
-          source={treeImages["sprout"]}
-          style={{ width: 80, height: 80, marginBottom: 16, opacity: 0.6 }}
-        />
-        <Text className="text-text text-xl font-semibold text-center mb-2">
-          No Duos Yet
-        </Text>
-        <Text className="text-gray-400 text-center leading-6">
-          Connect with a partner to start building habits together and grow your
-          tree! 🌱
-        </Text>
+      <View className="flex-1 justify-center items-center bg-[#f8fafc] px-8">
+        <View className="bg-white rounded-3xl p-8 shadow-lg items-center">
+          <View className="w-20 h-20 bg-[#f0fdf4] rounded-full items-center justify-center mb-6">
+            <Image
+              source={treeImages["sprout"]}
+              style={{ width: 40, height: 40, opacity: 0.6 }}
+            />
+          </View>
+          <Text className="text-[#111827] text-2xl font-bold text-center mb-3">
+            No Duos Yet
+          </Text>
+          <Text className="text-[#6b7280] text-center leading-6 text-base">
+            Connect with a partner to start building habits together and grow
+            your tree! 🌱
+          </Text>
+        </View>
       </View>
     );
   }
@@ -130,7 +168,7 @@ export default function HabitsSection() {
   const weekly = habits.filter((h) => h.frequency === "weekly");
   const amI_A = convexUser._id === duo.user1;
 
-  // Enhanced streak calculation
+  // Enhanced streak calculation with proper sizing
   const calculateStreakDisplay = () => {
     const currentDate = new Date();
     const streakStartDate = duo.streakDate
@@ -139,7 +177,11 @@ export default function HabitsSection() {
     const totalStreak = duo.streak || 0;
 
     const streakDisplay = [];
-    const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"];
+    const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+    // Calculate circle size based on screen width
+    const circleSize = Math.min((screenWidth - 80) / 7 - 4, 44);
 
     // Get current week's Monday
     const currentDay = currentDate.getDay();
@@ -165,30 +207,43 @@ export default function HabitsSection() {
       const isToday = dayDate.toDateString() === currentDate.toDateString();
 
       streakDisplay.push(
-        <View
-          key={i}
-          className={`w-12 h-12 rounded-full border-2 mx-0.5 flex items-center justify-center ${
-            isStreakDay
-              ? "bg-accent border-accent shadow-md"
-              : isToday
-                ? "border-accent border-opacity-50 bg-accent bg-opacity-10"
-                : "border-gray-200 bg-gray-50"
-          }`}
-        >
-          <Text
-            className={`text-xs font-medium ${
+        <View key={i} className="items-center flex-1">
+          <View
+            className={`rounded-full border-2 flex items-center justify-center relative ${
               isStreakDay
-                ? "text-white"
+                ? "bg-[#10b981] border-[#10b981] shadow-lg"
                 : isToday
-                  ? "text-accent"
-                  : "text-gray-400"
+                  ? "border-[#10b981] border-opacity-40 bg-[#f0fdf4]"
+                  : "border-[#e5e7eb] bg-[#f9fafb]"
             }`}
+            style={{
+              width: circleSize,
+              height: circleSize,
+              shadowColor: isStreakDay ? "#10b981" : "transparent",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: isStreakDay ? 0.3 : 0,
+              shadowRadius: 4,
+              elevation: isStreakDay ? 4 : 0,
+            }}
           >
-            {daysOfWeek[i]}
+            <Text
+              className={`text-xs font-bold ${
+                isStreakDay
+                  ? "text-white"
+                  : isToday
+                    ? "text-[#10b981]"
+                    : "text-[#9ca3af]"
+              }`}
+            >
+              {daysOfWeek[i]}
+            </Text>
+            {isToday && (
+              <View className="absolute -bottom-1 w-1.5 h-1.5 bg-[#10b981] rounded-full" />
+            )}
+          </View>
+          <Text className="text-[#6b7280] text-xs mt-1 font-medium">
+            {dayLabels[i]}
           </Text>
-          {isToday && (
-            <View className="absolute -bottom-1 w-1 h-1 bg-accent rounded-full" />
-          )}
         </View>
       );
     }
@@ -236,10 +291,7 @@ export default function HabitsSection() {
         frequency: newFreq,
         duoId: duo._id,
       });
-      setNewTitle("");
-      setNewFreq("daily");
-      setValidationError("");
-      setModalVisible(false);
+      hideModal();
     } catch (error) {
       Alert.alert("Error", "Failed to create habit. Please try again.");
     } finally {
@@ -255,39 +307,57 @@ export default function HabitsSection() {
     onCheck,
     onDelete,
   }) => (
-    <View className="bg-white rounded-xl p-4 mb-3 shadow-sm border border-gray-100">
+    <View className="bg-white rounded-2xl p-5 mb-4 shadow-sm border border-[#f3f4f6]">
       <View className="flex-row items-center">
-        <View className="flex-1">
-          <Text className="text-gray-900 font-medium text-base mb-1">
+        <View className="flex-1 mr-4">
+          <Text className="text-[#111827] font-semibold text-base mb-1">
             {habit.title}
           </Text>
-          <Text className="text-gray-500 text-sm capitalize">
-            {habit.frequency === "daily" ? "Daily" : "Weekly"} habit
-          </Text>
+          <View className="flex-row items-center">
+            <View className="bg-[#f3f4f6] rounded-full px-3 py-1">
+              <Text className="text-[#6b7280] text-xs font-medium capitalize">
+                {habit.frequency === "daily" ? "Daily" : "Weekly"}
+              </Text>
+            </View>
+          </View>
         </View>
 
         <View className="flex-row items-center space-x-3">
           {/* My completion status */}
-          <Pressable
-            className={`w-10 h-10 rounded-full border-2 ${
+          <TouchableOpacity
+            className={`w-12 h-12 rounded-full border-2 ${
               isDoneByMe
-                ? "bg-accent border-accent shadow-md"
-                : "border-gray-200 hover:border-accent"
+                ? "bg-[#10b981] border-[#10b981] shadow-lg"
+                : "border-[#e5e7eb] bg-[#f9fafb] hover:border-[#10b981]"
             } flex items-center justify-center`}
             onPress={onCheck}
+            style={{
+              shadowColor: isDoneByMe ? "#10b981" : "transparent",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: isDoneByMe ? 0.3 : 0,
+              shadowRadius: 4,
+              elevation: isDoneByMe ? 4 : 0,
+            }}
           >
             {isDoneByMe && (
               <Text className="text-white font-bold text-lg">✓</Text>
             )}
-          </Pressable>
+          </TouchableOpacity>
 
           {/* Partner's completion status */}
           <View
-            className={`w-10 h-10 rounded-full border-2 ${
+            className={`w-12 h-12 rounded-full border-2 ${
               isDoneByPartner
-                ? "bg-green-500 border-green-500"
-                : "border-gray-200"
+                ? "bg-[#059669] border-[#059669] shadow-lg"
+                : "border-[#e5e7eb] bg-[#f9fafb]"
             } flex items-center justify-center`}
+            style={{
+              shadowColor: isDoneByPartner ? "#059669" : "transparent",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: isDoneByPartner ? 0.3 : 0,
+              shadowRadius: 4,
+              elevation: isDoneByPartner ? 4 : 0,
+            }}
           >
             {isDoneByPartner && (
               <Text className="text-white font-bold text-lg">✓</Text>
@@ -295,12 +365,12 @@ export default function HabitsSection() {
           </View>
 
           {/* Delete button */}
-          <Pressable
-            className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center"
+          <TouchableOpacity
+            className="w-10 h-10 rounded-full bg-[#fef2f2] border border-[#fecaca] flex items-center justify-center"
             onPress={() => onDelete(habit._id, habit.title)}
           >
-            <Text className="text-red-500 font-bold">×</Text>
-          </Pressable>
+            <Text className="text-[#dc2626] font-bold text-lg">×</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -311,20 +381,22 @@ export default function HabitsSection() {
 
   return (
     <>
-      <ScrollView className="flex-1 bg-background">
+      <ScrollView className="flex-1 bg-[#f8fafc]">
         {/* Header */}
-        <View className="px-6 pt-16 pb-6 bg-gradient-to-r from-primary to-accent">
-          <Text className="text-white text-3xl font-bold mb-2">Habits</Text>
-          <Text className="text-white text-opacity-90">
+        <View className="px-6 pt-16 pb-8 bg-gradient-to-r from-[#10b981] to-[#059669]">
+          <Text className="text-black text-3xl font-bold mb-2">Habits</Text>
+          <Text className="text-black text-opacity-90 text-base">
             Build consistency together with your duo partner
           </Text>
         </View>
 
-        <View className="px-6 -mt-4">
+        <View className="px-6 -mt-6">
           {/* Duo Selector Card */}
-          <View className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-gray-100">
-            <Text className="text-gray-900 font-semibold mb-3">Select Duo</Text>
-            <View className="bg-primary rounded-lg px-4 py-3 flex-row items-center">
+          <View className="bg-white rounded-2xl p-5 mb-6 shadow-sm border border-[#f3f4f6]">
+            <Text className="text-[#111827] font-semibold text-base mb-3">
+              Select Duo Partner
+            </Text>
+            <View className="bg-[#10b981] rounded-xl px-4 py-4 flex-row items-center">
               <Image
                 source={treeImages["leaf"]}
                 style={{ width: 20, height: 20, marginRight: 12 }}
@@ -359,7 +431,9 @@ export default function HabitsSection() {
                     },
                   }}
                   Icon={() => (
-                    <Text style={{ color: "#fff", fontSize: 16 }}>▼</Text>
+                    <Text style={{ color: "#fff", fontSize: 16, opacity: 0.8 }}>
+                      ▼
+                    </Text>
                   )}
                 />
               </View>
@@ -369,44 +443,27 @@ export default function HabitsSection() {
           <LevelDisplay duo={duo} />
 
           {/* Enhanced Streak Display */}
-          <View className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-gray-100">
-            <View className="flex-row justify-between items-center mb-4">
-              <View>
-                <Text className="text-gray-900 font-semibold text-lg">
-                  Current Streak
-                </Text>
-                <Text className="text-gray-500 text-sm">
-                  {duo.streak || 0} consecutive days
-                </Text>
-              </View>
-              <View className="bg-accent rounded-full px-4 py-2">
-                <Text className="text-white font-bold text-xl">
-                  {duo.streak || 0}
-                </Text>
-              </View>
-            </View>
-            <View className="flex-row justify-between">
-              {calculateStreakDisplay()}
-            </View>
-          </View>
+          <StreakVisualization duo={duo} />
 
           {/* Daily Habits Section */}
           <View className="mb-6">
             <View className="flex-row justify-between items-center mb-4">
               <View>
-                <Text className="text-gray-900 font-semibold text-xl">
+                <Text className="text-[#111827] font-bold text-2xl">
                   Daily Habits
                 </Text>
-                <Text className="text-gray-500 text-sm">
+                <Text className="text-[#6b7280] text-sm mt-1">
                   Reset in {dailyLabel}
                 </Text>
               </View>
               <View className="flex-row items-center space-x-2">
-                <View className="bg-gray-100 rounded-lg px-3 py-1">
-                  <Text className="text-gray-600 text-xs font-medium">You</Text>
+                <View className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg px-3 py-1">
+                  <Text className="text-[#059669] text-xs font-semibold">
+                    You
+                  </Text>
                 </View>
-                <View className="bg-gray-100 rounded-lg px-3 py-1">
-                  <Text className="text-gray-600 text-xs font-medium">
+                <View className="bg-[#eff6ff] border border-[#bfdbfe] rounded-lg px-3 py-1">
+                  <Text className="text-[#1d4ed8] text-xs font-semibold">
                     {duo.partnerName?.split(" ")[0]}
                   </Text>
                 </View>
@@ -414,8 +471,11 @@ export default function HabitsSection() {
             </View>
 
             {daily.length === 0 ? (
-              <View className="bg-gray-50 rounded-xl p-6 text-center">
-                <Text className="text-gray-400 text-center">
+              <View className="bg-[#f8fafc] border border-[#e5e7eb] rounded-2xl p-8 text-center">
+                <View className="w-16 h-16 bg-[#f3f4f6] rounded-full items-center justify-center mx-auto mb-4">
+                  <Text className="text-[#9ca3af] text-2xl">📅</Text>
+                </View>
+                <Text className="text-[#6b7280] text-center text-base">
                   No daily habits yet. Create one to get started!
                 </Text>
               </View>
@@ -433,7 +493,15 @@ export default function HabitsSection() {
                     isDoneByMe={amI_A ? doneA : doneB}
                     isDoneByPartner={amI_A ? doneB : doneA}
                     onCheck={async () => {
-                      await checkInHabit({ habitId: h._id, userIsA: amI_A });
+                      try {
+                        await checkInHabit({ habitId: h._id, userIsA: amI_A });
+                      } catch (error) {
+                        console.error("Check-in error:", error);
+                        Alert.alert(
+                          "Error",
+                          "Failed to update habit. Please try again."
+                        );
+                      }
                     }}
                     onDelete={handleDeleteHabit}
                   />
@@ -446,18 +514,21 @@ export default function HabitsSection() {
           <View className="mb-6">
             <View className="flex-row justify-between items-center mb-4">
               <View>
-                <Text className="text-gray-900 font-semibold text-xl">
+                <Text className="text-[#111827] font-bold text-2xl">
                   Weekly Habits
                 </Text>
-                <Text className="text-gray-500 text-sm">
+                <Text className="text-[#6b7280] text-sm mt-1">
                   Reset in {weeklyLabel}
                 </Text>
               </View>
             </View>
 
             {weekly.length === 0 ? (
-              <View className="bg-gray-50 rounded-xl p-6 text-center">
-                <Text className="text-gray-400 text-center">
+              <View className="bg-[#f8fafc] border border-[#e5e7eb] rounded-2xl p-8 text-center">
+                <View className="w-16 h-16 bg-[#f3f4f6] rounded-full items-center justify-center mx-auto mb-4">
+                  <Text className="text-[#9ca3af] text-2xl">📊</Text>
+                </View>
+                <Text className="text-[#6b7280] text-center text-base">
                   No weekly habits yet. Create one to get started!
                 </Text>
               </View>
@@ -475,7 +546,15 @@ export default function HabitsSection() {
                     isDoneByMe={amI_A ? doneA : doneB}
                     isDoneByPartner={amI_A ? doneB : doneA}
                     onCheck={async () => {
-                      await checkInHabit({ habitId: h._id, userIsA: amI_A });
+                      try {
+                        await checkInHabit({ habitId: h._id, userIsA: amI_A });
+                      } catch (error) {
+                        console.error("Check-in error:", error);
+                        Alert.alert(
+                          "Error",
+                          "Failed to update habit. Please try again."
+                        );
+                      }
                     }}
                     onDelete={handleDeleteHabit}
                   />
@@ -485,17 +564,41 @@ export default function HabitsSection() {
           </View>
 
           {/* Enhanced Add Habit Button */}
-          <Pressable
-            className="bg-accent rounded-xl p-4 mb-8 shadow-md"
-            onPress={() => setModalVisible(true)}
+          <TouchableOpacity
+            onPress={showModal}
+            style={{
+              borderRadius: 16,
+              marginBottom: 32,
+              shadowColor: "#10b981",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 8,
+              overflow: "hidden",
+            }}
+            activeOpacity={0.85}
           >
-            <View className="flex-row items-center justify-center">
-              <Text className="text-white font-semibold text-lg mr-2">+</Text>
-              <Text className="text-white font-semibold text-base">
-                Create New Habit
-              </Text>
-            </View>
-          </Pressable>
+            <LinearGradient
+              colors={["#10b981", "#059669"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{
+                borderRadius: 16,
+                padding: 20,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <View className="flex-row items-center justify-center">
+                <View className="w-6 h-6 bg-white bg-opacity-20 rounded-full items-center justify-center mr-3">
+                  <Text className="text-white font-bold text-lg">+</Text>
+                </View>
+                <Text className="text-white font-bold text-lg">
+                  Create New Habit
+                </Text>
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -503,120 +606,316 @@ export default function HabitsSection() {
       <Modal
         visible={modalVisible}
         transparent
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
+        animationType="none"
+        onRequestClose={hideModal}
       >
-        <View className="flex-1 bg-black bg-opacity-50 justify-end">
-          <View className="bg-white rounded-t-3xl px-6 py-8">
-            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-2xl font-bold text-gray-900">
-                Create New Habit
-              </Text>
-              <Pressable
-                onPress={() => {
-                  setModalVisible(false);
-                  setNewTitle("");
-                  setValidationError("");
+        <Animated.View
+          style={{
+            flex: 1,
+            justifyContent: "flex-end",
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            opacity: modalOpacity,
+          }}
+        >
+          <Animated.View
+            style={{
+              backgroundColor: "white",
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              transform: [
+                {
+                  translateY: modalOpacity.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [300, 0],
+                  }),
+                },
+              ],
+            }}
+          >
+            {/* Modal Header */}
+            <View
+              style={{
+                backgroundColor: "#10b981",
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
+                paddingHorizontal: 24,
+                paddingVertical: 24,
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              {/* Background pattern */}
+              <View
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  opacity: 0.1,
                 }}
-                className="w-8 h-8 rounded-full bg-gray-100 items-center justify-center"
               >
-                <Text className="text-gray-600 font-bold">×</Text>
-              </Pressable>
-            </View>
-
-            <View className="mb-4">
-              <Text className="text-gray-700 font-medium mb-2">
-                Habit Title
-              </Text>
-              <TextInput
-                className={`bg-gray-50 rounded-xl px-4 py-4 text-base text-gray-900 border ${
-                  validationError ? "border-red-300" : "border-gray-200"
-                }`}
-                placeholder="Enter your habit (e.g., Drink 8 glasses of water)"
-                placeholderTextColor="#9CA3AF"
-                value={newTitle}
-                onChangeText={handleTitleChange}
-                autoFocus
-                returnKeyType="done"
-                maxLength={50}
-              />
-              {validationError ? (
-                <Text className="text-red-500 text-sm mt-1">
-                  {validationError}
-                </Text>
-              ) : (
-                <Text className="text-gray-400 text-sm mt-1">
-                  {newTitle.length}/50 characters
-                </Text>
-              )}
-            </View>
-
-            <View className="mb-6">
-              <Text className="text-gray-700 font-medium mb-2">Frequency</Text>
-              <View className="bg-gray-50 rounded-xl border border-gray-200">
-                <RNPickerSelect
-                  onValueChange={setNewFreq}
-                  value={newFreq}
-                  items={[
-                    { label: "Daily - Every day", value: "daily" },
-                    { label: "Weekly - Once per week", value: "weekly" },
-                  ]}
-                  useNativeAndroidPickerStyle={false}
+                <View
                   style={{
-                    inputIOS: {
-                      color: "#111827",
-                      paddingVertical: 16,
-                      paddingHorizontal: 16,
-                      fontSize: 16,
-                    },
-                    inputAndroid: {
-                      color: "#111827",
-                      paddingVertical: 16,
-                      paddingHorizontal: 16,
-                      fontSize: 16,
-                    },
-                    iconContainer: {
-                      top: 20,
-                      right: 16,
-                    },
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    width: 80,
+                    height: 80,
+                    borderRadius: 40,
+                    backgroundColor: "white",
+                    opacity: 0.2,
                   }}
-                  Icon={() => (
-                    <Text style={{ color: "#6B7280", fontSize: 16 }}>▼</Text>
-                  )}
                 />
+                <View
+                  style={{
+                    position: "absolute",
+                    bottom: 8,
+                    left: 8,
+                    width: 64,
+                    height: 64,
+                    borderRadius: 32,
+                    backgroundColor: "white",
+                    opacity: 0.15,
+                  }}
+                />
+              </View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{ color: "white", fontSize: 24, fontWeight: "bold" }}
+                >
+                  Create New Habit
+                </Text>
+                <TouchableOpacity
+                  onPress={hideModal}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    backgroundColor: "rgba(255,255,255,0.2)",
+                    borderRadius: 20,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    style={{ color: "white", fontWeight: "bold", fontSize: 18 }}
+                  >
+                    ×
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
 
-            <Pressable
-              onPress={handleCreateHabit}
-              disabled={!!validationError || !newTitle.trim() || isCreating}
-              className={`rounded-xl py-4 ${
-                validationError || !newTitle.trim() || isCreating
-                  ? "bg-gray-200"
-                  : "bg-accent"
-              }`}
-            >
-              {isCreating ? (
-                <View className="flex-row items-center justify-center">
-                  <ActivityIndicator size="small" color="#fff" />
-                  <Text className="text-white font-semibold ml-2">
-                    Creating...
-                  </Text>
-                </View>
-              ) : (
+            {/* Modal Content */}
+            <View style={{ paddingHorizontal: 24, paddingVertical: 24 }}>
+              {/* Title Input */}
+              <View style={{ marginBottom: 24 }}>
                 <Text
-                  className={`text-center font-semibold text-base ${
-                    validationError || !newTitle.trim()
-                      ? "text-gray-400"
-                      : "text-white"
-                  }`}
+                  style={{
+                    color: "#111827",
+                    fontWeight: "600",
+                    fontSize: 16,
+                    marginBottom: 12,
+                  }}
                 >
-                  Create Habit
+                  Habit Title
                 </Text>
-              )}
-            </Pressable>
-          </View>
-        </View>
+                <TextInput
+                  style={{
+                    backgroundColor: "#f8fafc",
+                    borderWidth: 2,
+                    borderColor: validationError ? "#dc2626" : "#e5e7eb",
+                    borderRadius: 12,
+                    paddingHorizontal: 16,
+                    paddingVertical: 16,
+                    fontSize: 16,
+                    color: "#111827",
+                  }}
+                  placeholder="Enter your habit (e.g., Drink 8 glasses of water)"
+                  placeholderTextColor="#9CA3AF"
+                  value={newTitle}
+                  onChangeText={handleTitleChange}
+                  autoFocus
+                  returnKeyType="done"
+                  maxLength={50}
+                />
+                {validationError ? (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginTop: 8,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "#dc2626",
+                        fontSize: 14,
+                        fontWeight: "500",
+                      }}
+                    >
+                      ⚠️ {validationError}
+                    </Text>
+                  </View>
+                ) : (
+                  <Text
+                    style={{ color: "#6b7280", fontSize: 14, marginTop: 8 }}
+                  >
+                    {newTitle.length}/50 characters
+                  </Text>
+                )}
+              </View>
+
+              {/* Frequency Selector */}
+              <View style={{ marginBottom: 32 }}>
+                <Text
+                  style={{
+                    color: "#111827",
+                    fontWeight: "600",
+                    fontSize: 16,
+                    marginBottom: 12,
+                  }}
+                >
+                  Frequency
+                </Text>
+                <View
+                  style={{
+                    backgroundColor: "#f8fafc",
+                    borderWidth: 2,
+                    borderColor: "#e5e7eb",
+                    borderRadius: 12,
+                  }}
+                >
+                  <RNPickerSelect
+                    onValueChange={setNewFreq}
+                    value={newFreq}
+                    placeholder={{}}
+                    items={[
+                      { label: "Daily - Every day", value: "daily" },
+                      { label: "Weekly - Once per week", value: "weekly" },
+                    ]}
+                    useNativeAndroidPickerStyle={false}
+                    style={{
+                      inputIOS: {
+                        color: "#111827",
+                        paddingVertical: 16,
+                        paddingHorizontal: 16,
+                        fontSize: 16,
+                        fontWeight: "500",
+                      },
+                      inputAndroid: {
+                        color: "#111827",
+                        paddingVertical: 16,
+                        paddingHorizontal: 16,
+                        fontSize: 16,
+                        fontWeight: "500",
+                      },
+                      iconContainer: {
+                        top: 20,
+                        right: 16,
+                      },
+                    }}
+                    Icon={() => (
+                      <Text style={{ color: "#6B7280", fontSize: 16 }}>▼</Text>
+                    )}
+                  />
+                </View>
+              </View>
+
+              {/* Action Buttons */}
+              <View style={{ flexDirection: "row", gap: 12 }}>
+                <TouchableOpacity
+                  onPress={hideModal}
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#f3f4f6",
+                    borderWidth: 1,
+                    borderColor: "#d1d5db",
+                    borderRadius: 12,
+                    paddingVertical: 16,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#111827",
+                      fontWeight: "600",
+                      fontSize: 16,
+                      textAlign: "center",
+                    }}
+                  >
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={handleCreateHabit}
+                  disabled={!!validationError || !newTitle.trim() || isCreating}
+                  style={{
+                    flex: 1,
+                    borderRadius: 12,
+                    paddingVertical: 16,
+                    backgroundColor:
+                      validationError || !newTitle.trim() || isCreating
+                        ? "#e5e7eb"
+                        : "#10b981",
+                    shadowColor:
+                      validationError || !newTitle.trim() || isCreating
+                        ? "transparent"
+                        : "#10b981",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 4,
+                    elevation:
+                      validationError || !newTitle.trim() || isCreating ? 0 : 4,
+                  }}
+                >
+                  {isCreating ? (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <ActivityIndicator size="small" color="#fff" />
+                      <Text
+                        style={{
+                          color: "white",
+                          fontWeight: "600",
+                          fontSize: 16,
+                          marginLeft: 8,
+                        }}
+                      >
+                        Creating...
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        fontWeight: "600",
+                        fontSize: 16,
+                        color:
+                          validationError || !newTitle.trim()
+                            ? "#9ca3af"
+                            : "white",
+                      }}
+                    >
+                      Create Habit
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Animated.View>
+        </Animated.View>
       </Modal>
     </>
   );
