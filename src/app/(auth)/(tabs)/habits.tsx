@@ -23,6 +23,8 @@ import { useDuo } from "@/hooks/useDuo";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { LinearGradient } from "expo-linear-gradient";
 import { StreakVisualization } from "@/components/StreakVisualization";
+import HabitActionMenu from "@/components/HabitActionMenu";
+import HabitEditModal from "@/components/HabitEditModal";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -68,6 +70,47 @@ export default function HabitsSection() {
   const [isCreating, setIsCreating] = useState(false);
   const [validationError, setValidationError] = useState("");
   const [modalOpacity] = useState(new Animated.Value(0));
+  const [activeMenuHabitId, setActiveMenuHabitId] = useState<string | null>(
+    null
+  );
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingHabit, setEditingHabit] = useState<any>(null);
+
+  const updateHabit = useMutation(api.duoHabits.updateHabit);
+
+  const handleMenuPress = (event: any, habit: any) => {
+    // Get button position for menu placement
+    event.target.measure((x, y, width, height, pageX, pageY) => {
+      setMenuPosition({ x: pageX, y: pageY });
+      setActiveMenuHabitId(habit._id);
+    });
+  };
+
+  const handleEditHabit = (habit: any) => {
+    setEditingHabit(habit);
+    setEditModalVisible(true);
+  };
+
+  const handleSaveEdit = async (data: {
+    title: string;
+    frequency: "daily" | "weekly";
+  }) => {
+    if (!editingHabit) return;
+
+    try {
+      await updateHabit({
+        habitId: editingHabit._id,
+        title: data.title,
+        frequency: data.frequency,
+      });
+      setEditModalVisible(false);
+      setEditingHabit(null);
+    } catch (error) {
+      console.error("Failed to update habit:", error);
+      Alert.alert("Error", "Failed to update habit. Please try again.");
+    }
+  };
 
   // Enhanced validation function
   const validateHabitTitle = (title: string): string => {
@@ -168,90 +211,6 @@ export default function HabitsSection() {
   const weekly = habits.filter((h) => h.frequency === "weekly");
   const amI_A = convexUser._id === duo.user1;
 
-  // Enhanced streak calculation with proper sizing
-  const calculateStreakDisplay = () => {
-    const currentDate = new Date();
-    const streakStartDate = duo.streakDate
-      ? new Date(duo.streakDate)
-      : currentDate;
-    const totalStreak = duo.streak || 0;
-
-    const streakDisplay = [];
-    const daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"];
-    const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-    // Calculate circle size based on screen width
-    const circleSize = Math.min((screenWidth - 80) / 7 - 4, 44);
-
-    // Get current week's Monday
-    const currentDay = currentDate.getDay();
-    const monday = new Date(currentDate);
-    monday.setDate(
-      currentDate.getDate() - (currentDay === 0 ? 6 : currentDay - 1)
-    );
-
-    for (let i = 0; i < 7; i++) {
-      const dayDate = new Date(monday);
-      dayDate.setDate(monday.getDate() + i);
-
-      // Check if this day is within the streak period
-      const isStreakDay =
-        totalStreak > 0 &&
-        dayDate >= streakStartDate &&
-        dayDate <= currentDate &&
-        Math.floor(
-          (dayDate.getTime() - streakStartDate.getTime()) /
-            (1000 * 60 * 60 * 24)
-        ) < totalStreak;
-
-      const isToday = dayDate.toDateString() === currentDate.toDateString();
-
-      streakDisplay.push(
-        <View key={i} className="items-center flex-1">
-          <View
-            className={`rounded-full border-2 flex items-center justify-center relative ${
-              isStreakDay
-                ? "bg-[#10b981] border-[#10b981] shadow-lg"
-                : isToday
-                  ? "border-[#10b981] border-opacity-40 bg-[#f0fdf4]"
-                  : "border-[#e5e7eb] bg-[#f9fafb]"
-            }`}
-            style={{
-              width: circleSize,
-              height: circleSize,
-              shadowColor: isStreakDay ? "#10b981" : "transparent",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: isStreakDay ? 0.3 : 0,
-              shadowRadius: 4,
-              elevation: isStreakDay ? 4 : 0,
-            }}
-          >
-            <Text
-              className={`text-xs font-bold ${
-                isStreakDay
-                  ? "text-white"
-                  : isToday
-                    ? "text-[#10b981]"
-                    : "text-[#9ca3af]"
-              }`}
-            >
-              {daysOfWeek[i]}
-            </Text>
-            {isToday && (
-              <View className="absolute -bottom-1 w-1.5 h-1.5 bg-[#10b981] rounded-full" />
-            )}
-          </View>
-          <Text className="text-[#6b7280] text-xs mt-1 font-medium">
-            {dayLabels[i]}
-          </Text>
-        </View>
-      );
-    }
-
-    return streakDisplay;
-  };
-
-  // Enhanced habit deletion with confirmation
   const handleDeleteHabit = (habitId: Id<"duoHabits">, habitTitle: string) => {
     Alert.alert(
       "Delete Habit",
@@ -276,7 +235,6 @@ export default function HabitsSection() {
     );
   };
 
-  // Enhanced habit creation
   const handleCreateHabit = async () => {
     const error = validateHabitTitle(newTitle);
     if (error) {
@@ -299,13 +257,12 @@ export default function HabitsSection() {
     }
   };
 
-  // Enhanced habit item component
   const HabitItem = ({
     habit,
     isDoneByMe,
     isDoneByPartner,
     onCheck,
-    onDelete,
+    onMenuPress,
   }) => (
     <View className="bg-white rounded-2xl p-5 mb-4 shadow-sm border border-[#f3f4f6]">
       <View className="flex-row items-center">
@@ -322,7 +279,7 @@ export default function HabitsSection() {
           </View>
         </View>
 
-        <View className="flex-row items-center space-x-3">
+        <View className="flex-row items-center gap-2">
           {/* My completion status */}
           <TouchableOpacity
             className={`w-12 h-12 rounded-full border-2 ${
@@ -364,12 +321,16 @@ export default function HabitsSection() {
             )}
           </View>
 
-          {/* Delete button */}
+          {/* 3-dot menu button */}
           <TouchableOpacity
-            className="w-10 h-10 rounded-full bg-[#fef2f2] border border-[#fecaca] flex items-center justify-center"
-            onPress={() => onDelete(habit._id, habit.title)}
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            onPress={(event) => onMenuPress(event, habit)}
           >
-            <Text className="text-[#dc2626] font-bold text-lg">×</Text>
+            <View className="flex-col items-center justify-center gap-[3px]">
+              <View className="w-1 h-1 bg-[#000] rounded-full opacity-80" />
+              <View className="w-1 h-1 bg-[#000] rounded-full opacity-80" />
+              <View className="w-1 h-1 bg-[#000] rounded-full opacity-80" />
+            </View>
           </TouchableOpacity>
         </View>
       </View>
@@ -503,7 +464,7 @@ export default function HabitsSection() {
                         );
                       }
                     }}
-                    onDelete={handleDeleteHabit}
+                    onMenuPress={handleMenuPress}
                   />
                 );
               })
@@ -556,7 +517,7 @@ export default function HabitsSection() {
                         );
                       }
                     }}
-                    onDelete={handleDeleteHabit}
+                    onMenuPress={handleMenuPress}
                   />
                 );
               })
@@ -917,6 +878,37 @@ export default function HabitsSection() {
           </Animated.View>
         </Animated.View>
       </Modal>
+      <HabitActionMenu
+        visible={activeMenuHabitId !== null}
+        onClose={() => setActiveMenuHabitId(null)}
+        onEdit={() => {
+          const habit = habits?.find((h) => h._id === activeMenuHabitId);
+          if (habit) {
+            handleEditHabit(habit);
+            setActiveMenuHabitId(null);
+          }
+        }}
+        onDelete={() => {
+          const habit = habits?.find((h) => h._id === activeMenuHabitId);
+          if (habit) {
+            handleDeleteHabit(habit._id, habit.title);
+            setActiveMenuHabitId(null);
+          }
+        }}
+        buttonPosition={menuPosition}
+      />
+
+      {/* Edit Modal */}
+      <HabitEditModal
+        visible={editModalVisible}
+        onClose={() => {
+          setEditModalVisible(false);
+          setEditingHabit(null);
+        }}
+        onSave={handleSaveEdit}
+        habit={editingHabit}
+        existingHabits={habits || []}
+      />
     </>
   );
 }

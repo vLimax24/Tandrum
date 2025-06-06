@@ -18,6 +18,8 @@ import {
   Poppins_800ExtraBold,
 } from "@expo-google-fonts/poppins";
 import { DuoProvider } from "@/hooks/useDuo";
+import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "react-native";
 
 const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {

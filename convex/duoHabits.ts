@@ -383,8 +383,6 @@ export const updateHabit = mutation({
       updateData.difficulty = args.difficulty;
     }
 
-    updateData.updated_at = Date.now();
-
     await ctx.db.patch(args.habitId, updateData);
 
     return { success: true };
