@@ -290,9 +290,17 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         disabled={!isAvailable}
         className={`border-2 rounded-2xl p-4 mb-3 shadow-sm ${
           isAvailable
-            ? `bg-[${itemDef.bgColor}] border-[${itemDef.borderColor}] opacity-100`
+            ? "opacity-100"
             : "bg-[#f9fafb] border-[#e5e7eb] opacity-60"
         }`}
+        style={
+          isAvailable
+            ? {
+                backgroundColor: itemDef.bgColor,
+                borderColor: itemDef.borderColor,
+              }
+            : undefined
+        }
       >
         <View className="flex-row items-center mb-2">
           <View
@@ -407,7 +415,11 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             <TouchableOpacity
               key={index}
               onPress={() => handleDecorationPress(index)}
-              className={`bg-[${itemDef.bgColor}] border-[${itemDef.borderColor}] border-2 rounded-2xl p-4 mb-3 shadow-sm`}
+              className="border-2 rounded-2xl p-4 mb-3 shadow-sm"
+              style={{
+                backgroundColor: itemDef.bgColor,
+                borderColor: itemDef.borderColor,
+              }}
             >
               <View className="flex-row items-center mb-2">
                 <View
