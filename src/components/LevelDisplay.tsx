@@ -10,7 +10,15 @@ const treeImages: Record<string, any> = {
   sprout: require("../assets/tree-1.png"),
 };
 
-export const LevelDisplay = ({ duo }: { duo: Doc<"duoConnections"> }) => {
+interface LevelDisplayProps {
+  duo: Doc<"duoConnections">;
+  showXpStats?: boolean;
+}
+
+export const LevelDisplay = ({
+  duo,
+  showXpStats = true,
+}: LevelDisplayProps) => {
   const {
     level,
     xpIntoLevel,
@@ -75,47 +83,49 @@ export const LevelDisplay = ({ duo }: { duo: Doc<"duoConnections"> }) => {
         </Text>
       </View>
 
-      {/* XP Statistics - matching your stats card style */}
-      <View className="bg-white p-4 rounded-lg shadow mb-4">
-        <View className="flex-row justify-between items-center">
-          <View className="flex-1 items-center">
-            <Image
-              source={treeImages["leaf"]}
-              style={{ width: 20, height: 20, marginBottom: 4 }}
-            />
-            <Text className="text-xs text-gray-600 mb-1">Current XP</Text>
-            <Text className="text-sm font-semibold text-text">
-              {xpIntoLevel.toLocaleString()}
-            </Text>
-          </View>
+      {/* XP Statistics - matching your stats card style - conditionally rendered */}
+      {showXpStats && (
+        <View className="bg-white p-4 rounded-lg shadow mb-4">
+          <View className="flex-row justify-between items-center">
+            <View className="flex-1 items-center">
+              <Image
+                source={treeImages["leaf"]}
+                style={{ width: 20, height: 20, marginBottom: 4 }}
+              />
+              <Text className="text-xs text-gray-600 mb-1">Current XP</Text>
+              <Text className="text-sm font-semibold text-text">
+                {xpIntoLevel.toLocaleString()}
+              </Text>
+            </View>
 
-          <View className="w-px h-12 bg-gray-200" />
+            <View className="w-px h-12 bg-gray-200" />
 
-          <View className="flex-1 items-center">
-            <Image
-              source={treeImages["orange"]}
-              style={{ width: 20, height: 20, marginBottom: 4 }}
-            />
-            <Text className="text-xs text-gray-600 mb-1">Target XP</Text>
-            <Text className="text-sm font-semibold text-text">
-              {xpNeeded.toLocaleString()}
-            </Text>
-          </View>
+            <View className="flex-1 items-center">
+              <Image
+                source={treeImages["orange"]}
+                style={{ width: 20, height: 20, marginBottom: 4 }}
+              />
+              <Text className="text-xs text-gray-600 mb-1">Target XP</Text>
+              <Text className="text-sm font-semibold text-text">
+                {xpNeeded.toLocaleString()}
+              </Text>
+            </View>
 
-          <View className="w-px h-12 bg-gray-200" />
+            <View className="w-px h-12 bg-gray-200" />
 
-          <View className="flex-1 items-center">
-            <Image
-              source={treeImages["sprout"]}
-              style={{ width: 20, height: 20, marginBottom: 4 }}
-            />
-            <Text className="text-xs text-gray-600 mb-1">Remaining</Text>
-            <Text className="text-sm font-semibold text-text">
-              {(xpNeeded - xpIntoLevel).toLocaleString()}
-            </Text>
+            <View className="flex-1 items-center">
+              <Image
+                source={treeImages["sprout"]}
+                style={{ width: 20, height: 20, marginBottom: 4 }}
+              />
+              <Text className="text-xs text-gray-600 mb-1">Remaining</Text>
+              <Text className="text-sm font-semibold text-text">
+                {(xpNeeded - xpIntoLevel).toLocaleString()}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
+      )}
 
       {/* Achievement notification - matching your growth log style */}
       {progress > 0.8 && (
