@@ -10,25 +10,55 @@ import { useUser, useAuth } from "@clerk/clerk-expo";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { LinearGradient } from "expo-linear-gradient";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Profile = () => {
-  const { user } = useUser();
-  const { signOut } = useAuth();
+  const { user, isLoaded } = useUser();
+  const { signOut, isSignedIn } = useAuth();
   const router = useRouter();
 
-  const convexUser = useQuery(api.users.getUserByClerkId, {
-    clerkId: user?.id,
-  });
+  // Only run the query if user exists and has an id
+  const convexUser = useQuery(
+    api.users.getUserByClerkId,
+    user?.id ? { clerkId: user.id } : "skip"
+  );
 
-  useEffect(() => {
-    if (!user) {
-      router.replace("/(public)/login");
-    }
-  }, [user]);
+  // Use useFocusEffect to check auth state when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      // Small delay to ensure navigation is ready
+      const checkAuth = () => {
+        if (isLoaded && (!user || !isSignedIn)) {
+          try {
+            router.replace("/(public)/login");
+          } catch (error) {
+            console.log("Navigation not ready, retrying...");
+            // Retry after a short delay
+            setTimeout(checkAuth, 100);
+          }
+        }
+      };
 
-  if (!user || !convexUser) return null;
+      checkAuth();
+    }, [user, isSignedIn, isLoaded, router])
+  );
+
+  // Show loading state while auth is loading
+  if (!isLoaded) {
+    return null; // or a loading spinner
+  }
+
+  // If no user after loading, don't render anything (redirect should happen)
+  if (!user) {
+    return null;
+  }
+
+  // If convex user is still loading, show loading state
+  if (!convexUser) {
+    return null; // or a loading spinner
+  }
 
   const handleSignOut = async () => {
     Alert.alert(
@@ -44,9 +74,13 @@ const Profile = () => {
           style: "destructive",
           onPress: async () => {
             try {
+              // Sign out from Clerk first
               await signOut();
-              router.replace("/(public)");
+
+              // The useFocusEffect will handle navigation when auth state changes
+              // This prevents navigation timing issues
             } catch (error) {
+              console.error("Sign out error:", error);
               Alert.alert("Error", "Failed to sign out. Please try again.");
             }
           },
