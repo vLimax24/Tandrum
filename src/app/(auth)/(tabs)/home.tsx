@@ -136,11 +136,7 @@ const Page = () => {
       className="pt-10"
     >
       <SafeAreaView style={{ flex: 1 }}>
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor="transparent"
-          translucent
-        />
+        <StatusBar barStyle="dark-content" translucent />
 
         <ScrollView
           className="flex-1"

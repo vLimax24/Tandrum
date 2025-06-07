@@ -14,7 +14,7 @@ interface DecorationDetailModalProps {
   onClose: () => void;
   onRemove: () => void;
   decoration: {
-    type: "leaf" | "fruit";
+    type: "leaf" | "fruit" | "silverLeaf" | "goldenLeaf" | "apple" | "cherry";
     position: { x: number; y: number };
     buff?: { xpMultiplier: number };
   } | null;
