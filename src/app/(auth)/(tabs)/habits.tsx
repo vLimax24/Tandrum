@@ -347,10 +347,7 @@ export default function HabitsSection() {
         <ScrollView className="flex-1">
           {/* Header */}
           <View className="px-6 pt-16 pb-8 bg-gradient-to-r from-[#10b981] to-[#059669]">
-            <Text className="text-black text-3xl font-bold mb-2">Habits</Text>
-            <Text className="text-black text-opacity-90 text-base">
-              Build consistency together with your duo partner
-            </Text>
+            <Text className="text-black text-4xl font-bold mb-2">Habits</Text>
           </View>
 
           <View className="px-6 -mt-6">

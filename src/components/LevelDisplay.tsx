@@ -41,7 +41,7 @@ export const LevelDisplay = ({
   return (
     <View className="mb-6">
       {/* Level Header - matching your TreeSection style */}
-      <Text className="text-2xl font-semibold text-text mb-4">
+      <Text className="text-lg font-semibold text-text mb-4">
         Level Progress
       </Text>
 
