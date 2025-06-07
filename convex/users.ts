@@ -18,6 +18,13 @@ export const getUserByClerkId = query({
   },
 });
 
+export const getUserById = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, { userId }) => {
+    return await ctx.db.get(userId);
+  },
+});
+
 export const createUser = internalMutation({
   args: {
     email: v.any(),

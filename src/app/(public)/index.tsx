@@ -6,7 +6,7 @@ import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function Page() {
+export default function AuthPage() {
   const { startSSOFlow } = useSSO();
   const { user } = useUser();
   const clerkId = user?.id;
@@ -36,28 +36,45 @@ export default function Page() {
       });
       if (createdSessionId) {
         setActive!({ session: createdSessionId });
+        // Ensure first time and tutorial flags are set
+        await AsyncStorage.setItem("isFirstTime", "false");
+        await AsyncStorage.setItem("tutorialCompleted", "true");
       }
     } catch (error) {
-      Alert.alert("Login failed", error.message);
+      Alert.alert(
+        "Login failed",
+        error.message || "An error occurred during login"
+      );
     }
   };
 
   return (
-    <>
-      <View className="flex flex-1 items-center p-5">
-        <Image
-          source={require("../../assets/tree-2.png")}
-          style={{ width: 400, height: 400, resizeMode: "contain" }}
-        />
+    <View className="flex-1 bg-white">
+      <StatusBar style="dark" translucent backgroundColor="transparent" />
+      <View className="flex-1 justify-center items-center px-6">
+        <View className="items-center mb-12">
+          <Image
+            source={require("../../assets/tree-2.png")}
+            style={{ width: 350, height: 350, resizeMode: "contain" }}
+          />
+          <Text className="text-3xl font-bold text-gray-800 text-center mb-4">
+            Welcome Back!
+          </Text>
+          <Text className="text-lg text-gray-600 text-center">
+            Sign in to continue your learning journey
+          </Text>
+        </View>
+
         <TouchableOpacity
-          className="bg-primary py-5 w-full items-center rounded-2xl"
+          className="bg-primary py-4 px-8 w-full max-w-sm items-center rounded-2xl shadow-lg"
           activeOpacity={0.8}
           onPress={handleGoogleLogin}
         >
-          <Text className="text-background">Continue with Google</Text>
+          <Text className="text-white font-semibold text-lg">
+            Continue with Google
+          </Text>
         </TouchableOpacity>
       </View>
-      <StatusBar style="dark" translucent backgroundColor="transparent" />
-    </>
+    </View>
   );
 }
