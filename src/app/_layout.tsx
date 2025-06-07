@@ -1,7 +1,8 @@
 import "../global.css";
 import { useEffect } from "react";
 import { SplashScreen, useSegments, useRouter } from "expo-router";
-import { Stack, Slot } from "expo-router";
+import { Slot } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   ClerkProvider,
   ClerkLoaded,
@@ -18,8 +19,6 @@ import {
   Poppins_800ExtraBold,
 } from "@expo-google-fonts/poppins";
 import { DuoProvider } from "@/hooks/useDuo";
-import { StatusBar } from "expo-status-bar";
-import { useColorScheme } from "react-native";
 
 const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
@@ -71,11 +70,13 @@ export default function Layout() {
       tokenCache={tokenCache}
     >
       <ClerkLoaded>
-        <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-          <DuoProvider>
-            <InitialLayout />
-          </DuoProvider>
-        </ConvexProviderWithClerk>
+        <GestureHandlerRootView>
+          <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+            <DuoProvider>
+              <InitialLayout />
+            </DuoProvider>
+          </ConvexProviderWithClerk>
+        </GestureHandlerRootView>
       </ClerkLoaded>
     </ClerkProvider>
   );
