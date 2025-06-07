@@ -140,7 +140,10 @@ export default function TreeSection() {
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
     >
-      <ScrollView className="flex-1 py-16 px-5">
+      <ScrollView
+        className="flex-1 py-16 px-5"
+        style={{ zIndex: 1 }} // Add this to ensure content is behind bottom sheet
+      >
         <Text className="text-text text-4xl font-semibold mb-2">Tree</Text>
         <View className="mb-6">
           <Text className="text-lg font-semibold text-text mb-2">
@@ -225,7 +228,10 @@ export default function TreeSection() {
           onInventoryUpdate={handleInventoryUpdate}
         />
 
-        <View className="flex-row justify-between py-4 px-5 rounded-lg mb-6 bg-primary">
+        <View
+          className="flex-row justify-between py-4 px-5 rounded-lg mb-6 bg-primary"
+          style={{ zIndex: 1 }}
+        >
           <View className="flex flex-row items-center gap-2">
             <Image
               source={treeImages["leaf"]}
@@ -251,8 +257,12 @@ export default function TreeSection() {
             <Text className="text-background">Decay: {treeData.decay}</Text>
           </View>
         </View>
-        <LevelDisplay duo={selectedConnection} />
-        <View className="mb-16">
+        <View style={{ zIndex: 1 }}>
+          <LevelDisplay duo={selectedConnection} />
+        </View>
+
+        {/* Growth Log - Add z-index */}
+        <View className="mb-16" style={{ zIndex: 1 }}>
           <Text className="text-2xl font-semibold text-text mb-2">
             Growth Log:
           </Text>

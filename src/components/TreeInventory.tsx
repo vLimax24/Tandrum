@@ -1,10 +1,9 @@
 // TreeInventory.tsx
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo, useRef } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
-  Modal,
   Image,
   Dimensions,
   Alert,
@@ -14,16 +13,27 @@ import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "convex/_generated/dataModel";
 import DecorationDetailModal from "./DecorationDetailModal";
+import {
+  BottomSheetModal,
+  BottomSheetView,
+  BottomSheetBackdrop,
+  BottomSheetFlatList, // Add this
+} from "@gorhom/bottom-sheet";
 
 const treeImages: Record<string, any> = {
   leaf: require("../../src/assets/hemp-leaf.png"),
   orange: require("../../src/assets/orange.png"),
+  // Add more images as needed for new types
+  silverLeaf: require("../../src/assets/hemp-leaf.png"), // Using same image for now
+  goldenLeaf: require("../../src/assets/hemp-leaf.png"), // Using same image for now
+  apple: require("../../src/assets/orange.png"), // Using orange image as placeholder
+  cherry: require("../../src/assets/orange.png"), // Using orange image as placeholder
 };
 
-// Enhanced item definitions with abilities and descriptions
 const itemDefinitions = {
+  // Leaf types
   leaf: {
-    name: "Mystical Leaf",
+    name: "Mystical Leaf", // This is correct - it's still type "leaf"
     description: "A shimmering leaf that enhances learning potential",
     ability: "Double XP Boost",
     abilityDescription: "Multiplies all XP gained by 2x while active",
@@ -31,10 +41,34 @@ const itemDefinitions = {
     color: "#16a34a",
     bgColor: "#f0fdf4",
     borderColor: "#bbf7d0",
-    icon: "",
+    icon: "🍃",
   },
+  silverLeaf: {
+    name: "Silver Leaf",
+    description: "A pristine silver leaf that boosts focus and clarity",
+    ability: "Focus Enhancement",
+    abilityDescription:
+      "Increases concentration and reduces distractions by 50%",
+    rarity: "uncommon",
+    color: "#6b7280",
+    bgColor: "#f8fafc",
+    borderColor: "#d1d5db",
+    icon: "🥈",
+  },
+  goldenLeaf: {
+    name: "Golden Leaf",
+    description: "A radiant golden leaf infused with ancient wisdom",
+    ability: "Wisdom Amplifier",
+    abilityDescription: "Grants triple XP and unlocks hidden knowledge paths",
+    rarity: "legendary",
+    color: "#f59e0b",
+    bgColor: "#fffbeb",
+    borderColor: "#fde68a",
+    icon: "🏆",
+  },
+  // Fruit types
   fruit: {
-    name: "Golden Orange",
+    name: "Golden Orange", // This is correct - it's still type "fruit"
     description: "A radiant fruit that provides sustained energy",
     ability: "Energy Sustain",
     abilityDescription: "Maintains motivation levels for extended periods",
@@ -42,7 +76,31 @@ const itemDefinitions = {
     color: "#ea580c",
     bgColor: "#fff7ed",
     borderColor: "#fed7aa",
-    icon: "",
+    icon: "🍊",
+  },
+  apple: {
+    name: "Crimson Apple",
+    description: "A vibrant red apple that sharpens mental acuity",
+    ability: "Mental Sharpness",
+    abilityDescription:
+      "Increases problem-solving speed by 40% and memory retention",
+    rarity: "uncommon",
+    color: "#dc2626",
+    bgColor: "#fef2f2",
+    borderColor: "#fecaca",
+    icon: "🍎",
+  },
+  cherry: {
+    name: "Ethereal Cherry",
+    description: "A mystical cherry that brings luck and serendipity",
+    ability: "Fortune's Favor",
+    abilityDescription:
+      "Increases rare item drops and unlocks bonus opportunities",
+    rarity: "epic",
+    color: "#be185d",
+    bgColor: "#fdf2f8",
+    borderColor: "#f9a8d4",
+    icon: "🍒",
   },
 };
 
@@ -52,8 +110,13 @@ interface TreeInventoryProps {
     stage: "sprout" | "smallTree" | "mediumTree" | "grownTree";
     leaves: number;
     fruits: number;
+    // Add counts for new item types
+    silverLeaves?: number;
+    goldenLeaves?: number;
+    apples?: number;
+    cherries?: number;
     decorations?: Array<{
-      type: "leaf" | "fruit";
+      type: "leaf" | "fruit" | "silverLeaf" | "goldenLeaf" | "apple" | "cherry";
       position: { x: number; y: number };
       buff?: { xpMultiplier: number };
     }>;
@@ -67,26 +130,62 @@ interface SlotPosition {
   id: string;
 }
 
+type ItemType =
+  | "leaf"
+  | "fruit"
+  | "silverLeaf"
+  | "goldenLeaf"
+  | "apple"
+  | "cherry";
+
 const TreeInventory: React.FC<TreeInventoryProps> = ({
   treeData,
   onInventoryUpdate,
 }) => {
-  const [showInventory, setShowInventory] = useState(false);
   const [activeTab, setActiveTab] = useState<"inventory" | "equipped">(
     "inventory"
   );
   const [showSlots, setShowSlots] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<"leaf" | "fruit" | null>(
-    null
-  );
+  const [selectedItem, setSelectedItem] = useState<ItemType | null>(null);
   const [selectedDecoration, setSelectedDecoration] = useState<{
     decoration: {
-      type: "leaf" | "fruit";
+      type: ItemType;
       position: { x: number; y: number };
       buff?: { xpMultiplier: number };
     };
     index: number;
   } | null>(null);
+
+  // Bottom Sheet Modal refs and configuration
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  // Set to single snap point at 90% for maximum height
+  const snapPoints = useMemo(() => ["90%"], []);
+
+  // Callbacks
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log("handleSheetChanges", index);
+  }, []);
+
+  const handleOpenBottomSheet = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+
+  const handleCloseBottomSheet = useCallback(() => {
+    bottomSheetModalRef.current?.dismiss();
+  }, []);
+
+  // Custom backdrop component
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={0.5}
+      />
+    ),
+    []
+  );
 
   const updateTreeDecorations = useMutation(api.trees.updateTreeDecorations);
   const removeTreeDecoration = useMutation(api.trees.removeTreeDecoration);
@@ -94,6 +193,44 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   const screenWidth = Dimensions.get("window").width;
   const treeSize = 180;
   const treeCenter = screenWidth / 2;
+
+  // Helper function to get item count
+  const getItemCount = (type: ItemType): number => {
+    switch (type) {
+      case "leaf":
+        return treeData.leaves;
+      case "fruit":
+        return treeData.fruits;
+      case "silverLeaf":
+        return treeData.silverLeaves || 0;
+      case "goldenLeaf":
+        return treeData.goldenLeaves || 0;
+      case "apple":
+        return treeData.apples || 0;
+      case "cherry":
+        return treeData.cherries || 0;
+      default:
+        return 0;
+    }
+  };
+
+  // Helper function to get appropriate image source
+  const getImageSource = (type: ItemType) => {
+    switch (type) {
+      case "leaf":
+      case "silverLeaf":
+      case "goldenLeaf":
+        return treeImages.leaf;
+      case "fruit":
+        return treeImages.orange;
+      case "apple":
+        return treeImages.apple;
+      case "cherry":
+        return treeImages.cherry;
+      default:
+        return treeImages.leaf;
+    }
+  };
 
   // Returns all possible slot positions for the current stage
   const getSlotPositions = (): SlotPosition[] => {
@@ -129,16 +266,13 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         : 0;
   const currentDecorations = treeData.decorations?.length ?? 0;
 
-  const handleItemSelect = (type: "leaf" | "fruit") => {
-    if (
-      (type === "leaf" && treeData.leaves === 0) ||
-      (type === "fruit" && treeData.fruits === 0)
-    ) {
+  const handleItemSelect = (type: ItemType) => {
+    if (getItemCount(type) === 0) {
       return;
     }
     setSelectedItem(type);
     setShowSlots(true);
-    setShowInventory(false);
+    handleCloseBottomSheet();
   };
 
   const handleSlotSelect = async (slotId: string) => {
@@ -169,7 +303,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       }
 
       const decorationPayload: {
-        type: "leaf" | "fruit";
+        type: ItemType;
         position: { x: number; y: number };
         buff?: { xpMultiplier: number };
       } = {
@@ -177,8 +311,13 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         position: { x: chosenSlot.x, y: chosenSlot.y },
       };
 
+      // Set buffs based on item type
       if (selectedItem === "leaf") {
         decorationPayload.buff = { xpMultiplier: 2 };
+      } else if (selectedItem === "goldenLeaf") {
+        decorationPayload.buff = { xpMultiplier: 3 };
+      } else if (selectedItem === "silverLeaf") {
+        decorationPayload.buff = { xpMultiplier: 1.5 };
       }
 
       await updateTreeDecorations({
@@ -265,11 +404,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
               }}
             >
               <Image
-                source={
-                  decoration.type === "leaf"
-                    ? treeImages.leaf
-                    : treeImages.orange
-                }
+                source={getImageSource(decoration.type)}
                 className="w-8 h-8"
               />
             </View>
@@ -279,8 +414,8 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     );
   };
 
-  const renderInventoryItem = (type: "leaf" | "fruit") => {
-    const count = type === "leaf" ? treeData.leaves : treeData.fruits;
+  const renderInventoryItem = (type: ItemType) => {
+    const count = getItemCount(type);
     const itemDef = itemDefinitions[type];
     const isAvailable = count > 0;
 
@@ -307,10 +442,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             className={`w-15 h-15 rounded-full bg-white justify-center items-center mr-4 border-2`}
             style={{ borderColor: itemDef.borderColor }}
           >
-            <Image
-              source={type === "leaf" ? treeImages.leaf : treeImages.orange}
-              className="w-10 h-10"
-            />
+            <Image source={getImageSource(type)} className="w-10 h-10" />
           </View>
           <View className="flex-1">
             <View className="flex-row items-center mb-1">
@@ -360,36 +492,71 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     );
   };
 
-  const renderInventorySection = () => {
-    return (
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Fruits Section */}
-        <View className="mb-6">
+  const renderFlatListItem = ({ item }: { item: any }) => {
+    if (item.type === "section_header") {
+      return (
+        <View className="mb-4 mt-2">
           <View className="flex-row items-center mb-4">
-            <Text className="text-xl font-bold text-[#1f2937]">🍊 Fruits</Text>
+            <Text className="text-xl font-bold text-[#1f2937]">
+              {item.title}
+            </Text>
             <View className="ml-2 bg-[#f3f4f6] px-2 py-1 rounded-full">
               <Text className="text-xs text-[#6b7280] font-medium">
-                {treeData.fruits} available
+                {item.count} available
               </Text>
             </View>
           </View>
-          {renderInventoryItem("fruit")}
         </View>
+      );
+    }
 
-        {/* Leaves Section */}
-        <View className="mb-6">
-          <View className="flex-row items-center mb-4">
-            <Text className="text-xl font-bold text-[#1f2937]">🍃 Leaves</Text>
-            <View className="ml-2 bg-[#f3f4f6] px-2 py-1 rounded-full">
-              <Text className="text-xs text-[#6b7280] font-medium">
-                {treeData.leaves} available
-              </Text>
-            </View>
-          </View>
-          {renderInventoryItem("leaf")}
-        </View>
-      </ScrollView>
+    if (item.type === "item") {
+      return <View className="mb-3">{renderInventoryItem(item.itemType)}</View>;
+    }
+
+    return null;
+  };
+
+  const renderInventorySection = () => {
+    const leafTypes: ItemType[] = ["leaf", "silverLeaf", "goldenLeaf"];
+    const fruitTypes: ItemType[] = ["fruit", "apple", "cherry"];
+
+    const totalLeaves = leafTypes.reduce(
+      (sum, type) => sum + getItemCount(type),
+      0
     );
+    const totalFruits = fruitTypes.reduce(
+      (sum, type) => sum + getItemCount(type),
+      0
+    );
+
+    // Create flat data structure for FlatList
+    const inventoryData = [
+      {
+        type: "section_header",
+        title: "🍊 Fruits",
+        count: totalFruits,
+        id: "fruits_header",
+      },
+      ...fruitTypes.map((type) => ({
+        type: "item",
+        itemType: type,
+        id: `fruit_${type}`,
+      })),
+      {
+        type: "section_header",
+        title: "🍃 Leaves",
+        count: totalLeaves,
+        id: "leaves_header",
+      },
+      ...leafTypes.map((type) => ({
+        type: "item",
+        itemType: type,
+        id: `leaf_${type}`,
+      })),
+    ];
+
+    return inventoryData;
   };
 
   const renderEquippedItems = () => {
@@ -408,7 +575,11 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     }
 
     return (
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        className="max-h-96"
+        showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
+      >
         {treeData.decorations.map((decoration, index) => {
           const itemDef = itemDefinitions[decoration.type];
           return (
@@ -427,11 +598,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                   style={{ borderColor: itemDef.borderColor }}
                 >
                   <Image
-                    source={
-                      decoration.type === "leaf"
-                        ? treeImages.leaf
-                        : treeImages.orange
-                    }
+                    source={getImageSource(decoration.type)}
                     className="w-8 h-8"
                   />
                 </View>
@@ -486,7 +653,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     <>
       {/* Enhanced Inventory Button */}
       <TouchableOpacity
-        onPress={() => setShowInventory(true)}
+        onPress={handleOpenBottomSheet}
         className="bg-[#3b82f6] rounded-2xl px-5 py-3 mb-4 flex-row items-center justify-center shadow-lg"
       >
         <Text className="text-white text-lg mr-2">🎒</Text>
@@ -519,84 +686,182 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         </TouchableOpacity>
       )}
 
-      {/* Enhanced Inventory Modal */}
-      <Modal
-        visible={showInventory}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowInventory(false)}
+      {/* Bottom Sheet Modal */}
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={0}
+        snapPoints={snapPoints}
+        onChange={handleSheetChanges}
+        backdropComponent={renderBackdrop}
+        enablePanDownToClose={true}
+        enableDynamicSizing={false}
+        handleIndicatorStyle={{
+          backgroundColor: "#d1d5db",
+          width: 40,
+        }}
+        backgroundStyle={{
+          backgroundColor: "white",
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+        }}
       >
-        <View className="flex-1 bg-[rgba(0,0,0,0.5)]">
-          <View className="flex-1 mt-15 bg-white rounded-t-3xl pt-5 shadow-2xl">
-            {/* Header */}
-            <View className="flex-row justify-between items-center px-6 mb-5">
-              <View>
-                <Text className="text-2xl font-bold text-[#1f2937]">
-                  Tree Management
+        {/* Header - Fixed outside of scrollable area */}
+        <View className="flex-row justify-between items-center px-6 mb-5 pt-4">
+          <View>
+            <Text className="text-2xl font-bold text-[#1f2937]">
+              Tree Management
+            </Text>
+            <Text className="text-sm text-[#6b7280] mt-1">
+              {treeData.stage} • {currentDecorations}/{maxAllowed} slots used
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={handleCloseBottomSheet}
+            className="bg-[#f3f4f6] rounded-full w-10 h-10 justify-center items-center"
+          >
+            <Text className="text-[#6b7280] text-lg font-bold">×</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Enhanced Tabs - Fixed outside of scrollable area */}
+        <View className="flex-row mx-6 mb-5 bg-[#f8fafc] rounded-xl p-1">
+          <TouchableOpacity
+            onPress={() => setActiveTab("inventory")}
+            className={`flex-1 py-3 px-4 rounded-lg ${
+              activeTab === "inventory" ? "bg-[#3b82f6]" : "bg-transparent"
+            }`}
+          >
+            <Text
+              className={`text-center text-base font-semibold ${
+                activeTab === "inventory" ? "text-white" : "text-[#6b7280]"
+              }`}
+            >
+              Inventory
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setActiveTab("equipped")}
+            className={`flex-1 py-3 px-4 rounded-lg ${
+              activeTab === "equipped" ? "bg-[#3b82f6]" : "bg-transparent"
+            }`}
+          >
+            <Text
+              className={`text-center text-base font-semibold ${
+                activeTab === "equipped" ? "text-white" : "text-[#6b7280]"
+              }`}
+            >
+              Equipped
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Scrollable Content */}
+        {activeTab === "inventory" ? (
+          <BottomSheetFlatList
+            data={renderInventorySection()}
+            renderItem={renderFlatListItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{
+              paddingHorizontal: 24,
+              paddingBottom: 100,
+            }}
+            showsVerticalScrollIndicator={false}
+          />
+        ) : (
+          <BottomSheetFlatList
+            data={treeData.decorations || []}
+            renderItem={({ item, index }) => {
+              const itemDef = itemDefinitions[item.type];
+              return (
+                <TouchableOpacity
+                  onPress={() => handleDecorationPress(index)}
+                  className="border-2 rounded-2xl p-4 mb-3 shadow-sm mx-6"
+                  style={{
+                    backgroundColor: itemDef.bgColor,
+                    borderColor: itemDef.borderColor,
+                  }}
+                >
+                  <View className="flex-row items-center mb-2">
+                    <View
+                      className={`w-12 h-12 rounded-full bg-white justify-center items-center mr-4 border-2`}
+                      style={{ borderColor: itemDef.borderColor }}
+                    >
+                      <Image
+                        source={getImageSource(item.type)}
+                        className="w-8 h-8"
+                      />
+                    </View>
+                    <View className="flex-1">
+                      <View className="flex-row items-center mb-1">
+                        <Text className="text-base font-bold text-[#1f2937] mr-2">
+                          {itemDef.name}
+                        </Text>
+                        <Text className="text-sm">{itemDef.icon}</Text>
+                        <View className="bg-[#10b981] px-2 py-1 rounded-lg ml-2">
+                          <Text className="text-white text-xs font-semibold">
+                            ACTIVE
+                          </Text>
+                        </View>
+                      </View>
+                      <Text className="text-xs text-[#6b7280]">
+                        Position: Slot {index + 1}
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    className="bg-[rgba(255,255,255,0.9)] rounded-lg p-3 border-l-4"
+                    style={{ borderLeftColor: itemDef.color }}
+                  >
+                    <Text
+                      className="text-xs font-semibold mb-1"
+                      style={{ color: itemDef.color }}
+                    >
+                      ACTIVE ABILITY: {itemDef.ability}
+                    </Text>
+                    <Text className="text-xs text-[#6b7280] mb-2">
+                      {itemDef.abilityDescription}
+                    </Text>
+                    {item.buff && (
+                      <View className="flex-row items-center">
+                        <Text className="text-xs text-[#059669] font-semibold">
+                          ⚡ XP Multiplier: {item.buff.xpMultiplier}x
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              );
+            }}
+            ListEmptyComponent={() => (
+              <View className="flex-1 justify-center items-center p-10 mx-6">
+                <Text className="text-5xl mb-4">🌲</Text>
+                <Text className="text-lg font-semibold text-[#6b7280] text-center">
+                  No Items Equipped
                 </Text>
-                <Text className="text-sm text-[#6b7280] mt-1">
-                  {treeData.stage} • {currentDecorations}/{maxAllowed} slots
-                  used
+                <Text className="text-sm text-[#9ca3af] text-center mt-2">
+                  Equip items from your inventory to enhance your tree's
+                  abilities
                 </Text>
               </View>
-              <TouchableOpacity
-                onPress={() => setShowInventory(false)}
-                className="bg-[#f3f4f6] rounded-full w-10 h-10 justify-center items-center"
-              >
-                <Text className="text-[#6b7280] text-lg font-bold">×</Text>
-              </TouchableOpacity>
-            </View>
+            )}
+            keyExtractor={(item, index) => `equipped_${index}`}
+            contentContainerStyle={{
+              paddingBottom: 100,
+              flexGrow: 1,
+            }}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
 
-            {/* Enhanced Tabs */}
-            <View className="flex-row mx-6 mb-5 bg-[#f8fafc] rounded-xl p-1">
-              <TouchableOpacity
-                onPress={() => setActiveTab("inventory")}
-                className={`flex-1 py-3 px-4 rounded-lg ${
-                  activeTab === "inventory" ? "bg-[#3b82f6]" : "bg-transparent"
-                }`}
-              >
-                <Text
-                  className={`text-center text-base font-semibold ${
-                    activeTab === "inventory" ? "text-white" : "text-[#6b7280]"
-                  }`}
-                >
-                  Inventory
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setActiveTab("equipped")}
-                className={`flex-1 py-3 px-4 rounded-lg ${
-                  activeTab === "equipped" ? "bg-[#3b82f6]" : "bg-transparent"
-                }`}
-              >
-                <Text
-                  className={`text-center text-base font-semibold ${
-                    activeTab === "equipped" ? "text-white" : "text-[#6b7280]"
-                  }`}
-                >
-                  Equipped
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Content */}
-            <View className="flex-1 px-6">
-              {activeTab === "inventory"
-                ? renderInventorySection()
-                : renderEquippedItems()}
-            </View>
-
-            {/* Footer */}
-            <View className="px-6 py-4 border-t border-[#e5e7eb]">
-              <Text className="text-xs text-[#9ca3af] text-center">
-                {activeTab === "inventory"
-                  ? "Tap an item to equip it on your tree"
-                  : "Tap equipped items to view details or remove them"}
-              </Text>
-            </View>
-          </View>
+        {/* Footer - Fixed at bottom */}
+        <View className="px-6 py-4 border-t border-[#e5e7eb] bg-white">
+          <Text className="text-xs text-[#9ca3af] text-center">
+            {activeTab === "inventory"
+              ? "Tap an item to equip it on your tree"
+              : "Tap equipped items to view details or remove them"}
+          </Text>
         </View>
-      </Modal>
+      </BottomSheetModal>
 
       {/* Decoration Detail Modal */}
       <DecorationDetailModal
