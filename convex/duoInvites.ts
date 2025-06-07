@@ -60,6 +60,7 @@ export const respondToInvite = mutation({
         leaves: 0,
         fruits: 0,
         decay: 0,
+        inventory: {},
         growth_log: [],
       });
 

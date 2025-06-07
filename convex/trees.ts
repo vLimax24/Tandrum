@@ -4,13 +4,6 @@ import { v } from "convex/values";
 import { getLevelData, getTreeStageForLevel } from "../src/utils/level";
 
 type Stage = "sprout" | "smallTree" | "mediumTree" | "grownTree";
-type ItemType =
-  | "leaf"
-  | "fruit"
-  | "silverLeaf"
-  | "goldenLeaf"
-  | "apple"
-  | "cherry";
 
 /**
  * Helper: Return max number of decorations allowed given the stage.
@@ -33,6 +26,39 @@ export const getTreeForDuo = query({
       .query("trees")
       .withIndex("by_duoId", (q) => q.eq("duoId", duoId))
       .first();
+  },
+});
+
+// NEW: Get tree with enriched decoration data
+export const getEnrichedTreeForDuo = query({
+  args: { duoId: v.id("duoConnections") },
+  handler: async (ctx, { duoId }) => {
+    const tree = await ctx.db
+      .query("trees")
+      .withIndex("by_duoId", (q) => q.eq("duoId", duoId))
+      .first();
+
+    if (!tree) return null;
+
+    // Enrich decorations with item data
+    const enrichedDecorations = await Promise.all(
+      (tree.decorations || []).map(async (decoration) => {
+        const itemData = await ctx.db
+          .query("treeItems")
+          .withIndex("by_itemId", (q) => q.eq("itemId", decoration.itemId))
+          .first();
+
+        return {
+          ...decoration,
+          itemData,
+        };
+      })
+    );
+
+    return {
+      ...tree,
+      enrichedDecorations,
+    };
   },
 });
 
@@ -82,23 +108,11 @@ export const updateTreeDecorations = mutation({
   args: {
     duoId: v.id("duoConnections"),
     decoration: v.object({
-      type: v.union(
-        v.literal("leaf"),
-        v.literal("fruit"),
-        v.literal("silverLeaf"),
-        v.literal("goldenLeaf"),
-        v.literal("apple"),
-        v.literal("cherry")
-      ),
+      itemId: v.string(),
       position: v.object({
         x: v.number(),
         y: v.number(),
       }),
-      buff: v.optional(
-        v.object({
-          xpMultiplier: v.number(),
-        })
-      ),
     }),
   },
   handler: async (ctx, { duoId, decoration }) => {
@@ -111,6 +125,15 @@ export const updateTreeDecorations = mutation({
       throw new Error("Tree not found for this duo");
     }
 
+    // Verify the item exists and is active
+    const itemData = await ctx.db
+      .query("treeItems")
+      .withIndex("by_itemId", (q) => q.eq("itemId", decoration.itemId))
+      .first();
+    if (!itemData || !itemData.isActive) {
+      throw new Error("Invalid or inactive tree item");
+    }
+
     // Check stage-based max
     const stage = tree.stage as Stage;
     const existingDecorations = tree.decorations || [];
@@ -121,65 +144,39 @@ export const updateTreeDecorations = mutation({
       );
     }
 
-    // Check if user has enough inventory of that type
-    // Using optional chaining and nullish coalescing for safety
-    const silverLeaves = tree.silverLeaves ?? 0;
-    const goldenLeaves = tree.goldenLeaves ?? 0;
-    const apples = tree.apples ?? 0;
-    const cherries = tree.cherries ?? 0;
-
-    if (decoration.type === "leaf" && tree.leaves <= 0) {
-      throw new Error("Not enough leaves available");
-    }
-    if (decoration.type === "fruit" && tree.fruits <= 0) {
-      throw new Error("Not enough fruits available");
-    }
-    if (decoration.type === "silverLeaf" && silverLeaves <= 0) {
-      throw new Error("Not enough silver leaves available");
-    }
-    if (decoration.type === "goldenLeaf" && goldenLeaves <= 0) {
-      throw new Error("Not enough golden leaves available");
-    }
-    if (decoration.type === "apple" && apples <= 0) {
-      throw new Error("Not enough apples available");
-    }
-    if (decoration.type === "cherry" && cherries <= 0) {
-      throw new Error("Not enough cherries available");
+    // Check inventory count
+    const inventory = tree.inventory || {};
+    const currentCount = inventory[decoration.itemId] || 0;
+    if (currentCount <= 0) {
+      throw new Error(`Not enough ${itemData.name} available in inventory`);
     }
 
-    // Make sure no slot overlap (same logic as before)
+    // Check for position overlap
     const isOccupied = existingDecorations.some(
       (dec) =>
         Math.abs(dec.position.x - decoration.position.x) < 20 &&
         Math.abs(dec.position.y - decoration.position.y) < 20
     );
     if (isOccupied) {
-      throw new Error("Dieser Platz ist bereits belegt!");
+      throw new Error("This position is already occupied!");
     }
 
-    // Insert new decoration
-    const updatedDecorations = [...existingDecorations, decoration];
+    // Create the new decoration
+    const newDecoration = {
+      ...decoration,
+      equipped_at: Date.now(),
+    };
 
-    // Adjust inventory counts - using nullish coalescing for safety
-    const newLeaves =
-      decoration.type === "leaf" ? tree.leaves - 1 : tree.leaves;
-    const newFruits =
-      decoration.type === "fruit" ? tree.fruits - 1 : tree.fruits;
-    const newSilverLeaves =
-      decoration.type === "silverLeaf" ? silverLeaves - 1 : silverLeaves;
-    const newGoldenLeaves =
-      decoration.type === "goldenLeaf" ? goldenLeaves - 1 : goldenLeaves;
-    const newApples = decoration.type === "apple" ? apples - 1 : apples;
-    const newCherries = decoration.type === "cherry" ? cherries - 1 : cherries;
+    // Update tree with new decoration and reduced inventory
+    const updatedDecorations = [...existingDecorations, newDecoration];
+    const updatedInventory = {
+      ...inventory,
+      [decoration.itemId]: currentCount - 1,
+    };
 
     await ctx.db.patch(tree._id, {
       decorations: updatedDecorations,
-      leaves: newLeaves,
-      fruits: newFruits,
-      silverLeaves: newSilverLeaves,
-      goldenLeaves: newGoldenLeaves,
-      apples: newApples,
-      cherries: newCherries,
+      inventory: updatedInventory,
     });
 
     return { success: true };
@@ -210,35 +207,149 @@ export const removeTreeDecoration = mutation({
       (_, idx) => idx !== decorationIndex
     );
 
-    // Get current values with nullish coalescing for safety
-    const silverLeaves = tree.silverLeaves ?? 0;
-    const goldenLeaves = tree.goldenLeaves ?? 0;
-    const apples = tree.apples ?? 0;
-    const cherries = tree.cherries ?? 0;
-
     // Return the item to inventory
-    const newLeaves =
-      removedDecoration.type === "leaf" ? tree.leaves + 1 : tree.leaves;
-    const newFruits =
-      removedDecoration.type === "fruit" ? tree.fruits + 1 : tree.fruits;
-    const newSilverLeaves =
-      removedDecoration.type === "silverLeaf" ? silverLeaves + 1 : silverLeaves;
-    const newGoldenLeaves =
-      removedDecoration.type === "goldenLeaf" ? goldenLeaves + 1 : goldenLeaves;
-    const newApples = removedDecoration.type === "apple" ? apples + 1 : apples;
-    const newCherries =
-      removedDecoration.type === "cherry" ? cherries + 1 : cherries;
+    const inventory = tree.inventory || {};
+    const currentCount = inventory[removedDecoration.itemId] || 0;
+    const updatedInventory = {
+      ...inventory,
+      [removedDecoration.itemId]: currentCount + 1,
+    };
 
     await ctx.db.patch(tree._id, {
       decorations: updatedDecorations,
-      leaves: newLeaves,
-      fruits: newFruits,
-      silverLeaves: newSilverLeaves,
-      goldenLeaves: newGoldenLeaves,
-      apples: newApples,
-      cherries: newCherries,
+      inventory: updatedInventory,
     });
 
     return { success: true };
+  },
+});
+
+// NEW: Add item to tree inventory
+export const addItemToInventory = mutation({
+  args: {
+    duoId: v.id("duoConnections"),
+    itemId: v.string(),
+    quantity: v.number(),
+  },
+  handler: async (ctx, { duoId, itemId, quantity }) => {
+    const tree = await ctx.db
+      .query("trees")
+      .withIndex("by_duoId", (q) => q.eq("duoId", duoId))
+      .first();
+    if (!tree) {
+      throw new Error("Tree not found for this duo");
+    }
+
+    // Verify the item exists
+    const itemData = await ctx.db
+      .query("treeItems")
+      .withIndex("by_itemId", (q) => q.eq("itemId", itemId))
+      .first();
+    if (!itemData || !itemData.isActive) {
+      throw new Error("Invalid or inactive tree item");
+    }
+
+    const inventory = tree.inventory || {};
+    const currentCount = inventory[itemId] || 0;
+    const newCount = Math.max(0, currentCount + quantity);
+
+    const updatedInventory = {
+      ...inventory,
+      [itemId]: newCount,
+    };
+
+    await ctx.db.patch(tree._id, {
+      inventory: updatedInventory,
+    });
+
+    // Log the change
+    const today = new Date().toISOString().split("T")[0];
+    const change =
+      quantity > 0
+        ? `Gained ${quantity}x ${itemData.name} 🎁`
+        : `Used ${Math.abs(quantity)}x ${itemData.name} 💫`;
+
+    const newLog = {
+      [today]: { change },
+    };
+
+    await ctx.db.patch(tree._id, {
+      growth_log: [...tree.growth_log, newLog],
+    });
+
+    return { success: true, newCount };
+  },
+});
+
+// NEW: Calculate active buffs from equipped decorations
+export const getActiveBuffs = query({
+  args: { duoId: v.id("duoConnections") },
+  handler: async (ctx, { duoId }) => {
+    const tree = await ctx.db
+      .query("trees")
+      .withIndex("by_duoId", (q) => q.eq("duoId", duoId))
+      .first();
+
+    if (!tree || !tree.decorations) {
+      return {
+        xpMultiplier: 1,
+        focusBonus: 0,
+        dailyXpBonus: 0,
+        streakProtection: false,
+        activeItems: [],
+      };
+    }
+
+    let totalXpMultiplier = 1;
+    let totalFocusBonus = 0;
+    let totalDailyXpBonus = 0;
+    let hasStreakProtection = false;
+    const activeItems = [];
+
+    for (const decoration of tree.decorations) {
+      const itemData = await ctx.db
+        .query("treeItems")
+        .withIndex("by_itemId", (q) => q.eq("itemId", decoration.itemId))
+        .first();
+
+      if (itemData && itemData.isActive) {
+        const buffs = itemData.buffs;
+
+        // Multiply XP multipliers (e.g., 2x * 1.5x = 3x)
+        if (buffs.xpMultiplier) {
+          totalXpMultiplier *= buffs.xpMultiplier;
+        }
+
+        // Add focus bonuses
+        if (buffs.focusBonus) {
+          totalFocusBonus += buffs.focusBonus;
+        }
+
+        // Add daily XP bonuses
+        if (buffs.dailyXpBonus) {
+          totalDailyXpBonus += buffs.dailyXpBonus;
+        }
+
+        // Check for streak protection
+        if (buffs.streakProtection) {
+          hasStreakProtection = true;
+        }
+
+        activeItems.push({
+          itemId: decoration.itemId,
+          name: itemData.name,
+          buffs: itemData.buffs,
+          equipped_at: decoration.equipped_at,
+        });
+      }
+    }
+
+    return {
+      xpMultiplier: Math.round(totalXpMultiplier * 100) / 100, // Round to 2 decimal places
+      focusBonus: totalFocusBonus,
+      dailyXpBonus: totalDailyXpBonus,
+      streakProtection: hasStreakProtection,
+      activeItems,
+    };
   },
 });

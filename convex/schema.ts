@@ -69,6 +69,46 @@ export default defineSchema({
     created_at: v.number(),
   }).index("by_to", ["to"]),
 
+  // NEW: Tree Items table for managing all decorations
+  treeItems: defineTable({
+    itemId: v.string(), // unique identifier like "leaf", "silverLeaf", etc.
+    name: v.string(),
+    description: v.string(),
+    category: v.union(v.literal("leaf"), v.literal("fruit")),
+    rarity: v.union(
+      v.literal("common"),
+      v.literal("uncommon"),
+      v.literal("rare"),
+      v.literal("epic"),
+      v.literal("legendary")
+    ),
+    // Visual properties
+    icon: v.string(),
+    color: v.string(),
+    bgColor: v.string(),
+    borderColor: v.string(),
+    imageAsset: v.string(), // reference to image file
+    // Buff properties
+    buffs: v.object({
+      xpMultiplier: v.optional(v.number()),
+      focusBonus: v.optional(v.number()),
+      streakProtection: v.optional(v.boolean()),
+      dailyXpBonus: v.optional(v.number()),
+      // Add more buff types as needed
+    }),
+    // Ability description
+    ability: v.string(),
+    abilityDescription: v.string(),
+    // Availability
+    isActive: v.boolean(),
+    created_at: v.number(),
+    updated_at: v.number(),
+  })
+    .index("by_itemId", ["itemId"])
+    .index("by_category", ["category"])
+    .index("by_rarity", ["rarity"])
+    .index("by_isActive", ["isActive"]),
+
   trees: defineTable({
     duoId: v.id("duoConnections"),
     stage: v.union(
@@ -80,33 +120,19 @@ export default defineSchema({
     leaves: v.number(),
     fruits: v.number(),
     decay: v.number(),
-    // Add the missing inventory fields for new item types
-    silverLeaves: v.optional(v.number()),
-    goldenLeaves: v.optional(v.number()),
-    apples: v.optional(v.number()),
-    cherries: v.optional(v.number()),
-    // Now each decoration can carry an optional "buff" object.
+    // Dynamic inventory - stores counts for each itemId
+    inventory: v.record(v.string(), v.number()),
+    // Updated decorations to reference itemId instead of hardcoded types
     decorations: v.optional(
       v.array(
         v.object({
-          type: v.union(
-            v.literal("leaf"),
-            v.literal("fruit"),
-            v.literal("silverLeaf"),
-            v.literal("goldenLeaf"),
-            v.literal("apple"),
-            v.literal("cherry")
-          ),
+          itemId: v.string(), // references treeItems.itemId
           position: v.object({
             x: v.number(),
             y: v.number(),
           }),
-          buff: v.optional(
-            v.object({
-              xpMultiplier: v.number(),
-              // You can add more buff fields here if needed later
-            })
-          ),
+          // Buffs are now calculated from the item definition
+          equipped_at: v.number(),
         })
       )
     ),
