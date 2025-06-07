@@ -18,6 +18,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import LevelDisplay from "@/components/LevelDisplay";
 import { router } from "expo-router";
 import { useDuo } from "@/hooks/useDuo";
+import { NewDuoModal } from "@/components/NewDuoModal";
 
 const images: Record<string, any> = {
   sprout: require("../../../assets/tree-1.png"),
@@ -48,6 +49,7 @@ const Page = () => {
   );
 
   const [modalVisible, setModalVisible] = useState(false);
+
   const incomingInvite = useQuery(
     api.duoInvites.getIncomingInvite,
     convexUser ? { userId: convexUser._id } : "skip"
@@ -127,6 +129,14 @@ const Page = () => {
     : 0;
   const activeDuos = userConnections?.length || 0;
 
+  const handleStartPartnership = () => {
+    setModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setModalVisible(false);
+  };
+
   return (
     <LinearGradient
       colors={["#f8fafc", "#dbeafe"]}
@@ -135,7 +145,7 @@ const Page = () => {
       style={{ flex: 1 }}
       className="pt-10"
     >
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, zIndex: 0 }}>
         <StatusBar barStyle="dark-content" translucent />
 
         <ScrollView
@@ -539,7 +549,7 @@ const Page = () => {
           {/* Action Buttons */}
           <View className="px-6 gap-3">
             <TouchableOpacity
-              onPress={() => setModalVisible(true)}
+              onPress={handleStartPartnership}
               activeOpacity={0.8}
               style={{
                 overflow: "hidden",
@@ -549,6 +559,8 @@ const Page = () => {
                 shadowOpacity: 0.3,
                 shadowRadius: 12,
                 elevation: 12,
+                width: "100%",
+                maxWidth: 500,
               }}
             >
               <LinearGradient
@@ -556,23 +568,42 @@ const Page = () => {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={{
-                  paddingHorizontal: 24,
-                  paddingVertical: 20,
-                  flexDirection: "row",
+                  paddingVertical: 18,
+                  paddingHorizontal: 32,
                   alignItems: "center",
                   justifyContent: "center",
+                  flexDirection: "row",
                 }}
               >
                 <View
-                  className="w-8 h-8 rounded-full items-center justify-center mr-3"
-                  style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+                  style={{
+                    width: 24,
+                    height: 24,
+                    backgroundColor: "rgba(255, 255, 255, 0.2)",
+                    borderRadius: 12,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginRight: 12,
+                  }}
                 >
-                  <Text className="text-white font-bold text-lg">+</Text>
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 16,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    +
+                  </Text>
                 </View>
-                <Text className="text-white font-bold text-lg">
-                  {isUserInConnection
-                    ? "Start New Partnership"
-                    : "Start First Partnership"}
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: 18,
+                    fontWeight: "bold",
+                  }}
+                >
+                  Start New Partnership
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -622,13 +653,14 @@ const Page = () => {
             </View>
           </View>
         </ScrollView>
-
-        <StartDuoModal
+      </SafeAreaView>
+      {convexUser && (
+        <NewDuoModal
           visible={modalVisible}
-          onClose={() => setModalVisible(false)}
+          onClose={handleModalClose}
           userId={convexUser._id}
         />
-      </SafeAreaView>
+      )}
     </LinearGradient>
   );
 };

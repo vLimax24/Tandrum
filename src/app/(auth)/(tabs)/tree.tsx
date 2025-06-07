@@ -10,6 +10,8 @@ import { LevelDisplay } from "@/components/LevelDisplay";
 import { useDuo } from "@/hooks/useDuo";
 import TreeInventory from "@/components/TreeInventory";
 import { LinearGradient } from "expo-linear-gradient";
+import { NoDuoScreen } from "@/components/NoDuoScreen";
+import { ItemType } from "@/components/TreeInventory";
 
 const treeImages: Record<string, any> = {
   sprout: require("../../../assets/tree-1.png"),
@@ -27,6 +29,7 @@ export default function TreeSection() {
 
   // Add refresh trigger for inventory updates
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const clerkId = user?.id;
   const convexUser = useQuery(
@@ -51,7 +54,7 @@ export default function TreeSection() {
     api.trees.getTreeForDuo,
     selectedConnection
       ? { duoId: selectedConnection._id as Id<"duoConnections"> }
-      : undefined
+      : "skip"
   );
 
   useEffect(() => {
@@ -122,9 +125,10 @@ export default function TreeSection() {
     );
   if (connections.length === 0)
     return (
-      <View className="flex-1 justify-center items-center bg-background">
-        <Text className="text-text">You have no duos yet 🌱</Text>
-      </View>
+      <NoDuoScreen
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+      />
     );
   if (!treeData)
     return (
@@ -223,7 +227,11 @@ export default function TreeSection() {
             stage: treeData.stage,
             leaves: treeData.leaves,
             fruits: treeData.fruits,
-            decorations: treeData.decorations || [],
+            inventory: treeData.inventory || {},
+            decorations: (treeData.decorations || []).map((decoration) => ({
+              ...decoration,
+              itemId: decoration.itemId as ItemType,
+            })),
           }}
           onInventoryUpdate={handleInventoryUpdate}
         />

@@ -23,43 +23,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StreakVisualization } from "@/components/StreakVisualization";
 import HabitActionMenu from "@/components/HabitActionMenu";
 import HabitEditModal from "@/components/HabitEditModal";
+import { NoDuoScreen } from "@/components/NoDuoScreen";
 
 export default function HabitsSection() {
+  // ALL HOOKS MUST BE CALLED AT THE TOP LEVEL, BEFORE ANY CONDITIONAL LOGIC
   const { user } = useUser();
-  const clerkId = user.id;
   const { timeToday, timeWeek } = useLiveTimers();
-  const convexUser = useQuery(api.users.getUserByClerkId, { clerkId });
-  const connections = useQuery(
-    api.duoConnections.getConnectionsForUser,
-    convexUser ? { userId: convexUser._id } : "skip"
-  );
-  const checkInHabit = useMutation(api.duoHabits.checkInHabit);
-  const deleteHabit = useMutation(api.duoHabits.deleteHabit);
   const { selectedIndex, setSelectedIndex } = useDuo();
 
-  const treeImages: Record<string, any> = {
-    sprout: require("../../../assets/tree-1.png"),
-    smallTree: require("../../../assets/tree-2.png"),
-    mediumTree: require("../../../assets/tree-1.png"),
-    grownTree: require("../../../assets/tree-1.png"),
-    orange: require("../../../assets/orange.png"),
-    leaf: require("../../../assets/hemp-leaf.png"),
-    calendar: require("../../../assets/calendar.png"),
-  };
-
-  useEffect(() => {
-    if (connections && selectedIndex >= connections.length) {
-      setSelectedIndex(0);
-    }
-  }, [connections]);
-
-  const habits = useQuery(
-    api.duoHabits.getHabitsForDuo,
-    connections ? { duoId: connections[selectedIndex]._id } : "skip"
-  );
-  const createHabit = useMutation(api.duoHabits.createHabit);
-
-  // Enhanced modal state
+  // All state hooks
   const [modalVisible, setModalVisible] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newFreq, setNewFreq] = useState<"daily" | "weekly">("daily");
@@ -72,11 +44,57 @@ export default function HabitsSection() {
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingHabit, setEditingHabit] = useState<any>(null);
+  const [noDuoModalVisible, setNoDuoModalVisible] = useState(false);
+  const [now, setNow] = useState(Date.now());
 
+  // Derived values
+  const clerkId = user?.id;
+
+  // ALL useQuery and useMutation hooks - these must be called unconditionally
+  const convexUser = useQuery(
+    api.users.getUserByClerkId,
+    clerkId ? { clerkId } : "skip"
+  );
+  const connections = useQuery(
+    api.duoConnections.getConnectionsForUser,
+    convexUser ? { userId: convexUser._id } : "skip"
+  );
+  const habits = useQuery(
+    api.duoHabits.getHabitsForDuo,
+    connections && connections[selectedIndex]
+      ? { duoId: connections[selectedIndex]._id }
+      : "skip"
+  );
+  const checkInHabit = useMutation(api.duoHabits.checkInHabit);
+  const deleteHabit = useMutation(api.duoHabits.deleteHabit);
+  const createHabit = useMutation(api.duoHabits.createHabit);
   const updateHabit = useMutation(api.duoHabits.updateHabit);
 
+  // All useEffect hooks
+  useEffect(() => {
+    if (connections && selectedIndex >= connections.length) {
+      setSelectedIndex(0);
+    }
+  }, [connections, selectedIndex, setSelectedIndex]);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Tree images constant
+  const treeImages: Record<string, any> = {
+    sprout: require("../../../assets/tree-1.png"),
+    smallTree: require("../../../assets/tree-2.png"),
+    mediumTree: require("../../../assets/tree-1.png"),
+    grownTree: require("../../../assets/tree-1.png"),
+    orange: require("../../../assets/orange.png"),
+    leaf: require("../../../assets/hemp-leaf.png"),
+    calendar: require("../../../assets/calendar.png"),
+  };
+
+  // Handler functions
   const handleMenuPress = (event: any, habit: any) => {
-    // Get button position for menu placement
     event.target.measure((x, y, width, height, pageX, pageY) => {
       setMenuPosition({ x: pageX, y: pageY });
       setActiveMenuHabitId(habit._id);
@@ -139,7 +157,6 @@ export default function HabitsSection() {
   };
 
   // time tracking
-  const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
@@ -180,61 +197,52 @@ export default function HabitsSection() {
     );
   }
 
-  if (connections.length === 0) {
-    return (
-      <View className="flex-1 justify-center items-center bg-[#f8fafc] px-8">
-        <View className="bg-white rounded-3xl p-8 shadow-lg items-center">
-          <View className="w-20 h-20 bg-[#f0fdf4] rounded-full items-center justify-center mb-6">
-            <Image
-              source={treeImages["sprout"]}
-              style={{ width: 40, height: 40, opacity: 0.6 }}
-            />
-          </View>
-          <Text className="text-[#111827] text-2xl font-bold text-center mb-3">
-            No Duos Yet
-          </Text>
-          <Text className="text-[#6b7280] text-center leading-6 text-base">
-            Connect with a partner to start building habits together and grow
-            your tree! 🌱
-          </Text>
-        </View>
-      </View>
-    );
-  }
-
   const duo = connections[selectedIndex];
   const daily = habits.filter((h) => h.frequency === "daily");
   const weekly = habits.filter((h) => h.frequency === "weekly");
   const amI_A = convexUser._id === duo.user1;
 
   const handleDeleteHabit = (habitId: Id<"duoHabits">, habitTitle: string) => {
-    Alert.alert(
-      "Delete Habit",
-      `Are you sure you want to delete "${habitTitle}"? This action cannot be undone.`,
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteHabit({ habitId });
-            } catch (error) {
-              Alert.alert("Error", "Failed to delete habit. Please try again.");
-            }
+    // Use setTimeout to ensure navigation context is available
+    setTimeout(() => {
+      Alert.alert(
+        "Delete Habit",
+        `Are you sure you want to delete "${habitTitle}"? This action cannot be undone.`,
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
           },
-        },
-      ]
-    );
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                await deleteHabit({ habitId });
+              } catch (error) {
+                setTimeout(() => {
+                  Alert.alert(
+                    "Error",
+                    "Failed to delete habit. Please try again."
+                  );
+                }, 100);
+              }
+            },
+          },
+        ]
+      );
+    }, 100);
   };
 
   const handleCreateHabit = async () => {
     const error = validateHabitTitle(newTitle);
     if (error) {
       setValidationError(error);
+      return;
+    }
+
+    if (!duo) {
+      Alert.alert("Error", "No duo selected. Please try again.");
       return;
     }
 
@@ -474,10 +482,13 @@ export default function HabitsSection() {
                           });
                         } catch (error) {
                           console.error("Check-in error:", error);
-                          Alert.alert(
-                            "Error",
-                            "Failed to update habit. Please try again."
-                          );
+                          // Use setTimeout to delay the alert and avoid navigation context issues
+                          setTimeout(() => {
+                            Alert.alert(
+                              "Error",
+                              "Failed to update habit. Please try again."
+                            );
+                          }, 100);
                         }
                       }}
                       onMenuPress={handleMenuPress}
@@ -530,10 +541,13 @@ export default function HabitsSection() {
                           });
                         } catch (error) {
                           console.error("Check-in error:", error);
-                          Alert.alert(
-                            "Error",
-                            "Failed to update habit. Please try again."
-                          );
+                          // Use setTimeout to delay the alert and avoid navigation context issues
+                          setTimeout(() => {
+                            Alert.alert(
+                              "Error",
+                              "Failed to update habit. Please try again."
+                            );
+                          }, 100);
                         }
                       }}
                       onMenuPress={handleMenuPress}
