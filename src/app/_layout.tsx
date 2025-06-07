@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { SplashScreen, useSegments, useRouter } from "expo-router";
 import { Slot } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import {
   ClerkProvider,
   ClerkLoaded,
@@ -71,11 +72,13 @@ export default function Layout() {
     >
       <ClerkLoaded>
         <GestureHandlerRootView>
-          <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-            <DuoProvider>
-              <InitialLayout />
-            </DuoProvider>
-          </ConvexProviderWithClerk>
+          <BottomSheetModalProvider>
+            <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+              <DuoProvider>
+                <InitialLayout />
+              </DuoProvider>
+            </ConvexProviderWithClerk>
+          </BottomSheetModalProvider>
         </GestureHandlerRootView>
       </ClerkLoaded>
     </ClerkProvider>
