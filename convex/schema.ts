@@ -80,11 +80,23 @@ export default defineSchema({
     leaves: v.number(),
     fruits: v.number(),
     decay: v.number(),
+    // Add the missing inventory fields for new item types
+    silverLeaves: v.optional(v.number()),
+    goldenLeaves: v.optional(v.number()),
+    apples: v.optional(v.number()),
+    cherries: v.optional(v.number()),
     // Now each decoration can carry an optional "buff" object.
     decorations: v.optional(
       v.array(
         v.object({
-          type: v.union(v.literal("leaf"), v.literal("fruit")),
+          type: v.union(
+            v.literal("leaf"),
+            v.literal("fruit"),
+            v.literal("silverLeaf"),
+            v.literal("goldenLeaf"),
+            v.literal("apple"),
+            v.literal("cherry")
+          ),
           position: v.object({
             x: v.number(),
             y: v.number(),

@@ -4,6 +4,13 @@ import { v } from "convex/values";
 import { getLevelData, getTreeStageForLevel } from "../src/utils/level";
 
 type Stage = "sprout" | "smallTree" | "mediumTree" | "grownTree";
+type ItemType =
+  | "leaf"
+  | "fruit"
+  | "silverLeaf"
+  | "goldenLeaf"
+  | "apple"
+  | "cherry";
 
 /**
  * Helper: Return max number of decorations allowed given the stage.
@@ -75,7 +82,14 @@ export const updateTreeDecorations = mutation({
   args: {
     duoId: v.id("duoConnections"),
     decoration: v.object({
-      type: v.union(v.literal("leaf"), v.literal("fruit")),
+      type: v.union(
+        v.literal("leaf"),
+        v.literal("fruit"),
+        v.literal("silverLeaf"),
+        v.literal("goldenLeaf"),
+        v.literal("apple"),
+        v.literal("cherry")
+      ),
       position: v.object({
         x: v.number(),
         y: v.number(),
@@ -108,11 +122,29 @@ export const updateTreeDecorations = mutation({
     }
 
     // Check if user has enough inventory of that type
+    // Using optional chaining and nullish coalescing for safety
+    const silverLeaves = tree.silverLeaves ?? 0;
+    const goldenLeaves = tree.goldenLeaves ?? 0;
+    const apples = tree.apples ?? 0;
+    const cherries = tree.cherries ?? 0;
+
     if (decoration.type === "leaf" && tree.leaves <= 0) {
       throw new Error("Not enough leaves available");
     }
     if (decoration.type === "fruit" && tree.fruits <= 0) {
       throw new Error("Not enough fruits available");
+    }
+    if (decoration.type === "silverLeaf" && silverLeaves <= 0) {
+      throw new Error("Not enough silver leaves available");
+    }
+    if (decoration.type === "goldenLeaf" && goldenLeaves <= 0) {
+      throw new Error("Not enough golden leaves available");
+    }
+    if (decoration.type === "apple" && apples <= 0) {
+      throw new Error("Not enough apples available");
+    }
+    if (decoration.type === "cherry" && cherries <= 0) {
+      throw new Error("Not enough cherries available");
     }
 
     // Make sure no slot overlap (same logic as before)
@@ -128,16 +160,26 @@ export const updateTreeDecorations = mutation({
     // Insert new decoration
     const updatedDecorations = [...existingDecorations, decoration];
 
-    // Adjust inventory counts
+    // Adjust inventory counts - using nullish coalescing for safety
     const newLeaves =
       decoration.type === "leaf" ? tree.leaves - 1 : tree.leaves;
     const newFruits =
       decoration.type === "fruit" ? tree.fruits - 1 : tree.fruits;
+    const newSilverLeaves =
+      decoration.type === "silverLeaf" ? silverLeaves - 1 : silverLeaves;
+    const newGoldenLeaves =
+      decoration.type === "goldenLeaf" ? goldenLeaves - 1 : goldenLeaves;
+    const newApples = decoration.type === "apple" ? apples - 1 : apples;
+    const newCherries = decoration.type === "cherry" ? cherries - 1 : cherries;
 
     await ctx.db.patch(tree._id, {
       decorations: updatedDecorations,
       leaves: newLeaves,
       fruits: newFruits,
+      silverLeaves: newSilverLeaves,
+      goldenLeaves: newGoldenLeaves,
+      apples: newApples,
+      cherries: newCherries,
     });
 
     return { success: true };
@@ -168,16 +210,33 @@ export const removeTreeDecoration = mutation({
       (_, idx) => idx !== decorationIndex
     );
 
+    // Get current values with nullish coalescing for safety
+    const silverLeaves = tree.silverLeaves ?? 0;
+    const goldenLeaves = tree.goldenLeaves ?? 0;
+    const apples = tree.apples ?? 0;
+    const cherries = tree.cherries ?? 0;
+
     // Return the item to inventory
     const newLeaves =
       removedDecoration.type === "leaf" ? tree.leaves + 1 : tree.leaves;
     const newFruits =
       removedDecoration.type === "fruit" ? tree.fruits + 1 : tree.fruits;
+    const newSilverLeaves =
+      removedDecoration.type === "silverLeaf" ? silverLeaves + 1 : silverLeaves;
+    const newGoldenLeaves =
+      removedDecoration.type === "goldenLeaf" ? goldenLeaves + 1 : goldenLeaves;
+    const newApples = removedDecoration.type === "apple" ? apples + 1 : apples;
+    const newCherries =
+      removedDecoration.type === "cherry" ? cherries + 1 : cherries;
 
     await ctx.db.patch(tree._id, {
       decorations: updatedDecorations,
       leaves: newLeaves,
       fruits: newFruits,
+      silverLeaves: newSilverLeaves,
+      goldenLeaves: newGoldenLeaves,
+      apples: newApples,
+      cherries: newCherries,
     });
 
     return { success: true };
