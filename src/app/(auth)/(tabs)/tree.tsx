@@ -16,6 +16,7 @@ import { getTreeStageForLevel, getLevelData } from "@/utils/level";
 import { LevelDisplay } from "@/components/LevelDisplay";
 import { useDuo } from "@/hooks/useDuo";
 import TreeInventory from "@/components/TreeInventory";
+import { LinearGradient } from "expo-linear-gradient";
 
 const treeImages: Record<string, any> = {
   sprout: require("../../../assets/tree-1.png"),
@@ -140,155 +141,168 @@ export default function TreeSection() {
     );
 
   return (
-    <ScrollView className="flex-1 bg-background py-16 px-5">
-      <Text className="text-text text-4xl font-semibold mb-2">Tree</Text>
-      <View className="mb-6">
-        <Text className="text-lg font-semibold text-text mb-2">Select Duo</Text>
-        <View className="bg-primary rounded-lg px-4 py-2 flex-row items-center">
-          <Image
-            source={treeImages["leaf"]}
-            style={{ width: 20, height: 20, marginRight: 8 }}
-          />
-          <View
-            style={{ flex: 1, position: "relative", justifyContent: "center" }}
-          >
-            <RNPickerSelect
-              onValueChange={setSelectedIndex}
-              placeholder={{}}
-              value={selectedIndex}
-              items={connections.map((c, i) => ({
-                label: `Duo with ${c.partnerName}`,
-                value: i,
-              }))}
-              useNativeAndroidPickerStyle={false}
-              style={{
-                inputIOS: {
-                  color: "#fff",
-                  fontSize: 16,
-                  fontWeight: "500",
-                  paddingVertical: 10,
-                  paddingRight: 32,
-                  paddingLeft: 8,
-                  borderRadius: 8,
-                  backgroundColor: "transparent",
-                },
-                inputAndroid: {
-                  color: "#fff",
-                  fontSize: 16,
-                  fontWeight: "500",
-                  paddingVertical: 10,
-                  paddingRight: 32,
-                  paddingLeft: 8,
-                  borderRadius: 8,
-                  backgroundColor: "transparent",
-                },
-                iconContainer: {
-                  position: "absolute",
-                  right: 8,
-                  top: "50%",
-                  marginTop: -12,
-                },
-              }}
-              Icon={() => (
-                <Text style={{ color: "#fff", fontSize: 18 }}>▼</Text>
-              )}
+    <LinearGradient
+      colors={["#f8fafc", "#dbeafe"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{ flex: 1 }}
+    >
+      <ScrollView className="flex-1 py-16 px-5">
+        <Text className="text-text text-4xl font-semibold mb-2">Tree</Text>
+        <View className="mb-6">
+          <Text className="text-lg font-semibold text-text mb-2">
+            Select Duo
+          </Text>
+          <View className="bg-primary rounded-lg px-4 py-2 flex-row items-center">
+            <Image
+              source={treeImages["leaf"]}
+              style={{ width: 20, height: 20, marginRight: 8 }}
             />
-          </View>
-        </View>
-      </View>
-
-      {/* Tree Display with Inventory Integration */}
-      <View className="items-center mb-6 relative">
-        <Image
-          source={treeImages[treeData.stage]}
-          style={{ width: 180, height: 180 }}
-          resizeMode="contain"
-        />
-        {/* TreeInventory component will render slots and decorations over the tree */}
-      </View>
-
-      {/* Tree Inventory Component */}
-      <TreeInventory
-        treeData={{
-          duoId: selectedConnection._id as Id<"duoConnections">,
-          stage: treeData.stage,
-          leaves: treeData.leaves,
-          fruits: treeData.fruits,
-          decorations: treeData.decorations || [],
-        }}
-        onInventoryUpdate={handleInventoryUpdate}
-      />
-
-      <View className="flex-row justify-between py-4 px-5 rounded-lg mb-6 bg-primary">
-        <View className="flex flex-row items-center gap-2">
-          <Image
-            source={treeImages["leaf"]}
-            style={{ width: 20, height: 20 }}
-            className="pt-2"
-          />
-          <Text className="text-background">Leaves: {treeData.leaves}</Text>
-        </View>
-        <View className="flex flex-row items-center">
-          <Image
-            source={treeImages["orange"]}
-            style={{ width: 30, height: 30 }}
-            className="pt-2"
-          />
-          <Text className="text-background">Fruits: {treeData.fruits}</Text>
-        </View>
-        <View className="flex flex-row items-center">
-          <Image
-            source={treeImages["sprout"]}
-            style={{ width: 30, height: 30 }}
-            className="pt-2"
-          />
-          <Text className="text-background">Decay: {treeData.decay}</Text>
-        </View>
-      </View>
-      <LevelDisplay duo={selectedConnection} />
-      <View className="mb-16">
-        <Text className="text-2xl font-semibold text-text mb-2">
-          Growth Log:
-        </Text>
-        {treeData.growth_log.length > 0 ? (
-          Object.entries(groupedGrowthLog).map(([dateStr, logs]) => (
-            <View key={dateStr} className="mb-4">
-              <TouchableOpacity
-                onPress={() => toggleCollapse(dateStr)}
-                className="flex-row items-center mb-1"
-                activeOpacity={0.7}
-              >
-                <Text className="text-md font-bold text-text mr-2">
-                  {dateStr}
-                </Text>
-                <Text className="text-lg">
-                  {collapsedDates[dateStr] ? "▼" : "▲"}
-                </Text>
-              </TouchableOpacity>
-              {!collapsedDates[dateStr] &&
-                logs.map(({ idx, change }) => (
-                  <View
-                    key={idx}
-                    className="bg-[#f9f9f9] p-3 rounded-lg mb-2 flex-row items-center w-full"
-                  >
-                    <Image
-                      source={treeImages["calendar"]}
-                      style={{ width: 20, height: 20 }}
-                      className="mr-3"
-                    />
-                    <View>
-                      <Text className="text-sm text-gray-600">{change}</Text>
-                    </View>
-                  </View>
-                ))}
+            <View
+              style={{
+                flex: 1,
+                position: "relative",
+                justifyContent: "center",
+              }}
+            >
+              <RNPickerSelect
+                onValueChange={setSelectedIndex}
+                placeholder={{}}
+                value={selectedIndex}
+                items={connections.map((c, i) => ({
+                  label: `Duo with ${c.partnerName}`,
+                  value: i,
+                }))}
+                useNativeAndroidPickerStyle={false}
+                style={{
+                  inputIOS: {
+                    color: "#fff",
+                    fontSize: 16,
+                    fontWeight: "500",
+                    paddingVertical: 10,
+                    paddingRight: 32,
+                    paddingLeft: 8,
+                    borderRadius: 8,
+                    backgroundColor: "transparent",
+                  },
+                  inputAndroid: {
+                    color: "#fff",
+                    fontSize: 16,
+                    fontWeight: "500",
+                    paddingVertical: 10,
+                    paddingRight: 32,
+                    paddingLeft: 8,
+                    borderRadius: 8,
+                    backgroundColor: "transparent",
+                  },
+                  iconContainer: {
+                    position: "absolute",
+                    right: 8,
+                    top: "50%",
+                    marginTop: -12,
+                  },
+                }}
+                Icon={() => (
+                  <Text style={{ color: "#fff", fontSize: 18 }}>▼</Text>
+                )}
+              />
             </View>
-          ))
-        ) : (
-          <View className="bg-white p-4 rounded-lg shadow items-center">
-            <Text className="text-text">No growth yet 🌱</Text>
           </View>
-        )}
-      </View>
-    </ScrollView>
+        </View>
+
+        {/* Tree Display with Inventory Integration */}
+        <View className="items-center mb-6 relative">
+          <Image
+            source={treeImages[treeData.stage]}
+            style={{ width: 180, height: 180 }}
+            resizeMode="contain"
+          />
+          {/* TreeInventory component will render slots and decorations over the tree */}
+        </View>
+
+        {/* Tree Inventory Component */}
+        <TreeInventory
+          treeData={{
+            duoId: selectedConnection._id as Id<"duoConnections">,
+            stage: treeData.stage,
+            leaves: treeData.leaves,
+            fruits: treeData.fruits,
+            decorations: treeData.decorations || [],
+          }}
+          onInventoryUpdate={handleInventoryUpdate}
+        />
+
+        <View className="flex-row justify-between py-4 px-5 rounded-lg mb-6 bg-primary">
+          <View className="flex flex-row items-center gap-2">
+            <Image
+              source={treeImages["leaf"]}
+              style={{ width: 20, height: 20 }}
+              className="pt-2"
+            />
+            <Text className="text-background">Leaves: {treeData.leaves}</Text>
+          </View>
+          <View className="flex flex-row items-center">
+            <Image
+              source={treeImages["orange"]}
+              style={{ width: 30, height: 30 }}
+              className="pt-2"
+            />
+            <Text className="text-background">Fruits: {treeData.fruits}</Text>
+          </View>
+          <View className="flex flex-row items-center">
+            <Image
+              source={treeImages["sprout"]}
+              style={{ width: 30, height: 30 }}
+              className="pt-2"
+            />
+            <Text className="text-background">Decay: {treeData.decay}</Text>
+          </View>
+        </View>
+        <LevelDisplay duo={selectedConnection} />
+        <View className="mb-16">
+          <Text className="text-2xl font-semibold text-text mb-2">
+            Growth Log:
+          </Text>
+          {treeData.growth_log.length > 0 ? (
+            Object.entries(groupedGrowthLog).map(([dateStr, logs]) => (
+              <View key={dateStr} className="mb-4">
+                <TouchableOpacity
+                  onPress={() => toggleCollapse(dateStr)}
+                  className="flex-row items-center mb-1"
+                  activeOpacity={0.7}
+                >
+                  <Text className="text-md font-bold text-text mr-2">
+                    {dateStr}
+                  </Text>
+                  <Text className="text-lg">
+                    {collapsedDates[dateStr] ? "▼" : "▲"}
+                  </Text>
+                </TouchableOpacity>
+                {!collapsedDates[dateStr] &&
+                  logs.map(({ idx, change }) => (
+                    <View
+                      key={idx}
+                      className="bg-[#f9f9f9] p-3 rounded-lg mb-2 flex-row items-center w-full"
+                    >
+                      <Image
+                        source={treeImages["calendar"]}
+                        style={{ width: 20, height: 20 }}
+                        className="mr-3"
+                      />
+                      <View>
+                        <Text className="text-sm text-gray-600">{change}</Text>
+                      </View>
+                    </View>
+                  ))}
+              </View>
+            ))
+          ) : (
+            <View className="bg-white p-4 rounded-lg shadow items-center">
+              <Text className="text-text">No growth yet 🌱</Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    </LinearGradient>
   );
 }

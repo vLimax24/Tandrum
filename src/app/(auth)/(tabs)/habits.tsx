@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  Pressable,
   ScrollView,
   Modal,
   TextInput,
@@ -11,7 +10,6 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Animated,
-  Dimensions,
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { useQuery, useMutation } from "convex/react";
@@ -25,8 +23,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StreakVisualization } from "@/components/StreakVisualization";
 import HabitActionMenu from "@/components/HabitActionMenu";
 import HabitEditModal from "@/components/HabitEditModal";
-
-const { width: screenWidth } = Dimensions.get("window");
 
 export default function HabitsSection() {
   const { user } = useUser();
@@ -342,226 +338,253 @@ export default function HabitsSection() {
 
   return (
     <>
-      <ScrollView className="flex-1 bg-[#f8fafc]">
-        {/* Header */}
-        <View className="px-6 pt-16 pb-8 bg-gradient-to-r from-[#10b981] to-[#059669]">
-          <Text className="text-black text-3xl font-bold mb-2">Habits</Text>
-          <Text className="text-black text-opacity-90 text-base">
-            Build consistency together with your duo partner
-          </Text>
-        </View>
-
-        <View className="px-6 -mt-6">
-          {/* Duo Selector Card */}
-          <View className="bg-white rounded-2xl p-5 mb-6 shadow-sm border border-[#f3f4f6]">
-            <Text className="text-[#111827] font-semibold text-base mb-3">
-              Select Duo Partner
+      <LinearGradient
+        colors={["#f8fafc", "#dbeafe"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ flex: 1 }}
+      >
+        <ScrollView className="flex-1">
+          {/* Header */}
+          <View className="px-6 pt-16 pb-8 bg-gradient-to-r from-[#10b981] to-[#059669]">
+            <Text className="text-black text-3xl font-bold mb-2">Habits</Text>
+            <Text className="text-black text-opacity-90 text-base">
+              Build consistency together with your duo partner
             </Text>
-            <View className="bg-[#10b981] rounded-xl px-4 py-4 flex-row items-center">
-              <Image
-                source={treeImages["leaf"]}
-                style={{ width: 20, height: 20, marginRight: 12 }}
-              />
-              <View className="flex-1">
-                <RNPickerSelect
-                  onValueChange={setSelectedIndex}
-                  value={selectedIndex}
-                  placeholder={{}}
-                  items={connections.map((c, i) => ({
-                    label: `${c.partnerName}`,
-                    value: i,
-                  }))}
-                  useNativeAndroidPickerStyle={false}
-                  style={{
-                    inputIOS: {
-                      color: "#fff",
-                      fontSize: 16,
-                      fontWeight: "600",
-                      paddingVertical: 4,
-                    },
-                    inputAndroid: {
-                      color: "#fff",
-                      fontSize: 16,
-                      fontWeight: "600",
-                      paddingVertical: 4,
-                    },
-                    iconContainer: {
-                      right: 0,
-                      top: "50%",
-                      marginTop: -12,
-                    },
-                  }}
-                  Icon={() => (
-                    <Text style={{ color: "#fff", fontSize: 16, opacity: 0.8 }}>
-                      ▼
-                    </Text>
-                  )}
+          </View>
+
+          <View className="px-6 -mt-6">
+            {/* Duo Selector Card */}
+            {/* Duo Selector - Updated without box */}
+            <View className="mb-6">
+              <Text className="text-lg font-semibold text-text mb-2">
+                Select Duo
+              </Text>
+              <View className="bg-primary rounded-lg px-4 py-2 flex-row items-center">
+                <Image
+                  source={treeImages["leaf"]}
+                  style={{ width: 20, height: 20, marginRight: 8 }}
                 />
+                <View
+                  style={{
+                    flex: 1,
+                    position: "relative",
+                    justifyContent: "center",
+                  }}
+                >
+                  <RNPickerSelect
+                    onValueChange={setSelectedIndex}
+                    placeholder={{}}
+                    value={selectedIndex}
+                    items={connections.map((c, i) => ({
+                      label: `Duo with ${c.partnerName}`,
+                      value: i,
+                    }))}
+                    useNativeAndroidPickerStyle={false}
+                    style={{
+                      inputIOS: {
+                        color: "#fff",
+                        fontSize: 16,
+                        fontWeight: "500",
+                        paddingVertical: 10,
+                        paddingRight: 32,
+                        paddingLeft: 8,
+                        borderRadius: 8,
+                        backgroundColor: "transparent",
+                      },
+                      inputAndroid: {
+                        color: "#fff",
+                        fontSize: 16,
+                        fontWeight: "500",
+                        paddingVertical: 10,
+                        paddingRight: 32,
+                        paddingLeft: 8,
+                        borderRadius: 8,
+                        backgroundColor: "transparent",
+                      },
+                      iconContainer: {
+                        position: "absolute",
+                        right: 8,
+                        top: "50%",
+                        marginTop: -12,
+                      },
+                    }}
+                    Icon={() => (
+                      <Text style={{ color: "#fff", fontSize: 18 }}>▼</Text>
+                    )}
+                  />
+                </View>
               </View>
             </View>
-          </View>
 
-          <LevelDisplay duo={duo} />
+            <LevelDisplay duo={duo} />
 
-          {/* Enhanced Streak Display */}
-          <StreakVisualization duo={duo} />
+            {/* Enhanced Streak Display */}
+            <StreakVisualization duo={duo} />
 
-          {/* Daily Habits Section */}
-          <View className="mb-6">
-            <View className="flex-row justify-between items-center mb-4">
-              <View>
-                <Text className="text-[#111827] font-bold text-2xl">
-                  Daily Habits
-                </Text>
-                <Text className="text-[#6b7280] text-sm mt-1">
-                  Reset in {dailyLabel}
-                </Text>
-              </View>
-              <View className="flex-row items-center space-x-2">
-                <View className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg px-3 py-1">
-                  <Text className="text-[#059669] text-xs font-semibold">
-                    You
+            {/* Daily Habits Section */}
+            <View className="mb-6">
+              <View className="flex-row justify-between items-center mb-4">
+                <View>
+                  <Text className="text-[#111827] font-bold text-2xl">
+                    Daily Habits
+                  </Text>
+                  <Text className="text-[#6b7280] text-sm mt-1">
+                    Reset in {dailyLabel}
                   </Text>
                 </View>
-                <View className="bg-[#eff6ff] border border-[#bfdbfe] rounded-lg px-3 py-1">
-                  <Text className="text-[#1d4ed8] text-xs font-semibold">
-                    {duo.partnerName?.split(" ")[0]}
+                <View className="flex-row items-center space-x-2">
+                  <View className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg px-3 py-1">
+                    <Text className="text-[#059669] text-xs font-semibold">
+                      You
+                    </Text>
+                  </View>
+                  <View className="bg-[#eff6ff] border border-[#bfdbfe] rounded-lg px-3 py-1">
+                    <Text className="text-[#1d4ed8] text-xs font-semibold">
+                      {duo.partnerName?.split(" ")[0]}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {daily.length === 0 ? (
+                <View className="bg-[#f8fafc] border border-[#e5e7eb] rounded-2xl p-8 text-center">
+                  <View className="w-16 h-16 bg-[#f3f4f6] rounded-full items-center justify-center mx-auto mb-4">
+                    <Text className="text-[#9ca3af] text-2xl">📅</Text>
+                  </View>
+                  <Text className="text-[#6b7280] text-center text-base">
+                    No daily habits yet. Create one to get started!
+                  </Text>
+                </View>
+              ) : (
+                daily.map((h) => {
+                  const lastA = h.last_checkin_at_userA ?? 0;
+                  const lastB = h.last_checkin_at_userB ?? 0;
+                  const doneA = now - lastA < 86400e3;
+                  const doneB = now - lastB < 86400e3;
+
+                  return (
+                    <HabitItem
+                      key={h._id}
+                      habit={h}
+                      isDoneByMe={amI_A ? doneA : doneB}
+                      isDoneByPartner={amI_A ? doneB : doneA}
+                      onCheck={async () => {
+                        try {
+                          await checkInHabit({
+                            habitId: h._id,
+                            userIsA: amI_A,
+                          });
+                        } catch (error) {
+                          console.error("Check-in error:", error);
+                          Alert.alert(
+                            "Error",
+                            "Failed to update habit. Please try again."
+                          );
+                        }
+                      }}
+                      onMenuPress={handleMenuPress}
+                    />
+                  );
+                })
+              )}
+            </View>
+
+            {/* Weekly Habits Section */}
+            <View className="mb-6">
+              <View className="flex-row justify-between items-center mb-4">
+                <View>
+                  <Text className="text-[#111827] font-bold text-2xl">
+                    Weekly Habits
+                  </Text>
+                  <Text className="text-[#6b7280] text-sm mt-1">
+                    Reset in {weeklyLabel}
                   </Text>
                 </View>
               </View>
+
+              {weekly.length === 0 ? (
+                <View className="bg-[#f8fafc] border border-[#e5e7eb] rounded-2xl p-8 text-center">
+                  <View className="w-16 h-16 bg-[#f3f4f6] rounded-full items-center justify-center mx-auto mb-4">
+                    <Text className="text-[#9ca3af] text-2xl">📊</Text>
+                  </View>
+                  <Text className="text-[#6b7280] text-center text-base">
+                    No weekly habits yet. Create one to get started!
+                  </Text>
+                </View>
+              ) : (
+                weekly.map((h) => {
+                  const lastA = h.last_checkin_at_userA ?? 0;
+                  const lastB = h.last_checkin_at_userB ?? 0;
+                  const doneA = now - lastA < 7 * 86400e3;
+                  const doneB = now - lastB < 7 * 86400e3;
+
+                  return (
+                    <HabitItem
+                      key={h._id}
+                      habit={h}
+                      isDoneByMe={amI_A ? doneA : doneB}
+                      isDoneByPartner={amI_A ? doneB : doneA}
+                      onCheck={async () => {
+                        try {
+                          await checkInHabit({
+                            habitId: h._id,
+                            userIsA: amI_A,
+                          });
+                        } catch (error) {
+                          console.error("Check-in error:", error);
+                          Alert.alert(
+                            "Error",
+                            "Failed to update habit. Please try again."
+                          );
+                        }
+                      }}
+                      onMenuPress={handleMenuPress}
+                    />
+                  );
+                })
+              )}
             </View>
 
-            {daily.length === 0 ? (
-              <View className="bg-[#f8fafc] border border-[#e5e7eb] rounded-2xl p-8 text-center">
-                <View className="w-16 h-16 bg-[#f3f4f6] rounded-full items-center justify-center mx-auto mb-4">
-                  <Text className="text-[#9ca3af] text-2xl">📅</Text>
-                </View>
-                <Text className="text-[#6b7280] text-center text-base">
-                  No daily habits yet. Create one to get started!
-                </Text>
-              </View>
-            ) : (
-              daily.map((h) => {
-                const lastA = h.last_checkin_at_userA ?? 0;
-                const lastB = h.last_checkin_at_userB ?? 0;
-                const doneA = now - lastA < 86400e3;
-                const doneB = now - lastB < 86400e3;
-
-                return (
-                  <HabitItem
-                    key={h._id}
-                    habit={h}
-                    isDoneByMe={amI_A ? doneA : doneB}
-                    isDoneByPartner={amI_A ? doneB : doneA}
-                    onCheck={async () => {
-                      try {
-                        await checkInHabit({ habitId: h._id, userIsA: amI_A });
-                      } catch (error) {
-                        console.error("Check-in error:", error);
-                        Alert.alert(
-                          "Error",
-                          "Failed to update habit. Please try again."
-                        );
-                      }
-                    }}
-                    onMenuPress={handleMenuPress}
-                  />
-                );
-              })
-            )}
-          </View>
-
-          {/* Weekly Habits Section */}
-          <View className="mb-6">
-            <View className="flex-row justify-between items-center mb-4">
-              <View>
-                <Text className="text-[#111827] font-bold text-2xl">
-                  Weekly Habits
-                </Text>
-                <Text className="text-[#6b7280] text-sm mt-1">
-                  Reset in {weeklyLabel}
-                </Text>
-              </View>
-            </View>
-
-            {weekly.length === 0 ? (
-              <View className="bg-[#f8fafc] border border-[#e5e7eb] rounded-2xl p-8 text-center">
-                <View className="w-16 h-16 bg-[#f3f4f6] rounded-full items-center justify-center mx-auto mb-4">
-                  <Text className="text-[#9ca3af] text-2xl">📊</Text>
-                </View>
-                <Text className="text-[#6b7280] text-center text-base">
-                  No weekly habits yet. Create one to get started!
-                </Text>
-              </View>
-            ) : (
-              weekly.map((h) => {
-                const lastA = h.last_checkin_at_userA ?? 0;
-                const lastB = h.last_checkin_at_userB ?? 0;
-                const doneA = now - lastA < 7 * 86400e3;
-                const doneB = now - lastB < 7 * 86400e3;
-
-                return (
-                  <HabitItem
-                    key={h._id}
-                    habit={h}
-                    isDoneByMe={amI_A ? doneA : doneB}
-                    isDoneByPartner={amI_A ? doneB : doneA}
-                    onCheck={async () => {
-                      try {
-                        await checkInHabit({ habitId: h._id, userIsA: amI_A });
-                      } catch (error) {
-                        console.error("Check-in error:", error);
-                        Alert.alert(
-                          "Error",
-                          "Failed to update habit. Please try again."
-                        );
-                      }
-                    }}
-                    onMenuPress={handleMenuPress}
-                  />
-                );
-              })
-            )}
-          </View>
-
-          {/* Enhanced Add Habit Button */}
-          <TouchableOpacity
-            onPress={showModal}
-            style={{
-              borderRadius: 16,
-              marginBottom: 32,
-              shadowColor: "#10b981",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 8,
-              overflow: "hidden",
-            }}
-            activeOpacity={0.85}
-          >
-            <LinearGradient
-              colors={["#10b981", "#059669"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+            {/* Enhanced Add Habit Button */}
+            <TouchableOpacity
+              onPress={showModal}
               style={{
                 borderRadius: 16,
-                padding: 20,
-                justifyContent: "center",
-                alignItems: "center",
+                marginBottom: 32,
+                shadowColor: "#10b981",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 8,
+                overflow: "hidden",
               }}
+              activeOpacity={0.85}
             >
-              <View className="flex-row items-center justify-center">
-                <View className="w-6 h-6 bg-white bg-opacity-20 rounded-full items-center justify-center mr-3">
-                  <Text className="text-white font-bold text-lg">+</Text>
+              <LinearGradient
+                colors={["#10b981", "#059669"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{
+                  borderRadius: 16,
+                  padding: 20,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <View className="flex-row items-center justify-center">
+                  <View className="w-6 h-6 bg-white bg-opacity-20 rounded-full items-center justify-center mr-3">
+                    <Text className="text-white font-bold text-lg">+</Text>
+                  </View>
+                  <Text className="text-white font-bold text-lg">
+                    Create New Habit
+                  </Text>
                 </View>
-                <Text className="text-white font-bold text-lg">
-                  Create New Habit
-                </Text>
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </LinearGradient>
 
       {/* Enhanced Modal */}
       <Modal
