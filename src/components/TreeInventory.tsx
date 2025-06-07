@@ -1,4 +1,3 @@
-// TreeInventory.tsx
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import {
   View,
@@ -9,7 +8,7 @@ import {
   Alert,
   ScrollView,
 } from "react-native";
-import { useMutation } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "convex/_generated/dataModel";
 import DecorationDetailModal from "./DecorationDetailModal";
@@ -17,7 +16,7 @@ import {
   BottomSheetModal,
   BottomSheetView,
   BottomSheetBackdrop,
-  BottomSheetFlatList, // Add this
+  BottomSheetFlatList,
 } from "@gorhom/bottom-sheet";
 
 const treeImages: Record<string, any> = {
@@ -30,107 +29,28 @@ const treeImages: Record<string, any> = {
   cherry: require("../../src/assets/orange.png"), // Using orange image as placeholder
 };
 
-const itemDefinitions = {
-  // Leaf types
-  leaf: {
-    name: "Mystical Leaf", // This is correct - it's still type "leaf"
-    description: "A shimmering leaf that enhances learning potential",
-    ability: "Double XP Boost",
-    abilityDescription: "Multiplies all XP gained by 2x while active",
-    rarity: "common",
-    color: "#16a34a",
-    bgColor: "#f0fdf4",
-    borderColor: "#bbf7d0",
-    icon: "🍃",
-  },
-  silverLeaf: {
-    name: "Silver Leaf",
-    description: "A pristine silver leaf that boosts focus and clarity",
-    ability: "Focus Enhancement",
-    abilityDescription:
-      "Increases concentration and reduces distractions by 50%",
-    rarity: "uncommon",
-    color: "#6b7280",
-    bgColor: "#f8fafc",
-    borderColor: "#d1d5db",
-    icon: "🥈",
-  },
-  goldenLeaf: {
-    name: "Golden Leaf",
-    description: "A radiant golden leaf infused with ancient wisdom",
-    ability: "Wisdom Amplifier",
-    abilityDescription: "Grants triple XP and unlocks hidden knowledge paths",
-    rarity: "legendary",
-    color: "#f59e0b",
-    bgColor: "#fffbeb",
-    borderColor: "#fde68a",
-    icon: "🏆",
-  },
-  // Fruit types
-  fruit: {
-    name: "Golden Orange", // This is correct - it's still type "fruit"
-    description: "A radiant fruit that provides sustained energy",
-    ability: "Energy Sustain",
-    abilityDescription: "Maintains motivation levels for extended periods",
-    rarity: "rare",
-    color: "#ea580c",
-    bgColor: "#fff7ed",
-    borderColor: "#fed7aa",
-    icon: "🍊",
-  },
-  apple: {
-    name: "Crimson Apple",
-    description: "A vibrant red apple that sharpens mental acuity",
-    ability: "Mental Sharpness",
-    abilityDescription:
-      "Increases problem-solving speed by 40% and memory retention",
-    rarity: "uncommon",
-    color: "#dc2626",
-    bgColor: "#fef2f2",
-    borderColor: "#fecaca",
-    icon: "🍎",
-  },
-  cherry: {
-    name: "Ethereal Cherry",
-    description: "A mystical cherry that brings luck and serendipity",
-    ability: "Fortune's Favor",
-    abilityDescription:
-      "Increases rare item drops and unlocks bonus opportunities",
-    rarity: "epic",
-    color: "#be185d",
-    bgColor: "#fdf2f8",
-    borderColor: "#f9a8d4",
-    icon: "🍒",
-  },
-};
-
 interface TreeInventoryProps {
   treeData: {
     duoId: Id<"duoConnections">;
     stage: "sprout" | "smallTree" | "mediumTree" | "grownTree";
     leaves: number;
     fruits: number;
-    // Add counts for new item types
-    silverLeaves?: number;
-    goldenLeaves?: number;
-    apples?: number;
-    cherries?: number;
+    inventory: Record<string, number>; // Dynamic inventory
     decorations?: Array<{
-      type: "leaf" | "fruit" | "silverLeaf" | "goldenLeaf" | "apple" | "cherry";
+      itemId: ItemType; // Changed from string to ItemType
       position: { x: number; y: number };
-      buff?: { xpMultiplier: number };
+      equipped_at: number;
     }>;
   };
   onInventoryUpdate?: () => void;
 }
-
 interface SlotPosition {
   x: number;
   y: number;
   id: string;
 }
 
-type ItemType =
+export type ItemType =
   | "leaf"
   | "fruit"
   | "silverLeaf"
@@ -146,15 +66,30 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     "inventory"
   );
   const [showSlots, setShowSlots] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<ItemType | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedDecoration, setSelectedDecoration] = useState<{
     decoration: {
-      type: ItemType;
+      itemId: ItemType;
       position: { x: number; y: number };
-      buff?: { xpMultiplier: number };
+      equipped_at: number;
     };
     index: number;
   } | null>(null);
+
+  // Fetch all tree items from database
+  const allTreeItems = useQuery(api.treeItems.getAllTreeItems);
+
+  // Create lookup map for quick access
+  const itemsById = useMemo(() => {
+    if (!allTreeItems) return {};
+    return allTreeItems.reduce(
+      (acc, item) => {
+        acc[item.itemId] = item;
+        return acc;
+      },
+      {} as Record<string, any>
+    );
+  }, [allTreeItems]);
 
   // Bottom Sheet Modal refs and configuration
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -194,42 +129,21 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   const treeSize = 180;
   const treeCenter = screenWidth / 2;
 
-  // Helper function to get item count
-  const getItemCount = (type: ItemType): number => {
-    switch (type) {
-      case "leaf":
-        return treeData.leaves;
-      case "fruit":
-        return treeData.fruits;
-      case "silverLeaf":
-        return treeData.silverLeaves || 0;
-      case "goldenLeaf":
-        return treeData.goldenLeaves || 0;
-      case "apple":
-        return treeData.apples || 0;
-      case "cherry":
-        return treeData.cherries || 0;
-      default:
-        return 0;
-    }
+  // Helper function to get item count from dynamic inventory
+  const getItemCount = (itemId: string): number => {
+    return treeData.inventory[itemId] || 0;
   };
 
   // Helper function to get appropriate image source
-  const getImageSource = (type: ItemType) => {
-    switch (type) {
-      case "leaf":
-      case "silverLeaf":
-      case "goldenLeaf":
-        return treeImages.leaf;
-      case "fruit":
-        return treeImages.orange;
-      case "apple":
-        return treeImages.apple;
-      case "cherry":
-        return treeImages.cherry;
-      default:
-        return treeImages.leaf;
-    }
+  const getImageSource = (itemId: string) => {
+    const item = itemsById[itemId];
+    if (!item) return treeImages.leaf; // fallback
+
+    // Map based on imageAsset field from database
+    if (item.imageAsset === "orange.png") return treeImages.orange;
+    if (item.imageAsset === "hemp-leaf.png") return treeImages.leaf;
+    // Add more mappings as needed
+    return treeImages.leaf; // fallback
   };
 
   // Returns all possible slot positions for the current stage
@@ -266,17 +180,17 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         : 0;
   const currentDecorations = treeData.decorations?.length ?? 0;
 
-  const handleItemSelect = (type: ItemType) => {
-    if (getItemCount(type) === 0) {
+  const handleItemSelect = (itemId: string) => {
+    if (getItemCount(itemId) === 0) {
       return;
     }
-    setSelectedItem(type);
+    setSelectedItemId(itemId);
     setShowSlots(true);
     handleCloseBottomSheet();
   };
 
   const handleSlotSelect = async (slotId: string) => {
-    if (!selectedItem) return;
+    if (!selectedItemId) return;
 
     const slotPositions = getSlotPositions();
     const chosenSlot = slotPositions.find((s) => s.id === slotId);
@@ -302,23 +216,10 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         return;
       }
 
-      const decorationPayload: {
-        type: ItemType;
-        position: { x: number; y: number };
-        buff?: { xpMultiplier: number };
-      } = {
-        type: selectedItem,
+      const decorationPayload = {
+        itemId: selectedItemId as ItemType,
         position: { x: chosenSlot.x, y: chosenSlot.y },
       };
-
-      // Set buffs based on item type
-      if (selectedItem === "leaf") {
-        decorationPayload.buff = { xpMultiplier: 2 };
-      } else if (selectedItem === "goldenLeaf") {
-        decorationPayload.buff = { xpMultiplier: 3 };
-      } else if (selectedItem === "silverLeaf") {
-        decorationPayload.buff = { xpMultiplier: 1.5 };
-      }
 
       await updateTreeDecorations({
         duoId: treeData.duoId,
@@ -326,7 +227,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       });
 
       setShowSlots(false);
-      setSelectedItem(null);
+      setSelectedItemId(null);
       onInventoryUpdate?.();
     } catch (err: any) {
       Alert.alert("Placement Error", err.message);
@@ -359,7 +260,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   };
 
   const renderSlots = () => {
-    if (!showSlots || !selectedItem) return null;
+    if (!showSlots || !selectedItemId) return null;
 
     const slotPositions = getSlotPositions();
     return (
@@ -387,41 +288,48 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
 
     return (
       <View className="absolute top-0 left-0 right-0 bottom-0">
-        {treeData.decorations.map((decoration, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => handleDecorationPress(index)}
-            style={{
-              position: "absolute",
-              left: decoration.position.x - 25,
-              top: decoration.position.y - 25,
-            }}
-          >
-            <View
-              className="w-8 h-8 rounded-full bg-[rgba(255,255,255,0.9)] border-2 justify-center items-center shadow-lg"
+        {treeData.decorations.map((decoration, index) => {
+          const item = itemsById[decoration.itemId];
+          if (!item) return null;
+
+          return (
+            <TouchableOpacity
+              key={index}
+              onPress={() => handleDecorationPress(index)}
               style={{
-                borderColor: itemDefinitions[decoration.type].color,
+                position: "absolute",
+                left: decoration.position.x - 25,
+                top: decoration.position.y - 25,
               }}
             >
-              <Image
-                source={getImageSource(decoration.type)}
-                className="w-8 h-8"
-              />
-            </View>
-          </TouchableOpacity>
-        ))}
+              <View
+                className="w-8 h-8 rounded-full bg-[rgba(255,255,255,0.9)] border-2 justify-center items-center shadow-lg"
+                style={{
+                  borderColor: item.color,
+                }}
+              >
+                <Image
+                  source={getImageSource(decoration.itemId)}
+                  className="w-8 h-8"
+                />
+              </View>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     );
   };
 
-  const renderInventoryItem = (type: ItemType) => {
-    const count = getItemCount(type);
-    const itemDef = itemDefinitions[type];
+  const renderInventoryItem = (itemId: string) => {
+    const count = getItemCount(itemId);
+    const item = itemsById[itemId];
+    if (!item) return null;
+
     const isAvailable = count > 0;
 
     return (
       <TouchableOpacity
-        onPress={() => handleItemSelect(type)}
+        onPress={() => handleItemSelect(itemId)}
         disabled={!isAvailable}
         className={`border-2 rounded-2xl p-4 mb-3 shadow-sm ${
           isAvailable
@@ -431,8 +339,8 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         style={
           isAvailable
             ? {
-                backgroundColor: itemDef.bgColor,
-                borderColor: itemDef.borderColor,
+                backgroundColor: item.bgColor,
+                borderColor: item.borderColor,
               }
             : undefined
         }
@@ -440,31 +348,31 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         <View className="flex-row items-center mb-2">
           <View
             className={`w-15 h-15 rounded-full bg-white justify-center items-center mr-4 border-2`}
-            style={{ borderColor: itemDef.borderColor }}
+            style={{ borderColor: item.borderColor }}
           >
-            <Image source={getImageSource(type)} className="w-10 h-10" />
+            <Image source={getImageSource(itemId)} className="w-10 h-10" />
           </View>
           <View className="flex-1">
             <View className="flex-row items-center mb-1">
               <Text className="text-lg font-bold text-[#1f2937] mr-2">
-                {itemDef.name}
+                {item.name}
               </Text>
-              <Text className="text-base">{itemDef.icon}</Text>
+              <Text className="text-base">{item.icon}</Text>
             </View>
             <Text className="text-sm text-[#6b7280] mb-1">
-              {itemDef.description}
+              {item.description}
             </Text>
             <View className="flex-row items-center justify-between">
               <Text
                 className="text-base font-semibold"
-                style={{ color: itemDef.color }}
+                style={{ color: item.color }}
               >
                 Count: {count}
               </Text>
               {isAvailable && (
                 <View
                   className="px-3 py-1 rounded-xl"
-                  style={{ backgroundColor: itemDef.color }}
+                  style={{ backgroundColor: item.color }}
                 >
                   <Text className="text-white text-xs font-semibold">
                     EQUIP
@@ -476,16 +384,16 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         </View>
         <View
           className="bg-[rgba(255,255,255,0.8)] rounded-lg p-2 border-l-4"
-          style={{ borderLeftColor: itemDef.color }}
+          style={{ borderLeftColor: item.color }}
         >
           <Text
             className="text-xs font-semibold mb-1"
-            style={{ color: itemDef.color }}
+            style={{ color: item.color }}
           >
-            ABILITY: {itemDef.ability}
+            ABILITY: {item.ability}
           </Text>
           <Text className="text-xs text-[#6b7280]">
-            {itemDef.abilityDescription}
+            {item.abilityDescription}
           </Text>
         </View>
       </TouchableOpacity>
@@ -511,22 +419,24 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     }
 
     if (item.type === "item") {
-      return <View className="mb-3">{renderInventoryItem(item.itemType)}</View>;
+      return <View className="mb-3">{renderInventoryItem(item.itemId)}</View>;
     }
 
     return null;
   };
 
   const renderInventorySection = () => {
-    const leafTypes: ItemType[] = ["leaf", "silverLeaf", "goldenLeaf"];
-    const fruitTypes: ItemType[] = ["fruit", "apple", "cherry"];
+    if (!allTreeItems) return [];
 
-    const totalLeaves = leafTypes.reduce(
-      (sum, type) => sum + getItemCount(type),
+    const leafItems = allTreeItems.filter((item) => item.category === "leaf");
+    const fruitItems = allTreeItems.filter((item) => item.category === "fruit");
+
+    const totalLeaves = leafItems.reduce(
+      (sum, item) => sum + getItemCount(item.itemId),
       0
     );
-    const totalFruits = fruitTypes.reduce(
-      (sum, type) => sum + getItemCount(type),
+    const totalFruits = fruitItems.reduce(
+      (sum, item) => sum + getItemCount(item.itemId),
       0
     );
 
@@ -538,10 +448,10 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         count: totalFruits,
         id: "fruits_header",
       },
-      ...fruitTypes.map((type) => ({
+      ...fruitItems.map((item) => ({
         type: "item",
-        itemType: type,
-        id: `fruit_${type}`,
+        itemId: item.itemId,
+        id: `fruit_${item.itemId}`,
       })),
       {
         type: "section_header",
@@ -549,10 +459,10 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         count: totalLeaves,
         id: "leaves_header",
       },
-      ...leafTypes.map((type) => ({
+      ...leafItems.map((item) => ({
         type: "item",
-        itemType: type,
-        id: `leaf_${type}`,
+        itemId: item.itemId,
+        id: `leaf_${item.itemId}`,
       })),
     ];
 
@@ -580,34 +490,36 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled={true}
       >
-        {treeData.decorations.map((decoration, index) => {
-          const itemDef = itemDefinitions[decoration.type];
+        {treeData.decorations.map((item, index) => {
+          const itemData = itemsById[item.itemId];
+          if (!itemData) return null;
+
           return (
             <TouchableOpacity
               key={index}
               onPress={() => handleDecorationPress(index)}
-              className="border-2 rounded-2xl p-4 mb-3 shadow-sm"
+              className="border-2 rounded-2xl p-4 mb-3 shadow-sm mx-6"
               style={{
-                backgroundColor: itemDef.bgColor,
-                borderColor: itemDef.borderColor,
+                backgroundColor: itemData.bgColor,
+                borderColor: itemData.borderColor,
               }}
             >
               <View className="flex-row items-center mb-2">
                 <View
                   className={`w-12 h-12 rounded-full bg-white justify-center items-center mr-4 border-2`}
-                  style={{ borderColor: itemDef.borderColor }}
+                  style={{ borderColor: itemData.borderColor }}
                 >
                   <Image
-                    source={getImageSource(decoration.type)}
+                    source={getImageSource(item.itemId)}
                     className="w-8 h-8"
                   />
                 </View>
                 <View className="flex-1">
                   <View className="flex-row items-center mb-1">
                     <Text className="text-base font-bold text-[#1f2937] mr-2">
-                      {itemDef.name}
+                      {itemData.name}
                     </Text>
-                    <Text className="text-sm">{itemDef.icon}</Text>
+                    <Text className="text-sm">{itemData.icon}</Text>
                     <View className="bg-[#10b981] px-2 py-1 rounded-lg ml-2">
                       <Text className="text-white text-xs font-semibold">
                         ACTIVE
@@ -621,21 +533,21 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
               </View>
               <View
                 className="bg-[rgba(255,255,255,0.9)] rounded-lg p-3 border-l-4"
-                style={{ borderLeftColor: itemDef.color }}
+                style={{ borderLeftColor: itemData.color }}
               >
                 <Text
                   className="text-xs font-semibold mb-1"
-                  style={{ color: itemDef.color }}
+                  style={{ color: itemData.color }}
                 >
-                  ACTIVE ABILITY: {itemDef.ability}
+                  ACTIVE ABILITY: {itemData.ability}
                 </Text>
                 <Text className="text-xs text-[#6b7280] mb-2">
-                  {itemDef.abilityDescription}
+                  {itemData.abilityDescription}
                 </Text>
-                {decoration.buff && (
+                {itemData.buffs && (
                   <View className="flex-row items-center">
                     <Text className="text-xs text-[#059669] font-semibold">
-                      ⚡ XP Multiplier: {decoration.buff.xpMultiplier}x
+                      ⚡ Buffs: {JSON.stringify(itemData.buffs)}
                     </Text>
                   </View>
                 )}
@@ -676,7 +588,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         <TouchableOpacity
           onPress={() => {
             setShowSlots(false);
-            setSelectedItem(null);
+            setSelectedItemId(null);
           }}
           className="bg-[#ef4444] rounded-xl px-5 py-3 mb-4 shadow-lg"
         >
@@ -771,32 +683,34 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
           <BottomSheetFlatList
             data={treeData.decorations || []}
             renderItem={({ item, index }) => {
-              const itemDef = itemDefinitions[item.type];
+              const itemData = itemsById[item.itemId];
+              if (!itemData) return null;
+
               return (
                 <TouchableOpacity
                   onPress={() => handleDecorationPress(index)}
                   className="border-2 rounded-2xl p-4 mb-3 shadow-sm mx-6"
                   style={{
-                    backgroundColor: itemDef.bgColor,
-                    borderColor: itemDef.borderColor,
+                    backgroundColor: itemData.bgColor,
+                    borderColor: itemData.borderColor,
                   }}
                 >
                   <View className="flex-row items-center mb-2">
                     <View
                       className={`w-12 h-12 rounded-full bg-white justify-center items-center mr-4 border-2`}
-                      style={{ borderColor: itemDef.borderColor }}
+                      style={{ borderColor: itemData.borderColor }}
                     >
                       <Image
-                        source={getImageSource(item.type)}
+                        source={getImageSource(item.itemId)}
                         className="w-8 h-8"
                       />
                     </View>
                     <View className="flex-1">
                       <View className="flex-row items-center mb-1">
                         <Text className="text-base font-bold text-[#1f2937] mr-2">
-                          {itemDef.name}
+                          {itemData.name}
                         </Text>
-                        <Text className="text-sm">{itemDef.icon}</Text>
+                        <Text className="text-sm">{itemData.icon}</Text>
                         <View className="bg-[#10b981] px-2 py-1 rounded-lg ml-2">
                           <Text className="text-white text-xs font-semibold">
                             ACTIVE
@@ -810,21 +724,21 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                   </View>
                   <View
                     className="bg-[rgba(255,255,255,0.9)] rounded-lg p-3 border-l-4"
-                    style={{ borderLeftColor: itemDef.color }}
+                    style={{ borderLeftColor: itemData.color }}
                   >
                     <Text
                       className="text-xs font-semibold mb-1"
-                      style={{ color: itemDef.color }}
+                      style={{ color: itemData.color }}
                     >
-                      ACTIVE ABILITY: {itemDef.ability}
+                      ACTIVE ABILITY: {itemData.ability}
                     </Text>
                     <Text className="text-xs text-[#6b7280] mb-2">
-                      {itemDef.abilityDescription}
+                      {itemData.abilityDescription}
                     </Text>
-                    {item.buff && (
+                    {itemData.buffs && (
                       <View className="flex-row items-center">
                         <Text className="text-xs text-[#059669] font-semibold">
-                          ⚡ XP Multiplier: {item.buff.xpMultiplier}x
+                          ⚡ Buffs: {JSON.stringify(itemData.buffs)}
                         </Text>
                       </View>
                     )}
@@ -868,10 +782,20 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         visible={selectedDecoration !== null}
         onClose={() => setSelectedDecoration(null)}
         onRemove={handleRemoveDecoration}
-        decoration={selectedDecoration?.decoration || null}
+        decoration={
+          selectedDecoration?.decoration
+            ? {
+                type: selectedDecoration.decoration.itemId, // Map itemId to type
+                position: selectedDecoration.decoration.position,
+                buff: selectedDecoration.decoration.itemId.includes("Leaf")
+                  ? { xpMultiplier: 1.5 }
+                  : undefined,
+              }
+            : null
+        }
         itemDefinition={
           selectedDecoration?.decoration
-            ? itemDefinitions[selectedDecoration.decoration.type]
+            ? itemsById[selectedDecoration.decoration.itemId]
             : null
         }
         treeImages={treeImages}
