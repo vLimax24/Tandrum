@@ -202,12 +202,16 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarStyle: {
           backgroundColor: "#ffffff",
-
           height: 80 + insets.bottom,
           paddingBottom: insets.bottom + 12,
           paddingTop: 12,
           paddingHorizontal: 8,
-          elevation: 8,
+          elevation: 2, // Reduced elevation
+          zIndex: 1, // Lower z-index to ensure bottom sheet appears above
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
         },
         tabBarBackground: () => (
           <View
