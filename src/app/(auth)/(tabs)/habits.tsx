@@ -16,6 +16,7 @@ import { HabitsHeader } from "@/components/HabitsHeader";
 import { LoadingState } from "@/components/LoadingState";
 import { CreateHabitButton } from "@/components/CreateHabitButton";
 import { HabitsContainer } from "@/components/HabitsContainer";
+import { RewardAnimation } from "@/components/RewardAnimation";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 export default function HabitsSection() {
@@ -32,6 +33,10 @@ export default function HabitsSection() {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingHabit, setEditingHabit] = useState<any>(null);
   const [now, setNow] = useState(Date.now());
+
+  // Reward animation state
+  const [showRewardAnimation, setShowRewardAnimation] = useState(false);
+  const [currentRewards, setCurrentRewards] = useState<any>(null);
 
   const clerkId = user?.id;
   const convexUser = useQuery(
@@ -140,6 +145,35 @@ export default function HabitsSection() {
     }
   };
 
+  const handleHabitCheckIn = async (
+    habitId: Id<"duoHabits">,
+    userIsA: boolean
+  ) => {
+    try {
+      const result = await checkInHabit({
+        habitId,
+        userIsA,
+      });
+
+      if (result.checkedIn && result.bothCompleted && result.rewards) {
+        setCurrentRewards(result.rewards);
+        setShowRewardAnimation(true);
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Check-in error:", error);
+      setTimeout(() => {
+        Alert.alert("Error", "Failed to update habit. Please try again.");
+      }, 100);
+    }
+  };
+
+  const handleRewardAnimationComplete = () => {
+    setShowRewardAnimation(false);
+    setCurrentRewards(null);
+  };
+
   if (!convexUser || !connections || !habits) {
     return <LoadingState />;
   }
@@ -178,7 +212,7 @@ export default function HabitsSection() {
               now={now}
               timeToday={timeToday}
               timeWeek={timeWeek}
-              checkInHabit={checkInHabit}
+              checkInHabit={handleHabitCheckIn}
               deleteHabit={deleteHabit}
               onMenuPress={handleMenuPress}
             />
@@ -225,6 +259,12 @@ export default function HabitsSection() {
         onSave={handleSaveEdit}
         habit={editingHabit}
         existingHabits={habits || []}
+      />
+
+      <RewardAnimation
+        visible={showRewardAnimation}
+        rewards={currentRewards}
+        onComplete={handleRewardAnimationComplete}
       />
     </>
   );

@@ -1,7 +1,7 @@
 // convex/duoHabits.ts
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 
 export const getHabitsForDuo = query({
   args: { duoId: v.id("duoConnections") },
@@ -154,7 +154,7 @@ export const checkInHabit = mutation({
       }
 
       await ctx.db.patch(args.habitId, updateData);
-      return { checkedIn: false };
+      return { checkedIn: false, rewards: null };
     }
 
     // User is checking in
@@ -170,12 +170,168 @@ export const checkInHabit = mutation({
 
     await ctx.db.patch(args.habitId, updateData);
 
+    // Check if both users have now completed this habit for the current period
+    const otherUserLastCheckin = args.userIsA
+      ? (habit.last_checkin_at_userB ?? 0)
+      : (habit.last_checkin_at_userA ?? 0);
+
+    const otherUserCompletedThisPeriod =
+      otherUserLastCheckin > 0 &&
+      (isDaily
+        ? isSameDay(otherUserLastCheckin, now)
+        : isSameWeek(otherUserLastCheckin, now));
+
+    let rewards = null;
+
+    // Only award rewards if BOTH users have completed the habit for this period
+    if (otherUserCompletedThisPeriod) {
+      // Calculate rewards for completing the habit together
+      rewards = await calculateHabitRewards(ctx, habit, args.userIsA);
+
+      // Add XP to duo's trust_score
+      if (rewards && rewards.xp > 0) {
+        const currentTrustScore = duo.trust_score || 0;
+        await ctx.db.patch(habit.duoId, {
+          trust_score: currentTrustScore + rewards.xp,
+          lastUpdated: now,
+        });
+      }
+    }
+
     // Enhanced streak calculation
     await updateDuoStreak(ctx, habit.duoId, now);
 
-    return { checkedIn: true };
+    return {
+      checkedIn: true,
+      rewards,
+      bothCompleted: otherUserCompletedThisPeriod,
+    };
   },
 });
+
+// Updated helper function to calculate rewards when both users complete a habit
+async function calculateHabitRewards(ctx: any, habit: any, userIsA: boolean) {
+  const isDaily = habit.frequency === "daily";
+  const difficulty = habit.difficulty || 1;
+
+  // Base XP calculation based on frequency and difficulty
+  const baseXP = isDaily ? 50 : 200; // Increased XP since both users need to complete
+  const difficultyMultiplier = difficulty; // 1x, 2x, or 3x based on difficulty
+  const finalXP = baseXP * difficultyMultiplier;
+
+  // Item drop chances (percentage) - increased since both users need to complete
+  const dropChances = {
+    common: isDaily ? 25 : 50, // 25% daily, 50% weekly
+    uncommon: isDaily ? 10 : 25, // 10% daily, 25% weekly
+    rare: isDaily ? 5 : 15, // 5% daily, 15% weekly
+    epic: isDaily ? 2 : 8, // 2% daily, 8% weekly
+    legendary: isDaily ? 0.5 : 3, // 0.5% daily, 3% weekly
+  };
+
+  // Determine if users get an item drop
+  const random = Math.random() * 100;
+  let droppedItem = null;
+
+  // Check from rarest to most common
+  if (random < dropChances.legendary) {
+    droppedItem = await getRandomItemByRarity(ctx, "legendary");
+  } else if (random < dropChances.legendary + dropChances.epic) {
+    droppedItem = await getRandomItemByRarity(ctx, "epic");
+  } else if (
+    random <
+    dropChances.legendary + dropChances.epic + dropChances.rare
+  ) {
+    droppedItem = await getRandomItemByRarity(ctx, "rare");
+  } else if (
+    random <
+    dropChances.legendary +
+      dropChances.epic +
+      dropChances.rare +
+      dropChances.uncommon
+  ) {
+    droppedItem = await getRandomItemByRarity(ctx, "uncommon");
+  } else if (
+    random <
+    dropChances.legendary +
+      dropChances.epic +
+      dropChances.rare +
+      dropChances.uncommon +
+      dropChances.common
+  ) {
+    droppedItem = await getRandomItemByRarity(ctx, "common");
+  }
+
+  // If item dropped, add it to the duo's tree inventory
+  if (droppedItem) {
+    await addItemToInventory(ctx, habit.duoId, droppedItem.itemId, 1);
+  }
+
+  return {
+    xp: finalXP,
+    item: droppedItem
+      ? {
+          itemId: droppedItem.itemId,
+          name: droppedItem.name,
+          rarity: droppedItem.rarity,
+          category: droppedItem.category,
+          icon: droppedItem.icon,
+          color: droppedItem.color,
+        }
+      : null,
+  };
+}
+
+// Helper function to get a random item by rarity
+async function getRandomItemByRarity(ctx: any, rarity: string) {
+  const items = await ctx.db
+    .query("treeItems")
+    .withIndex("by_rarity", (q: any) => q.eq("rarity", rarity))
+    .filter((q: any) => q.eq(q.field("isActive"), true))
+    .collect();
+
+  if (items.length === 0) return null;
+
+  const randomIndex = Math.floor(Math.random() * items.length);
+  return items[randomIndex];
+}
+
+// Helper function to add items to tree inventory
+async function addItemToInventory(
+  ctx: any,
+  duoId: string,
+  itemId: string,
+  quantity: number
+) {
+  const tree = await ctx.db
+    .query("trees")
+    .withIndex("by_duoId", (q: any) => q.eq("duoId", duoId))
+    .first();
+
+  if (!tree) {
+    // Create tree if it doesn't exist
+    await ctx.db.insert("trees", {
+      duoId,
+      stage: "sprout",
+      leaves: 0,
+      fruits: 0,
+      decay: 0,
+      inventory: { [itemId]: quantity },
+      decorations: [],
+      growth_log: [],
+    });
+  } else {
+    // Update existing inventory
+    const currentInventory = tree.inventory || {};
+    const currentQuantity = currentInventory[itemId] || 0;
+
+    await ctx.db.patch(tree._id, {
+      inventory: {
+        ...currentInventory,
+        [itemId]: currentQuantity + quantity,
+      },
+    });
+  }
+}
 
 // Helper function for enhanced streak calculation
 async function updateDuoStreak(

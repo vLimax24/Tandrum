@@ -7,7 +7,12 @@ interface HabitsGridProps {
   duo: any;
   amI_A: boolean;
   now: number;
-  checkInHabit: any;
+  checkInHabit: (
+    habitId: string,
+    userIsA: boolean
+  ) => Promise<
+    { checkedIn: boolean; rewards: any; bothCompleted: boolean } | undefined
+  >;
   deleteHabit: any;
   isSameDay: (timestamp1: number, timestamp2: number) => boolean;
   isSameWeek: (timestamp1: number, timestamp2: number) => boolean;
@@ -18,48 +23,15 @@ interface HabitsGridProps {
 
 export const HabitsGrid: React.FC<HabitsGridProps> = ({
   habits,
-  duo,
   amI_A,
   now,
   checkInHabit,
-  deleteHabit,
   isSameDay,
   isSameWeek,
   onMenuPress,
   emptyStateIcon,
   emptyStateMessage,
 }) => {
-  const handleDeleteHabit = (habitId: string, habitTitle: string) => {
-    setTimeout(() => {
-      Alert.alert(
-        "Delete Habit",
-        `Are you sure you want to delete "${habitTitle}"? This action cannot be undone.`,
-        [
-          {
-            text: "Cancel",
-            style: "cancel",
-          },
-          {
-            text: "Delete",
-            style: "destructive",
-            onPress: async () => {
-              try {
-                await deleteHabit({ habitId });
-              } catch (error) {
-                setTimeout(() => {
-                  Alert.alert(
-                    "Error",
-                    "Failed to delete habit. Please try again."
-                  );
-                }, 100);
-              }
-            },
-          },
-        ]
-      );
-    }, 100);
-  };
-
   if (habits.length === 0) {
     return (
       <View className="bg-[#f8fafc] border border-[#e5e7eb] rounded-2xl p-8 text-center">
@@ -94,10 +66,10 @@ export const HabitsGrid: React.FC<HabitsGridProps> = ({
             isDoneByPartner={amI_A ? doneB : doneA}
             onCheck={async () => {
               try {
-                await checkInHabit({
-                  habitId: h._id,
-                  userIsA: amI_A,
-                });
+                const result = await checkInHabit(h._id, amI_A);
+
+                // The reward handling is already done in the parent component (HabitsSection)
+                // through the handleHabitCheckIn function, so we don't need to do anything else here
               } catch (error) {
                 console.error("Check-in error:", error);
                 setTimeout(() => {
