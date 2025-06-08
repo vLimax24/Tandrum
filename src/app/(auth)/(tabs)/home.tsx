@@ -161,7 +161,7 @@ const Page = () => {
                   Welcome back,
                 </Text>
                 <Text className="text-slate-900 text-3xl font-bold">
-                  {user?.firstName || "Partner"}
+                  {convexUser.name || "Partner"}
                 </Text>
               </View>
               <LinearGradient

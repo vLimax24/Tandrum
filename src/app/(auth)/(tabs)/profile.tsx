@@ -175,7 +175,7 @@ const Profile = () => {
             </View>
 
             <Text className="text-[#303030] text-2xl font-bold mb-1">
-              {user.fullName}
+              {convexUser.name}
             </Text>
             <Text className="text-[#303030] text-base mb-4">
               {user.primaryEmailAddress?.emailAddress}

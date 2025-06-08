@@ -14,9 +14,9 @@ import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useMutation } from "convex/react";
 import { api } from "convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
+import { useMutation, useQuery } from "convex/react";
 
 const { width } = Dimensions.get("window");
 const avatarSize = (width - 60) / 3 - 10; // 3 columns with spacing
@@ -46,6 +46,10 @@ export default function AvatarScreen() {
   ).current;
 
   const updateUser = useMutation(api.users.completeOnboarding);
+  const getUserData = useQuery(
+    api.users.getUserByClerkId,
+    user ? { clerkId: user.id } : "skip"
+  );
 
   useEffect(() => {
     Animated.parallel([
@@ -81,10 +85,15 @@ export default function AvatarScreen() {
 
     setIsLoading(true);
     try {
-      // Update user with selected avatar
+      // Get the current user data to preserve the username
+      const currentUserQuery = getUserData;
+      const currentUsername =
+        currentUserQuery?.name || user.firstName || "User";
+
+      // Update user with selected avatar, preserving the username
       await updateUser({
         clerkId: user.id,
-        name: user.firstName || "User",
+        name: currentUsername, // Use the existing username instead of user.firstName
         profileImage: `avatar_${selectedAvatar}`,
       });
 
