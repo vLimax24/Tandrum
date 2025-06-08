@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useCallback } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Profile = () => {
   const { user, isLoaded } = useUser();
@@ -74,7 +75,17 @@ const Profile = () => {
           style: "destructive",
           onPress: async () => {
             try {
-              // Sign out from Clerk first
+              // Clear all AsyncStorage data first
+              await AsyncStorage.multiRemove([
+                "isFirstTime",
+                "tutorialCompleted",
+                "onboardingCompleted",
+                "convexUser",
+              ]);
+
+              console.log("AsyncStorage cleared");
+
+              // Sign out from Clerk
               await signOut();
 
               // The useFocusEffect will handle navigation when auth state changes

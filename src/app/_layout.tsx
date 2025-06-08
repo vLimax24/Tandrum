@@ -24,6 +24,7 @@ import { DuoProvider } from "@/hooks/useDuo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
+import { AppState } from "react-native";
 
 const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
@@ -53,6 +54,7 @@ const InitialLayout = () => {
   const [onboardingCompleted, setOnboardingCompleted] = useState<
     boolean | null
   >(null);
+  const [storageCheckTrigger, setStorageCheckTrigger] = useState(0);
 
   // Get user data from Convex
   const convexUser = useQuery(
@@ -60,126 +62,142 @@ const InitialLayout = () => {
     isSignedIn && user?.id ? { clerkId: user.id } : "skip"
   );
 
-  // Check if this is the first time opening the app and if tutorial is completed
+  // Function to check AsyncStorage values
+  const checkStorageValues = async () => {
+    try {
+      const firstTimeValue = await AsyncStorage.getItem("isFirstTime");
+      const tutorialCompleted = await AsyncStorage.getItem("tutorialCompleted");
+      const onboardingDone = await AsyncStorage.getItem("onboardingCompleted");
+
+      console.log("Storage check values:", {
+        firstTimeValue,
+        tutorialCompleted,
+        onboardingDone,
+      });
+
+      setIsFirstTime(
+        firstTimeValue === null ? true : firstTimeValue === "true"
+      );
+      setHasCompletedTutorial(tutorialCompleted === "true");
+      setOnboardingCompleted(onboardingDone === "true");
+    } catch (error) {
+      console.error("Error checking storage:", error);
+      setIsFirstTime(true);
+      setHasCompletedTutorial(false);
+      setOnboardingCompleted(false);
+    }
+  };
+
+  // Check storage values on initial mount
   useEffect(() => {
-    const checkFirstTime = async () => {
-      try {
-        const firstTimeValue = await AsyncStorage.getItem("isFirstTime");
-        const tutorialCompleted =
-          await AsyncStorage.getItem("tutorialCompleted");
-        const onboardingDone = await AsyncStorage.getItem(
-          "onboardingCompleted"
-        );
-
-        setIsFirstTime(firstTimeValue === null);
-        setHasCompletedTutorial(tutorialCompleted === "true");
-        setOnboardingCompleted(onboardingDone === "true");
-      } catch (error) {
-        console.error("Error checking first time status:", error);
-        // Default to first time if there's an error
-        setIsFirstTime(true);
-        setHasCompletedTutorial(false);
-        setOnboardingCompleted(false);
-      }
-    };
-
-    checkFirstTime();
+    checkStorageValues();
   }, []);
 
-  // Re-check AsyncStorage when authentication state changes
+  // Re-check storage when authentication state changes
   useEffect(() => {
-    if (isSignedIn && isFirstTime !== null) {
-      const recheckStorage = async () => {
-        try {
-          const firstTimeValue = await AsyncStorage.getItem("isFirstTime");
-          const tutorialCompleted =
-            await AsyncStorage.getItem("tutorialCompleted");
-          const onboardingDone = await AsyncStorage.getItem(
-            "onboardingCompleted"
-          );
-
-          setIsFirstTime(
-            firstTimeValue === null ? false : firstTimeValue !== "true"
-          );
-          setHasCompletedTutorial(tutorialCompleted === "true");
-          setOnboardingCompleted(onboardingDone === "true");
-        } catch (error) {
-          console.error("Error rechecking storage:", error);
-        }
-      };
-      recheckStorage();
+    if (isSignedIn) {
+      checkStorageValues();
     }
   }, [isSignedIn]);
 
-  // Handle routing based on authentication, tutorial, and onboarding state
+  // Add app state change listener to re-check storage when app becomes active
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (nextAppState === "active") {
+        // Force a storage recheck when app becomes active
+        checkStorageValues();
+      }
+    });
+
+    return () => subscription?.remove();
+  }, []);
+
+  // Add periodic storage check while user is signed in and onboarding might be in progress
+  useEffect(() => {
+    if (isSignedIn && onboardingCompleted === false) {
+      const interval = setInterval(() => {
+        console.log("Periodic storage check...");
+        checkStorageValues();
+      }, 1000); // Check every second
+
+      return () => clearInterval(interval);
+    }
+  }, [isSignedIn, onboardingCompleted]);
+
+  // Handle navigation redirects
   useEffect(() => {
     if (
       !isLoaded ||
       isFirstTime === null ||
       hasCompletedTutorial === null ||
       onboardingCompleted === null
-    )
+    ) {
       return;
+    }
 
-    const inAuthGroup = segments[0] === "(auth)";
-    const inPublicGroup = segments[0] === "(public)";
-    const inTutorialGroup = segments[0] === "(tutorial)";
-    const inOnboardingGroup = segments.includes("(onboarding)");
+    const segment0 = segments[0];
+    const segment1 = segments.at(1) ?? "";
+    const segment2 = segments.at(2) ?? "";
 
-    // If user is signed in
-    if (isSignedIn) {
-      // Wait for convexUser to load
-      if (convexUser === undefined) {
-        return; // Still loading
+    const inAuthGroup = segment0 === "(auth)";
+    const inPublicGroup = segment0 === "(public)";
+    const currentPath = segments.join("/");
+
+    console.log("Navigation state:", {
+      isFirstTime,
+      hasCompletedTutorial,
+      onboardingCompleted,
+      isSignedIn,
+      segments,
+      currentPath,
+      inAuthGroup,
+      inPublicGroup,
+    });
+
+    // If it's the first time (tutorial not completed)
+    if (isFirstTime || !hasCompletedTutorial) {
+      if (!inAuthGroup || segment1 !== "(tutorial)") {
+        console.log("Redirecting to tutorial");
+        router.replace("/(auth)/(tutorial)/");
       }
+      return;
+    }
 
-      // Check if user has completed onboarding
-      const hasCompletedOnboarding = onboardingCompleted && convexUser;
+    // If tutorial is finished but user is not signed in
+    if (hasCompletedTutorial && !isSignedIn) {
+      if (!inPublicGroup || segment1 !== "login") {
+        console.log("Redirecting to login");
+        router.replace("/(public)");
+      }
+      return;
+    }
 
-      if (!hasCompletedOnboarding && !inOnboardingGroup) {
+    // If user is signed in but onboarding is not completed
+    if (isSignedIn && !onboardingCompleted) {
+      if (!inAuthGroup || segment1 !== "(onboarding)") {
+        console.log("Redirecting to onboarding");
         router.replace("/(auth)/(onboarding)");
-        return;
       }
-
-      // User has completed onboarding, go to main app
-      if (hasCompletedOnboarding && !inAuthGroup) {
-        router.replace("/(auth)/(tabs)/home");
-        return;
-      }
-
-      // If user is in onboarding but has already completed it, redirect to main app
-      if (hasCompletedOnboarding && inOnboardingGroup) {
-        router.replace("/(auth)/(tabs)/home");
-        return;
-      }
-
       return;
     }
 
-    // User is not signed in
-    // If it's first time and tutorial not completed, show tutorial
-    if (isFirstTime && !hasCompletedTutorial && !inTutorialGroup) {
-      router.replace("/(tutorial)");
+    // If user is signed in and onboarding is completed
+    if (isSignedIn && onboardingCompleted) {
+      if (!inAuthGroup || segment1 !== "(tabs)") {
+        console.log("Redirecting to home dashboard");
+        router.replace("/(auth)/(tabs)/home");
+      }
       return;
-    }
-
-    // If tutorial is completed or not first time, show login
-    if ((hasCompletedTutorial || !isFirstTime) && !inPublicGroup) {
-      router.replace("/(public)");
-    }
-    // If they're in auth group but not signed in, redirect to public
-    else if (inAuthGroup) {
-      router.replace("/(public)");
     }
   }, [
     isLoaded,
-    isSignedIn,
     isFirstTime,
     hasCompletedTutorial,
     onboardingCompleted,
+    isSignedIn,
     segments,
-    convexUser,
   ]);
+
   useEffect(() => {
     if (
       fontsLoaded &&

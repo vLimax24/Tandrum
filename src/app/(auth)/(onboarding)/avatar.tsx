@@ -9,6 +9,7 @@ import {
   Alert,
   Animated,
   Dimensions,
+  AppState,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
@@ -77,25 +78,32 @@ export default function AvatarScreen() {
     });
   };
 
-  const handleFinish = async () => {
+  // Alternative approach: Use a more direct navigation method
+  const handleFinishAlternative = async () => {
     if (!selectedAvatar || !user) return;
 
     setIsLoading(true);
     try {
-      // Update user with selected avatar (in real app, you'd upload the image)
+      // Update user with selected avatar
       await updateUser({
         clerkId: user.id,
         name: user.firstName || "User",
-        profileImage: `avatar_${selectedAvatar}`, // This would be a real image URL
+        profileImage: `avatar_${selectedAvatar}`,
       });
 
       // Mark onboarding as complete
       await AsyncStorage.setItem("onboardingCompleted", "true");
+      console.log("Onboarding marked as complete");
 
-      // Force a small delay to ensure AsyncStorage is updated
+      // Wait a bit to ensure storage is updated
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // Navigate to main app
+      // Verify the storage was updated
+      const verification = await AsyncStorage.getItem("onboardingCompleted");
+      console.log("Verification - onboardingCompleted:", verification);
+
+      // Use dismissAll to clear the stack and then navigate
+      router.dismissAll();
       router.replace("/(auth)/(tabs)/home");
     } catch (error) {
       Alert.alert("Error", "Failed to save avatar. Please try again.");
@@ -104,6 +112,80 @@ export default function AvatarScreen() {
       setIsLoading(false);
     }
   };
+
+  const handleFinish = async () => {
+    if (!selectedAvatar || !user) return;
+
+    setIsLoading(true);
+    try {
+      // Update user with selected avatar first
+      await updateUser({
+        clerkId: user.id,
+        name: user.firstName || "User",
+        profileImage: `avatar_${selectedAvatar}`,
+      });
+
+      // Mark onboarding as complete with explicit string value
+      await AsyncStorage.setItem("onboardingCompleted", "true");
+
+      // Also set a timestamp for debugging
+      await AsyncStorage.setItem(
+        "onboardingCompletedAt",
+        new Date().toISOString()
+      );
+
+      console.log(
+        "Onboarding marked as complete at:",
+        new Date().toISOString()
+      );
+
+      // Verify the storage update immediately
+      const verification = await AsyncStorage.getItem("onboardingCompleted");
+      console.log("Storage verification - onboardingCompleted:", verification);
+
+      // Multiple approaches to ensure navigation works:
+
+      // Approach 1: Use setTimeout to ensure AsyncStorage is fully committed
+      setTimeout(() => {
+        console.log("Attempting navigation to home...");
+        router.dismissAll();
+        router.replace("/(auth)/(tabs)/home");
+      }, 500);
+
+      // Approach 2: Also try push as backup (in case replace doesn't work)
+      setTimeout(() => {
+        console.log("Backup navigation attempt...");
+        router.push("/(auth)/(tabs)/home");
+      }, 1000);
+    } catch (error) {
+      Alert.alert("Error", "Failed to save avatar. Please try again.");
+      console.error("Avatar update error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Debug function to check current storage state
+  const debugStorage = async () => {
+    try {
+      const onboardingCompleted = await AsyncStorage.getItem(
+        "onboardingCompleted"
+      );
+      const tutorialCompleted = await AsyncStorage.getItem("tutorialCompleted");
+      const isFirstTime = await AsyncStorage.getItem("isFirstTime");
+
+      console.log("Current storage state:", {
+        onboardingCompleted,
+        tutorialCompleted,
+        isFirstTime,
+      });
+    } catch (error) {
+      console.error("Error checking storage:", error);
+    }
+  };
+
+  // Add debug button in development
+  const isDebug = __DEV__;
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -118,6 +200,11 @@ export default function AvatarScreen() {
           <Ionicons name="arrow-back" size={20} color="#374151" />
         </TouchableOpacity>
         <Text className="text-sm text-gray-500 font-medium">Step 2 of 2</Text>
+        {isDebug && (
+          <TouchableOpacity onPress={debugStorage}>
+            <Text className="text-xs text-blue-500">Debug</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Progress Bar */}

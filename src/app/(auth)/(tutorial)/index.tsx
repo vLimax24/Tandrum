@@ -102,19 +102,22 @@ export default function TutorialScreen() {
 
   const handleGoogleLogin = async () => {
     try {
-      // First set the AsyncStorage flags before starting SSO
+      // Set flags BEFORE starting SSO to prevent flash
       await AsyncStorage.setItem("isFirstTime", "false");
       await AsyncStorage.setItem("tutorialCompleted", "true");
 
       const { createdSessionId, setActive } = await startSSOFlow({
         strategy: "oauth_google",
       });
+
       if (createdSessionId) {
         setActive!({ session: createdSessionId });
-        // The _layout.tsx will handle routing after authentication
+        // Don't navigate here - let _layout handle it based on onboarding status
       }
     } catch (error) {
-      // If login fails, we might want to reset the flags
+      // If login fails, reset the flags
+      await AsyncStorage.removeItem("isFirstTime");
+      await AsyncStorage.removeItem("tutorialCompleted");
       console.error("Login error:", error);
       Alert.alert("Login failed", error.message);
     }

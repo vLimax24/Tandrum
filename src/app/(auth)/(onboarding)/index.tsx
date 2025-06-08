@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width, height } = Dimensions.get("window");
 
@@ -203,7 +204,10 @@ export default function OnboardingWelcome() {
               <TouchableOpacity
                 className="items-center mt-4 py-2"
                 activeOpacity={0.7}
-                onPress={() => router.replace("/(auth)/(tabs)/home")}
+                onPress={() => {
+                  router.replace("/(auth)/(tabs)/home");
+                  AsyncStorage.setItem("onboardingCompleted", "true");
+                }}
               >
                 <Text className="text-gray-500 text-base">Skip for now</Text>
               </TouchableOpacity>
