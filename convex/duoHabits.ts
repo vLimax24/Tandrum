@@ -203,8 +203,14 @@ async function updateDuoStreak(
   const yesterdayDateString = yesterday.toISOString().split("T")[0];
 
   // Check if both users completed at least one habit today
-  let bothCompletedToday = false;
-  let bothCompletedYesterday = false;
+  let bothCompletedAtLeastOneToday = false;
+  let bothCompletedAtLeastOneYesterday = false;
+
+  // Check if both users have completed at least one habit today
+  const userACompletedHabitsToday = new Set<string>();
+  const userBCompletedHabitsToday = new Set<string>();
+  const userACompletedHabitsYesterday = new Set<string>();
+  const userBCompletedHabitsYesterday = new Set<string>();
 
   for (const habit of habits) {
     const lastA = habit.last_checkin_at_userA ?? 0;
@@ -218,17 +224,10 @@ async function updateDuoStreak(
       lastB > 0 &&
       new Date(lastB).toISOString().split("T")[0] === todayDateString;
 
-    if (aCompletedToday && bCompletedToday) {
-      bothCompletedToday = true;
-      break;
-    }
-  }
+    if (aCompletedToday) userACompletedHabitsToday.add(habit._id);
+    if (bCompletedToday) userBCompletedHabitsToday.add(habit._id);
 
-  // Check yesterday's completions for streak continuation
-  for (const habit of habits) {
-    const lastA = habit.last_checkin_at_userA ?? 0;
-    const lastB = habit.last_checkin_at_userB ?? 0;
-
+    // Check yesterday's completions
     const aCompletedYesterday =
       lastA > 0 &&
       new Date(lastA).toISOString().split("T")[0] === yesterdayDateString;
@@ -236,45 +235,61 @@ async function updateDuoStreak(
       lastB > 0 &&
       new Date(lastB).toISOString().split("T")[0] === yesterdayDateString;
 
-    if (aCompletedYesterday && bCompletedYesterday) {
-      bothCompletedYesterday = true;
-      break;
-    }
+    if (aCompletedYesterday) userACompletedHabitsYesterday.add(habit._id);
+    if (bCompletedYesterday) userBCompletedHabitsYesterday.add(habit._id);
   }
+
+  // Check if both users completed at least one habit today and yesterday
+  bothCompletedAtLeastOneToday =
+    userACompletedHabitsToday.size > 0 && userBCompletedHabitsToday.size > 0;
+  bothCompletedAtLeastOneYesterday =
+    userACompletedHabitsYesterday.size > 0 &&
+    userBCompletedHabitsYesterday.size > 0;
 
   // Calculate new streak value
   let newStreak = duo.streak || 0;
   let newStreakDate = duo.streakDate || now;
 
-  if (bothCompletedToday) {
-    if (newStreak === 0 || !bothCompletedYesterday) {
+  // Get the current streak date to check if we've already incremented today
+  const currentStreakDate = new Date(duo.streakDate || 0);
+  const currentStreakDateString = currentStreakDate.toISOString().split("T")[0];
+  const alreadyIncrementedToday = currentStreakDateString === todayDateString;
+
+  if (bothCompletedAtLeastOneToday && !alreadyIncrementedToday) {
+    if (newStreak === 0) {
       // Starting a new streak
       newStreak = 1;
       newStreakDate = now;
-    } else if (bothCompletedYesterday) {
-      // Continue existing streak
+    } else if (bothCompletedAtLeastOneYesterday) {
+      // Continue existing streak - only increment once per day
       newStreak += 1;
+      newStreakDate = now;
+    } else {
+      // Gap in streak, start over
+      newStreak = 1;
+      newStreakDate = now;
     }
-  } else {
-    // No completion today, check if streak should be reset
-    const lastStreakDate = new Date(duo.streakDate || 0);
+  } else if (!bothCompletedAtLeastOneToday) {
+    // Check if streak should be broken
     const daysSinceLastStreak = Math.floor(
-      (now - lastStreakDate.getTime()) / oneDayMs
+      (now - (duo.streakDate || 0)) / oneDayMs
     );
 
-    // Reset streak if more than 1 day has passed without both users completing
+    // Break streak if more than 1 day has passed without both users completing
     if (daysSinceLastStreak > 1) {
       newStreak = 0;
       newStreakDate = now;
     }
   }
 
-  // Update duo with new streak information
-  await ctx.db.patch(duoId, {
-    streak: newStreak,
-    streakDate: newStreakDate,
-    lastUpdated: now,
-  });
+  // Only update if there's actually a change
+  if (newStreak !== duo.streak || newStreakDate !== duo.streakDate) {
+    await ctx.db.patch(duoId, {
+      streak: newStreak,
+      streakDate: newStreakDate,
+      lastUpdated: now,
+    });
+  }
 }
 
 // Additional helper mutation to manually reset streaks (useful for testing or admin)

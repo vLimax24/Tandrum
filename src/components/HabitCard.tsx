@@ -79,7 +79,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({
                 ? "bg-accent border-accent"
                 : "border-gray-300 hover:border-accent bg-white"
             }`}
-            onPress={onCheck}
+            onPress={!isDoneByMe ? onCheck : undefined}
           >
             <View
               className={`w-5 h-5 rounded-full border-2 mr-2 ${
