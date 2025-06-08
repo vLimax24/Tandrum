@@ -20,13 +20,16 @@ import {
 } from "@gorhom/bottom-sheet";
 
 const treeImages: Record<string, any> = {
-  leaf: require("../../src/assets/hemp-leaf.png"),
-  orange: require("../../src/assets/orange.png"),
-  // Add more images as needed for new types
-  silverLeaf: require("../../src/assets/hemp-leaf.png"), // Using same image for now
-  goldenLeaf: require("../../src/assets/hemp-leaf.png"), // Using same image for now
-  apple: require("../../src/assets/orange.png"), // Using orange image as placeholder
-  cherry: require("../../src/assets/orange.png"), // Using orange image as placeholder
+  leaf: require("@/assets/hemp-leaf.png"),
+  orange: require("@/assets/orange.png"),
+  silverLeaf: require("@/assets/hemp-leaf.png"), // Using same image for now
+  goldenLeaf: require("@/assets/golden-leaf.png"),
+  apple: require("@/assets/orange.png"), // Using orange image as placeholder
+  cherry: require("@/assets/orange.png"), // Using orange image as placeholder
+  // Add mapping by filename as well
+  "hemp-leaf.png": require("@/assets/hemp-leaf.png"),
+  "orange.png": require("@/assets/orange.png"),
+  "golden-leaf.png": require("@/assets/golden-leaf.png"),
 };
 
 interface TreeInventoryProps {
@@ -139,11 +142,26 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     const item = itemsById[itemId];
     if (!item) return treeImages.leaf; // fallback
 
-    // Map based on imageAsset field from database
+    // First try to map by itemId directly
+    if (treeImages[itemId]) {
+      return treeImages[itemId];
+    }
+
+    // Then try to map by imageAsset filename
+    if (item.imageAsset && treeImages[item.imageAsset]) {
+      return treeImages[item.imageAsset];
+    }
+
+    // Legacy mapping for backwards compatibility
     if (item.imageAsset === "orange.png") return treeImages.orange;
     if (item.imageAsset === "hemp-leaf.png") return treeImages.leaf;
-    // Add more mappings as needed
-    return treeImages.leaf; // fallback
+    if (item.imageAsset === "golden-leaf.png") return treeImages.goldenLeaf;
+
+    // Category-based fallback
+    if (item.category === "fruit") return treeImages.orange;
+    if (item.category === "leaf") return treeImages.leaf;
+
+    return treeImages.leaf; // final fallback
   };
 
   // Returns all possible slot positions for the current stage
