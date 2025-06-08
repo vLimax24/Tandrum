@@ -18,6 +18,7 @@ import { CreateHabitButton } from "@/components/CreateHabitButton";
 import { HabitsContainer } from "@/components/HabitsContainer";
 import { RewardAnimation } from "@/components/RewardAnimation";
 import { Id } from "../../../../convex/_generated/dataModel";
+import { NoDuoScreen } from "@/components/NoDuoScreen";
 
 export default function HabitsSection() {
   const { user } = useUser();
@@ -37,6 +38,8 @@ export default function HabitsSection() {
   // Reward animation state
   const [showRewardAnimation, setShowRewardAnimation] = useState(false);
   const [currentRewards, setCurrentRewards] = useState<any>(null);
+
+  const [noDuoModalVisible, setNoDuoModalVisible] = useState(false);
 
   const clerkId = user?.id;
   const convexUser = useQuery(
@@ -174,10 +177,25 @@ export default function HabitsSection() {
     setCurrentRewards(null);
   };
 
-  if (!convexUser || !connections || !habits) {
+  // Replace the existing loading check with this updated version
+  if (!convexUser) {
     return <LoadingState />;
   }
 
+  // Show NoDuoScreen if user exists but has no connections
+  if (!connections || connections.length === 0) {
+    return (
+      <NoDuoScreen
+        modalVisible={noDuoModalVisible}
+        setModalVisible={setNoDuoModalVisible}
+      />
+    );
+  }
+
+  // Show loading if habits are still loading
+  if (!habits) {
+    return <LoadingState />;
+  }
   const duo = connections[selectedIndex];
   const daily = habits.filter((h) => h.frequency === "daily");
   const weekly = habits.filter((h) => h.frequency === "weekly");
