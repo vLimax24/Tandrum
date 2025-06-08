@@ -522,9 +522,8 @@ const Page = () => {
               </View>
             ) : (
               <View
-                className="rounded-3xl border border-white/40 p-8 items-center"
+                className="rounded-3xl border border-white/40 p-8 items-center bg-[#ffffff]"
                 style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.7)",
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 4 },
                   shadowOpacity: 0.1,
