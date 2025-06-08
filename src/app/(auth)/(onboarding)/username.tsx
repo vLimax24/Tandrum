@@ -30,7 +30,7 @@ export default function UsernameScreen() {
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(30)).current;
 
-  const updateUser = useMutation(api.users.completeOnboarding);
+  const updateUser = useMutation(api.users.updateUserInfo);
 
   // Only query when we have a valid username that's been debounced and meets criteria
   const shouldCheckUsername =
@@ -147,6 +147,7 @@ export default function UsernameScreen() {
 
     setIsLoading(true);
     try {
+      // Only update the username/name, don't complete onboarding yet
       await updateUser({
         clerkId: user.id,
         name: username.trim(),

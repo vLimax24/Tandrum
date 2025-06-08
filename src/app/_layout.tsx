@@ -37,6 +37,8 @@ if (!clerkPublishableKey) {
   throw new Error("CLERK_PUBLISHABLE_KEY is not set");
 }
 
+// Replace the InitialLayout component in src/app/_layout.tsx
+
 const InitialLayout = () => {
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -51,40 +53,32 @@ const InitialLayout = () => {
   const [hasCompletedTutorial, setHasCompletedTutorial] = useState<
     boolean | null
   >(null);
-  const [onboardingCompleted, setOnboardingCompleted] = useState<
-    boolean | null
-  >(null);
-  const [storageCheckTrigger, setStorageCheckTrigger] = useState(0);
 
-  // Get user data from Convex
-  const convexUser = useQuery(
-    api.users.getUserByClerkId,
+  // Get onboarding status from server
+  const onboardingStatus = useQuery(
+    api.users.getOnboardingStatus,
     isSignedIn && user?.id ? { clerkId: user.id } : "skip"
   );
 
-  // Function to check AsyncStorage values
+  // Function to check AsyncStorage values (only for tutorial)
   const checkStorageValues = async () => {
     try {
       const firstTimeValue = await AsyncStorage.getItem("isFirstTime");
       const tutorialCompleted = await AsyncStorage.getItem("tutorialCompleted");
-      const onboardingDone = await AsyncStorage.getItem("onboardingCompleted");
 
       console.log("Storage check values:", {
         firstTimeValue,
         tutorialCompleted,
-        onboardingDone,
       });
 
       setIsFirstTime(
         firstTimeValue === null ? true : firstTimeValue === "true"
       );
       setHasCompletedTutorial(tutorialCompleted === "true");
-      setOnboardingCompleted(onboardingDone === "true");
     } catch (error) {
       console.error("Error checking storage:", error);
       setIsFirstTime(true);
       setHasCompletedTutorial(false);
-      setOnboardingCompleted(false);
     }
   };
 
@@ -100,53 +94,23 @@ const InitialLayout = () => {
     }
   }, [isSignedIn]);
 
-  // Add app state change listener to re-check storage when app becomes active
+  // Main navigation logic
   useEffect(() => {
-    const subscription = AppState.addEventListener("change", (nextAppState) => {
-      if (nextAppState === "active") {
-        // Force a storage recheck when app becomes active
-        checkStorageValues();
-      }
-    });
-
-    return () => subscription?.remove();
-  }, []);
-
-  // Add periodic storage check while user is signed in and onboarding might be in progress
-  useEffect(() => {
-    if (isSignedIn && onboardingCompleted === false) {
-      const interval = setInterval(() => {
-        console.log("Periodic storage check...");
-        checkStorageValues();
-      }, 1000); // Check every second
-
-      return () => clearInterval(interval);
-    }
-  }, [isSignedIn, onboardingCompleted]);
-
-  // Handle navigation redirects
-  useEffect(() => {
-    if (
-      !isLoaded ||
-      isFirstTime === null ||
-      hasCompletedTutorial === null ||
-      onboardingCompleted === null
-    ) {
+    if (!isLoaded || isFirstTime === null || hasCompletedTutorial === null) {
       return;
     }
 
     const segment0 = segments[0];
     const segment1 = segments.at(1) ?? "";
-    const segment2 = segments.at(2) ?? "";
+    const currentPath = segments.join("/");
 
     const inAuthGroup = segment0 === "(auth)";
     const inPublicGroup = segment0 === "(public)";
-    const currentPath = segments.join("/");
 
     console.log("Navigation state:", {
       isFirstTime,
       hasCompletedTutorial,
-      onboardingCompleted,
+      onboardingStatus,
       isSignedIn,
       segments,
       currentPath,
@@ -165,35 +129,58 @@ const InitialLayout = () => {
 
     // If tutorial is finished but user is not signed in
     if (hasCompletedTutorial && !isSignedIn) {
-      if (!inPublicGroup || segment1 !== "login") {
+      if (!inPublicGroup) {
         console.log("Redirecting to login");
         router.replace("/(public)");
       }
       return;
     }
 
-    // If user is signed in but onboarding is not completed
-    if (isSignedIn && !onboardingCompleted) {
-      if (!inAuthGroup || segment1 !== "(onboarding)") {
-        console.log("Redirecting to onboarding");
-        router.replace("/(auth)/(onboarding)");
+    // If user is signed in, check onboarding status
+    if (isSignedIn && onboardingStatus !== undefined) {
+      // If user exists and has completed onboarding (or is a returning user without onboarding data)
+      if (
+        onboardingStatus.exists &&
+        (onboardingStatus.onboardingCompleted ||
+          onboardingStatus.onboardingCompleted === undefined)
+      ) {
+        if (!inAuthGroup || segment1 !== "(tabs)") {
+          console.log(
+            "Redirecting to home dashboard - user exists and onboarding completed or is returning user"
+          );
+          router.replace("/(auth)/(tabs)/home");
+        }
+        return;
       }
-      return;
-    }
 
-    // If user is signed in and onboarding is completed
-    if (isSignedIn && onboardingCompleted) {
-      if (!inAuthGroup || segment1 !== "(tabs)") {
-        console.log("Redirecting to home dashboard");
-        router.replace("/(auth)/(tabs)/home");
+      // If user exists but hasn't completed onboarding
+      if (
+        onboardingStatus.exists &&
+        onboardingStatus.onboardingCompleted === false
+      ) {
+        if (!inAuthGroup || segment1 !== "(onboarding)") {
+          console.log(
+            "Redirecting to onboarding - user exists but onboarding not completed"
+          );
+          router.replace("/(auth)/(onboarding)");
+        }
+        return;
       }
-      return;
+
+      // If user doesn't exist in database yet, go to onboarding
+      if (!onboardingStatus.exists) {
+        if (!inAuthGroup || segment1 !== "(onboarding)") {
+          console.log("Redirecting to onboarding - new user");
+          router.replace("/(auth)/(onboarding)");
+        }
+        return;
+      }
     }
   }, [
     isLoaded,
     isFirstTime,
     hasCompletedTutorial,
-    onboardingCompleted,
+    onboardingStatus,
     isSignedIn,
     segments,
   ]);
@@ -203,11 +190,17 @@ const InitialLayout = () => {
       fontsLoaded &&
       isFirstTime !== null &&
       hasCompletedTutorial !== null &&
-      onboardingCompleted !== null
+      (isSignedIn ? onboardingStatus !== undefined : true)
     ) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, isFirstTime, hasCompletedTutorial, onboardingCompleted]);
+  }, [
+    fontsLoaded,
+    isFirstTime,
+    hasCompletedTutorial,
+    onboardingStatus,
+    isSignedIn,
+  ]);
 
   return <Slot />;
 };

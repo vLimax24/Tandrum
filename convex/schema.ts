@@ -13,6 +13,9 @@ export default defineSchema({
     language: v.string(),
     bio: v.optional(v.string()),
     partner: v.optional(v.array(v.id("users"))),
+    // Add onboarding tracking
+    onboardingCompleted: v.optional(v.boolean()),
+    onboardingCompletedAt: v.optional(v.number()),
   })
     .index("by_clerkId", ["clerkId"])
     .index("by_username", ["name"]),
