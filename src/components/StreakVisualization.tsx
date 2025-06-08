@@ -46,9 +46,6 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
 
   const calculateStreakDisplay = () => {
     const currentDate = new Date();
-    const streakStartDate = duo.streakDate
-      ? new Date(duo.streakDate)
-      : currentDate;
     const totalStreak = duo.streak || 0;
 
     const streakDisplay = [];
@@ -69,15 +66,20 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
       const dayDate = new Date(monday);
       dayDate.setDate(monday.getDate() + i);
 
-      // Check if this day is within the streak period
+      // Fixed logic: Check if this day is within the streak period
+      // Count backwards from today based on current streak count
       const isStreakDay =
         totalStreak > 0 &&
-        dayDate >= streakStartDate &&
-        dayDate <= currentDate &&
-        Math.floor(
-          (dayDate.getTime() - streakStartDate.getTime()) /
-            (1000 * 60 * 60 * 24)
-        ) < totalStreak;
+        (() => {
+          // Calculate days difference from today (positive = future, negative = past, 0 = today)
+          const daysDiff = Math.floor(
+            (dayDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+          );
+
+          // A day is a streak day if it's within the last 'totalStreak' days including today
+          // So for streak = 2: today (0) and yesterday (-1) should be marked
+          return daysDiff <= 0 && daysDiff > -totalStreak;
+        })();
 
       const isToday = dayDate.toDateString() === currentDate.toDateString();
 
