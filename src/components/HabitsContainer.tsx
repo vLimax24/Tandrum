@@ -54,7 +54,7 @@ export function HabitsContainer({
   };
 
   return (
-    <>
+    <View className="gap-5">
       {/* Daily Habits Section */}
       <View>
         <SectionHeader
@@ -98,6 +98,6 @@ export function HabitsContainer({
           emptyStateMessage="No weekly habits yet. Create one to get started!"
         />
       </View>
-    </>
+    </View>
   );
 }
