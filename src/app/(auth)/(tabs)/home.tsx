@@ -559,7 +559,6 @@ const Page = () => {
                 shadowRadius: 12,
                 elevation: 12,
                 width: "100%",
-                maxWidth: 500,
               }}
             >
               <LinearGradient

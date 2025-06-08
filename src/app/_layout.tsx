@@ -185,8 +185,6 @@ const InitialLayout = () => {
     segments,
   ]);
 
-  AsyncStorage.clear();
-
   useEffect(() => {
     if (
       fontsLoaded &&
