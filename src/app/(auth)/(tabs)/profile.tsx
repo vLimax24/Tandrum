@@ -110,13 +110,23 @@ const Profile = () => {
     Alert.alert("Settings", "Settings screen coming soon!");
   };
 
-  const formatJoinDate = (date: string) => {
+  const formatJoinDate = (date) => {
     const joinDate = new Date(date);
     const now = new Date();
+
+    // Check if the date is valid
+    if (isNaN(joinDate.getTime())) {
+      return "Recently joined";
+    }
+
     const diffTime = Math.abs(now.getTime() - joinDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 30) {
+    if (diffDays === 0) {
+      return "Today";
+    } else if (diffDays === 1) {
+      return "1 day ago";
+    } else if (diffDays < 30) {
       return `${diffDays} days ago`;
     } else if (diffDays < 365) {
       const months = Math.floor(diffDays / 30);
