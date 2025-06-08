@@ -97,14 +97,48 @@ export const checkInHabit = mutation({
 
     const now = Date.now();
     const isDaily = habit.frequency === "daily";
-    const timeLimit = isDaily ? 86400e3 : 7 * 86400e3; // 24 hours or 7 days
 
-    // Check if user already checked in within the time limit
+    // Get the last check-in time for the user
     const lastCheckinTime = args.userIsA
       ? (habit.last_checkin_at_userA ?? 0)
       : (habit.last_checkin_at_userB ?? 0);
 
-    if (now - lastCheckinTime < timeLimit) {
+    // Helper function to check if two timestamps are in the same day
+    const isSameDay = (timestamp1: number, timestamp2: number) => {
+      const date1 = new Date(timestamp1);
+      const date2 = new Date(timestamp2);
+      return (
+        date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate()
+      );
+    };
+
+    // Helper function to check if two timestamps are in the same week
+    const isSameWeek = (timestamp1: number, timestamp2: number) => {
+      const date1 = new Date(timestamp1);
+      const date2 = new Date(timestamp2);
+
+      // Get the start of the week (Sunday) for both dates
+      const startOfWeek1 = new Date(date1);
+      startOfWeek1.setDate(date1.getDate() - date1.getDay());
+      startOfWeek1.setHours(0, 0, 0, 0);
+
+      const startOfWeek2 = new Date(date2);
+      startOfWeek2.setDate(date2.getDate() - date2.getDay());
+      startOfWeek2.setHours(0, 0, 0, 0);
+
+      return startOfWeek1.getTime() === startOfWeek2.getTime();
+    };
+
+    // Check if user already checked in for the current period
+    const alreadyCheckedIn =
+      lastCheckinTime > 0 &&
+      (isDaily
+        ? isSameDay(lastCheckinTime, now)
+        : isSameWeek(lastCheckinTime, now));
+
+    if (alreadyCheckedIn) {
       // User already checked in, undo the check-in
       const updateData: any = {
         last_checkin_at: Math.max(

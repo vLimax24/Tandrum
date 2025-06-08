@@ -93,6 +93,32 @@ export default function HabitsSection() {
     calendar: require("../../../assets/calendar.png"),
   };
 
+  const isSameDay = (timestamp1: number, timestamp2: number) => {
+    const date1 = new Date(timestamp1);
+    const date2 = new Date(timestamp2);
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  };
+
+  const isSameWeek = (timestamp1: number, timestamp2: number) => {
+    const date1 = new Date(timestamp1);
+    const date2 = new Date(timestamp2);
+
+    // Get the start of the week (Sunday) for both dates
+    const startOfWeek1 = new Date(date1);
+    startOfWeek1.setDate(date1.getDate() - date1.getDay());
+    startOfWeek1.setHours(0, 0, 0, 0);
+
+    const startOfWeek2 = new Date(date2);
+    startOfWeek2.setDate(date2.getDate() - date2.getDay());
+    startOfWeek2.setHours(0, 0, 0, 0);
+
+    return startOfWeek1.getTime() === startOfWeek2.getTime();
+  };
+
   // Handler functions
   const handleMenuPress = (event: any, habit: any) => {
     event.target.measure((x, y, width, height, pageX, pageY) => {
@@ -465,8 +491,8 @@ export default function HabitsSection() {
                 daily.map((h) => {
                   const lastA = h.last_checkin_at_userA ?? 0;
                   const lastB = h.last_checkin_at_userB ?? 0;
-                  const doneA = now - lastA < 86400e3;
-                  const doneB = now - lastB < 86400e3;
+                  const doneA = lastA > 0 && isSameDay(lastA, now);
+                  const doneB = lastB > 0 && isSameDay(lastB, now);
 
                   return (
                     <HabitItem
@@ -482,7 +508,6 @@ export default function HabitsSection() {
                           });
                         } catch (error) {
                           console.error("Check-in error:", error);
-                          // Use setTimeout to delay the alert and avoid navigation context issues
                           setTimeout(() => {
                             Alert.alert(
                               "Error",
@@ -524,8 +549,8 @@ export default function HabitsSection() {
                 weekly.map((h) => {
                   const lastA = h.last_checkin_at_userA ?? 0;
                   const lastB = h.last_checkin_at_userB ?? 0;
-                  const doneA = now - lastA < 7 * 86400e3;
-                  const doneB = now - lastB < 7 * 86400e3;
+                  const doneA = lastA > 0 && isSameWeek(lastA, now);
+                  const doneB = lastB > 0 && isSameWeek(lastB, now);
 
                   return (
                     <HabitItem
@@ -541,7 +566,6 @@ export default function HabitsSection() {
                           });
                         } catch (error) {
                           console.error("Check-in error:", error);
-                          // Use setTimeout to delay the alert and avoid navigation context issues
                           setTimeout(() => {
                             Alert.alert(
                               "Error",
