@@ -20,6 +20,8 @@ import {
   Poppins_800ExtraBold,
 } from "@expo-google-fonts/poppins";
 import { DuoProvider } from "@/hooks/useDuo";
+import { useQuery } from "convex/react";
+import { api } from "convex/_generated/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -42,37 +44,45 @@ const InitialLayout = () => {
   const { isLoaded, isSignedIn } = useAuth();
   const segments = useSegments();
   const router = useRouter();
-  const user = useUser();
+  const { user } = useUser();
   const [isFirstTime, setIsFirstTime] = useState<boolean | null>(null);
   const [hasCompletedTutorial, setHasCompletedTutorial] = useState<
     boolean | null
   >(null);
+  const [onboardingCompleted, setOnboardingCompleted] = useState<
+    boolean | null
+  >(null);
 
-  // Check if this is the first time opening the app and if tutorial is completed
+  // Check if user exists in database
+  const existingUser = useQuery(
+    api.users.getUserByClerkId,
+    isSignedIn && user?.id ? { clerkId: user.id } : "skip"
+  );
+
+  // Check if this is the first time opening the app and if tutorial/onboarding is completed
   useEffect(() => {
-    const checkFirstTime = async () => {
+    const checkAppState = async () => {
       try {
         const firstTimeValue = await AsyncStorage.getItem("isFirstTime");
         const tutorialCompleted =
           await AsyncStorage.getItem("tutorialCompleted");
+        const onboardingValue = await AsyncStorage.getItem(
+          "onboardingCompleted"
+        );
 
         setIsFirstTime(firstTimeValue === null);
         setHasCompletedTutorial(tutorialCompleted === "true");
+        setOnboardingCompleted(onboardingValue === "true");
       } catch (error) {
-        console.error("Error checking first time status:", error);
-        // Default to first time if there's an error
+        console.error("Error checking app state:", error);
+        // Default values if there's an error
         setIsFirstTime(true);
         setHasCompletedTutorial(false);
+        setOnboardingCompleted(false);
       }
     };
 
-    checkFirstTime();
-
-    // Set up a listener to refresh the state when the app comes to foreground
-    const checkAgain = () => checkFirstTime();
-
-    // You might want to add app state change listener here if needed
-    // For now, we'll rely on the auth state changes to trigger re-evaluation
+    checkAppState();
   }, []);
 
   // Re-check AsyncStorage when authentication state changes
@@ -83,11 +93,15 @@ const InitialLayout = () => {
           const firstTimeValue = await AsyncStorage.getItem("isFirstTime");
           const tutorialCompleted =
             await AsyncStorage.getItem("tutorialCompleted");
+          const onboardingValue = await AsyncStorage.getItem(
+            "onboardingCompleted"
+          );
 
           setIsFirstTime(
             firstTimeValue === null ? false : firstTimeValue !== "true"
           );
           setHasCompletedTutorial(tutorialCompleted === "true");
+          setOnboardingCompleted(onboardingValue === "true");
         } catch (error) {
           console.error("Error rechecking storage:", error);
         }
@@ -96,20 +110,43 @@ const InitialLayout = () => {
     }
   }, [isSignedIn]);
 
-  // Handle routing based on authentication and tutorial state
+  // Handle routing based on authentication, tutorial, and onboarding state
   useEffect(() => {
-    if (!isLoaded || isFirstTime === null || hasCompletedTutorial === null)
+    if (
+      !isLoaded ||
+      isFirstTime === null ||
+      hasCompletedTutorial === null ||
+      onboardingCompleted === null
+    )
       return;
 
     const inAuthGroup = segments[0] === "(auth)";
     const inPublicGroup = segments[0] === "(public)";
     const inTutorialGroup = segments[0] === "(tutorial)";
+    const inOnboardingGroup = segments.includes("(onboarding)");
 
-    // If user is signed in, always redirect to dashboard regardless of tutorial state
+    // User is signed in
     if (isSignedIn) {
-      if (!inAuthGroup) {
-        router.replace("/(auth)/(tabs)/home");
+      // Check if user needs onboarding (no user record in DB or AsyncStorage says incomplete)
+      const needsOnboarding = !existingUser || !onboardingCompleted;
+
+      if (needsOnboarding && !inOnboardingGroup) {
+        router.replace("/(auth)/(onboarding)/index");
+        return;
       }
+
+      // User has completed onboarding, redirect to main app
+      if (!needsOnboarding && !inAuthGroup) {
+        router.replace("/(auth)/(tabs)/home");
+        return;
+      }
+
+      // If user is in onboarding but has completed it, redirect to main app
+      if (!needsOnboarding && inOnboardingGroup) {
+        router.replace("/(auth)/(tabs)/home");
+        return;
+      }
+
       return;
     }
 
@@ -128,13 +165,26 @@ const InitialLayout = () => {
     else if (inAuthGroup) {
       router.replace("/(public)");
     }
-  }, [isLoaded, isSignedIn, isFirstTime, hasCompletedTutorial, segments]);
+  }, [
+    isLoaded,
+    isSignedIn,
+    isFirstTime,
+    hasCompletedTutorial,
+    onboardingCompleted,
+    segments,
+    existingUser,
+  ]);
 
   useEffect(() => {
-    if (fontsLoaded && isFirstTime !== null && hasCompletedTutorial !== null) {
+    if (
+      fontsLoaded &&
+      isFirstTime !== null &&
+      hasCompletedTutorial !== null &&
+      onboardingCompleted !== null
+    ) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, isFirstTime, hasCompletedTutorial]);
+  }, [fontsLoaded, isFirstTime, hasCompletedTutorial, onboardingCompleted]);
 
   return <Slot />;
 };

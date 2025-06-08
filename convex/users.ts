@@ -1,4 +1,4 @@
-import { internalMutation, query } from "../convex/_generated/server";
+import { internalMutation, mutation, query } from "../convex/_generated/server";
 import { v, ConvexError } from "convex/values";
 
 export const getAllUser = query({
@@ -47,7 +47,7 @@ export const createUser = internalMutation({
       name: args.name,
       joined_at: Date.now(),
       timezone: "Europe/Berlin",
-      language: "en",
+      language: "de",
     });
   },
 });
@@ -94,5 +94,67 @@ export const getUserByUsername = query({
       .first();
 
     return user ? { id: user._id, name: user.name } : null;
+  },
+});
+
+// New function specifically for completing onboarding
+export const completeOnboarding = mutation({
+  args: {
+    clerkId: v.string(),
+    name: v.string(),
+    profileImage: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Check if user already exists
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (existingUser) {
+      // Update existing user with onboarding info
+      await ctx.db.patch(existingUser._id, {
+        name: args.name,
+        avatar: args.profileImage,
+      });
+      return existingUser._id;
+    } else {
+      // Create new user with onboarding info
+      const userId = await ctx.db.insert("users", {
+        email: "", // Will be populated by webhook later if needed
+        clerkId: args.clerkId,
+        avatar: args.profileImage,
+        name: args.name,
+        joined_at: Date.now(),
+        timezone: "Europe/Berlin",
+        language: "de",
+      });
+      return userId;
+    }
+  },
+});
+
+// Helper function to check if username is available (excluding current user)
+export const checkUsernameAvailability = query({
+  args: {
+    username: v.string(),
+    excludeClerkId: v.optional(v.string()),
+  },
+  handler: async (ctx, { username, excludeClerkId }) => {
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_username", (q) => q.eq("name", username))
+      .first();
+
+    // If no user found with this username, it's available
+    if (!existingUser) return { available: true };
+
+    // If user found but it's the current user, it's available for them
+    if (excludeClerkId && existingUser.clerkId === excludeClerkId) {
+      return { available: true };
+    }
+
+    // Username is taken by someone else
+    return { available: false };
   },
 });

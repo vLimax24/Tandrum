@@ -128,7 +128,7 @@ export default function TutorialScreen() {
 
   const renderDots = () => {
     return (
-      <View className="flex-row justify-center items-center space-x-2 mb-8">
+      <View className="flex-row justify-center items-center gap-1 mb-8">
         {tutorialPages.map((_, index) => (
           <View
             key={index}
@@ -148,7 +148,7 @@ export default function TutorialScreen() {
         <View className="flex-1 justify-center items-center px-6">
           <View className="items-center mb-12">
             <Image
-              source={require("../../../assets/tree-1.png")}
+              source={require("@/assets/tree-1.png")}
               style={{ width: 300, height: 300, resizeMode: "contain" }}
             />
             <Text className="text-3xl font-bold text-gray-800 text-center mb-4">
