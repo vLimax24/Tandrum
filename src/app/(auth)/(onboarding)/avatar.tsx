@@ -1,321 +1,271 @@
-// src/app/(auth)/(onboarding)/avatar.tsx - Fixed version
+// src/app/(auth)/(onboarding)/avatar.tsx
 import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   Image,
-  Alert,
   ScrollView,
-  Dimensions,
+  Alert,
   Animated,
+  Dimensions,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
-import { useUser } from "@clerk/clerk-expo";
+import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useMutation } from "convex/react";
 import { api } from "convex/_generated/api";
+import { useUser } from "@clerk/clerk-expo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const { width, height } = Dimensions.get("window");
-const avatarSize = (width - 80) / 3 - 8; // 3 avatars per row with spacing
+const { width } = Dimensions.get("window");
+const avatarSize = (width - 60) / 3 - 10; // 3 columns with spacing
 
-// Avatar options - using orange as placeholder for now
+// Avatar options - you can replace these with your actual avatar images
 const avatarOptions = [
-  { id: 1, name: "Avatar 1", source: require("@/assets/orange.png") },
-  { id: 2, name: "Avatar 2", source: require("@/assets/orange.png") },
-  { id: 3, name: "Avatar 3", source: require("@/assets/orange.png") },
-  { id: 4, name: "Avatar 4", source: require("@/assets/orange.png") },
-  { id: 5, name: "Avatar 5", source: require("@/assets/orange.png") },
-  { id: 6, name: "Avatar 6", source: require("@/assets/orange.png") },
-  { id: 7, name: "Avatar 7", source: require("@/assets/orange.png") },
-  { id: 8, name: "Avatar 8", source: require("@/assets/orange.png") },
-  { id: 9, name: "Avatar 9", source: require("@/assets/orange.png") },
+  { id: 1, source: require("@/assets/orange.png"), name: "Orange" },
+  { id: 2, source: require("@/assets/orange.png"), name: "Blue" },
+  { id: 3, source: require("@/assets/orange.png"), name: "Green" },
+  { id: 4, source: require("@/assets/orange.png"), name: "Purple" },
+  { id: 5, source: require("@/assets/orange.png"), name: "Red" },
+  { id: 6, source: require("@/assets/orange.png"), name: "Yellow" },
+  { id: 7, source: require("@/assets/orange.png"), name: "Pink" },
+  { id: 8, source: require("@/assets/orange.png"), name: "Teal" },
+  { id: 9, source: require("@/assets/orange.png"), name: "Indigo" },
 ];
 
-export default function OnboardingAvatarScreen() {
+export default function AvatarScreen() {
+  const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { user } = useUser();
-  const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
-  const [username, setUsername] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const progressAnimation = new Animated.Value(0.5);
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const slideAnim = React.useRef(new Animated.Value(30)).current;
+  const scaleAnims = React.useRef(
+    avatarOptions.map(() => new Animated.Value(1))
+  ).current;
 
-  const completeOnboarding = useMutation(api.users.completeOnboarding);
+  const updateUser = useMutation(api.users.completeOnboarding);
 
   useEffect(() => {
-    // Animate progress bar to 100%
-    Animated.timing(progressAnimation, {
-      toValue: 1,
-      duration: 800,
-      useNativeDriver: false,
-    }).start();
-
-    // Load username from AsyncStorage
-    const loadUsername = async () => {
-      try {
-        const savedUsername = await AsyncStorage.getItem("onboardingUsername");
-        if (savedUsername) {
-          setUsername(savedUsername);
-        }
-      } catch (error) {
-        console.error("Error loading username:", error);
-      }
-    };
-    loadUsername();
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
   }, []);
 
-  const handleFinishOnboarding = async () => {
-    if (!selectedAvatar || !username || !user?.id) {
-      Alert.alert("Fehler", "Bitte wähle einen Avatar aus");
-      return;
-    }
+  const handleAvatarSelect = (avatarId: number) => {
+    setSelectedAvatar(avatarId);
+
+    // Animate the selected avatar
+    scaleAnims.forEach((anim, index) => {
+      Animated.spring(anim, {
+        toValue: avatarOptions[index].id === avatarId ? 1.1 : 1,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 7,
+      }).start();
+    });
+  };
+
+  const handleFinish = async () => {
+    if (!selectedAvatar || !user) return;
 
     setIsLoading(true);
     try {
-      // Complete onboarding using the new backend function
-      await completeOnboarding({
+      // Update user with selected avatar (in real app, you'd upload the image)
+      await updateUser({
         clerkId: user.id,
-        name: username,
-        profileImage: `avatar_${selectedAvatar}`, // Store avatar reference
+        name: user.firstName || "User",
+        profileImage: `avatar_${selectedAvatar}`, // This would be a real image URL
       });
 
-      // IMPORTANT: Mark onboarding as completed BEFORE navigation
+      // Mark onboarding as complete
       await AsyncStorage.setItem("onboardingCompleted", "true");
 
-      // Clean up temporary data
-      await AsyncStorage.removeItem("onboardingUsername");
-
-      // Add a small delay to ensure AsyncStorage is written
+      // Force a small delay to ensure AsyncStorage is updated
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // Navigate to main app using replace to prevent going back
+      // Navigate to main app
       router.replace("/(auth)/(tabs)/home");
     } catch (error) {
-      console.error("Error completing onboarding:", error);
-      Alert.alert(
-        "Fehler",
-        "Profil konnte nicht erstellt werden. Bitte versuche es erneut."
-      );
+      Alert.alert("Error", "Failed to save avatar. Please try again.");
+      console.error("Avatar update error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <View className="flex-1 bg-[#fafbfc]">
-      <StatusBar style="dark" translucent backgroundColor="transparent" />
+    <SafeAreaView className="flex-1 bg-white">
+      <StatusBar style="dark" />
 
-      {/* Subtle background */}
-      <View className="absolute inset-0">
-        <View
-          className="absolute rounded-full"
-          style={{
-            width: 100,
-            height: 100,
-            backgroundColor: "rgba(16, 185, 129, 0.03)",
-            top: height * 0.2,
-            left: -50,
-          }}
-        />
+      {/* Header */}
+      <View className="flex-row items-center justify-between px-6 py-4">
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
+        >
+          <Ionicons name="arrow-back" size={20} color="#374151" />
+        </TouchableOpacity>
+        <Text className="text-sm text-gray-500 font-medium">Step 2 of 2</Text>
       </View>
 
-      {/* Enhanced Progress Indicator - Full Width */}
-      <View className="pt-16 pb-6 px-0 relative z-10">
-        <View className="px-6 mb-6">
-          <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-sm font-semibold text-gray-700">
-              Schritt 2 von 2
-            </Text>
-            <Text className="text-sm font-medium text-gray-500">100%</Text>
-          </View>
-        </View>
-
-        {/* Full-width progress bars - both filled */}
-        <View className="flex-row h-1">
-          <Animated.View
-            style={{
-              width: progressAnimation.interpolate({
-                inputRange: [0, 1],
-                outputRange: ["0%", "100%"],
-              }),
-              backgroundColor: "#10B981",
-            }}
-            className="h-full"
-          />
+      {/* Progress Bar */}
+      <View className="px-6 mb-8">
+        <View className="w-full h-2 bg-gray-200 rounded-full">
+          <View className="w-full h-2 bg-primary rounded-full" />
         </View>
       </View>
 
-      <ScrollView
-        className="flex-1 relative z-10"
-        showsVerticalScrollIndicator={false}
+      <Animated.View
+        style={{
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }],
+        }}
+        className="flex-1 px-6"
       >
-        {/* Header Card */}
-        <View className="px-6 mb-6">
-          <View
-            className="bg-white rounded-2xl p-6"
-            style={{
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.05,
-              shadowRadius: 20,
-              elevation: 8,
-            }}
-          >
-            <Text className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
-              Wähle deinen Avatar
-            </Text>
-            <Text className="text-base text-gray-600 leading-6">
-              Dein Avatar repräsentiert dich in der App. Du kannst ihn später in
-              den Einstellungen ändern.
-            </Text>
-          </View>
+        {/* Title Section */}
+        <View className="mb-8">
+          <Text className="text-3xl font-bold text-gray-900 mb-3">
+            Pick Your Avatar
+          </Text>
+          <Text className="text-lg text-gray-600 leading-6">
+            Choose an avatar that represents you. This will be visible to your
+            learning partners.
+          </Text>
         </View>
 
-        {/* Preview section */}
+        {/* Selected Avatar Preview */}
         {selectedAvatar && (
-          <View className="px-6 mb-6">
-            <View
-              className="bg-primary rounded-2xl p-6 items-center"
-              style={{
-                shadowColor: "#10B981",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.15,
-                shadowRadius: 12,
-                elevation: 6,
-              }}
-            >
-              <View
-                className="bg-white rounded-full p-2 mb-4"
-                style={{
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 8,
-                  elevation: 4,
-                }}
-              >
-                <Image
-                  source={avatarOptions[selectedAvatar - 1].source}
-                  style={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: 40,
-                  }}
-                />
-              </View>
-              <Text className="text-xl font-semibold text-white mb-1">
-                {username}
-              </Text>
-              <Text className="text-sm text-white/80">
-                So wirst du anderen angezeigt
-              </Text>
+          <View className="items-center mb-8">
+            <View className="w-24 h-24 rounded-full border-4 border-primary p-1 mb-3">
+              <Image
+                source={
+                  avatarOptions.find((a) => a.id === selectedAvatar)?.source
+                }
+                className="w-full h-full rounded-full"
+                resizeMode="cover"
+              />
             </View>
+            <Text className="text-lg font-semibold text-gray-800">
+              {avatarOptions.find((a) => a.id === selectedAvatar)?.name} Avatar
+            </Text>
           </View>
         )}
 
-        {/* Avatar selection */}
-        <View className="px-6 mb-6">
-          <View
-            className="bg-white rounded-2xl p-6"
-            style={{
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.05,
-              shadowRadius: 20,
-              elevation: 8,
-            }}
-          >
-            <Text className="text-sm font-semibold text-gray-700 mb-6">
-              Wähle einen Avatar:
-            </Text>
-
-            <View className="flex-row flex-wrap justify-between">
-              {avatarOptions.map((avatar) => (
+        {/* Avatar Grid */}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 120 }}
+          className="px-5 pt-10"
+        >
+          <View className="flex-row flex-wrap justify-between">
+            {avatarOptions.map((avatar, index) => (
+              <Animated.View
+                key={avatar.id}
+                style={{
+                  transform: [{ scale: scaleAnims[index] }],
+                }}
+                className="mb-4"
+              >
                 <TouchableOpacity
-                  key={avatar.id}
-                  className={`mb-4 p-2 rounded-2xl active:scale-95 ${
+                  onPress={() => handleAvatarSelect(avatar.id)}
+                  style={[
+                    {
+                      borderRadius: 16,
+                      overflow: "hidden",
+                      width: avatarSize,
+                      height: avatarSize,
+                    },
                     selectedAvatar === avatar.id
-                      ? "bg-primary/10"
-                      : "bg-gray-50"
-                  }`}
-                  style={{
-                    width: avatarSize + 16,
-                    borderWidth: 2,
-                    borderColor:
-                      selectedAvatar === avatar.id ? "#10B981" : "transparent",
-                  }}
-                  onPress={() => setSelectedAvatar(avatar.id)}
+                      ? {
+                          borderWidth: 2,
+                          borderColor: "#57b686",
+                        }
+                      : {
+                          borderWidth: 2,
+                          borderColor: "#e5e7eb",
+                        },
+                  ]}
                   activeOpacity={0.8}
                 >
                   <Image
                     source={avatar.source}
-                    style={{
-                      width: avatarSize,
-                      height: avatarSize,
-                      borderRadius: avatarSize / 2,
-                    }}
+                    style={{ width: "100%", height: "100%" }}
+                    resizeMode="cover"
                   />
+
+                  {/* Selection Indicator */}
                   {selectedAvatar === avatar.id && (
-                    <View className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full items-center justify-center">
-                      <Text className="text-white text-xs font-bold">✓</Text>
+                    <View
+                      style={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        width: 24,
+                        height: 24,
+                        backgroundColor: "#57b686",
+                        borderRadius: 12,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Ionicons name="checkmark" size={16} color="white" />
                     </View>
                   )}
                 </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        </View>
 
-        {/* Info section with clean design */}
-        <View className="px-6 mb-8">
-          <View className="bg-[#f9f9f9] p-4 rounded-xl">
-            <Text className="font-semibold text-gray-900 mb-3 text-sm">
-              💡 Gut zu wissen:
-            </Text>
-            {[
-              "Dein Avatar ist nur für andere Nutzer sichtbar",
-              "Du kannst ihn jederzeit in den Einstellungen ändern",
-              "Alle Avatare sind kostenlos verfügbar",
-            ].map((info, index) => (
-              <View key={index} className="flex-row items-center mb-2">
-                <View className="w-1.5 h-1.5 rounded-full bg-primary mr-3" />
-                <Text className="text-sm text-gray-700 flex-1">{info}</Text>
-              </View>
+                {/* Avatar Name */}
+                <Text className="text-center text-sm text-gray-600 mt-2">
+                  {avatar.name}
+                </Text>
+              </Animated.View>
             ))}
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
 
-      {/* Bottom actions */}
-      <View className="p-6 pt-4 border-t border-gray-100">
-        <TouchableOpacity
-          className={`py-4 px-8 items-center rounded-2xl shadow-lg ${
-            selectedAvatar && !isLoading
-              ? "bg-primary active:scale-95"
-              : "bg-gray-300"
-          }`}
-          activeOpacity={0.9}
-          onPress={handleFinishOnboarding}
-          disabled={!selectedAvatar || isLoading}
-        >
-          <Text
-            className={`font-semibold text-lg ${
-              selectedAvatar && !isLoading ? "text-white" : "text-gray-500"
-            }`}
+        {/* Finish Button */}
+        <View className="absolute bottom-6 left-6 right-6">
+          <TouchableOpacity
+            style={{
+              paddingVertical: 16,
+              paddingHorizontal: 32,
+              alignItems: "center",
+              borderRadius: 16,
+              backgroundColor: "#57b686",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 8,
+              elevation: 5,
+            }}
+            activeOpacity={0.8}
+            onPress={handleFinish}
+            disabled={!selectedAvatar || isLoading}
           >
-            {isLoading ? "Profil wird erstellt..." : "Profil erstellen"}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          className="mt-4 py-2"
-          onPress={() => router.back()}
-          disabled={isLoading}
-        >
-          <Text className="text-center text-gray-500">Zurück</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={{ fontWeight: "600", fontSize: 18, color: "white" }}>
+                {isLoading ? "Setting up..." : "Complete Setup"}
+              </Text>
+              {!isLoading && selectedAvatar && (
+                <View style={{ marginLeft: 8 }}>
+                  <Ionicons name="checkmark-circle" size={20} color="white" />
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </SafeAreaView>
   );
 }

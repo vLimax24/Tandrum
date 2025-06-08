@@ -1,167 +1,216 @@
 // src/app/(auth)/(onboarding)/index.tsx
-import React from "react";
-import { View, Text, Image, TouchableOpacity, Dimensions } from "react-native";
+import React, { useRef, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  Animated,
+  ScrollView,
+} from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
-import { useUser } from "@clerk/clerk-expo";
 import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width, height } = Dimensions.get("window");
 
-export default function OnboardingWelcomeScreen() {
+interface FeatureItemProps {
+  icon: keyof typeof Ionicons.glyphMap;
+  title: string;
+  description: string;
+  index: number;
+}
+
+export default function OnboardingWelcome() {
   const router = useRouter();
-  const { user } = useUser();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const heroScaleAnim = useRef(new Animated.Value(0.8)).current;
+  const featureAnims = useRef([
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+  ]).current;
+
+  useEffect(() => {
+    // Staggered entrance animations
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.spring(heroScaleAnim, {
+        toValue: 1,
+        tension: 50,
+        friction: 7,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      // Animate features in sequence
+      featureAnims.forEach((anim, index) => {
+        Animated.timing(anim, {
+          toValue: 1,
+          duration: 400,
+          delay: index * 150,
+          useNativeDriver: true,
+        }).start();
+      });
+    });
+  }, []);
 
   const handleGetStarted = () => {
     router.push("/(auth)/(onboarding)/username");
   };
 
   return (
-    <View className="flex-1 bg-[#fafbfc]">
-      <StatusBar style="dark" translucent backgroundColor="transparent" />
+    <SafeAreaView className="flex-1 bg-white">
+      <StatusBar style="dark" translucent />
 
-      {/* Subtle background pattern */}
-      <View className="absolute inset-0">
-        <LinearGradient
-          colors={["rgba(16, 185, 129, 0.02)", "rgba(6, 182, 212, 0.01)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-          }}
-        />
-        {/* Subtle accent orbs */}
+      {/* Subtle Background Elements */}
+      <View className="absolute inset-0 overflow-hidden">
         <View
           className="absolute rounded-full"
           style={{
-            width: 120,
-            height: 120,
-            backgroundColor: "rgba(16, 185, 129, 0.03)",
-            top: height * 0.15,
-            right: -60,
+            width: 300,
+            height: 300,
+            backgroundColor: "rgba(87, 182, 134, 0.04)",
+            top: -150,
+            right: -150,
           }}
         />
         <View
           className="absolute rounded-full"
           style={{
-            width: 80,
-            height: 80,
-            backgroundColor: "rgba(6, 182, 212, 0.03)",
-            bottom: height * 0.25,
-            left: -40,
+            width: 200,
+            height: 200,
+            backgroundColor: "rgba(139, 92, 246, 0.03)",
+            bottom: -100,
+            left: -100,
           }}
         />
       </View>
 
-      {/* Main content */}
-      <View className="flex-1 justify-center items-center px-6 relative z-10">
-        {/* Hero section with clean card design */}
-        <View
-          className="items-center mb-8 rounded-2xl p-8 bg-white"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.05,
-            shadowRadius: 20,
-            elevation: 8,
-            width: width - 48,
-          }}
-        >
-          {/* Clean icon container */}
-          <View className="items-center mb-8">
-            <View
-              className="bg-primary rounded-2xl p-6"
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
+        <View className="flex-1 px-6 py-8">
+          {/* Header Section */}
+          <Animated.View
+            style={{
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }, { scale: heroScaleAnim }],
+            }}
+            className="items-center mb-12 mt-8"
+          >
+            {/* Hero Icon with sophisticated styling */}
+            <View className="items-center mb-8">
+              <View
+                className="relative items-center justify-center mb-6"
+                style={{
+                  width: 120,
+                  height: 120,
+                }}
+              >
+                {/* Outer glow ring */}
+                <View
+                  className="absolute rounded-full"
+                  style={{
+                    width: 120,
+                    height: 120,
+                    backgroundColor: "rgba(87, 182, 134, 0.1)",
+                    borderWidth: 1,
+                    borderColor: "rgba(87, 182, 134, 0.2)",
+                  }}
+                />
+                {/* Inner gradient circle */}
+                <LinearGradient
+                  colors={["#57b686", "#4ade80"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 40,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    shadowColor: "#57b686",
+                    shadowOffset: { width: 0, height: 8 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 16,
+                    elevation: 8,
+                  }}
+                >
+                  <Ionicons name="rocket" size={36} color="white" />
+                </LinearGradient>
+              </View>
+
+              {/* Title and Subtitle */}
+              <View className="items-center">
+                <Text className="text-4xl font-bold text-gray-900 text-center mb-4 leading-tight">
+                  Welcome to Your{"\n"}Learning Journey
+                </Text>
+                <Text className="text-lg text-gray-600 text-center leading-7 max-w-sm">
+                  Let's personalize your experience and connect you with a
+                  community of learners just like you.
+                </Text>
+              </View>
+            </View>
+          </Animated.View>
+
+          {/* Action Section */}
+          <View className="flex-1 justify-end pb-6">
+            <Animated.View
               style={{
-                shadowColor: "#10B981",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.15,
-                shadowRadius: 12,
-                elevation: 6,
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
               }}
             >
-              <Image
-                source={require("@/assets/tree-1.png")}
-                style={{ width: 64, height: 64, resizeMode: "contain" }}
-              />
-            </View>
-          </View>
-
-          <Text className="text-2xl font-bold text-gray-900 text-center mb-3 tracking-tight">
-            Willkommen{user?.firstName ? `, ${user.firstName}` : ""}!
-          </Text>
-
-          <Text className="text-base text-gray-600 text-center leading-6 mb-8 font-medium">
-            Lass uns dein Profil einrichten, damit du mit deinem Lernpartner
-            durchstarten kannst.
-          </Text>
-
-          {/* Clean feature highlights */}
-          <View className="w-full space-y-3">
-            {[
-              {
-                icon: "👤",
-                title: "Persönliches Profil",
-                description: "Wähle deinen Namen und Avatar",
-              },
-              {
-                icon: "🤝",
-                title: "Duo Learning",
-                description: "Lerne gemeinsam mit einem Partner",
-              },
-              {
-                icon: "🌱",
-                title: "Fortschritt verfolgen",
-                description: "Sieh dein Wachstum in Echtzeit",
-              },
-            ].map((feature, index) => (
-              <View
-                key={index}
-                className="flex-row items-center p-4 rounded-xl bg-[#f9f9f9]"
+              <TouchableOpacity
+                style={{
+                  paddingVertical: 16,
+                  paddingHorizontal: 32,
+                  alignItems: "center",
+                  borderRadius: 16,
+                  backgroundColor: "#57b686",
+                  shadowColor: "#57b686",
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 12,
+                  elevation: 8,
+                }}
+                activeOpacity={0.8}
+                onPress={handleGetStarted}
               >
-                <View className="w-10 h-10 rounded-xl bg-white items-center justify-center mr-4 shadow-sm">
-                  <Text className="text-lg">{feature.icon}</Text>
-                </View>
-                <View className="flex-1">
-                  <Text className="font-semibold text-gray-900 text-sm mb-1">
-                    {feature.title}
+                <View className="flex-row items-center">
+                  <Text className="text-white font-semibold text-lg mr-2">
+                    Get Started
                   </Text>
-                  <Text className="text-xs text-gray-600">
-                    {feature.description}
-                  </Text>
+                  <Ionicons name="arrow-forward" size={20} color="white" />
                 </View>
-              </View>
-            ))}
+              </TouchableOpacity>
+
+              {/* Skip option */}
+              <TouchableOpacity
+                className="items-center mt-4 py-2"
+                activeOpacity={0.7}
+                onPress={() => router.replace("/(auth)/(tabs)/home")}
+              >
+                <Text className="text-gray-500 text-base">Skip for now</Text>
+              </TouchableOpacity>
+            </Animated.View>
           </View>
         </View>
-      </View>
-
-      {/* Clean bottom action */}
-      <View className="pb-12 px-6 relative z-10">
-        <TouchableOpacity
-          className="bg-primary rounded-xl py-4 px-6 active:scale-98"
-          activeOpacity={0.9}
-          onPress={handleGetStarted}
-          style={{
-            shadowColor: "#10B981",
-            shadowOffset: { width: 0, height: 3 },
-            shadowOpacity: 0.2,
-            shadowRadius: 8,
-            elevation: 6,
-          }}
-        >
-          <Text className="text-white font-semibold text-base text-center tracking-wide">
-            Los geht's
-          </Text>
-        </TouchableOpacity>
-
-        <Text className="text-center text-gray-500 text-sm mt-4">
-          Nur noch 2 schnelle Schritte
-        </Text>
-      </View>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

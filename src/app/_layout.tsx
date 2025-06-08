@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { SplashScreen, useSegments, useRouter } from "expo-router";
 import { Slot } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import {
   ClerkProvider,
@@ -20,9 +21,9 @@ import {
   Poppins_800ExtraBold,
 } from "@expo-google-fonts/poppins";
 import { DuoProvider } from "@/hooks/useDuo";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
@@ -53,36 +54,36 @@ const InitialLayout = () => {
     boolean | null
   >(null);
 
-  // Check if user exists in database
-  const existingUser = useQuery(
+  // Get user data from Convex
+  const convexUser = useQuery(
     api.users.getUserByClerkId,
     isSignedIn && user?.id ? { clerkId: user.id } : "skip"
   );
 
-  // Check if this is the first time opening the app and if tutorial/onboarding is completed
+  // Check if this is the first time opening the app and if tutorial is completed
   useEffect(() => {
-    const checkAppState = async () => {
+    const checkFirstTime = async () => {
       try {
         const firstTimeValue = await AsyncStorage.getItem("isFirstTime");
         const tutorialCompleted =
           await AsyncStorage.getItem("tutorialCompleted");
-        const onboardingValue = await AsyncStorage.getItem(
+        const onboardingDone = await AsyncStorage.getItem(
           "onboardingCompleted"
         );
 
         setIsFirstTime(firstTimeValue === null);
         setHasCompletedTutorial(tutorialCompleted === "true");
-        setOnboardingCompleted(onboardingValue === "true");
+        setOnboardingCompleted(onboardingDone === "true");
       } catch (error) {
-        console.error("Error checking app state:", error);
-        // Default values if there's an error
+        console.error("Error checking first time status:", error);
+        // Default to first time if there's an error
         setIsFirstTime(true);
         setHasCompletedTutorial(false);
         setOnboardingCompleted(false);
       }
     };
 
-    checkAppState();
+    checkFirstTime();
   }, []);
 
   // Re-check AsyncStorage when authentication state changes
@@ -93,7 +94,7 @@ const InitialLayout = () => {
           const firstTimeValue = await AsyncStorage.getItem("isFirstTime");
           const tutorialCompleted =
             await AsyncStorage.getItem("tutorialCompleted");
-          const onboardingValue = await AsyncStorage.getItem(
+          const onboardingDone = await AsyncStorage.getItem(
             "onboardingCompleted"
           );
 
@@ -101,7 +102,7 @@ const InitialLayout = () => {
             firstTimeValue === null ? false : firstTimeValue !== "true"
           );
           setHasCompletedTutorial(tutorialCompleted === "true");
-          setOnboardingCompleted(onboardingValue === "true");
+          setOnboardingCompleted(onboardingDone === "true");
         } catch (error) {
           console.error("Error rechecking storage:", error);
         }
@@ -125,24 +126,29 @@ const InitialLayout = () => {
     const inTutorialGroup = segments[0] === "(tutorial)";
     const inOnboardingGroup = segments.includes("(onboarding)");
 
-    // User is signed in
+    // If user is signed in
     if (isSignedIn) {
-      // Check if user needs onboarding (no user record in DB or AsyncStorage says incomplete)
-      const needsOnboarding = !existingUser || !onboardingCompleted;
+      // Wait for convexUser to load
+      if (convexUser === undefined) {
+        return; // Still loading
+      }
 
-      if (needsOnboarding && !inOnboardingGroup) {
-        router.replace("/(auth)/(onboarding)/index");
+      // Check if user has completed onboarding
+      const hasCompletedOnboarding = onboardingCompleted && convexUser;
+
+      if (!hasCompletedOnboarding && !inOnboardingGroup) {
+        router.replace("/(auth)/(onboarding)");
         return;
       }
 
-      // User has completed onboarding, redirect to main app
-      if (!needsOnboarding && !inAuthGroup) {
+      // User has completed onboarding, go to main app
+      if (hasCompletedOnboarding && !inAuthGroup) {
         router.replace("/(auth)/(tabs)/home");
         return;
       }
 
-      // If user is in onboarding but has completed it, redirect to main app
-      if (!needsOnboarding && inOnboardingGroup) {
+      // If user is in onboarding but has already completed it, redirect to main app
+      if (hasCompletedOnboarding && inOnboardingGroup) {
         router.replace("/(auth)/(tabs)/home");
         return;
       }
@@ -172,9 +178,8 @@ const InitialLayout = () => {
     hasCompletedTutorial,
     onboardingCompleted,
     segments,
-    existingUser,
+    convexUser,
   ]);
-
   useEffect(() => {
     if (
       fontsLoaded &&
@@ -196,15 +201,17 @@ export default function Layout() {
       tokenCache={tokenCache}
     >
       <ClerkLoaded>
-        <GestureHandlerRootView>
-          <BottomSheetModalProvider>
-            <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-              <DuoProvider>
-                <InitialLayout />
-              </DuoProvider>
-            </ConvexProviderWithClerk>
-          </BottomSheetModalProvider>
-        </GestureHandlerRootView>
+        <SafeAreaProvider>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <BottomSheetModalProvider>
+              <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+                <DuoProvider>
+                  <InitialLayout />
+                </DuoProvider>
+              </ConvexProviderWithClerk>
+            </BottomSheetModalProvider>
+          </GestureHandlerRootView>
+        </SafeAreaProvider>
       </ClerkLoaded>
     </ClerkProvider>
   );

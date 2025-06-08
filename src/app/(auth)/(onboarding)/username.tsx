@@ -1,348 +1,394 @@
-// Enhanced Username Screen - Enterprise Level
-import React, { useState, useEffect } from "react";
+// src/app/(auth)/(onboarding)/username.tsx
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Dimensions,
+  Keyboard,
+  TouchableWithoutFeedback,
   Animated,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
-import { useUser } from "@clerk/clerk-expo";
-import { useQuery } from "convex/react";
+import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "convex/_generated/api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useUser } from "@clerk/clerk-expo";
 
-const { width, height } = Dimensions.get("window");
-
-export default function OnboardingUsernameScreen() {
-  const router = useRouter();
-  const { user } = useUser();
+export default function UsernameScreen() {
   const [username, setUsername] = useState("");
+  const [debouncedUsername, setDebouncedUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isValid, setIsValid] = useState(false);
-  const progressAnimation = new Animated.Value(0);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const router = useRouter();
+  const { user } = useUser();
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const slideAnim = React.useRef(new Animated.Value(30)).current;
 
-  // Check if username is available using the new function
-  const usernameCheck = useQuery(
-    api.users.checkUsernameAvailability,
-    username.length >= 3
-      ? {
-          username,
-          excludeClerkId: user?.id,
-        }
-      : "skip"
+  const updateUser = useMutation(api.users.completeOnboarding);
+
+  // Only query when we have a valid username that's been debounced and meets criteria
+  const shouldCheckUsername =
+    debouncedUsername.length >= 3 &&
+    debouncedUsername.length <= 20 &&
+    /^[a-zA-Z0-9_]+$/.test(debouncedUsername);
+
+  const existingUser = useQuery(
+    api.users.getUserByUsername,
+    shouldCheckUsername ? { username: debouncedUsername } : "skip"
   );
 
+  // Debounce username input
   useEffect(() => {
-    // Animate progress bar on mount
-    Animated.timing(progressAnimation, {
-      toValue: 0.5,
-      duration: 800,
-      useNativeDriver: false,
-    }).start();
+    const timer = setTimeout(() => {
+      setDebouncedUsername(username.trim());
+    }, 500); // Increased debounce time
 
-    // Pre-fill with user's first name if available
-    if (user?.firstName && !username) {
-      setUsername(user.firstName);
+    return () => clearTimeout(timer);
+  }, [username]);
+
+  // Set checking state when debounced username changes
+  useEffect(() => {
+    if (shouldCheckUsername && debouncedUsername !== username.trim()) {
+      setIsCheckingUsername(true);
     }
-  }, [user]);
+  }, [debouncedUsername, username, shouldCheckUsername]);
+
+  // Handle query result
+  useEffect(() => {
+    if (shouldCheckUsername && existingUser !== undefined) {
+      setIsCheckingUsername(false);
+    }
+  }, [existingUser, shouldCheckUsername]);
 
   useEffect(() => {
-    // Validate username
-    const isValidLength = username.length >= 3 && username.length <= 20;
-    const isValidChars = /^[a-zA-Z0-9_-]+$/.test(username);
-    const isAvailable = usernameCheck?.available ?? false;
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
-    setIsValid(isValidLength && isValidChars && isAvailable);
-  }, [username, usernameCheck]);
+  // Validate username whenever inputs change
+  useEffect(() => {
+    validateUsername();
+  }, [username, existingUser, debouncedUsername, isCheckingUsername]);
+
+  const validateUsername = useCallback(() => {
+    const trimmedUsername = username.trim();
+    setErrorMessage("");
+
+    if (trimmedUsername.length === 0) {
+      setIsValid(false);
+      return;
+    }
+
+    if (trimmedUsername.length < 3) {
+      setIsValid(false);
+      setErrorMessage("Username must be at least 3 characters");
+      return;
+    }
+
+    if (trimmedUsername.length > 20) {
+      setIsValid(false);
+      setErrorMessage("Username must be less than 20 characters");
+      return;
+    }
+
+    const validPattern = /^[a-zA-Z0-9_]+$/;
+    if (!validPattern.test(trimmedUsername)) {
+      setIsValid(false);
+      setErrorMessage(
+        "Username can only contain letters, numbers, and underscores"
+      );
+      return;
+    }
+
+    // If we're still checking or haven't checked yet, don't validate availability
+    if (
+      isCheckingUsername ||
+      (shouldCheckUsername && existingUser === undefined)
+    ) {
+      setIsValid(false);
+      return;
+    }
+
+    // Check if username is taken (only if we have query results)
+    if (shouldCheckUsername && existingUser && existingUser.id !== user?.id) {
+      setIsValid(false);
+      setErrorMessage("This username is already taken");
+      return;
+    }
+
+    setIsValid(true);
+  }, [
+    username,
+    existingUser,
+    debouncedUsername,
+    isCheckingUsername,
+    shouldCheckUsername,
+    user?.id,
+  ]);
 
   const handleContinue = async () => {
-    if (!isValid) return;
+    if (!isValid || !user || isLoading) return;
 
     setIsLoading(true);
     try {
-      // Save username to AsyncStorage for later use
-      await AsyncStorage.setItem("onboardingUsername", username);
+      await updateUser({
+        clerkId: user.id,
+        name: username.trim(),
+        profileImage: user.imageUrl || "",
+      });
+
       router.push("/(auth)/(onboarding)/avatar");
     } catch (error) {
-      Alert.alert("Fehler", "Username konnte nicht gespeichert werden");
+      Alert.alert("Error", "Failed to update username. Please try again.");
+      console.error("Username update error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getValidationMessage = () => {
-    if (username.length === 0) return "";
-    if (username.length < 3) return "Mindestens 3 Zeichen erforderlich";
-    if (username.length > 20) return "Maximal 20 Zeichen erlaubt";
-    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-      return "Nur Buchstaben, Zahlen, - und _ erlaubt";
-    }
-    if (usernameCheck && !usernameCheck.available) {
-      return "Dieser Username ist bereits vergeben";
-    }
-    if (usernameCheck && usernameCheck.available) {
-      return "✓ Username verfügbar";
-    }
-    return "Verfügbarkeit wird geprüft...";
+  const generateSuggestions = useCallback(() => {
+    const baseNames = ["learner", "student", "explorer", "scholar", "genius"];
+    const suggestions = baseNames.map(
+      (base) => `${base}${Math.floor(Math.random() * 1000) + 1}`
+    );
+    return suggestions.slice(0, 3); // Return only 3 suggestions
+  }, []);
+
+  const handleSuggestionPress = useCallback((suggestion: string) => {
+    setUsername(suggestion);
+    // Reset states when suggestion is selected
+    setIsCheckingUsername(false);
+    setErrorMessage("");
+  }, []);
+
+  const handleBackPress = useCallback(() => {
+    router.replace("/(auth)/(onboarding)/");
+  }, [router]);
+
+  const suggestions = generateSuggestions();
+
+  const getInputStatus = () => {
+    if (username.trim().length === 0) return "default";
+    if (isCheckingUsername) return "checking";
+    if (isValid) return "valid";
+    return "invalid";
   };
 
-  const validationMessage = getValidationMessage();
-  const isError =
-    validationMessage &&
-    !validationMessage.startsWith("✓") &&
-    !validationMessage.includes("geprüft");
+  const getStatusIcon = () => {
+    const status = getInputStatus();
+    switch (status) {
+      case "checking":
+        return "time-outline";
+      case "valid":
+        return "checkmark-circle";
+      case "invalid":
+        return "close-circle";
+      default:
+        return null;
+    }
+  };
+
+  const getStatusColor = () => {
+    const status = getInputStatus();
+    switch (status) {
+      case "checking":
+        return "#f59e0b";
+      case "valid":
+        return "#10b981";
+      case "invalid":
+        return "#ef4444";
+      default:
+        return "#d1d5db";
+    }
+  };
+
+  const getBorderColor = () => {
+    const status = getInputStatus();
+    switch (status) {
+      case "checking":
+        return "border-yellow-400";
+      case "valid":
+        return "border-green-400";
+      case "invalid":
+        return "border-red-400";
+      default:
+        return "border-gray-200";
+    }
+  };
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-[#fafbfc]"
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <StatusBar style="dark" translucent backgroundColor="transparent" />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <SafeAreaView className="flex-1 bg-white">
+        <StatusBar style="dark" />
 
-      {/* Subtle background */}
-      <View className="absolute inset-0">
-        <View
-          className="absolute rounded-full"
+        {/* Header */}
+        <View className="flex-row items-center justify-between px-6 py-4">
+          <TouchableOpacity
+            onPress={handleBackPress}
+            className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
+          >
+            <Ionicons name="arrow-back" size={20} color="#374151" />
+          </TouchableOpacity>
+          <Text className="text-sm text-gray-500 font-medium">Step 1 of 2</Text>
+        </View>
+
+        {/* Progress Bar */}
+        <View className="px-6 mb-8">
+          <View className="w-full h-2 bg-gray-200 rounded-full">
+            <View className="w-1/2 h-2 bg-primary rounded-full" />
+          </View>
+        </View>
+
+        <Animated.View
           style={{
-            width: 100,
-            height: 100,
-            backgroundColor: "rgba(16, 185, 129, 0.03)",
-            top: height * 0.2,
-            right: -50,
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
           }}
-        />
-      </View>
-
-      {/* Enhanced Progress Indicator - Full Width */}
-      <View className="pt-16 pb-6 px-0 relative z-10">
-        <View className="px-6 mb-6">
-          <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-sm font-semibold text-gray-700">
-              Schritt 1 von 2
+          className="flex-1 px-6"
+        >
+          {/* Title Section */}
+          <View className="mb-8">
+            <Text className="text-3xl font-bold text-gray-900 mb-3">
+              Choose Your Username
             </Text>
-            <Text className="text-sm font-medium text-gray-500">50%</Text>
-          </View>
-        </View>
-
-        {/* Full-width progress bars */}
-        <View className="flex-row h-1">
-          {/* Active progress bar */}
-          <Animated.View
-            style={{
-              width: progressAnimation.interpolate({
-                inputRange: [0, 1],
-                outputRange: ["0%", "50%"],
-              }),
-              backgroundColor: "#10B981",
-            }}
-            className="h-full"
-          />
-          {/* Remaining progress */}
-          <View className="flex-1 h-full bg-gray-200" />
-        </View>
-      </View>
-
-      <ScrollView
-        className="flex-1 relative z-10"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header Card */}
-        <View className="px-6 mb-6">
-          <View
-            className="bg-white rounded-2xl p-6"
-            style={{
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.05,
-              shadowRadius: 20,
-              elevation: 8,
-            }}
-          >
-            <Text className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
-              Wähle deinen Username
-            </Text>
-            <Text className="text-base text-gray-600 leading-6">
-              Dein Username wird anderen Nutzern angezeigt und kann später nicht
-              mehr geändert werden.
+            <Text className="text-lg text-gray-600 leading-6">
+              This is how other learners will know you. Don't worry, you can
+              change it later.
             </Text>
           </View>
-        </View>
 
-        {/* Input Section */}
-        <View className="px-6 mb-6">
-          <View
-            className="bg-white rounded-2xl p-6"
-            style={{
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.05,
-              shadowRadius: 20,
-              elevation: 8,
-            }}
-          >
-            <Text className="text-sm font-semibold text-gray-700 mb-4">
-              Username
-            </Text>
-
-            {/* Clean input design */}
-            <View
-              className={`rounded-xl p-1 ${
-                username.length > 0
-                  ? isError
-                    ? "bg-red-50"
-                    : "bg-green-50"
-                  : "bg-gray-50"
-              }`}
-              style={{
-                borderWidth: 2,
-                borderColor:
-                  username.length > 0
-                    ? isError
-                      ? "#EF4444"
-                      : "#10B981"
-                    : "#E5E7EB",
-              }}
-            >
+          {/* Input Section */}
+          <View className="mb-6">
+            <View className="relative">
               <TextInput
                 value={username}
                 onChangeText={setUsername}
-                placeholder="z.B. MaxMustermann"
-                className="text-lg text-gray-900 font-medium px-4 py-3"
+                placeholder="Enter your username"
+                className={`w-full p-4 text-lg border-2 rounded-2xl bg-white ${getBorderColor()}`}
                 autoCapitalize="none"
                 autoCorrect={false}
                 maxLength={20}
-                placeholderTextColor="#9CA3AF"
               />
-            </View>
-
-            {/* Validation message */}
-            {validationMessage && (
-              <View className="mt-3 flex-row items-center">
-                <View
-                  className={`w-2 h-2 rounded-full mr-2 ${
-                    isError ? "bg-red-400" : "bg-green-400"
-                  }`}
-                />
-                <Text
-                  className={`text-sm font-medium ${
-                    isError ? "text-red-600" : "text-green-600"
-                  }`}
-                >
-                  {validationMessage}
-                </Text>
-              </View>
-            )}
-
-            {/* Character count */}
-            <Text className="text-xs text-gray-500 mt-2 text-right">
-              {username.length}/20 Zeichen
-            </Text>
-
-            {/* Rules section with clean design */}
-            <View className="mt-6 bg-[#f9f9f9] p-4 rounded-xl">
-              <Text className="font-semibold text-gray-900 mb-3 text-sm">
-                📋 Username Regeln:
-              </Text>
-              {[
-                "3-20 Zeichen lang",
-                "Nur Buchstaben, Zahlen, - und _",
-                "Muss einzigartig sein",
-              ].map((rule, index) => (
-                <View key={index} className="flex-row items-center mb-2">
-                  <View className="w-1.5 h-1.5 rounded-full bg-primary mr-3" />
-                  <Text className="text-sm text-gray-700 flex-1">{rule}</Text>
+              {username.trim().length > 0 && (
+                <View className="absolute right-4 top-1/2 -translate-y-1/2">
+                  <Ionicons
+                    name={getStatusIcon()}
+                    size={24}
+                    color={getStatusColor()}
+                  />
                 </View>
-              ))}
+              )}
             </View>
-          </View>
-        </View>
 
-        {/* Suggestions */}
-        {user?.firstName && username !== user.firstName && (
-          <View className="px-6 mb-6">
-            <View
-              className="bg-white rounded-2xl p-6"
-              style={{
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.05,
-                shadowRadius: 20,
-                elevation: 8,
-              }}
-            >
-              <Text className="text-sm font-semibold text-gray-700 mb-4">
-                💡 Vorschläge:
+            {/* Status Messages */}
+            {isCheckingUsername ? (
+              <Text className="text-yellow-600 text-sm mt-2 ml-1">
+                Checking availability...
               </Text>
-              <View className="flex-row flex-wrap">
-                {[
-                  user.firstName,
-                  `${user.firstName}${Math.floor(Math.random() * 100)}`,
-                ].map((suggestion, index) => (
+            ) : errorMessage ? (
+              <Text className="text-red-500 text-sm mt-2 ml-1">
+                {errorMessage}
+              </Text>
+            ) : username.trim().length >= 3 && isValid ? (
+              <Text className="text-green-600 text-sm mt-2 ml-1">
+                Great! This username is available
+              </Text>
+            ) : null}
+
+            {/* Character Count */}
+            <Text className="text-gray-400 text-sm mt-2 ml-1">
+              {username.length}/20 characters
+            </Text>
+          </View>
+
+          {/* Suggestions */}
+          {username.trim().length === 0 && (
+            <View className="mb-8">
+              <Text className="text-gray-700 font-medium mb-3">
+                Need inspiration? Try these:
+              </Text>
+              <View className="flex-row flex-wrap gap-2">
+                {suggestions.map((suggestion, index) => (
                   <TouchableOpacity
-                    key={index}
-                    className="mr-3 mb-3 px-4 py-2 bg-[#f9f9f9] rounded-lg active:scale-95"
-                    onPress={() => setUsername(suggestion!)}
-                    activeOpacity={0.8}
+                    key={`${suggestion}-${index}`}
+                    onPress={() => handleSuggestionPress(suggestion)}
+                    className="bg-gray-100 px-4 py-2 rounded-full border border-gray-200"
+                    activeOpacity={0.7}
                   >
-                    <Text className="text-gray-700 font-medium">
-                      {suggestion}
-                    </Text>
+                    <Text className="text-gray-700">{suggestion}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
             </View>
+          )}
+
+          <View className="flex-1 justify-end pb-6">
+            <TouchableOpacity
+              style={[
+                {
+                  paddingVertical: 16,
+                  paddingHorizontal: 32,
+                  alignItems: "center",
+                  borderRadius: 16,
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 8,
+                  elevation: 5,
+                },
+                isValid && !isLoading && !isCheckingUsername
+                  ? { backgroundColor: "#57b686" }
+                  : { backgroundColor: "#e5e7eb" },
+              ]}
+              activeOpacity={0.8}
+              onPress={handleContinue}
+              disabled={!isValid || isLoading || isCheckingUsername}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text
+                  style={[
+                    { fontWeight: "600", fontSize: 18 },
+                    isValid && !isLoading && !isCheckingUsername
+                      ? { color: "white" }
+                      : { color: "#9ca3af" },
+                  ]}
+                >
+                  {isLoading
+                    ? "Saving..."
+                    : isCheckingUsername
+                      ? "Checking..."
+                      : "Continue"}
+                </Text>
+                {!isLoading && !isCheckingUsername && (
+                  <View style={{ marginLeft: 8 }}>
+                    <Ionicons
+                      name="arrow-forward"
+                      size={20}
+                      color={isValid ? "white" : "#9ca3af"}
+                    />
+                  </View>
+                )}
+              </View>
+            </TouchableOpacity>
           </View>
-        )}
-      </ScrollView>
-
-      {/* Clean bottom actions */}
-      <View
-        className="p-6 bg-white relative z-10"
-        style={{
-          borderTopWidth: 1,
-          borderTopColor: "#F3F4F6",
-        }}
-      >
-        <TouchableOpacity
-          className={`rounded-xl py-4 px-6 active:scale-98 ${
-            isValid && !isLoading ? "bg-primary" : "bg-gray-300"
-          }`}
-          activeOpacity={0.9}
-          onPress={handleContinue}
-          disabled={!isValid || isLoading}
-          style={{
-            shadowColor: isValid && !isLoading ? "#10B981" : "#9CA3AF",
-            shadowOffset: { width: 0, height: 3 },
-            shadowOpacity: 0.2,
-            shadowRadius: 8,
-            elevation: 6,
-          }}
-        >
-          <Text
-            className={`font-semibold text-base text-center ${
-              isValid && !isLoading ? "text-white" : "text-gray-500"
-            }`}
-          >
-            {isLoading ? "Wird überprüft..." : "Weiter"}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          className="mt-3 py-2"
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-        >
-          <Text className="text-center text-gray-500 font-medium">Zurück</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+        </Animated.View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
