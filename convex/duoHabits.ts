@@ -215,9 +215,34 @@ async function calculateHabitRewards(ctx: any, habit: any, userIsA: boolean) {
   const difficulty = habit.difficulty || 1;
 
   // Base XP calculation based on frequency and difficulty
-  const baseXP = isDaily ? 50 : 200; // Increased XP since both users need to complete
-  const difficultyMultiplier = difficulty; // 1x, 2x, or 3x based on difficulty
-  const finalXP = baseXP * difficultyMultiplier;
+  const baseXP = isDaily ? 50 : 200;
+  const difficultyMultiplier = difficulty;
+  let finalXP = baseXP * difficultyMultiplier;
+
+  // Apply XP multipliers from equipped tree items
+  const tree = await ctx.db
+    .query("trees")
+    .withIndex("by_duoId", (q: any) => q.eq("duoId", habit.duoId))
+    .first();
+
+  if (tree && tree.decorations && tree.decorations.length > 0) {
+    let totalXPMultiplier = 1;
+
+    // Calculate total XP multiplier from all equipped items
+    for (const decoration of tree.decorations) {
+      const treeItem = await ctx.db
+        .query("treeItems")
+        .withIndex("by_itemId", (q: any) => q.eq("itemId", decoration.itemId))
+        .first();
+
+      if (treeItem && treeItem.buffs && treeItem.buffs.xpMultiplier) {
+        totalXPMultiplier *= treeItem.buffs.xpMultiplier;
+      }
+    }
+
+    // Apply the multiplier
+    finalXP = Math.round(finalXP * totalXPMultiplier);
+  }
 
   // Item drop chances (percentage) - increased since both users need to complete
   const dropChances = {

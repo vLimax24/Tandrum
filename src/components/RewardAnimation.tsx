@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, Animated, Dimensions, Platform } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
@@ -25,37 +25,38 @@ const { width, height } = Dimensions.get("window");
 export const RewardAnimation: React.FC<RewardAnimationProps> = ({
   visible,
   rewards,
-  bothCompleted = false,
+  bothCompleted = true,
   onComplete,
 }) => {
+  const [displayXP, setDisplayXP] = useState(0);
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.8)).current;
-  const slideUpAnim = useRef(new Animated.Value(60)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const slideUpAnim = useRef(new Animated.Value(30)).current;
   const itemScaleAnim = useRef(new Animated.Value(0)).current;
   const itemFloatAnim = useRef(new Animated.Value(0)).current;
-  const glowAnim = useRef(new Animated.Value(0)).current;
-  const sparkleAnims = useRef(
-    [...Array(8)].map(() => new Animated.Value(0))
-  ).current;
+  const successPulseAnim = useRef(new Animated.Value(1)).current;
+  const xpCounterAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (visible && rewards && bothCompleted) {
+    if (visible && rewards) {
       // Reset animations
       fadeAnim.setValue(0);
-      scaleAnim.setValue(0.8);
-      slideUpAnim.setValue(60);
+      scaleAnim.setValue(0.9);
+      slideUpAnim.setValue(30);
       itemScaleAnim.setValue(0);
       itemFloatAnim.setValue(0);
-      glowAnim.setValue(0);
-      sparkleAnims.forEach((anim) => anim.setValue(0));
+      successPulseAnim.setValue(1);
+      xpCounterAnim.setValue(0);
+      setDisplayXP(0); // Reset display XP
 
       // Start animation sequence
       Animated.sequence([
-        // Initial entrance
+        // Entrance
         Animated.parallel([
           Animated.timing(fadeAnim, {
             toValue: 1,
-            duration: 400,
+            duration: 500,
             useNativeDriver: true,
           }),
           Animated.spring(scaleAnim, {
@@ -66,42 +67,40 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
           }),
           Animated.timing(slideUpAnim, {
             toValue: 0,
-            duration: 400,
-            useNativeDriver: true,
-          }),
-          Animated.timing(glowAnim, {
-            toValue: 1,
-            duration: 600,
+            duration: 500,
             useNativeDriver: true,
           }),
         ]),
 
-        // Sparkle effects
-        Animated.stagger(
-          100,
-          sparkleAnims.map((anim) =>
-            Animated.sequence([
-              Animated.timing(anim, {
-                toValue: 1,
-                duration: 300,
-                useNativeDriver: true,
-              }),
-              Animated.timing(anim, {
-                toValue: 0,
-                duration: 400,
-                useNativeDriver: true,
-              }),
-            ])
-          )
-        ),
+        // Success pulse
+        Animated.sequence([
+          Animated.spring(successPulseAnim, {
+            toValue: 1.08,
+            tension: 120,
+            friction: 6,
+            useNativeDriver: true,
+          }),
+          Animated.spring(successPulseAnim, {
+            toValue: 1,
+            tension: 120,
+            friction: 6,
+            useNativeDriver: true,
+          }),
+        ]),
 
-        // Item animation if present
+        // XP counter - using listener instead of _value
+        Animated.timing(xpCounterAnim, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: false,
+        }),
+
         ...(rewards.item
           ? [
               Animated.parallel([
                 Animated.spring(itemScaleAnim, {
                   toValue: 1,
-                  tension: 120,
+                  tension: 100,
                   friction: 8,
                   useNativeDriver: true,
                 }),
@@ -125,26 +124,35 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
           : []),
 
         // Hold for viewing
-        Animated.delay(10000),
+        Animated.delay(6000),
 
-        // Exit animation
+        // Exit
         Animated.parallel([
           Animated.timing(fadeAnim, {
             toValue: 0,
-            duration: 500,
+            duration: 300,
             useNativeDriver: true,
           }),
           Animated.timing(scaleAnim, {
-            toValue: 0.8,
-            duration: 500,
+            toValue: 0.95,
+            duration: 300,
             useNativeDriver: true,
           }),
         ]),
       ]).start(() => {
         onComplete();
       });
+
+      // Add listener for XP counter animation
+      const listener = xpCounterAnim.addListener(({ value }) => {
+        setDisplayXP(Math.round(value * rewards.xp));
+      });
+
+      return () => {
+        xpCounterAnim.removeListener(listener);
+      };
     }
-  }, [visible, rewards, bothCompleted]);
+  }, [visible, rewards]);
 
   if (!visible || !rewards || !bothCompleted) return null;
 
@@ -154,63 +162,64 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
         return {
           primary: "#10b981",
           secondary: "#34d399",
-          background: "rgba(16, 185, 129, 0.1)",
-          glow: "rgba(16, 185, 129, 0.3)",
+          light: "#d1fae5",
+          border: "#a7f3d0",
+          accent: "#059669",
         };
       case "uncommon":
         return {
           primary: "#3b82f6",
           secondary: "#60a5fa",
-          background: "rgba(59, 130, 246, 0.1)",
-          glow: "rgba(59, 130, 246, 0.3)",
+          light: "#dbeafe",
+          border: "#93c5fd",
+          accent: "#2563eb",
         };
       case "rare":
         return {
           primary: "#8b5cf6",
           secondary: "#a78bfa",
-          background: "rgba(139, 92, 246, 0.1)",
-          glow: "rgba(139, 92, 246, 0.3)",
+          light: "#ede9fe",
+          border: "#c4b5fd",
+          accent: "#7c3aed",
         };
       case "epic":
         return {
           primary: "#f59e0b",
           secondary: "#fbbf24",
-          background: "rgba(245, 158, 11, 0.1)",
-          glow: "rgba(245, 158, 11, 0.3)",
+          light: "#fef3c7",
+          border: "#fcd34d",
+          accent: "#d97706",
         };
       case "legendary":
         return {
           primary: "#ef4444",
           secondary: "#f87171",
-          background: "rgba(239, 68, 68, 0.1)",
-          glow: "rgba(239, 68, 68, 0.3)",
+          light: "#fee2e2",
+          border: "#fca5a5",
+          accent: "#dc2626",
         };
       default:
         return {
           primary: "#6b7280",
           secondary: "#9ca3af",
-          background: "rgba(107, 114, 128, 0.1)",
-          glow: "rgba(107, 114, 128, 0.3)",
+          light: "#f3f4f6",
+          border: "#d1d5db",
+          accent: "#4b5563",
         };
     }
   };
 
   const itemFloat = itemFloatAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -8],
-  });
-
-  const glowScale = glowAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.8, 1.2],
+    outputRange: [0, -4],
   });
 
   const rarityColors = rewards.item
     ? getRarityColors(rewards.item.rarity)
     : null;
 
-  // Glassmorphism backdrop component
-  const GlassmorphismBackdrop = () => (
+  // Backdrop
+  const Backdrop = () => (
     <Animated.View
       style={{
         position: "absolute",
@@ -227,14 +236,14 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
           tint="dark"
           style={{
             flex: 1,
-            backgroundColor: "rgba(0, 0, 0, 0.3)",
+            backgroundColor: "rgba(31, 41, 55, 0.9)",
           }}
         />
       ) : (
         <View
           style={{
             flex: 1,
-            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            backgroundColor: "rgba(31, 41, 55, 0.95)",
           }}
         />
       )}
@@ -242,215 +251,314 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
   );
 
   return (
-    <View className="absolute inset-0 z-50 items-center justify-center">
-      <GlassmorphismBackdrop />
+    <View className="absolute inset-0 z-50 items-center justify-center px-6">
+      <Backdrop />
 
-      {/* Main Container with Glassmorphism */}
+      {/* Main Container */}
       <Animated.View
         style={{
           transform: [{ scale: scaleAnim }, { translateY: slideUpAnim }],
           opacity: fadeAnim,
+          width: Math.min(width - 48, 320),
         }}
-        className="mx-8 max-w-sm w-full"
       >
-        {Platform.OS === "ios" ? (
-          <BlurView
-            intensity={100}
-            tint="light"
-            style={{
-              borderRadius: 24,
-              overflow: "hidden",
-              borderWidth: 1,
-              borderColor: "rgba(255, 255, 255, 0.3)",
-            }}
-          >
-            <LinearGradient
-              colors={["rgba(255, 255, 255, 0.25)", "rgba(255, 255, 255, 0.1)"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ padding: 32 }}
-            >
-              <RewardContent />
-            </LinearGradient>
-          </BlurView>
-        ) : (
-          <LinearGradient
-            colors={["rgba(255, 255, 255, 0.95)", "rgba(255, 255, 255, 0.9)"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{
-              borderRadius: 24,
-              padding: 32,
-              borderWidth: 1,
-              borderColor: "rgba(255, 255, 255, 0.3)",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 20 },
-              shadowOpacity: 0.25,
-              shadowRadius: 25,
-              elevation: 20,
-            }}
-          >
-            <RewardContent />
-          </LinearGradient>
-        )}
-      </Animated.View>
-
-      {/* Sparkle Effects */}
-      {sparkleAnims.map((anim, index) => (
-        <Animated.View
-          key={index}
+        {/* Card Container */}
+        <View
           style={{
-            position: "absolute",
-            width: 6,
-            height: 6,
-            borderRadius: 3,
-            backgroundColor: "#fff",
-            opacity: anim,
-            transform: [
-              {
-                translateX:
-                  Math.cos((index * 45 * Math.PI) / 180) * (120 + index * 20),
-              },
-              {
-                translateY:
-                  Math.sin((index * 45 * Math.PI) / 180) * (120 + index * 20),
-              },
-              { scale: anim },
-            ],
+            backgroundColor: "#ffffff",
+            borderRadius: 24,
+            padding: 24,
+            shadowColor: "#1e293b",
+            shadowOffset: { width: 0, height: 20 },
+            shadowOpacity: 0.15,
+            shadowRadius: 25,
+            elevation: 20,
           }}
-        />
-      ))}
-    </View>
-  );
-
-  function RewardContent() {
-    return (
-      <>
-        {/* Success Header */}
-        <View className="items-center mb-6">
-          <Animated.View
-            style={{
-              transform: [{ scale: glowScale }],
-              opacity: glowAnim,
-            }}
-          >
-            <LinearGradient
-              colors={["#10b981", "#059669"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              className="w-16 h-16 rounded-full items-center justify-center mb-4"
-            >
-              <Text className="text-white text-2xl">🎉</Text>
-            </LinearGradient>
-          </Animated.View>
-
-          <Text className="text-gray-800 text-xl font-bold text-center mb-2">
-            Perfect Teamwork!
-          </Text>
-          <Text className="text-gray-600 text-sm text-center leading-5">
-            You both completed this habit together
-          </Text>
-        </View>
-
-        {/* XP Reward */}
-        <View className="items-center mb-6">
-          <LinearGradient
-            colors={["#3b82f6", "#1d4ed8"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            className="rounded-2xl px-8 py-4"
-            style={{
-              shadowColor: "#3b82f6",
-              shadowOffset: { width: 0, height: 8 },
-              shadowOpacity: 0.3,
-              shadowRadius: 12,
-              elevation: 8,
-            }}
-          >
-            <Text className="text-white text-2xl font-bold text-center">
-              +{rewards.xp} XP
-            </Text>
-          </LinearGradient>
-          <Text className="text-gray-500 text-xs mt-3 font-medium text-center">
-            Added to Trust Score
-          </Text>
-        </View>
-
-        {/* Item Reward */}
-        {rewards.item && rarityColors && (
-          <Animated.View
-            style={{
-              transform: [{ scale: itemScaleAnim }, { translateY: itemFloat }],
-            }}
-            className="items-center"
-          >
-            <LinearGradient
-              colors={[rarityColors.primary, rarityColors.secondary]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              className="rounded-3xl p-6 border border-white/30"
+        >
+          {/* Success Header */}
+          <View style={{ alignItems: "center", marginBottom: 20 }}>
+            <Animated.View
               style={{
-                shadowColor: rarityColors.primary,
-                shadowOffset: { width: 0, height: 12 },
-                shadowOpacity: 0.4,
-                shadowRadius: 16,
-                elevation: 12,
+                transform: [{ scale: successPulseAnim }],
+                marginBottom: 12,
               }}
             >
-              <Text className="text-5xl text-center mb-3">
-                {rewards.item.icon}
-              </Text>
-
-              <View className="bg-white/20 rounded-full px-3 py-1 mb-2">
-                <Text className="text-white text-xs font-bold text-center uppercase tracking-wider">
-                  {rewards.item.rarity}
-                </Text>
-              </View>
-
-              <Text className="text-white text-base font-bold text-center">
-                {rewards.item.name}
-              </Text>
-            </LinearGradient>
-
-            {/* Floating particles for epic+ items */}
-            {["epic", "legendary"].includes(rewards.item.rarity) && (
-              <View className="absolute inset-0 items-center justify-center">
-                {[...Array(12)].map((_, i) => (
-                  <Animated.View
-                    key={i}
+              <View
+                style={{
+                  backgroundColor: "#f0fdf4",
+                  borderRadius: 32,
+                  padding: 8,
+                  borderWidth: 2,
+                  borderColor: "#bbf7d0",
+                }}
+              >
+                <LinearGradient
+                  colors={["#10b981", "#059669"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 24,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
                     style={{
-                      position: "absolute",
-                      width: 3,
-                      height: 3,
-                      backgroundColor: rarityColors.secondary,
-                      borderRadius: 1.5,
-                      opacity: itemScaleAnim,
-                      transform: [
-                        {
-                          translateX:
-                            Math.cos((i * 30 * Math.PI) / 180) *
-                            (80 + Math.sin(i) * 20),
-                        },
-                        {
-                          translateY:
-                            Math.sin((i * 30 * Math.PI) / 180) *
-                            (80 + Math.cos(i) * 20),
-                        },
-                        {
-                          scale: itemScaleAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, 0.5 + Math.random() * 0.5],
-                          }),
-                        },
-                      ],
+                      fontSize: 20,
+                      color: "#ffffff",
+                      fontWeight: "800",
                     }}
-                  />
-                ))}
+                  >
+                    ✓
+                  </Text>
+                </LinearGradient>
               </View>
-            )}
-          </Animated.View>
-        )}
-      </>
-    );
-  }
+            </Animated.View>
+
+            <Text
+              style={{
+                color: "#0f172a",
+                fontSize: 22,
+                fontWeight: "800",
+                textAlign: "center",
+                marginBottom: 4,
+              }}
+            >
+              Perfect Teamwork!
+            </Text>
+
+            <View
+              style={{
+                width: 40,
+                height: 2,
+                backgroundColor: "#10b981",
+                borderRadius: 1,
+                marginBottom: 8,
+              }}
+            />
+
+            <Text
+              style={{
+                color: "#64748b",
+                fontSize: 14,
+                fontWeight: "500",
+                textAlign: "center",
+                lineHeight: 20,
+              }}
+            >
+              You both completed this habit together
+            </Text>
+          </View>
+
+          {/* XP Reward */}
+          <View
+            style={{
+              alignItems: "center",
+              marginBottom: rewards.item ? 20 : 0,
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: "#f0f9ff",
+                borderRadius: 20,
+                padding: 16,
+                borderWidth: 2,
+                borderColor: "#bae6fd",
+                shadowColor: "#0ea5e9",
+                shadowOffset: { width: 0, height: 8 },
+                shadowOpacity: 0.1,
+                shadowRadius: 16,
+                elevation: 8,
+              }}
+            >
+              <LinearGradient
+                colors={["#0ea5e9", "#0284c7"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{
+                  borderRadius: 16,
+                  paddingHorizontal: 24,
+                  paddingVertical: 12,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <View
+                  style={{
+                    backgroundColor: "#ffffff",
+                    width: 20,
+                    height: 20,
+                    borderRadius: 10,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginRight: 8,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#0ea5e9",
+                      fontSize: 12,
+                      fontWeight: "800",
+                    }}
+                  >
+                    +
+                  </Text>
+                </View>
+
+                <Animated.Text
+                  style={{
+                    color: "white",
+                    fontSize: 24,
+                    fontWeight: "800",
+                    marginRight: 8,
+                  }}
+                >
+                  {displayXP}
+                </Animated.Text>
+
+                <View
+                  style={{
+                    backgroundColor: "#ffffff",
+                    paddingHorizontal: 8,
+                    paddingVertical: 2,
+                    borderRadius: 8,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#0ea5e9",
+                      fontSize: 12,
+                      fontWeight: "700",
+                    }}
+                  >
+                    XP
+                  </Text>
+                </View>
+              </LinearGradient>
+            </View>
+
+            <View
+              style={{
+                backgroundColor: "#f8fafc",
+                borderRadius: 12,
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                marginTop: 8,
+                borderWidth: 1,
+                borderColor: "#e2e8f0",
+              }}
+            >
+              <Text
+                style={{
+                  color: "#475569",
+                  fontSize: 11,
+                  fontWeight: "600",
+                  textAlign: "center",
+                }}
+              >
+                ADDED TO TRUST SCORE
+              </Text>
+            </View>
+          </View>
+
+          {/* Item Reward */}
+          {rewards.item && rarityColors && (
+            <Animated.View
+              style={{
+                transform: [
+                  { scale: itemScaleAnim },
+                  { translateY: itemFloat },
+                ],
+                alignItems: "center",
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: "#ffffff",
+                  borderRadius: 20,
+                  padding: 20,
+                  borderWidth: 2,
+                  borderColor: rarityColors.border,
+                  shadowColor: rarityColors.primary,
+                  shadowOffset: { width: 0, height: 12 },
+                  shadowOpacity: 0.15,
+                  shadowRadius: 20,
+                  elevation: 15,
+                }}
+              >
+                <LinearGradient
+                  colors={[rarityColors.primary, rarityColors.accent]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    borderRadius: 16,
+                    padding: 20,
+                    alignItems: "center",
+                    minWidth: 160,
+                  }}
+                >
+                  {/* Item icon */}
+                  <View
+                    style={{
+                      backgroundColor: "#ffffff",
+                      width: 60,
+                      height: 60,
+                      borderRadius: 30,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: 12,
+                      shadowColor: rarityColors.primary,
+                      shadowOffset: { width: 0, height: 4 },
+                      shadowOpacity: 0.2,
+                      shadowRadius: 8,
+                      elevation: 6,
+                    }}
+                  >
+                    <Text style={{ fontSize: 32 }}>{rewards.item.icon}</Text>
+                  </View>
+
+                  {/* Rarity badge */}
+                  <View
+                    style={{
+                      backgroundColor: "#ffffff",
+                      borderRadius: 12,
+                      paddingHorizontal: 12,
+                      paddingVertical: 4,
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: rarityColors.accent,
+                        fontSize: 10,
+                        fontWeight: "800",
+                        letterSpacing: 0.8,
+                      }}
+                    >
+                      {rewards.item.rarity.toUpperCase()}
+                    </Text>
+                  </View>
+
+                  {/* Item name */}
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 16,
+                      fontWeight: "700",
+                      textAlign: "center",
+                    }}
+                  >
+                    {rewards.item.name}
+                  </Text>
+                </LinearGradient>
+              </View>
+            </Animated.View>
+          )}
+        </View>
+      </Animated.View>
+    </View>
+  );
 };
