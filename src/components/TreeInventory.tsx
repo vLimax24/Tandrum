@@ -469,96 +469,6 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     return inventoryData;
   };
 
-  const renderEquippedItems = () => {
-    if (!treeData.decorations || treeData.decorations.length === 0) {
-      return (
-        <View className="flex-1 justify-center items-center p-10">
-          <Text className="text-5xl mb-4">🌲</Text>
-          <Text className="text-lg font-semibold text-[#6b7280] text-center">
-            No Items Equipped
-          </Text>
-          <Text className="text-sm text-[#9ca3af] text-center mt-2">
-            Equip items from your inventory to enhance your tree's abilities
-          </Text>
-        </View>
-      );
-    }
-
-    return (
-      <ScrollView
-        className="max-h-96"
-        showsVerticalScrollIndicator={false}
-        nestedScrollEnabled={true}
-      >
-        {treeData.decorations.map((item, index) => {
-          const itemData = itemsById[item.itemId];
-          if (!itemData) return null;
-
-          return (
-            <TouchableOpacity
-              key={index}
-              onPress={() => handleDecorationPress(index)}
-              className="border-2 rounded-2xl p-4 mb-3 shadow-sm mx-6"
-              style={{
-                backgroundColor: itemData.bgColor,
-                borderColor: itemData.borderColor,
-              }}
-            >
-              <View className="flex-row items-center mb-2">
-                <View
-                  className={`w-12 h-12 rounded-full bg-white justify-center items-center mr-4 border-2`}
-                  style={{ borderColor: itemData.borderColor }}
-                >
-                  <Image
-                    source={getImageSource(item.itemId)}
-                    className="w-8 h-8"
-                  />
-                </View>
-                <View className="flex-1">
-                  <View className="flex-row items-center mb-1">
-                    <Text className="text-base font-bold text-[#1f2937] mr-2">
-                      {itemData.name}
-                    </Text>
-                    <Text className="text-sm">{itemData.icon}</Text>
-                    <View className="bg-[#10b981] px-2 py-1 rounded-lg ml-2">
-                      <Text className="text-white text-xs font-semibold">
-                        ACTIVE
-                      </Text>
-                    </View>
-                  </View>
-                  <Text className="text-xs text-[#6b7280]">
-                    Position: Slot {index + 1}
-                  </Text>
-                </View>
-              </View>
-              <View
-                className="bg-[rgba(255,255,255,0.9)] rounded-lg p-3 border-l-4"
-                style={{ borderLeftColor: itemData.color }}
-              >
-                <Text
-                  className="text-xs font-semibold mb-1"
-                  style={{ color: itemData.color }}
-                >
-                  ACTIVE ABILITY: {itemData.ability}
-                </Text>
-                <Text className="text-xs text-[#6b7280] mb-2">
-                  {itemData.abilityDescription}
-                </Text>
-                {itemData.buffs && (
-                  <View className="flex-row items-center">
-                    <Text className="text-xs text-[#059669] font-semibold">
-                      ⚡ Buffs: {JSON.stringify(itemData.buffs)}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-    );
-  };
-
   if (!canShowInventory) return null;
 
   return (
@@ -566,12 +476,10 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       {/* Enhanced Inventory Button */}
       <TouchableOpacity
         onPress={handleOpenBottomSheet}
-        className="bg-[#3b82f6] rounded-2xl px-5 py-3 mb-4 flex-row items-center justify-center shadow-lg"
+        className="bg-[#3b82f6] rounded-xl px-5 py-3 mb-4 flex-row items-center justify-center shadow-lg"
       >
         <Text className="text-white text-lg mr-2">🎒</Text>
-        <Text className="text-white text-base font-semibold">
-          Tree Management
-        </Text>
+        <Text className="text-white text-base font-semibold">Inventory</Text>
         <View className="bg-[rgba(255,255,255,0.2)] rounded-xl px-2 py-1 ml-2">
           <Text className="text-white text-xs font-semibold">
             {currentDecorations}/{maxAllowed}
