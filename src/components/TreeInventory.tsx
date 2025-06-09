@@ -11,7 +11,7 @@ import {
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "convex/_generated/dataModel";
-import DecorationDetailModal from "./DecorationDetailModal";
+import DecorationDetailBottomSheet from "./DecorationDetailBottomSheet";
 import {
   BottomSheetModal,
   BottomSheetView,
@@ -80,6 +80,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     index: number;
   } | null>(null);
 
+  const decorationBottomSheetRef = useRef<BottomSheetModal>(null);
   // Fetch all tree items from database
   const allTreeItems = useQuery(api.treeItems.getAllTreeItems);
 
@@ -271,6 +272,9 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       decoration,
       index,
     });
+
+    // Open the decoration bottom sheet
+    decorationBottomSheetRef.current?.present();
   };
 
   const handleRemoveDecoration = async () => {
@@ -281,11 +285,19 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         duoId: treeData.duoId,
         decorationIndex: selectedDecoration.index,
       });
+
+      // Close the bottom sheet and clear selection
+      decorationBottomSheetRef.current?.dismiss();
       setSelectedDecoration(null);
       onInventoryUpdate?.();
     } catch (err: any) {
       Alert.alert("Removal Error", err.message);
     }
+  };
+
+  const handleCloseDecorationBottomSheet = () => {
+    decorationBottomSheetRef.current?.dismiss();
+    setSelectedDecoration(null);
   };
 
   const renderSlots = () => {
@@ -732,14 +744,14 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       </BottomSheetModal>
 
       {/* Decoration Detail Modal */}
-      <DecorationDetailModal
-        visible={selectedDecoration !== null}
-        onClose={() => setSelectedDecoration(null)}
+      <DecorationDetailBottomSheet
+        ref={decorationBottomSheetRef}
+        onClose={handleCloseDecorationBottomSheet}
         onRemove={handleRemoveDecoration}
         decoration={
           selectedDecoration?.decoration
             ? {
-                type: selectedDecoration.decoration.itemId, // Map itemId to type
+                type: selectedDecoration.decoration.itemId,
                 position: selectedDecoration.decoration.position,
                 buff: selectedDecoration.decoration.itemId.includes("Leaf")
                   ? { xpMultiplier: 1.5 }
