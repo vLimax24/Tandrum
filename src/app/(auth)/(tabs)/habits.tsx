@@ -11,7 +11,7 @@ import { StreakVisualization } from "@/components/StreakVisualization";
 import HabitActionBottomSheet from "@/components/HabitActionBottomSheet";
 import HabitEditBottomSheet from "@/components/HabitEditBottomSheet";
 import { DuoSelector } from "@/components/DuoSelector";
-import { CreateHabitModal } from "@/components/CreateHabitModal";
+import { CreateHabitBottomSheet } from "@/components/CreateHabitBottomSheet";
 import { HabitsHeader } from "@/components/HabitsHeader";
 import { LoadingState } from "@/components/LoadingState";
 import { CreateHabitButton } from "@/components/CreateHabitButton";
@@ -46,6 +46,7 @@ export default function HabitsSection() {
 
   // Bottom sheet ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const createHabitBottomSheetRef = useRef<BottomSheetModal>(null);
 
   // Reward animation state
   const [showRewardAnimation, setShowRewardAnimation] = useState(false);
@@ -88,6 +89,10 @@ export default function HabitsSection() {
     // Set the active habit and present the bottom sheet
     setActiveMenuHabitId(habit._id);
     bottomSheetModalRef.current?.present();
+  };
+
+  const handleCreateHabitPress = () => {
+    createHabitBottomSheetRef.current?.present();
   };
 
   const handleDeleteHabit = (habitId: Id<"duoHabits">, habitTitle: string) => {
@@ -234,14 +239,13 @@ export default function HabitsSection() {
               onMenuPress={handleMenuPress}
             />
 
-            <CreateHabitButton onPress={() => setModalVisible(true)} />
+            <CreateHabitButton onPress={handleCreateHabitPress} />
           </View>
         </ScrollView>
       </LinearGradient>
 
-      <CreateHabitModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+      <CreateHabitBottomSheet
+        ref={createHabitBottomSheetRef}
         onCreate={createHabit}
         duo={duo}
         existingHabits={habits}
