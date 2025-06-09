@@ -35,7 +35,6 @@ const Profile = () => {
           try {
             router.replace("/(public)/login");
           } catch (error) {
-            console.log("Navigation not ready, retrying...");
             // Retry after a short delay
             setTimeout(checkAuth, 100);
           }
@@ -82,8 +81,6 @@ const Profile = () => {
                 "onboardingCompleted",
                 "convexUser",
               ]);
-
-              console.log("AsyncStorage cleared");
 
               // Sign out from Clerk
               await signOut();

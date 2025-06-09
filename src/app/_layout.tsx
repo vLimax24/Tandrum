@@ -66,11 +66,6 @@ const InitialLayout = () => {
       const firstTimeValue = await AsyncStorage.getItem("isFirstTime");
       const tutorialCompleted = await AsyncStorage.getItem("tutorialCompleted");
 
-      console.log("Storage check values:", {
-        firstTimeValue,
-        tutorialCompleted,
-      });
-
       setIsFirstTime(
         firstTimeValue === null ? true : firstTimeValue === "true"
       );
@@ -114,22 +109,9 @@ const InitialLayout = () => {
     const inAuthGroup = segment0 === "(auth)";
     const inPublicGroup = segment0 === "(public)";
 
-    console.log("Navigation state:", {
-      isFirstTime,
-      hasCompletedTutorial,
-      onboardingStatus,
-      isSignedIn,
-      segments,
-      currentPath,
-      inAuthGroup,
-      inPublicGroup,
-      showLoadingScreen,
-    });
-
     // If it's the first time (tutorial not completed)
     if (isFirstTime || !hasCompletedTutorial) {
       if (!inAuthGroup || segment1 !== "(tutorial)") {
-        console.log("Redirecting to tutorial");
         router.replace("/(auth)/(tutorial)/");
       }
       return;
@@ -138,7 +120,6 @@ const InitialLayout = () => {
     // If tutorial is finished but user is not signed in
     if (hasCompletedTutorial && !isSignedIn) {
       if (!inPublicGroup) {
-        console.log("Redirecting to login");
         router.replace("/(public)");
       }
       return;
@@ -158,9 +139,6 @@ const InitialLayout = () => {
           onboardingStatus.onboardingCompleted === undefined)
       ) {
         if (!inAuthGroup || segment1 !== "(tabs)") {
-          console.log(
-            "Redirecting to home dashboard - user exists and onboarding completed or is returning user"
-          );
           router.replace("/(auth)/(tabs)/home");
         }
         return;
@@ -172,9 +150,6 @@ const InitialLayout = () => {
         onboardingStatus.onboardingCompleted === false
       ) {
         if (!inAuthGroup || segment1 !== "(onboarding)") {
-          console.log(
-            "Redirecting to onboarding - user exists but onboarding not completed"
-          );
           router.replace("/(auth)/(onboarding)");
         }
         return;
@@ -183,7 +158,6 @@ const InitialLayout = () => {
       // If user doesn't exist in database yet, go to onboarding
       if (!onboardingStatus.exists) {
         if (!inAuthGroup || segment1 !== "(onboarding)") {
-          console.log("Redirecting to onboarding - new user");
           router.replace("/(auth)/(onboarding)");
         }
         return;

@@ -99,11 +99,6 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   // Set to single snap point at 90% for maximum height
   const snapPoints = useMemo(() => ["90%"], []);
 
-  // Callbacks
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
-
   const handleOpenBottomSheet = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
@@ -529,7 +524,6 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         ref={bottomSheetModalRef}
         index={0}
         snapPoints={snapPoints}
-        onChange={handleSheetChanges}
         backdropComponent={renderBackdrop}
         enablePanDownToClose={true}
         enableDynamicSizing={false}

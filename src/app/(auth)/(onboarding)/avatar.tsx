@@ -97,8 +97,6 @@ export default function AvatarScreen() {
         profileImage: `avatar_${selectedAvatar}`,
       });
 
-      console.log("User updated successfully, navigating to home...");
-
       // Navigate directly - onboarding completion is now handled server-side
       router.dismissAll();
       router.replace("/(auth)/(tabs)/home");
