@@ -18,6 +18,7 @@ import {
   BottomSheetBackdrop,
   BottomSheetFlatList,
 } from "@gorhom/bottom-sheet";
+import { getRarityColors } from "@/utils/rarities";
 
 const treeImages: Record<string, any> = {
   leaf: require("@/assets/hemp-leaf.png"),
@@ -354,6 +355,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     if (!item) return null;
 
     const isAvailable = count > 0;
+    const rarityColors = getRarityColors(item.rarity);
 
     return (
       <TouchableOpacity
@@ -386,6 +388,16 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                 {item.name}
               </Text>
               <Text className="text-base">{item.icon}</Text>
+              {/* Simple rarity text */}
+              <Text
+                className="text-xs font-medium ml-2 px-2 py-0.5 rounded"
+                style={{
+                  color: rarityColors.primary,
+                  backgroundColor: rarityColors.light,
+                }}
+              >
+                {item.rarity.toUpperCase()}
+              </Text>
             </View>
             <Text className="text-sm text-[#6b7280] mb-1">
               {item.description}
