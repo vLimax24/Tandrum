@@ -221,6 +221,7 @@ export default function TutorialScreen() {
 
   const handleGoogleLogin = async () => {
     try {
+      // Set flags immediately to trigger loading screen
       await AsyncStorage.setItem("isFirstTime", "false");
       await AsyncStorage.setItem("tutorialCompleted", "true");
 
@@ -232,6 +233,7 @@ export default function TutorialScreen() {
         setActive!({ session: createdSessionId });
       }
     } catch (error) {
+      // Reset flags on error
       await AsyncStorage.removeItem("isFirstTime");
       await AsyncStorage.removeItem("tutorialCompleted");
       console.error("Login error:", error);

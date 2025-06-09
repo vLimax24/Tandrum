@@ -36,8 +36,7 @@ export default function AuthPage() {
       });
       if (createdSessionId) {
         setActive!({ session: createdSessionId });
-        // No need to set onboarding flags - handled server-side now
-        // Only set tutorial completion flags
+        // Set tutorial completion flags to ensure proper flow
         await AsyncStorage.setItem("isFirstTime", "false");
         await AsyncStorage.setItem("tutorialCompleted", "true");
       }

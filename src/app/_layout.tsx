@@ -2,6 +2,7 @@ import "../global.css";
 import { useEffect, useState } from "react";
 import { SplashScreen, useSegments, useRouter } from "expo-router";
 import { Slot } from "expo-router";
+import LoadingScreen from "@/components/LoadingScreen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
@@ -37,8 +38,6 @@ if (!clerkPublishableKey) {
   throw new Error("CLERK_PUBLISHABLE_KEY is not set");
 }
 
-// Replace the InitialLayout component in src/app/_layout.tsx
-
 const InitialLayout = () => {
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -53,6 +52,7 @@ const InitialLayout = () => {
   const [hasCompletedTutorial, setHasCompletedTutorial] = useState<
     boolean | null
   >(null);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
 
   // Get onboarding status from server
   const onboardingStatus = useQuery(
@@ -87,6 +87,13 @@ const InitialLayout = () => {
     checkStorageValues();
   }, []);
 
+  // Show loading screen immediately when user signs in
+  useEffect(() => {
+    if (isSignedIn && hasCompletedTutorial && !showLoadingScreen) {
+      setShowLoadingScreen(true);
+    }
+  }, [isSignedIn, hasCompletedTutorial]);
+
   // Re-check storage when authentication state changes
   useEffect(() => {
     if (isSignedIn) {
@@ -116,6 +123,7 @@ const InitialLayout = () => {
       currentPath,
       inAuthGroup,
       inPublicGroup,
+      showLoadingScreen,
     });
 
     // If it's the first time (tutorial not completed)
@@ -138,6 +146,11 @@ const InitialLayout = () => {
 
     // If user is signed in, check onboarding status
     if (isSignedIn && onboardingStatus !== undefined) {
+      // Hide loading screen once we have onboarding status
+      if (showLoadingScreen) {
+        setShowLoadingScreen(false);
+      }
+
       // If user exists and has completed onboarding (or is a returning user without onboarding data)
       if (
         onboardingStatus.exists &&
@@ -183,6 +196,7 @@ const InitialLayout = () => {
     onboardingStatus,
     isSignedIn,
     segments,
+    showLoadingScreen,
   ]);
 
   useEffect(() => {
@@ -190,7 +204,8 @@ const InitialLayout = () => {
       fontsLoaded &&
       isFirstTime !== null &&
       hasCompletedTutorial !== null &&
-      (isSignedIn ? onboardingStatus !== undefined : true)
+      (isSignedIn ? onboardingStatus !== undefined : true) &&
+      !showLoadingScreen
     ) {
       SplashScreen.hideAsync();
     }
@@ -200,7 +215,13 @@ const InitialLayout = () => {
     hasCompletedTutorial,
     onboardingStatus,
     isSignedIn,
+    showLoadingScreen,
   ]);
+
+  // Show loading screen if needed
+  if (showLoadingScreen) {
+    return <LoadingScreen />;
+  }
 
   return <Slot />;
 };
