@@ -9,7 +9,7 @@ import { useDuo } from "@/hooks/useDuo";
 import { LinearGradient } from "expo-linear-gradient";
 import { StreakVisualization } from "@/components/StreakVisualization";
 import HabitActionBottomSheet from "@/components/HabitActionBottomSheet";
-import HabitEditModal from "@/components/HabitEditModal";
+import HabitEditBottomSheet from "@/components/HabitEditBottomSheet";
 import { DuoSelector } from "@/components/DuoSelector";
 import { CreateHabitModal } from "@/components/CreateHabitModal";
 import { HabitsHeader } from "@/components/HabitsHeader";
@@ -34,8 +34,15 @@ export default function HabitsSection() {
     null
   );
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [editingHabit, setEditingHabit] = useState<any>(null);
   const [now, setNow] = useState(Date.now());
+
+  const editBottomSheetRef = useRef<BottomSheetModal>(null);
+  const [editingHabit, setEditingHabit] = useState<any>(null);
+
+  const handleEditHabit = (habit: any) => {
+    setEditingHabit(habit);
+    editBottomSheetRef.current?.present();
+  };
 
   // Bottom sheet ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -107,11 +114,6 @@ export default function HabitsSection() {
     );
   };
 
-  const handleEditHabit = (habit: any) => {
-    setEditingHabit(habit);
-    setEditModalVisible(true);
-  };
-
   const handleBottomSheetEdit = () => {
     const habit = habits?.find((h) => h._id === activeMenuHabitId);
     if (habit) {
@@ -137,7 +139,7 @@ export default function HabitsSection() {
         title: data.title,
         frequency: data.frequency,
       });
-      setEditModalVisible(false);
+      editBottomSheetRef.current?.dismiss();
       setEditingHabit(null);
     } catch (error) {
       console.error("Failed to update habit:", error);
@@ -251,12 +253,8 @@ export default function HabitsSection() {
         onDelete={handleBottomSheetDelete}
       />
 
-      <HabitEditModal
-        visible={editModalVisible}
-        onClose={() => {
-          setEditModalVisible(false);
-          setEditingHabit(null);
-        }}
+      <HabitEditBottomSheet
+        ref={editBottomSheetRef}
         onSave={handleSaveEdit}
         habit={editingHabit}
         existingHabits={habits || []}
