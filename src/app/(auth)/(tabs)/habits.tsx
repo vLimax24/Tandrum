@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { View, ScrollView, Alert } from "react-native";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -8,7 +8,7 @@ import { LevelDisplay } from "@/components/LevelDisplay";
 import { useDuo } from "@/hooks/useDuo";
 import { LinearGradient } from "expo-linear-gradient";
 import { StreakVisualization } from "@/components/StreakVisualization";
-import HabitActionMenu from "@/components/HabitActionMenu";
+import HabitActionBottomSheet from "@/components/HabitActionBottomSheet";
 import HabitEditModal from "@/components/HabitEditModal";
 import { DuoSelector } from "@/components/DuoSelector";
 import { CreateHabitModal } from "@/components/CreateHabitModal";
@@ -19,6 +19,10 @@ import { HabitsContainer } from "@/components/HabitsContainer";
 import { RewardAnimation } from "@/components/RewardAnimation";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { NoDuoScreen } from "@/components/NoDuoScreen";
+import {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+} from "@gorhom/bottom-sheet";
 
 export default function HabitsSection() {
   const { user } = useUser();
@@ -29,11 +33,12 @@ export default function HabitsSection() {
   const [activeMenuHabitId, setActiveMenuHabitId] = useState<string | null>(
     null
   );
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-  const [isMenuAnimating, setIsMenuAnimating] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingHabit, setEditingHabit] = useState<any>(null);
   const [now, setNow] = useState(Date.now());
+
+  // Bottom sheet ref
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   // Reward animation state
   const [showRewardAnimation, setShowRewardAnimation] = useState(false);
@@ -73,61 +78,52 @@ export default function HabitsSection() {
   }, []);
 
   const handleMenuPress = (event: any, habit: any) => {
-    if (activeMenuHabitId !== null || isMenuAnimating) {
-      return;
-    }
-
-    const { pageX, pageY } = event.nativeEvent;
-    setMenuPosition({
-      x: pageX && pageX > 0 ? pageX : 200,
-      y: pageY && pageY > 0 ? pageY : 200,
-    });
+    // Set the active habit and present the bottom sheet
     setActiveMenuHabitId(habit._id);
-  };
-
-  const handleMenuClose = () => {
-    setIsMenuAnimating(true);
-    setActiveMenuHabitId(null);
-    setTimeout(() => {
-      setIsMenuAnimating(false);
-      setMenuPosition({ x: 0, y: 0 });
-    }, 300);
+    bottomSheetModalRef.current?.present();
   };
 
   const handleDeleteHabit = (habitId: Id<"duoHabits">, habitTitle: string) => {
-    setTimeout(() => {
-      Alert.alert(
-        "Delete Habit",
-        `Are you sure you want to delete "${habitTitle}"? This action cannot be undone.`,
-        [
-          {
-            text: "Cancel",
-            style: "cancel",
+    Alert.alert(
+      "Delete Habit",
+      `Are you sure you want to delete "${habitTitle}"? This action cannot be undone.`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteHabit({ habitId });
+            } catch (error) {
+              Alert.alert("Error", "Failed to delete habit. Please try again.");
+            }
           },
-          {
-            text: "Delete",
-            style: "destructive",
-            onPress: async () => {
-              try {
-                await deleteHabit({ habitId });
-              } catch (error) {
-                setTimeout(() => {
-                  Alert.alert(
-                    "Error",
-                    "Failed to delete habit. Please try again."
-                  );
-                }, 100);
-              }
-            },
-          },
-        ]
-      );
-    }, 100);
+        },
+      ]
+    );
   };
 
   const handleEditHabit = (habit: any) => {
     setEditingHabit(habit);
     setEditModalVisible(true);
+  };
+
+  const handleBottomSheetEdit = () => {
+    const habit = habits?.find((h) => h._id === activeMenuHabitId);
+    if (habit) {
+      handleEditHabit(habit);
+    }
+  };
+
+  const handleBottomSheetDelete = () => {
+    const habit = habits?.find((h) => h._id === activeMenuHabitId);
+    if (habit) {
+      handleDeleteHabit(habit._id, habit.title);
+    }
   };
 
   const handleSaveEdit = async (data: {
@@ -196,13 +192,14 @@ export default function HabitsSection() {
   if (!habits) {
     return <LoadingState />;
   }
+
   const duo = connections[selectedIndex];
   const daily = habits.filter((h) => h.frequency === "daily");
   const weekly = habits.filter((h) => h.frequency === "weekly");
   const amI_A = convexUser._id === duo.user1;
 
   return (
-    <>
+    <BottomSheetModalProvider>
       <LinearGradient
         colors={["#f8fafc", "#dbeafe"]}
         start={{ x: 0, y: 0 }}
@@ -248,24 +245,10 @@ export default function HabitsSection() {
         existingHabits={habits}
       />
 
-      <HabitActionMenu
-        visible={activeMenuHabitId !== null}
-        onClose={handleMenuClose}
-        onEdit={() => {
-          const habit = habits?.find((h) => h._id === activeMenuHabitId);
-          if (habit) {
-            handleEditHabit(habit);
-            handleMenuClose();
-          }
-        }}
-        onDelete={() => {
-          const habit = habits?.find((h) => h._id === activeMenuHabitId);
-          if (habit) {
-            handleDeleteHabit(habit._id, habit.title);
-            handleMenuClose();
-          }
-        }}
-        buttonPosition={menuPosition}
+      <HabitActionBottomSheet
+        ref={bottomSheetModalRef}
+        onEdit={handleBottomSheetEdit}
+        onDelete={handleBottomSheetDelete}
       />
 
       <HabitEditModal
@@ -284,6 +267,6 @@ export default function HabitsSection() {
         rewards={currentRewards}
         onComplete={handleRewardAnimationComplete}
       />
-    </>
+    </BottomSheetModalProvider>
   );
 }

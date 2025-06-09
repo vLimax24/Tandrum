@@ -57,9 +57,6 @@ export const HabitItem: React.FC<HabitItemProps> = ({
             }}
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={{ fontSize: 12, marginRight: 4 }}>
-                {habit.frequency === "daily" ? "🌅" : "📅"}
-              </Text>
               <Text
                 className="text-xs font-semibold"
                 style={{
@@ -75,19 +72,14 @@ export const HabitItem: React.FC<HabitItemProps> = ({
         {/* Menu button with glassmorphism */}
         <TouchableOpacity
           className="rounded-full p-3"
-          style={{
-            backgroundColor: "#f1f5f9",
-            borderWidth: 1,
-            borderColor: "#cbd5e1",
-          }}
           onPress={(event) => {
             onMenuPress(event, habit);
           }}
         >
           <View className="flex-col items-center justify-center gap-1">
-            <View className="w-1 h-1 bg-[#6b7280] rounded-full" />
-            <View className="w-1 h-1 bg-[#6b7280] rounded-full" />
-            <View className="w-1 h-1 bg-[#6b7280] rounded-full" />
+            <View className="w-1 h-1 bg-[#000000] rounded-full" />
+            <View className="w-1 h-1 bg-[#000000] rounded-full" />
+            <View className="w-1 h-1 bg-[#000000] rounded-full" />
           </View>
         </TouchableOpacity>
       </View>

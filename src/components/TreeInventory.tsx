@@ -468,8 +468,15 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   const renderInventorySection = () => {
     if (!allTreeItems) return [];
 
-    const leafItems = allTreeItems.filter((item) => item.category === "leaf");
-    const fruitItems = allTreeItems.filter((item) => item.category === "fruit");
+    // Filter items to only show those that exist in the user's inventory (unlocked items)
+    const unlockedItems = allTreeItems.filter((item) =>
+      treeData.inventory.hasOwnProperty(item.itemId)
+    );
+
+    const leafItems = unlockedItems.filter((item) => item.category === "leaf");
+    const fruitItems = unlockedItems.filter(
+      (item) => item.category === "fruit"
+    );
 
     const totalLeaves = leafItems.reduce(
       (sum, item) => sum + getItemCount(item.itemId),
