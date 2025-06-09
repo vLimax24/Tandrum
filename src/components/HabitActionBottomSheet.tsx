@@ -21,8 +21,7 @@ const HabitActionBottomSheet = forwardRef<
   BottomSheetModal,
   HabitActionBottomSheetProps
 >(({ onEdit, onDelete }, ref) => {
-  // Snap points - 35% of screen height
-  const snapPoints = useMemo(() => ["50%"], []);
+  const snapPoints = useMemo(() => ["45%"], []);
 
   // Custom backdrop component
   const renderBackdrop = React.useCallback(
@@ -52,10 +51,11 @@ const HabitActionBottomSheet = forwardRef<
   return (
     <BottomSheetModal
       ref={ref}
-      index={0}
+      index={1}
       snapPoints={snapPoints}
       backdropComponent={renderBackdrop}
       enablePanDownToClose
+      animateOnMount={true}
       handleIndicatorStyle={{
         backgroundColor: "#e5e7eb",
         width: 40,
