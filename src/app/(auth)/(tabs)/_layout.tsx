@@ -206,8 +206,8 @@ export default function TabsLayout() {
           paddingBottom: insets.bottom + 12,
           paddingTop: 12,
           paddingHorizontal: 8,
-          elevation: 2, // Reduced elevation
-          zIndex: 1, // Lower z-index to ensure bottom sheet appears above
+          elevation: 1, // Reduced elevation
+          zIndex: 0, // Lower z-index to ensure bottom sheet appears above
           shadowColor: "#000",
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.1,

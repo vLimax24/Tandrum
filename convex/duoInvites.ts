@@ -49,14 +49,14 @@ export const respondToInvite = mutation({
         created_at: Date.now(),
         trust_score: 0,
         shared_skills: [],
-        treeState: "sprout",
+        treeState: "tree-1",
         streak: 0,
       });
 
       // Step 2: Create a tree for the duo
       await ctx.db.insert("trees", {
         duoId,
-        stage: "sprout",
+        stage: "tree-1",
         leaves: 0,
         fruits: 0,
         decay: 0,

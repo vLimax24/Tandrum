@@ -14,10 +14,10 @@ import { NoDuoScreen } from "@/components/NoDuoScreen";
 import { ItemType } from "@/components/TreeInventory";
 
 const treeImages: Record<string, any> = {
-  sprout: require("../../../assets/tree-1.png"),
-  smallTree: require("../../../assets/tree-2.png"),
-  mediumTree: require("../../../assets/tree-1.png"),
-  grownTree: require("../../../assets/tree-1.png"),
+  "tree-1": require("../../../assets/tree-1.png"),
+  "tree-2": require("../../../assets/tree-2.png"),
+  "tree-3": require("../../../assets/tree-1.png"),
+  "tree-4": require("../../../assets/tree-1.png"),
   orange: require("../../../assets/orange.png"),
   leaf: require("../../../assets/hemp-leaf.png"),
   calendar: require("../../../assets/calendar.png"),

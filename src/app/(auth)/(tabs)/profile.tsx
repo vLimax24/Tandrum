@@ -353,7 +353,6 @@ const Profile = () => {
                 <Text className="text-white text-base font-semibold mr-2">
                   Sign Out
                 </Text>
-                <Text className="text-white text-lg">🚪</Text>
               </TouchableOpacity>
 
               <Text className="text-gray-500 text-xs text-center mt-3">

@@ -115,10 +115,11 @@ export default defineSchema({
   trees: defineTable({
     duoId: v.id("duoConnections"),
     stage: v.union(
-      v.literal("sprout"),
-      v.literal("smallTree"),
-      v.literal("mediumTree"),
-      v.literal("grownTree")
+      v.literal("tree-1"),
+      v.literal("tree-1.5"),
+      v.literal("tree-2"),
+      v.literal("tree-3"),
+      v.literal("tree-4")
     ),
     leaves: v.number(),
     fruits: v.number(),

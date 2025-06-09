@@ -246,10 +246,10 @@ async function calculateHabitRewards(ctx: any, habit: any, userIsA: boolean) {
 
   // Item drop chances (percentage) - increased since both users need to complete
   const dropChances = {
-    common: isDaily ? 25 : 50, // 25% daily, 50% weekly
-    uncommon: isDaily ? 10 : 25, // 10% daily, 25% weekly
-    rare: isDaily ? 5 : 15, // 5% daily, 15% weekly
-    epic: isDaily ? 2 : 8, // 2% daily, 8% weekly
+    common: isDaily ? 18 : 50, // 18% daily, 50% weekly
+    uncommon: isDaily ? 7 : 25, // 7% daily, 25% weekly
+    rare: isDaily ? 3 : 15, // 3% daily, 15% weekly
+    epic: isDaily ? 1.5 : 8, // 1.5% daily, 8% weekly
     legendary: isDaily ? 0.5 : 3, // 0.5% daily, 3% weekly
   };
 

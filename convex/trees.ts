@@ -3,17 +3,18 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getLevelData, getTreeStageForLevel } from "../src/utils/level";
 
-type Stage = "sprout" | "smallTree" | "mediumTree" | "grownTree";
-
+type Stage = "tree-1" | "tree-1.5" | "tree-2" | "tree-3" | "tree-4";
 /**
  * Helper: Return max number of decorations allowed given the stage.
  */
 function maxDecorationsForStage(stage: Stage): number {
   switch (stage) {
-    case "mediumTree":
+    case "tree-2":
       return 2;
-    case "grownTree":
+    case "tree-3":
       return 4;
+    case "tree-4":
+      return 6;
     default:
       return 0; // sprout & smallTree cannot place decorations
   }

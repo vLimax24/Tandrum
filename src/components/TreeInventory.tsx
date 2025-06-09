@@ -35,7 +35,7 @@ const treeImages: Record<string, any> = {
 interface TreeInventoryProps {
   treeData: {
     duoId: Id<"duoConnections">;
-    stage: "sprout" | "smallTree" | "mediumTree" | "grownTree";
+    stage: "tree-1" | "tree-1.5" | "tree-2" | "tree-3" | "tree-4";
     leaves: number;
     fruits: number;
     inventory: Record<string, number>; // Dynamic inventory
@@ -164,14 +164,14 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     const baseX = treeCenter - treeSize / 2;
     const baseY = 20;
 
-    if (treeData.stage === "mediumTree") {
+    if (treeData.stage === "tree-2") {
       return [
         { x: baseX + 40, y: baseY + 60, id: "slot1" },
         { x: baseX + 120, y: baseY + 80, id: "slot2" },
       ];
     }
 
-    if (treeData.stage === "grownTree") {
+    if (treeData.stage === "tree-3") {
       return [
         { x: baseX + 50, y: baseY + 180, id: "slot1" },
         { x: baseX + 90, y: baseY + 220, id: "slot2" },
@@ -180,17 +180,32 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       ];
     }
 
+    if (treeData.stage === "tree-4") {
+      return [
+        { x: baseX + 50, y: baseY + 180, id: "slot1" },
+        { x: baseX + 90, y: baseY + 220, id: "slot2" },
+        { x: baseX + 90, y: baseY + 185, id: "slot3" },
+        { x: baseX + 50, y: baseY + 250, id: "slot4" },
+        { x: baseX + 80, y: baseY + 250, id: "slot5" },
+        { x: baseX + 70, y: baseY + 300, id: "slot6" },
+      ];
+    }
+
     return [];
   };
 
   const canShowInventory =
-    treeData.stage === "mediumTree" || treeData.stage === "grownTree";
+    treeData.stage === "tree-2" ||
+    treeData.stage === "tree-3" ||
+    treeData.stage === "tree-4";
   const maxAllowed =
-    treeData.stage === "mediumTree"
+    treeData.stage === "tree-2"
       ? 2
-      : treeData.stage === "grownTree"
+      : treeData.stage === "tree-3"
         ? 4
-        : 0;
+        : treeData.stage === "tree-4"
+          ? 6
+          : 0;
   const currentDecorations = treeData.decorations?.length ?? 0;
 
   const handleItemSelect = (itemId: string) => {
