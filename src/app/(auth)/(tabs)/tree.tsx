@@ -270,46 +270,132 @@ export default function TreeSection() {
         </View>
 
         {/* Growth Log - Add z-index */}
-        <View className="mb-16" style={{ zIndex: 1 }}>
-          <Text className="text-2xl font-semibold text-text mb-2">
-            Growth Log:
-          </Text>
+        <View className={`mb-20`} style={{ zIndex: 1 }}>
+          <View className="mb-6">
+            <Text className="text-2xl font-bold text-gray-900 mb-1">
+              Growth Activity
+            </Text>
+            <Text className="text-sm text-gray-500">
+              Track your duo's progress and milestones
+            </Text>
+          </View>
+
           {treeData.growth_log.length > 0 ? (
-            Object.entries(groupedGrowthLog).map(([dateStr, logs]) => (
-              <View key={dateStr} className="mb-4">
-                <TouchableOpacity
-                  onPress={() => toggleCollapse(dateStr)}
-                  className="flex-row items-center mb-1"
-                  activeOpacity={0.7}
-                >
-                  <Text className="text-md font-bold text-text mr-2">
-                    {dateStr}
-                  </Text>
-                  <Text className="text-lg">
-                    {collapsedDates[dateStr] ? "▼" : "▲"}
-                  </Text>
-                </TouchableOpacity>
-                {!collapsedDates[dateStr] &&
-                  logs.map(({ idx, change }) => (
-                    <View
-                      key={idx}
-                      className="bg-[#f9f9f9] p-3 rounded-lg mb-2 flex-row items-center w-full"
+            <View className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              {Object.entries(groupedGrowthLog).map(
+                ([dateStr, logs], index) => (
+                  <View key={dateStr}>
+                    {/* Date Header */}
+                    <TouchableOpacity
+                      onPress={() => toggleCollapse(dateStr)}
+                      className="px-6 py-4 bg-gray-50 border-b border-gray-100 flex-row items-center justify-between"
+                      activeOpacity={0.7}
                     >
-                      <Image
-                        source={treeImages["calendar"]}
-                        style={{ width: 20, height: 20 }}
-                        className="mr-3"
-                      />
-                      <View>
-                        <Text className="text-sm text-gray-600">{change}</Text>
+                      <View className="flex-row items-center">
+                        <View className="w-2 h-2 bg-primary rounded-full mr-3" />
+                        <Text className="text-base font-semibold text-gray-900">
+                          {dateStr}
+                        </Text>
+                        <View className="ml-3 px-2 py-1 bg-gray-200 rounded-full">
+                          <Text className="text-xs font-medium text-gray-600">
+                            {logs.length}{" "}
+                            {logs.length === 1 ? "activity" : "activities"}
+                          </Text>
+                        </View>
                       </View>
-                    </View>
-                  ))}
-              </View>
-            ))
+                      <View className="flex-row items-center">
+                        <Text className="text-xs text-gray-400 mr-2">
+                          {collapsedDates[dateStr] ? "Show" : "Hide"}
+                        </Text>
+                        <View
+                          className="w-6 h-6 rounded-full bg-white border border-gray-200 items-center justify-center"
+                          style={{
+                            transform: [
+                              {
+                                rotate: collapsedDates[dateStr]
+                                  ? "0deg"
+                                  : "180deg",
+                              },
+                            ],
+                          }}
+                        >
+                          <Text className="text-gray-400 text-xs">▼</Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+
+                    {/* Activity Items */}
+                    {!collapsedDates[dateStr] && (
+                      <View className="px-6 py-2">
+                        {logs.map(({ idx, change }, logIndex) => (
+                          <View
+                            key={idx}
+                            className={`py-4 flex-row items-start ${
+                              logIndex !== logs.length - 1
+                                ? "border-b border-gray-50"
+                                : ""
+                            }`}
+                          >
+                            {/* Timeline Indicator */}
+                            <View className="mr-4 mt-1">
+                              <View className="w-8 h-8 rounded-full bg-green-50 border-2 border-green-200 items-center justify-center">
+                                <Image
+                                  source={treeImages["leaf"]}
+                                  style={{ width: 14, height: 14 }}
+                                  className="tint-green-600"
+                                />
+                              </View>
+                            </View>
+
+                            {/* Activity Content */}
+                            <View className="flex-1">
+                              <Text className="text-sm font-medium text-gray-900 leading-5 mb-1">
+                                {change}
+                              </Text>
+                              <View className="flex-row items-center">
+                                <View className="w-1 h-1 bg-gray-300 rounded-full mr-2" />
+                                <Text className="text-xs text-gray-500">
+                                  Activity #{idx + 1}
+                                </Text>
+                              </View>
+                            </View>
+
+                            {/* Status Indicator */}
+                            <View className="ml-3">
+                              <View className="px-2 py-1 bg-green-50 rounded-md">
+                                <Text className="text-xs font-medium text-green-700">
+                                  Complete
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                )
+              )}
+            </View>
           ) : (
-            <View className="bg-white p-4 rounded-lg shadow items-center">
-              <Text className="text-text">No growth yet 🌱</Text>
+            // Empty State - Professional Design
+            <View className="bg-white rounded-xl border border-gray-100 shadow-sm">
+              <View className="px-8 py-12 items-center">
+                <View className="w-16 h-16 bg-gray-50 rounded-full items-center justify-center mb-4">
+                  <Text className="text-2xl">🌱</Text>
+                </View>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">
+                  No Activity Yet
+                </Text>
+                <Text className="text-sm text-gray-500 text-center leading-5 max-w-xs">
+                  Your growth journey will appear here as you and your duo
+                  interact and build trust together.
+                </Text>
+                <View className="mt-6 px-4 py-2 bg-gray-50 rounded-lg">
+                  <Text className="text-xs font-medium text-gray-600">
+                    Start engaging to see your first activity!
+                  </Text>
+                </View>
+              </View>
             </View>
           )}
         </View>
