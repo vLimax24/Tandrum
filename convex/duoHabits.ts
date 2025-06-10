@@ -229,7 +229,7 @@ async function calculateHabitRewards(ctx: any, habit: any, userIsA: boolean) {
   if (tree && tree.decorations && tree.decorations.length > 0) {
     let totalXPMultiplier = 1;
 
-    // Calculate total XP multiplier from all equipped items
+    // Calculate total XP multiplier from all equipped items (additive, not multiplicative)
     for (const decoration of tree.decorations) {
       const treeItem = await ctx.db
         .query("treeItems")
@@ -237,11 +237,11 @@ async function calculateHabitRewards(ctx: any, habit: any, userIsA: boolean) {
         .first();
 
       if (treeItem && treeItem.buffs && treeItem.buffs.xpMultiplier) {
-        totalXPMultiplier *= treeItem.buffs.xpMultiplier;
+        totalXPMultiplier += treeItem.buffs.xpMultiplier - 1;
       }
     }
 
-    // Apply the multiplier
+    // Apply the additive multiplier
     finalXP = Math.round(finalXP * totalXPMultiplier);
   }
 
