@@ -17,22 +17,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { api } from "convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
 import { useMutation, useQuery } from "convex/react";
+import { avatarOptions } from "@/utils/avatarImages";
 
 const { width } = Dimensions.get("window");
 const avatarSize = (width - 60) / 3 - 10; // 3 columns with spacing
-
-// Avatar options - you can replace these with your actual avatar images
-const avatarOptions = [
-  { id: 1, source: require("@/assets/orange.png"), name: "Orange" },
-  { id: 2, source: require("@/assets/orange.png"), name: "Blue" },
-  { id: 3, source: require("@/assets/orange.png"), name: "Green" },
-  { id: 4, source: require("@/assets/orange.png"), name: "Purple" },
-  { id: 5, source: require("@/assets/orange.png"), name: "Red" },
-  { id: 6, source: require("@/assets/orange.png"), name: "Yellow" },
-  { id: 7, source: require("@/assets/orange.png"), name: "Pink" },
-  { id: 8, source: require("@/assets/orange.png"), name: "Teal" },
-  { id: 9, source: require("@/assets/orange.png"), name: "Indigo" },
-];
 
 export default function AvatarScreen() {
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
