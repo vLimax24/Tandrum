@@ -250,23 +250,13 @@ export default function SettingsScreen() {
         "Please wait while we delete your account..."
       );
 
+      // Clear AsyncStorage
       await AsyncStorage.multiRemove([
         "isFirstTime",
         "tutorialCompleted",
         "onboardingCompleted",
         "convexUser",
       ]);
-
-      console.log("isFirstTime", AsyncStorage.getItem("isFirstTime"));
-      console.log(
-        "tutorialCompleted",
-        AsyncStorage.getItem("tutorialCompleted")
-      );
-      console.log(
-        "onboardingCompleted",
-        AsyncStorage.getItem("onboardingCompleted")
-      );
-      console.log("convexUser", AsyncStorage.getItem("convexUser"));
 
       // First delete from Convex database
       await deleteAccountMutation({ clerkId: user.id });
@@ -277,6 +267,10 @@ export default function SettingsScreen() {
       // Sign out (this should happen automatically after user.delete(), but just in case)
       await signOut();
 
+      // Set isFirstTime back to true to trigger tutorial flow
+      await AsyncStorage.setItem("isFirstTime", "true");
+      await AsyncStorage.setItem("tutorialCompleted", "false");
+
       Alert.alert(
         "Account Deleted",
         "Your account has been successfully deleted.",
@@ -284,8 +278,8 @@ export default function SettingsScreen() {
           {
             text: "OK",
             onPress: () => {
-              // Navigate to auth flow
-              router.replace("/(auth)/(tutorial)/index");
+              // Navigate to tutorial flow
+              router.replace("/(auth)/(tutorial)/");
             },
           },
         ]
