@@ -253,3 +253,72 @@ export const getOnboardingStatus = query({
     };
   },
 });
+
+export const deleteAccount = mutation({
+  args: { clerkId: v.string() },
+  handler: async (ctx, { clerkId }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
+      .first();
+
+    if (!user) {
+      throw new ConvexError("User not found");
+    }
+
+    // Delete all related data first
+
+    // 1. Delete duo connections where user is involved
+    const duoConnections = await ctx.db
+      .query("duoConnections")
+      .filter((q) =>
+        q.or(q.eq(q.field("user1"), user._id), q.eq(q.field("user2"), user._id))
+      )
+      .collect();
+
+    for (const connection of duoConnections) {
+      // Delete associated habits
+      const habits = await ctx.db
+        .query("duoHabits")
+        .withIndex("by_duoId", (q) => q.eq("duoId", connection._id))
+        .collect();
+
+      for (const habit of habits) {
+        await ctx.db.delete(habit._id);
+      }
+
+      // Delete associated trees
+      const trees = await ctx.db
+        .query("trees")
+        .withIndex("by_duoId", (q) => q.eq("duoId", connection._id))
+        .collect();
+
+      for (const tree of trees) {
+        await ctx.db.delete(tree._id);
+      }
+
+      // Delete the duo connection
+      await ctx.db.delete(connection._id);
+    }
+
+    // 2. Delete duo invites (sent and received)
+    const sentInvites = await ctx.db
+      .query("duoInvites")
+      .filter((q) => q.eq(q.field("from"), user._id))
+      .collect();
+
+    const receivedInvites = await ctx.db
+      .query("duoInvites")
+      .withIndex("by_to", (q) => q.eq("to", user._id))
+      .collect();
+
+    for (const invite of [...sentInvites, ...receivedInvites]) {
+      await ctx.db.delete(invite._id);
+    }
+
+    // 3. Finally delete the user
+    await ctx.db.delete(user._id);
+
+    return { success: true };
+  },
+});

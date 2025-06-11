@@ -18,6 +18,7 @@ import { useUser } from "@clerk/clerk-expo";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "convex/_generated/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "@clerk/clerk-expo";
 
 export default function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -35,6 +36,9 @@ export default function SettingsScreen() {
     api.users.getUserByClerkId,
     user ? { clerkId: user.id } : "skip"
   );
+
+  const { signOut } = useAuth();
+  const deleteAccountMutation = useMutation(api.users.deleteAccount);
 
   // Load settings from AsyncStorage
   useEffect(() => {
@@ -218,13 +222,82 @@ export default function SettingsScreen() {
           style: "destructive",
           onPress: () => {
             Alert.alert(
-              "Account Deletion",
-              "Please contact support to delete your account."
+              "Final Confirmation",
+              "This will permanently delete your account and all associated data. Type 'DELETE' to confirm.",
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "I understand, delete my account",
+                  style: "destructive",
+                  onPress: confirmDeleteAccount,
+                },
+              ]
             );
           },
         },
       ]
     );
+  };
+
+  // Add this new function after handleDeleteAccount
+  const confirmDeleteAccount = async () => {
+    if (!user) return;
+
+    try {
+      // Show loading state
+      Alert.alert(
+        "Deleting Account",
+        "Please wait while we delete your account..."
+      );
+
+      await AsyncStorage.multiRemove([
+        "isFirstTime",
+        "tutorialCompleted",
+        "onboardingCompleted",
+        "convexUser",
+      ]);
+
+      console.log("isFirstTime", AsyncStorage.getItem("isFirstTime"));
+      console.log(
+        "tutorialCompleted",
+        AsyncStorage.getItem("tutorialCompleted")
+      );
+      console.log(
+        "onboardingCompleted",
+        AsyncStorage.getItem("onboardingCompleted")
+      );
+      console.log("convexUser", AsyncStorage.getItem("convexUser"));
+
+      // First delete from Convex database
+      await deleteAccountMutation({ clerkId: user.id });
+
+      // Then delete from Clerk and sign out
+      await user.delete();
+
+      // Sign out (this should happen automatically after user.delete(), but just in case)
+      await signOut();
+
+      Alert.alert(
+        "Account Deleted",
+        "Your account has been successfully deleted.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              // Navigate to auth flow
+              router.replace("/(auth)/(tutorial)/index");
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      Alert.alert(
+        "Error",
+        "There was an error deleting your account. Please try again or contact support.",
+        [{ text: "OK" }]
+      );
+    }
   };
 
   const SettingItem = ({
