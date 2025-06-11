@@ -279,6 +279,19 @@ export default function TabsLayout() {
           tabBarAccessibilityLabel: "Profile tab",
         }}
       />
+
+      <Tabs.Screen
+        name="settings"
+        options={{
+          href: null, // This hides the tab from the tab bar
+        }}
+      />
+      <Tabs.Screen
+        name="edit-profile"
+        options={{
+          href: null, // This hides the tab from the tab bar
+        }}
+      />
     </Tabs>
   );
 }

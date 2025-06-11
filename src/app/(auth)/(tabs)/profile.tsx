@@ -98,13 +98,11 @@ const Profile = () => {
   };
 
   const handleEditProfile = () => {
-    // Navigate to edit profile screen
-    Alert.alert("Edit Profile", "Edit profile functionality coming soon!");
+    router.push("/(auth)/(tabs)/edit-profile");
   };
 
   const handleSettings = () => {
-    // Navigate to settings screen
-    Alert.alert("Settings", "Settings screen coming soon!");
+    router.push("(auth)/settings");
   };
 
   const formatJoinDate = (date) => {
