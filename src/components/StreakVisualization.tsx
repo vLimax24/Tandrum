@@ -145,7 +145,7 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
   };
 
   return (
-    <View className="mb-6 relative">
+    <View className="mb-6 relative mt-10">
       {/* Glass container with backdrop blur effect */}
       <View
         className="rounded-3xl p-1 shadow-2xl"
