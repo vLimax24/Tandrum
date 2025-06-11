@@ -354,3 +354,33 @@ export const getActiveBuffs = query({
     };
   },
 });
+
+export const getXpMultiplier = query({
+  args: { duoId: v.id("duoConnections") },
+  handler: async (ctx, { duoId }) => {
+    const tree = await ctx.db
+      .query("trees")
+      .withIndex("by_duoId", (q) => q.eq("duoId", duoId))
+      .first();
+
+    if (!tree || !tree.decorations || tree.decorations.length === 0) {
+      return 1; // No multiplier if no tree or decorations
+    }
+
+    let totalXPMultiplier = 1;
+
+    // Calculate total XP multiplier from all equipped items (additive, not multiplicative)
+    for (const decoration of tree.decorations) {
+      const treeItem = await ctx.db
+        .query("treeItems")
+        .withIndex("by_itemId", (q) => q.eq("itemId", decoration.itemId))
+        .first();
+
+      if (treeItem && treeItem.buffs && treeItem.buffs.xpMultiplier) {
+        totalXPMultiplier += treeItem.buffs.xpMultiplier - 1;
+      }
+    }
+
+    return totalXPMultiplier;
+  },
+});
