@@ -1,70 +1,165 @@
-import { View, Text, Animated, Image } from "react-native";
-import React, { useEffect, useRef } from "react";
-import { getLevelData } from "@/utils/level";
+import { View, Text, Animated, Image, TouchableOpacity } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
+import {
+  getLevelData,
+  getBaseXpReward,
+  calculateXpReward,
+  getLevelingPreview,
+} from "@/utils/level";
 import { Doc } from "convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import { api } from "convex/_generated/api";
 
-// Use the same tree images from your TreeSection
 const treeImages: Record<string, any> = {
   leaf: require("../assets/hemp-leaf.png"),
   orange: require("../assets/orange.png"),
   sprout: require("../assets/tree-1.png"),
+  trophy: require("../assets/orange.png"), // Add if available
 };
 
 interface LevelDisplayProps {
   duo: Doc<"duoConnections">;
-  showXpStats?: boolean;
+  showDetailedStats?: boolean;
+  compact?: boolean;
 }
 
 export const LevelDisplay = ({
   duo,
-  showXpStats = true,
+  showDetailedStats = true,
+  compact = false,
 }: LevelDisplayProps) => {
   const {
     level,
     xpIntoLevel,
     xpNeeded,
     progressPercent: progress,
+    totalXpForCurrentLevel,
+    totalXpForNextLevel,
+    baseXpReward,
   } = getLevelData(duo.trust_score);
 
-  // Animation ref for progress bar
+  // Animation refs
   const progressAnimation = useRef(new Animated.Value(0)).current;
+  const scaleAnimation = useRef(new Animated.Value(1)).current;
+  const fadeAnimation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Animate progress bar
-    Animated.timing(progressAnimation, {
+    // Animate progress bar with spring effect
+    Animated.spring(progressAnimation, {
       toValue: progress,
-      duration: 1000,
+      tension: 100,
+      friction: 8,
       useNativeDriver: false,
     }).start();
+
+    // Fade in animation
+    Animated.timing(fadeAnimation, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }).start();
+
+    // Pulse animation for near completion
+    if (progress > 0.95) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(scaleAnimation, {
+            toValue: 1.02,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleAnimation, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    }
   }, [progress]);
 
-  return (
-    <View className="mb-6">
-      {/* Level Header - matching your TreeSection style */}
-      <Text className="text-lg font-semibold text-text mb-4">
-        Level Progress
-      </Text>
+  // Calculate streak bonus and other multipliers
+  const currentStreak = duo.streak || 0;
+  const potentialXpWithBonus = calculateXpReward(level, {
+    streak: currentStreak,
+    difficulty: "medium",
+    perfect: true,
+  });
 
-      {/* Level Info Card - matching your primary colored cards */}
-      <View className="bg-primary rounded-lg p-4 mb-4">
-        <View className="flex-row justify-between items-center mb-3">
-          <View className="flex-row items-center">
-            <Image
-              source={treeImages["leaf"]}
-              style={{ width: 24, height: 24, marginRight: 8 }}
-            />
-            <Text className="text-background text-lg font-semibold">
-              Level {level}
-            </Text>
+  const decorationMultiplier = useQuery(api.trees.getXpMultiplier, {
+    duoId: duo._id,
+  });
+
+  const effectiveBaseXpReward = Math.round(
+    baseXpReward * (decorationMultiplier || 1)
+  );
+  const effectivePotentialXpWithBonus = Math.round(
+    potentialXpWithBonus * (decorationMultiplier || 1)
+  );
+
+  const estimatedCompletionsNeeded = Math.ceil(
+    xpNeeded / effectiveBaseXpReward
+  );
+
+  if (compact) {
+    return (
+      <Animated.View
+        style={{
+          opacity: fadeAnimation,
+        }}
+        className="rounded-xl overflow-hidden mb-4 border border-gray-200"
+      >
+        <View
+          style={{
+            backgroundColor: "rgba(248, 250, 252, 0.9)",
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+          }}
+        >
+          {/* Header Row */}
+          <View className="flex-row items-center justify-between mb-3">
+            <View className="flex-row items-center flex-1">
+              <View
+                style={{
+                  backgroundColor: "#DBEAFE",
+                  borderWidth: 1,
+                  borderColor: "#BFDBFE",
+                  width: 32,
+                  height: 32,
+                }}
+                className="rounded-xl items-center justify-center mr-3"
+              >
+                <Text className="text-blue-700 font-bold text-sm">{level}</Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-gray-900 font-semibold text-sm">
+                  Level {level}
+                </Text>
+                <Text className="text-gray-600 text-xs">
+                  {Math.round(progress * 100)}% to Level {level + 1}
+                </Text>
+              </View>
+            </View>
+            <View className="items-end">
+              <Text className="text-gray-900 font-medium text-xs">
+                {xpIntoLevel.toLocaleString()}
+              </Text>
+              <Text className="text-gray-500 text-xs">
+                /{xpNeeded.toLocaleString()} XP
+              </Text>
+            </View>
           </View>
-          <Text className="text-background text-sm">
-            Next: Level {level + 1}
-          </Text>
-        </View>
 
-        {/* Progress Bar - matching your design language */}
-        <View className="mb-3">
-          <View className="h-3 bg-background/20 rounded-full overflow-hidden">
+          {/* Progress Bar */}
+          <View
+            style={{
+              backgroundColor: "#F1F5F9",
+              height: 8,
+            }}
+            className="rounded-full overflow-hidden"
+          >
             <Animated.View
               style={{
                 width: progressAnimation.interpolate({
@@ -72,80 +167,352 @@ export const LevelDisplay = ({
                   outputRange: ["0%", "100%"],
                 }),
               }}
-              className="h-full bg-background rounded-full"
-            />
+              className="h-full rounded-full"
+            >
+              <LinearGradient
+                colors={["#3B82F6", "#9333EA"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ flex: 1, borderRadius: 4 }}
+              />
+            </Animated.View>
+          </View>
+
+          {/* Bonus indicators */}
+          {(currentStreak > 0 ||
+            (decorationMultiplier && decorationMultiplier > 1)) && (
+            <View className="flex-row items-center justify-between mt-2">
+              {currentStreak > 0 && (
+                <View className="flex-row items-center">
+                  <Text className="text-orange-600 text-xs font-medium">
+                    🔥 {currentStreak} day streak
+                  </Text>
+                </View>
+              )}
+              {decorationMultiplier && decorationMultiplier > 1 && (
+                <View className="flex-row items-center">
+                  <Text className="text-purple-600 text-xs font-medium">
+                    🎄 {decorationMultiplier}x XP
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
+        </View>
+      </Animated.View>
+    );
+  }
+
+  return (
+    <Animated.View
+      style={{
+        opacity: fadeAnimation,
+        transform: [{ scale: scaleAnimation }],
+      }}
+      className="rounded-3xl shadow-2xl overflow-hidden"
+    >
+      <BlurView intensity={30} tint="light">
+        {/* Header Section with Glassmorphism */}
+        <View
+          style={{
+            backgroundColor: "#F0F9FF",
+            borderBottomWidth: 1,
+            borderBottomColor: "#E0F2FE",
+          }}
+          className="px-6 py-5"
+        >
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center">
+              <View
+                style={{
+                  backgroundColor: "#DBEAFE",
+                  borderWidth: 1,
+                  borderColor: "#BFDBFE",
+                }}
+                className="w-14 h-14 rounded-2xl items-center justify-center mr-4"
+              >
+                <Text className="text-blue-700 font-bold text-xl">{level}</Text>
+              </View>
+              <View>
+                <Text className="text-gray-900 font-bold text-xl">
+                  Level {level}
+                </Text>
+                <Text className="text-gray-700 text-base">
+                  Partnership Progress
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
 
-        <Text className="text-background text-sm text-center">
-          {xpIntoLevel} / {xpNeeded} XP bis zum nächsten Level (
-          {Math.round(progress * 100)}%)
-        </Text>
-      </View>
+        {/* Progress Section */}
+        <View className="px-6 py-6 bg-[#ffffff]">
+          <View className="flex-row items-center justify-between mb-4">
+            <Text className="text-gray-900 font-semibold text-lg">
+              Progress to Level {level + 1}
+            </Text>
+            <Text className="text-gray-700 text-base font-medium">
+              {Math.round(progress * 100)}%
+            </Text>
+          </View>
 
-      {/* XP Statistics - matching your stats card style - conditionally rendered */}
-      {showXpStats && (
-        <View className="bg-white p-4 rounded-lg shadow mb-4">
+          <View
+            style={{
+              backgroundColor: "#F1F5F9",
+            }}
+            className="h-4 rounded-full overflow-hidden mb-4"
+          >
+            <Animated.View
+              style={{
+                width: progressAnimation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ["0%", "100%"],
+                }),
+              }}
+              className="h-full rounded-full shadow-sm"
+            >
+              <LinearGradient
+                colors={["#3B82F6", "#9333EA"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ flex: 1, borderRadius: 8 }}
+              />
+            </Animated.View>
+          </View>
+
           <View className="flex-row justify-between items-center">
-            <View className="flex-1 items-center">
-              <Image
-                source={treeImages["leaf"]}
-                style={{ width: 20, height: 20, marginBottom: 4 }}
-              />
-              <Text className="text-xs text-gray-600 mb-1">Current XP</Text>
-              <Text className="text-sm font-semibold text-text">
-                {xpIntoLevel.toLocaleString()}
-              </Text>
-            </View>
-
-            <View className="w-px h-12 bg-gray-200" />
-
-            <View className="flex-1 items-center">
-              <Image
-                source={treeImages["orange"]}
-                style={{ width: 20, height: 20, marginBottom: 4 }}
-              />
-              <Text className="text-xs text-gray-600 mb-1">Target XP</Text>
-              <Text className="text-sm font-semibold text-text">
-                {xpNeeded.toLocaleString()}
-              </Text>
-            </View>
-
-            <View className="w-px h-12 bg-gray-200" />
-
-            <View className="flex-1 items-center">
-              <Image
-                source={treeImages["sprout"]}
-                style={{ width: 20, height: 20, marginBottom: 4 }}
-              />
-              <Text className="text-xs text-gray-600 mb-1">Remaining</Text>
-              <Text className="text-sm font-semibold text-text">
-                {(xpNeeded - xpIntoLevel).toLocaleString()}
-              </Text>
-            </View>
-          </View>
-        </View>
-      )}
-
-      {/* Achievement notification - matching your growth log style */}
-      {progress > 0.8 && (
-        <View className="bg-[#f9f9f9] p-3 rounded-lg flex-row items-center">
-          <Image
-            source={treeImages["leaf"]}
-            style={{ width: 20, height: 20, marginRight: 12 }}
-          />
-          <View className="flex-1">
-            <Text className="text-sm font-semibold text-text">
-              🎉 Fast geschafft!
+            <Text className="text-gray-700 text-base">
+              {xpIntoLevel.toLocaleString()} XP earned
             </Text>
-            <Text className="text-xs text-gray-600">
-              Nur noch {(xpNeeded - xpIntoLevel).toLocaleString()} XP bis Level{" "}
-              {level + 1}
+            <Text className="text-gray-700 text-base">
+              {xpNeeded.toLocaleString()} XP needed
             </Text>
           </View>
         </View>
-      )}
-    </View>
+
+        {/* Detailed Stats Section */}
+        {showDetailedStats && (
+          <View
+            style={{
+              borderTopWidth: 1,
+              borderTopColor: "#E2E8F0",
+              backgroundColor: "#F0F9FF",
+            }}
+            className="px-6 py-6"
+          >
+            <Text className="text-gray-900 font-semibold text-lg mb-5">
+              Level Statistics
+            </Text>
+
+            <View className="flex-row justify-between mb-5">
+              {/* Current Level Stats */}
+              <View
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  borderWidth: 1,
+                  borderColor: "#E5E7EB",
+                  width: "48%",
+                }}
+                className="rounded-2xl p-4"
+              >
+                <View className="flex-row items-center mb-3">
+                  <Image
+                    source={treeImages["leaf"]}
+                    style={{ width: 18, height: 18, marginRight: 8 }}
+                  />
+                  <Text className="text-gray-700 text-xs font-medium uppercase tracking-wide">
+                    Current XP
+                  </Text>
+                </View>
+                <Text className="text-gray-900 font-bold text-xl">
+                  {duo.trust_score?.toLocaleString() || 0}
+                </Text>
+                <Text className="text-gray-600 text-sm mt-1">Total earned</Text>
+              </View>
+
+              {/* Base Reward */}
+              <View
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  borderWidth: 1,
+                  borderColor: "#E5E7EB",
+                  width: "48%",
+                }}
+                className="rounded-2xl p-4"
+              >
+                <View className="flex-row items-center mb-3">
+                  <Image
+                    source={treeImages["orange"]}
+                    style={{ width: 18, height: 18, marginRight: 8 }}
+                  />
+                  <Text className="text-gray-700 text-xs font-medium uppercase tracking-wide">
+                    Base Reward
+                  </Text>
+                </View>
+                <Text className="text-gray-900 font-bold text-xl">
+                  {effectiveBaseXpReward.toLocaleString()}
+                </Text>
+                <Text className="text-gray-600 text-sm mt-1">
+                  XP per completion
+                </Text>
+                {decorationMultiplier && decorationMultiplier > 1 && (
+                  <Text className="text-purple-600 text-xs mt-1 font-medium">
+                    🎄 {decorationMultiplier}x multiplier
+                  </Text>
+                )}
+              </View>
+            </View>
+
+            {/* Streak and Bonus Information */}
+            {currentStreak > 0 && (
+              <View
+                style={{
+                  backgroundColor: "#FEF3C7",
+                  borderWidth: 1,
+                  borderColor: "#FDE68A",
+                }}
+                className="rounded-2xl p-4 mb-5"
+              >
+                <View className="flex-row items-center justify-between">
+                  <View>
+                    <View className="flex-row items-center mb-2">
+                      <Text className="text-orange-800 font-semibold text-lg">
+                        🔥 {currentStreak} Day Streak
+                      </Text>
+                    </View>
+                    <Text className="text-orange-700 text-base">
+                      Bonus XP: +
+                      {Math.round(
+                        ((effectivePotentialXpWithBonus -
+                          effectiveBaseXpReward) /
+                          effectiveBaseXpReward) *
+                          100
+                      )}
+                      %
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      backgroundColor: "#FED7AA",
+                      borderWidth: 1,
+                      borderColor: "#FDBA74",
+                    }}
+                    className="rounded-xl px-4 py-2"
+                  >
+                    <Text className="text-orange-800 font-bold text-base">
+                      {effectivePotentialXpWithBonus.toLocaleString()} XP
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {decorationMultiplier && decorationMultiplier > 1 && (
+              <View
+                style={{
+                  backgroundColor: "#F3E8FF",
+                  borderWidth: 1,
+                  borderColor: "#E9D5FF",
+                }}
+                className="rounded-2xl p-4 mb-5"
+              >
+                <View className="flex-row items-center justify-between">
+                  <View>
+                    <View className="flex-row items-center mb-2">
+                      <Text className="text-purple-800 font-semibold text-lg">
+                        🎄 Tree Decorations
+                      </Text>
+                    </View>
+                    <Text className="text-purple-700 text-base">
+                      XP Multiplier: {decorationMultiplier}x
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      backgroundColor: "#DDD6FE",
+                      borderWidth: 1,
+                      borderColor: "#C4B5FD",
+                    }}
+                    className="rounded-xl px-4 py-2"
+                  >
+                    <Text className="text-purple-800 font-bold text-base">
+                      +{Math.round((decorationMultiplier - 1) * 100)}% XP
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* Completion Estimate */}
+            <View
+              style={{
+                backgroundColor: "#EFF6FF",
+                borderWidth: 1,
+                borderColor: "#DBEAFE",
+              }}
+              className="rounded-2xl p-4"
+            >
+              <View className="flex-row items-center justify-between">
+                <View>
+                  <Text className="text-blue-900 font-semibold text-base mb-2 max-w-[78%]">
+                    Estimated Completions to Next Level
+                  </Text>
+                  <Text className="text-blue-700 text-sm">
+                    Based on current reward rate
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    backgroundColor: "#DBEAFE",
+                    borderWidth: 1,
+                    borderColor: "#BFDBFE",
+                  }}
+                  className="rounded-xl px-5 py-3"
+                >
+                  <Text className="text-blue-900 font-bold text-xl">
+                    {estimatedCompletionsNeeded}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Achievement Notification */}
+        {progress > 0.9 && (
+          <View
+            style={{
+              backgroundColor: "#ECFDF5",
+              borderTopWidth: 1,
+              borderTopColor: "#D1FAE5",
+            }}
+            className="px-6 py-4"
+          >
+            <View className="flex-row items-center">
+              <View
+                style={{
+                  backgroundColor: "#D1FAE5",
+                  borderWidth: 1,
+                  borderColor: "#A7F3D0",
+                }}
+                className="w-12 h-12 rounded-xl items-center justify-center mr-4"
+              >
+                <Text className="text-green-700 text-xl">🎉</Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-green-900 font-semibold text-base">
+                  Almost there! Level {level + 1} is within reach
+                </Text>
+                <Text className="text-green-700 text-sm">
+                  Just {(xpNeeded - xpIntoLevel).toLocaleString()} more XP to
+                  go!
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+      </BlurView>
+    </Animated.View>
   );
 };
 
