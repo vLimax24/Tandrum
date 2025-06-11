@@ -10,10 +10,11 @@ import { useUser, useAuth } from "@clerk/clerk-expo";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { useRouter } from "expo-router";
-import { useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { avatarOptions } from "@/utils/avatarImages";
 
 const Profile = () => {
   const { user, isLoaded } = useUser();
@@ -158,22 +159,24 @@ const Profile = () => {
           </TouchableOpacity>
 
           {/* Profile Header */}
-          <View className="items-center">
-            <View className="relative mb-6">
+          <View className="items-center mb-8">
+            <View className="w-24 h-24 rounded-full border-4 border-white mb-4 overflow-hidden">
               <Image
-                source={{ uri: user.imageUrl }}
-                className="w-28 h-28 rounded-full border-4 border-white shadow-lg"
+                source={
+                  convexUser?.avatar
+                    ? avatarOptions.find((a) => a.key === convexUser.avatar)
+                        ?.source || avatarOptions[0].source
+                    : avatarOptions[0].source
+                }
+                className="w-full h-full"
+                resizeMode="cover"
               />
-              <View className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-2 border-white justify-center items-center">
-                <View className="w-3 h-3 bg-white rounded-full" />
-              </View>
             </View>
-
-            <Text className="text-[#303030] text-2xl font-bold mb-1">
-              {convexUser.name}
+            <Text className="text-2xl font-bold text-black mb-1">
+              {convexUser?.name || "Loading..."}
             </Text>
-            <Text className="text-[#303030] text-base mb-4">
-              {user.primaryEmailAddress?.emailAddress}
+            <Text className="text-black text-base">
+              {user?.primaryEmailAddress?.emailAddress}
             </Text>
           </View>
         </View>
