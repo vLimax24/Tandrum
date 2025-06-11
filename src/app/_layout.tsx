@@ -120,7 +120,7 @@ const InitialLayout = () => {
     // If tutorial is finished but user is not signed in
     if (hasCompletedTutorial && !isSignedIn) {
       if (!inPublicGroup) {
-        router.replace("/(public)/");
+        router.replace("/(auth)/(tutorial)/");
       }
       return;
     }
