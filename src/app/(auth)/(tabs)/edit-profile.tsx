@@ -20,69 +20,13 @@ import { api } from "convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
 import { useMutation, useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
+import { avatarOptions } from "@/utils/avatarImages";
 
 const { width } = Dimensions.get("window");
 const avatarSize = (width - 80) / 3 - 12;
 
-// Avatar options - same as onboarding
-const avatarOptions = [
-  {
-    id: 1,
-    source: require("@/assets/orange.png"),
-    name: "Orange",
-    key: "avatar_1",
-  },
-  {
-    id: 2,
-    source: require("@/assets/orange.png"),
-    name: "Blue",
-    key: "avatar_2",
-  },
-  {
-    id: 3,
-    source: require("@/assets/orange.png"),
-    name: "Green",
-    key: "avatar_3",
-  },
-  {
-    id: 4,
-    source: require("@/assets/orange.png"),
-    name: "Purple",
-    key: "avatar_4",
-  },
-  {
-    id: 5,
-    source: require("@/assets/orange.png"),
-    name: "Red",
-    key: "avatar_5",
-  },
-  {
-    id: 6,
-    source: require("@/assets/orange.png"),
-    name: "Yellow",
-    key: "avatar_6",
-  },
-  {
-    id: 7,
-    source: require("@/assets/orange.png"),
-    name: "Pink",
-    key: "avatar_7",
-  },
-  {
-    id: 8,
-    source: require("@/assets/orange.png"),
-    name: "Teal",
-    key: "avatar_8",
-  },
-  {
-    id: 9,
-    source: require("@/assets/orange.png"),
-    name: "Indigo",
-    key: "avatar_9",
-  },
-];
-
 export default function EditProfileScreen() {
+  // Updated state and tracking for changes
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
@@ -90,6 +34,11 @@ export default function EditProfileScreen() {
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [usernameError, setUsernameError] = useState("");
   const [isUsernameValid, setIsUsernameValid] = useState(true);
+
+  // Track original values to detect changes
+  const [originalUsername, setOriginalUsername] = useState("");
+  const [originalBio, setOriginalBio] = useState("");
+  const [originalAvatar, setOriginalAvatar] = useState<number | null>(null);
 
   const router = useRouter();
   const { user } = useUser();
@@ -129,8 +78,13 @@ export default function EditProfileScreen() {
   // Initialize form with current user data
   useEffect(() => {
     if (convexUser) {
-      setUsername(convexUser.name || "");
-      setBio(convexUser.bio || "");
+      const currentUsername = convexUser.name || "";
+      const currentBio = convexUser.bio || "";
+
+      setUsername(currentUsername);
+      setBio(currentBio);
+      setOriginalUsername(currentUsername);
+      setOriginalBio(currentBio);
 
       // Find current avatar
       const currentAvatarKey = convexUser.avatar;
@@ -139,6 +93,7 @@ export default function EditProfileScreen() {
       );
       if (currentAvatar) {
         setSelectedAvatar(currentAvatar.id);
+        setOriginalAvatar(currentAvatar.id);
       }
     }
   }, [convexUser]);
@@ -182,6 +137,11 @@ export default function EditProfileScreen() {
     }
   }, [username, checkUsername]);
 
+  const hasChanges =
+    username.trim() !== originalUsername ||
+    bio !== originalBio ||
+    selectedAvatar !== originalAvatar;
+
   const handleAvatarSelect = (avatarId: number) => {
     setSelectedAvatar(avatarId);
 
@@ -197,7 +157,7 @@ export default function EditProfileScreen() {
   };
 
   const handleSave = async () => {
-    if (!user || !isUsernameValid || !username.trim()) return;
+    if (!user || !isUsernameValid || !username.trim() || !hasChanges) return;
 
     setIsLoading(true);
     try {
@@ -209,6 +169,7 @@ export default function EditProfileScreen() {
         clerkId: user.id,
         name: username.trim(),
         profileImage: selectedAvatarKey,
+        bio: bio.trim(), // Add bio to the update
       });
 
       Alert.alert("Success", "Your profile has been updated successfully!", [
@@ -225,7 +186,8 @@ export default function EditProfileScreen() {
     }
   };
 
-  const canSave = username.trim().length >= 3 && isUsernameValid && !isLoading;
+  const canSave =
+    username.trim().length >= 3 && isUsernameValid && !isLoading && hasChanges;
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">

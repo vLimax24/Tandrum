@@ -526,9 +526,7 @@ export default function SettingsScreen() {
         {/* App Version */}
         <View className="items-center pb-8">
           <Text className="text-gray-400 text-sm">Version 1.0.0</Text>
-          <Text className="text-gray-400 text-xs mt-1">
-            © 2024 HabitBuilder
-          </Text>
+          <Text className="text-gray-400 text-xs mt-1">© 2024 Tandrum</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
