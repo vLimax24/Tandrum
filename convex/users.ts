@@ -105,6 +105,7 @@ export const updateUserInfo = mutation({
     clerkId: v.string(),
     name: v.string(),
     profileImage: v.string(),
+    bio: v.optional(v.string()), // Add bio parameter
   },
   handler: async (ctx, args) => {
     // Check if user already exists
@@ -118,6 +119,7 @@ export const updateUserInfo = mutation({
       await ctx.db.patch(existingUser._id, {
         name: args.name,
         avatar: args.profileImage,
+        bio: args.bio, // Update bio field
       });
       return existingUser._id;
     } else {
@@ -127,6 +129,7 @@ export const updateUserInfo = mutation({
         clerkId: args.clerkId,
         avatar: args.profileImage,
         name: args.name,
+        bio: args.bio, // Include bio in new user creation
         joined_at: Date.now(),
         timezone: "Europe/Berlin",
         language: "de",
