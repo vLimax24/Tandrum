@@ -270,7 +270,7 @@ export default function TreeSection() {
         </View>
 
         {/* Growth Log - Add z-index */}
-        <View className={`mb-20`} style={{ zIndex: 1 }}>
+        <View className={`mb-20 mt-10`} style={{ zIndex: 1 }}>
           <View className="mb-6">
             <Text className="text-2xl font-bold text-gray-900 mb-1">
               Growth Activity
