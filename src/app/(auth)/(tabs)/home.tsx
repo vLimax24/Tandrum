@@ -440,7 +440,11 @@ const Page = () => {
                       {/* Content */}
                       <View className="px-6 py-5 bg-white/80">
                         {/* Level Progress */}
-                        <LevelDisplay duo={conn} showXpStats={false} />
+                        <LevelDisplay
+                          duo={conn}
+                          showDetailedStats={false}
+                          compact={true}
+                        />
                         {/* Stats Grid */}
                         <View className="flex-row justify-between">
                           <View className="flex-1 items-center py-3 px-2 min-h-[80px] justify-center">
