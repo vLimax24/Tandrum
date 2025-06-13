@@ -19,19 +19,7 @@ import {
   BottomSheetFlatList,
 } from "@gorhom/bottom-sheet";
 import { getRarityColors } from "@/utils/rarities";
-
-const treeImages: Record<string, any> = {
-  leaf: require("@/assets/hemp-leaf.png"),
-  orange: require("@/assets/orange.png"),
-  silverLeaf: require("@/assets/hemp-leaf.png"), // Using same image for now
-  goldenLeaf: require("@/assets/golden-leaf.png"),
-  apple: require("@/assets/orange.png"), // Using orange image as placeholder
-  cherry: require("@/assets/orange.png"), // Using orange image as placeholder
-  // Add mapping by filename as well
-  "hemp-leaf.png": require("@/assets/hemp-leaf.png"),
-  "orange.png": require("@/assets/orange.png"),
-  "golden-leaf.png": require("@/assets/golden-leaf.png"),
-};
+import { treeImages } from "@/utils/treeImages";
 
 interface TreeInventoryProps {
   treeData: {
@@ -184,12 +172,12 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
 
     if (treeData.stage === "tree-4") {
       return [
-        { x: baseX + 50, y: baseY + 180, id: "slot1" },
-        { x: baseX + 90, y: baseY + 220, id: "slot2" },
-        { x: baseX + 90, y: baseY + 185, id: "slot3" },
-        { x: baseX + 50, y: baseY + 250, id: "slot4" },
-        { x: baseX + 80, y: baseY + 250, id: "slot5" },
-        { x: baseX + 70, y: baseY + 300, id: "slot6" },
+        { x: baseX + 20, y: baseY + 180, id: "slot1" },
+        { x: baseX + 170, y: baseY + 220, id: "slot2" },
+        { x: baseX + 110, y: baseY + 185, id: "slot3" },
+        { x: baseX - 40, y: baseY + 250, id: "slot4" },
+        { x: baseX + 200, y: baseY + 300, id: "slot5" },
+        { x: baseX - 50, y: baseY + 320, id: "slot6" },
       ];
     }
 
@@ -346,14 +334,14 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
               }}
             >
               <View
-                className="w-8 h-8 rounded-full bg-[rgba(255,255,255,0.9)] border-2 justify-center items-center shadow-lg"
+                className="w-16 h-16 rounded-full bg-[rgba(255,255,255,0.9)] border-2 justify-center items-center shadow-lg"
                 style={{
                   borderColor: item.color,
                 }}
               >
                 <Image
                   source={getImageSource(decoration.itemId)}
-                  className="w-8 h-8"
+                  className="w-12 h-12"
                 />
               </View>
             </TouchableOpacity>
@@ -772,7 +760,6 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             ? itemsById[selectedDecoration.decoration.itemId]
             : null
         }
-        treeImages={treeImages}
         slotIndex={selectedDecoration?.index || 0}
       />
     </>
