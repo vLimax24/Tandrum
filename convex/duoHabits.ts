@@ -237,7 +237,7 @@ async function calculateHabitRewards(ctx: any, habit: any, userIsA: boolean) {
         .first();
 
       if (treeItem && treeItem.buffs && treeItem.buffs.xpMultiplier) {
-        totalXPMultiplier += treeItem.buffs.xpMultiplier - 1;
+        totalXPMultiplier += treeItem.buffs.xpMultiplier;
       }
     }
 
@@ -377,15 +377,11 @@ async function updateDuoStreak(
   const yesterday = new Date(now - oneDayMs);
   const yesterdayDateString = yesterday.toISOString().split("T")[0];
 
-  // Check if both users completed at least one habit today
-  let bothCompletedAtLeastOneToday = false;
-  let bothCompletedAtLeastOneYesterday = false;
-
-  // Check if both users have completed at least one habit today
-  const userACompletedHabitsToday = new Set<string>();
-  const userBCompletedHabitsToday = new Set<string>();
-  const userACompletedHabitsYesterday = new Set<string>();
-  const userBCompletedHabitsYesterday = new Set<string>();
+  // Check if both users completed at least one habit today and yesterday
+  let userACompletedToday = false;
+  let userBCompletedToday = false;
+  let userACompletedYesterday = false;
+  let userBCompletedYesterday = false;
 
   for (const habit of habits) {
     const lastA = habit.last_checkin_at_userA ?? 0;
@@ -399,8 +395,8 @@ async function updateDuoStreak(
       lastB > 0 &&
       new Date(lastB).toISOString().split("T")[0] === todayDateString;
 
-    if (aCompletedToday) userACompletedHabitsToday.add(habit._id);
-    if (bCompletedToday) userBCompletedHabitsToday.add(habit._id);
+    if (aCompletedToday) userACompletedToday = true;
+    if (bCompletedToday) userBCompletedToday = true;
 
     // Check yesterday's completions
     const aCompletedYesterday =
@@ -410,16 +406,14 @@ async function updateDuoStreak(
       lastB > 0 &&
       new Date(lastB).toISOString().split("T")[0] === yesterdayDateString;
 
-    if (aCompletedYesterday) userACompletedHabitsYesterday.add(habit._id);
-    if (bCompletedYesterday) userBCompletedHabitsYesterday.add(habit._id);
+    if (aCompletedYesterday) userACompletedYesterday = true;
+    if (bCompletedYesterday) userBCompletedYesterday = true;
   }
 
-  // Check if both users completed at least one habit today and yesterday
-  bothCompletedAtLeastOneToday =
-    userACompletedHabitsToday.size > 0 && userBCompletedHabitsToday.size > 0;
-  bothCompletedAtLeastOneYesterday =
-    userACompletedHabitsYesterday.size > 0 &&
-    userBCompletedHabitsYesterday.size > 0;
+  // Both users completed at least one habit today and yesterday
+  const bothCompletedToday = userACompletedToday && userBCompletedToday;
+  const bothCompletedYesterday =
+    userACompletedYesterday && userBCompletedYesterday;
 
   // Calculate new streak value
   let newStreak = duo.streak || 0;
@@ -430,12 +424,12 @@ async function updateDuoStreak(
   const currentStreakDateString = currentStreakDate.toISOString().split("T")[0];
   const alreadyIncrementedToday = currentStreakDateString === todayDateString;
 
-  if (bothCompletedAtLeastOneToday && !alreadyIncrementedToday) {
+  if (bothCompletedToday && !alreadyIncrementedToday) {
     if (newStreak === 0) {
       // Starting a new streak
       newStreak = 1;
       newStreakDate = now;
-    } else if (bothCompletedAtLeastOneYesterday) {
+    } else if (bothCompletedYesterday) {
       // Continue existing streak - only increment once per day
       newStreak += 1;
       newStreakDate = now;
@@ -444,7 +438,7 @@ async function updateDuoStreak(
       newStreak = 1;
       newStreakDate = now;
     }
-  } else if (!bothCompletedAtLeastOneToday) {
+  } else if (!bothCompletedToday) {
     // Check if streak should be broken
     const daysSinceLastStreak = Math.floor(
       (now - (duo.streakDate || 0)) / oneDayMs
