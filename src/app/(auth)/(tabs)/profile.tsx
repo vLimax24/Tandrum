@@ -155,7 +155,7 @@ const Profile = () => {
             onPress={handleSettings}
             className="absolute top-16 right-6 w-10 h-10 bg-white bg-opacity-20 rounded-full justify-center items-center border border-white border-opacity-30"
           >
-            <Text className="text-white text-lg">⚙️</Text>
+            <Text className="text-white text-lg font-mainRegular">⚙️</Text>
           </TouchableOpacity>
 
           {/* Profile Header */}
@@ -172,10 +172,10 @@ const Profile = () => {
                 resizeMode="cover"
               />
             </View>
-            <Text className="text-2xl font-bold text-black mb-1">
+            <Text className="text-2xl font-bold text-black mb-1 font-mainRegular">
               {convexUser?.name || "Loading..."}
             </Text>
-            <Text className="text-black text-base">
+            <Text className="text-black text-base font-mainRegular">
               {user?.primaryEmailAddress?.emailAddress}
             </Text>
           </View>
@@ -188,24 +188,28 @@ const Profile = () => {
             <View className="bg-blue-50 px-6 py-4 border-b border-blue-100">
               <View className="flex-row items-center">
                 <View className="w-8 h-8 bg-blue-500 rounded-full justify-center items-center mr-3">
-                  <Text className="text-white text-sm font-bold">👤</Text>
+                  <Text className="text-white text-sm font-bold font-mainRegular">
+                    👤
+                  </Text>
                 </View>
-                <Text className="text-blue-800 text-lg font-bold flex-1">
+                <Text className="text-blue-800 text-lg font-bold flex-1 font-mainRegular">
                   Account Information
                 </Text>
                 <View className="bg-blue-500 px-2 py-1 rounded-lg">
-                  <Text className="text-white text-xs font-bold">VERIFIED</Text>
+                  <Text className="text-white text-xs font-bold font-mainRegular">
+                    VERIFIED
+                  </Text>
                 </View>
               </View>
             </View>
 
             <View className="p-6 space-y-4">
               <View className="flex-row justify-between items-center py-2">
-                <Text className="text-gray-600 text-sm font-medium">
+                <Text className="text-gray-600 text-sm font-medium font-mainRegular">
                   Member Since
                 </Text>
                 <View className="items-end">
-                  <Text className="text-gray-900 text-base font-semibold">
+                  <Text className="text-gray-900 text-base font-semibold font-mainRegular">
                     {new Date(convexUser.joined_at).toLocaleDateString(
                       "en-US",
                       {
@@ -215,7 +219,7 @@ const Profile = () => {
                       }
                     )}
                   </Text>
-                  <Text className="text-gray-500 text-xs">
+                  <Text className="text-gray-500 text-xs font-mainRegular">
                     {formatJoinDate(convexUser.joined_at.toString())}
                   </Text>
                 </View>
@@ -224,12 +228,12 @@ const Profile = () => {
               <View className="h-px bg-gray-100" />
 
               <View className="flex-row justify-between items-center py-2">
-                <Text className="text-gray-600 text-sm font-medium">
+                <Text className="text-gray-600 text-sm font-medium font-mainRegular">
                   Account Status
                 </Text>
                 <View className="flex-row items-center">
                   <View className="w-2 h-2 bg-green-500 rounded-full mr-2" />
-                  <Text className="text-green-600 text-sm font-semibold">
+                  <Text className="text-green-600 text-sm font-semibold font-mainRegular">
                     Active
                   </Text>
                 </View>
@@ -242,9 +246,11 @@ const Profile = () => {
             <View className="bg-purple-50 px-6 py-4 border-b border-purple-100">
               <View className="flex-row items-center">
                 <View className="w-8 h-8 bg-purple-500 rounded-full justify-center items-center mr-3">
-                  <Text className="text-white text-sm font-bold">⚙️</Text>
+                  <Text className="text-white text-sm font-bold font-mainRegular">
+                    ⚙️
+                  </Text>
                 </View>
-                <Text className="text-purple-800 text-lg font-bold">
+                <Text className="text-purple-800 text-lg font-bold font-mainRegular">
                   Preferences
                 </Text>
               </View>
@@ -252,10 +258,10 @@ const Profile = () => {
 
             <View className="p-6 space-y-4">
               <View className="flex-row justify-between items-center py-2">
-                <Text className="text-gray-600 text-sm font-medium">
+                <Text className="text-gray-600 text-sm font-medium font-mainRegular">
                   Timezone
                 </Text>
-                <Text className="text-gray-900 text-base font-semibold">
+                <Text className="text-gray-900 text-base font-semibold font-mainRegular">
                   {convexUser.timezone}
                 </Text>
               </View>
@@ -263,10 +269,10 @@ const Profile = () => {
               <View className="h-px bg-gray-100" />
 
               <View className="flex-row justify-between items-center py-2">
-                <Text className="text-gray-600 text-sm font-medium">
+                <Text className="text-gray-600 text-sm font-medium font-mainRegular">
                   Language
                 </Text>
-                <Text className="text-gray-900 text-base font-semibold">
+                <Text className="text-gray-900 text-base font-semibold font-mainRegular">
                   {convexUser.language}
                 </Text>
               </View>
@@ -279,16 +285,18 @@ const Profile = () => {
               <View className="bg-green-50 px-6 py-4 border-b border-green-100">
                 <View className="flex-row items-center">
                   <View className="w-8 h-8 bg-green-500 rounded-full justify-center items-center mr-3">
-                    <Text className="text-white text-sm font-bold">📝</Text>
+                    <Text className="text-white text-sm font-bold font-mainRegular">
+                      📝
+                    </Text>
                   </View>
-                  <Text className="text-green-800 text-lg font-bold">
+                  <Text className="text-green-800 text-lg font-bold font-mainRegular">
                     About Me
                   </Text>
                 </View>
               </View>
 
               <View className="p-6">
-                <Text className="text-gray-700 text-base leading-relaxed">
+                <Text className="text-gray-700 text-base leading-relaxed font-mainRegular">
                   {convexUser.bio}
                 </Text>
               </View>
@@ -300,9 +308,11 @@ const Profile = () => {
             <View className="bg-orange-50 px-6 py-4 border-b border-orange-100">
               <View className="flex-row items-center">
                 <View className="w-8 h-8 bg-orange-500 rounded-full justify-center items-center mr-3">
-                  <Text className="text-white text-sm font-bold">⚡</Text>
+                  <Text className="text-white text-sm font-bold font-mainRegular">
+                    ⚡
+                  </Text>
                 </View>
-                <Text className="text-orange-800 text-lg font-bold">
+                <Text className="text-orange-800 text-lg font-bold font-mainRegular">
                   Quick Actions
                 </Text>
               </View>
@@ -314,10 +324,10 @@ const Profile = () => {
                   onPress={handleEditProfile}
                   className="flex-1 bg-blue-50 border border-blue-200 rounded-2xl py-4 px-4 items-center"
                 >
-                  <Text className="text-blue-600 text-base font-semibold mb-1">
+                  <Text className="text-blue-600 text-base font-semibold mb-1 font-mainRegular">
                     Edit Profile
                   </Text>
-                  <Text className="text-blue-500 text-xs text-center">
+                  <Text className="text-blue-500 text-xs text-center font-mainRegular">
                     Update your information
                   </Text>
                 </TouchableOpacity>
@@ -326,10 +336,10 @@ const Profile = () => {
                   onPress={handleSettings}
                   className="flex-1 bg-purple-50 border border-purple-200 rounded-2xl py-4 px-4 items-center"
                 >
-                  <Text className="text-purple-600 text-base font-semibold mb-1">
+                  <Text className="text-purple-600 text-base font-semibold mb-1 font-mainRegular">
                     Settings
                   </Text>
-                  <Text className="text-purple-500 text-xs text-center">
+                  <Text className="text-purple-500 text-xs text-center font-mainRegular">
                     Manage preferences
                   </Text>
                 </TouchableOpacity>
@@ -351,12 +361,12 @@ const Profile = () => {
                   elevation: 4,
                 }}
               >
-                <Text className="text-white text-base font-semibold mr-2">
+                <Text className="text-white text-base font-semibold mr-2 font-mainRegular">
                   Sign Out
                 </Text>
               </TouchableOpacity>
 
-              <Text className="text-gray-500 text-xs text-center mt-3">
+              <Text className="text-gray-500 text-xs text-center mt-3 font-mainRegular">
                 You can always sign back in with your credentials
               </Text>
             </View>

@@ -108,7 +108,7 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
             }}
           >
             <Text
-              className="text-xs font-bold"
+              className="text-xs font-bold font-mainRegular"
               style={{
                 color: isStreakDay
                   ? "white"
@@ -126,7 +126,7 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
               />
             )}
           </View>
-          <Text className="text-[#6b7280] text-xs mt-1 font-medium">
+          <Text className="text-[#6b7280] text-xs mt-1 font-medium font-mainRegular">
             {dayLabels[i]}
           </Text>
         </View>
@@ -202,12 +202,12 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
                     className="w-3 h-3 rounded-full mr-3"
                     style={{ backgroundColor: streakColors.primary }}
                   />
-                  <Text className="text-[#111827] font-bold text-2xl tracking-tight">
+                  <Text className="text-[#111827] font-bold text-2xl tracking-tight font-mainRegular">
                     Current Streak
                   </Text>
                 </View>
                 <Text
-                  className="text-[#6b7280] text-base font-medium"
+                  className="text-[#6b7280] text-base font-medium font-mainRegular"
                   style={{ lineHeight: 20 }}
                 >
                   {duo.streak || 0} consecutive days of shared success
@@ -229,7 +229,7 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
                       }}
                     >
                       <Text
-                        className="text-xs font-bold uppercase tracking-wider"
+                        className="text-xs font-bold uppercase tracking-wider font-mainRegular"
                         style={{ color: streakColors.primary }}
                         numberOfLines={1}
                         ellipsizeMode="tail"
@@ -282,10 +282,10 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
                     borderColor: "rgba(255, 255, 255, 0.3)",
                   }}
                 >
-                  <Text className="text-white font-black text-3xl tracking-tight">
+                  <Text className="text-white font-black text-3xl tracking-tight font-mainRegular">
                     {duo.streak || 0}
                   </Text>
-                  <Text className="text-white text-xs font-semibold opacity-90 mt-1">
+                  <Text className="text-white text-xs font-semibold opacity-90 mt-1 font-mainRegular">
                     DAYS
                   </Text>
                 </LinearGradient>
@@ -295,7 +295,7 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
             {/* Progress indicators */}
             <View className="relative z-10">
               <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-[#374151] font-semibold text-sm flex-1">
+                <Text className="text-[#374151] font-semibold text-sm flex-1 font-mainRegular">
                   This Week's Journey
                 </Text>
                 <View className="flex-row items-center ml-2">
@@ -304,7 +304,7 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
                     style={{ backgroundColor: streakColors.primary }}
                   />
                   <Text
-                    className="text-xs font-medium"
+                    className="text-xs font-medium font-mainRegular"
                     style={{ color: streakColors.primary }}
                   >
                     Active Days
@@ -356,11 +356,11 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
                       borderColor: "rgba(255, 255, 255, 0.3)",
                     }}
                   >
-                    <Text className="text-[#6b7280] text-xs font-medium mr-2">
+                    <Text className="text-[#6b7280] text-xs font-medium mr-2 font-mainRegular">
                       Next milestone:
                     </Text>
                     <Text
-                      className="text-xs font-bold"
+                      className="text-xs font-bold font-mainRegular"
                       style={{ color: streakColors.primary }}
                     >
                       {(duo.streak || 0) < 7
@@ -369,7 +369,7 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
                           ? "14 days"
                           : "30 days"}
                     </Text>
-                    <Text className="text-[#6b7280] text-xs font-medium ml-1">
+                    <Text className="text-[#6b7280] text-xs font-medium ml-1 font-mainRegular">
                       (
                       {((duo.streak || 0) < 7
                         ? 7

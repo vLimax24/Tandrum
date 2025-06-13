@@ -88,6 +88,7 @@ export const NoDuoScreen: React.FC<NoDuoScreenProps> = ({
             textAlign: "center",
             marginBottom: 16,
           }}
+          className=" font-mainRegular"
         >
           Start Your Journey
         </Text>
@@ -102,6 +103,7 @@ export const NoDuoScreen: React.FC<NoDuoScreenProps> = ({
             marginBottom: 48,
             paddingHorizontal: 16,
           }}
+          className=" font-mainRegular"
         >
           Create your first duo partnership to begin building habits together
           and watch your shared tree grow! 🌱
@@ -152,6 +154,7 @@ export const NoDuoScreen: React.FC<NoDuoScreenProps> = ({
                   fontSize: 16,
                   fontWeight: "bold",
                 }}
+                className=" font-mainRegular"
               >
                 +
               </Text>
@@ -162,6 +165,7 @@ export const NoDuoScreen: React.FC<NoDuoScreenProps> = ({
                 fontSize: 18,
                 fontWeight: "bold",
               }}
+              className=" font-mainRegular"
             >
               Start First Partnership
             </Text>

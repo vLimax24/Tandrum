@@ -108,7 +108,9 @@ export default function AvatarScreen() {
         >
           <Ionicons name="arrow-back" size={20} color="#374151" />
         </TouchableOpacity>
-        <Text className="text-sm text-gray-500 font-medium">Step 2 of 2</Text>
+        <Text className="text-sm text-gray-500 font-medium font-mainRegular">
+          Step 2 of 2
+        </Text>
       </View>
 
       {/* Progress Bar */}
@@ -127,10 +129,10 @@ export default function AvatarScreen() {
       >
         {/* Title Section */}
         <View className="mb-8">
-          <Text className="text-3xl font-bold text-gray-900 mb-3">
+          <Text className="text-3xl font-bold text-gray-900 mb-3 font-mainRegular">
             Pick Your Avatar
           </Text>
-          <Text className="text-lg text-gray-600 leading-6">
+          <Text className="text-lg text-gray-600 leading-6 font-mainRegular">
             Choose an avatar that represents you. This will be visible to your
             learning partners.
           </Text>
@@ -148,7 +150,7 @@ export default function AvatarScreen() {
                 resizeMode="cover"
               />
             </View>
-            <Text className="text-lg font-semibold text-gray-800">
+            <Text className="text-lg font-semibold text-gray-800 font-mainRegular">
               {avatarOptions.find((a) => a.id === selectedAvatar)?.name} Avatar
             </Text>
           </View>
@@ -217,7 +219,7 @@ export default function AvatarScreen() {
                 </TouchableOpacity>
 
                 {/* Avatar Name */}
-                <Text className="text-center text-sm text-gray-600 mt-2">
+                <Text className="text-center text-sm text-gray-600 mt-2 font-mainRegular">
                   {avatar.name}
                 </Text>
               </Animated.View>
@@ -245,7 +247,10 @@ export default function AvatarScreen() {
             disabled={!selectedAvatar || isLoading}
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={{ fontWeight: "600", fontSize: 18, color: "white" }}>
+              <Text
+                style={{ fontWeight: "600", fontSize: 18, color: "white" }}
+                className="font-mainRegular"
+              >
                 {isLoading ? "Setting up..." : "Complete Setup"}
               </Text>
               {!isLoading && selectedAvatar && (

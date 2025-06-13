@@ -187,6 +187,7 @@ const TabBarLabel = ({
         marginTop: 2,
         textAlign: "center",
       }}
+      className="font-mainRegular"
     >
       {children}
     </Text>

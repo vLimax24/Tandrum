@@ -99,10 +99,10 @@ const HabitActionBottomSheet = forwardRef<
 
         {/* Header */}
         <View className="items-center mb-8 mt-4">
-          <Text className="text-2xl font-bold text-gray-900 text-center mb-2">
+          <Text className="text-2xl font-bold text-gray-900 text-center mb-2 font-mainRegular">
             Habit Actions
           </Text>
-          <Text className="text-base text-gray-600 text-center">
+          <Text className="text-base text-gray-600 text-center font-mainRegular">
             Choose what you'd like to do with this habit
           </Text>
         </View>
@@ -138,10 +138,10 @@ const HabitActionBottomSheet = forwardRef<
                     <Ionicons name="create-outline" size={22} color="white" />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-white font-bold text-lg">
+                    <Text className="text-white font-bold text-lg font-mainRegular">
                       Edit Habit
                     </Text>
-                    <Text className="text-white/80 text-sm">
+                    <Text className="text-white/80 text-sm font-mainRegular">
                       Modify your habit details
                     </Text>
                   </View>
@@ -180,10 +180,10 @@ const HabitActionBottomSheet = forwardRef<
                     <Ionicons name="trash-outline" size={22} color="white" />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-white font-bold text-lg">
+                    <Text className="text-white font-bold text-lg font-mainRegular">
                       Delete Habit
                     </Text>
-                    <Text className="text-white/80 text-sm">
+                    <Text className="text-white/80 text-sm font-mainRegular">
                       Remove this habit permanently
                     </Text>
                   </View>

@@ -36,9 +36,11 @@ export const HabitsGrid: React.FC<HabitsGridProps> = ({
     return (
       <View className="bg-[#f8fafc] border border-[#e5e7eb] rounded-2xl p-8 text-center">
         <View className="w-16 h-16 bg-[#f3f4f6] rounded-full items-center justify-center mx-auto mb-4">
-          <Text className="text-[#9ca3af] text-2xl">{emptyStateIcon}</Text>
+          <Text className="text-[#9ca3af] text-2xl font-mainRegular">
+            {emptyStateIcon}
+          </Text>
         </View>
-        <Text className="text-[#6b7280] text-center text-base">
+        <Text className="text-[#6b7280] text-center text-base font-mainRegular">
           {emptyStateMessage}
         </Text>
       </View>

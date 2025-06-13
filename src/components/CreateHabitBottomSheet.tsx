@@ -244,10 +244,10 @@ const CreateHabitBottomSheet = React.forwardRef<
                     <Ionicons name="add-circle" size={24} color="white" />
                   </View>
                   <View>
-                    <Text className="text-white text-2xl font-bold">
+                    <Text className="text-white text-2xl font-bold font-mainRegular">
                       Create New Habit
                     </Text>
-                    <Text className="text-white/80 text-sm">
+                    <Text className="text-white/80 text-sm font-mainRegular">
                       Build lasting habits together
                     </Text>
                   </View>
@@ -272,7 +272,7 @@ const CreateHabitBottomSheet = React.forwardRef<
             <View className="flex-1 px-6 py-6">
               {/* Title Input */}
               <View className="mb-6">
-                <Text className="text-gray-900 font-semibold text-lg mb-3">
+                <Text className="text-gray-900 font-semibold text-lg mb-3 font-mainRegular">
                   Habit Title
                 </Text>
                 <View
@@ -335,7 +335,7 @@ const CreateHabitBottomSheet = React.forwardRef<
                 {validationError ? (
                   <View className="flex-row items-center mt-3">
                     <Ionicons name="warning" size={16} color="#ef4444" />
-                    <Text className="text-red-500 text-sm font-medium ml-2">
+                    <Text className="text-red-500 text-sm font-medium ml-2 font-mainRegular">
                       {validationError}
                     </Text>
                   </View>
@@ -348,12 +348,12 @@ const CreateHabitBottomSheet = React.forwardRef<
                       size={16}
                       color="#10b981"
                     />
-                    <Text className="text-green-600 text-sm font-medium ml-2">
+                    <Text className="text-green-600 text-sm font-medium ml-2 font-mainRegular">
                       Looks good! ({newTitle.length}/50 characters)
                     </Text>
                   </View>
                 ) : (
-                  <Text className="text-gray-500 text-sm mt-2">
+                  <Text className="text-gray-500 text-sm mt-2 font-mainRegular">
                     {newTitle.length}/50 characters
                   </Text>
                 )}
@@ -361,7 +361,7 @@ const CreateHabitBottomSheet = React.forwardRef<
 
               {/* Frequency Selector */}
               <View className="mb-8">
-                <Text className="text-gray-900 font-semibold text-lg mb-3">
+                <Text className="text-gray-900 font-semibold text-lg mb-3 font-mainRegular">
                   Frequency
                 </Text>
                 <View
@@ -419,7 +419,7 @@ const CreateHabitBottomSheet = React.forwardRef<
                     borderColor: "#d1d5db",
                   }}
                 >
-                  <Text className="text-gray-700 font-semibold text-base">
+                  <Text className="text-gray-700 font-semibold text-base font-mainRegular">
                     Cancel
                   </Text>
                 </TouchableOpacity>
@@ -449,7 +449,7 @@ const CreateHabitBottomSheet = React.forwardRef<
                   {isCreating ? (
                     <View className="flex-row items-center">
                       <ActivityIndicator size="small" color="white" />
-                      <Text className="text-white font-semibold text-base ml-2">
+                      <Text className="text-white font-semibold text-base ml-2 font-mainRegular">
                         Creating...
                       </Text>
                     </View>
@@ -465,7 +465,7 @@ const CreateHabitBottomSheet = React.forwardRef<
                         }
                       />
                       <Text
-                        className="font-semibold text-base ml-2"
+                        className="font-semibold text-base ml-2 font-mainRegular"
                         style={{
                           color:
                             !!validationError || !newTitle.trim()

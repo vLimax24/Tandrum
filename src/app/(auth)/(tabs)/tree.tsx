@@ -114,13 +114,13 @@ export default function TreeSection() {
   if (!convexUser)
     return (
       <View className="flex-1 justify-center items-center bg-background">
-        <Text className="text-text">Loading user…</Text>
+        <Text className="text-text font-mainRegular">Loading user…</Text>
       </View>
     );
   if (!connections)
     return (
       <View className="flex-1 justify-center items-center bg-background">
-        <Text className="text-text">Loading connections…</Text>
+        <Text className="text-text font-mainRegular">Loading connections…</Text>
       </View>
     );
   if (connections.length === 0)
@@ -133,7 +133,7 @@ export default function TreeSection() {
   if (!treeData)
     return (
       <View className="flex-1 justify-center items-center bg-background">
-        <Text className="text-text">Loading tree…</Text>
+        <Text className="text-text font-mainRegular">Loading tree…</Text>
       </View>
     );
 
@@ -148,9 +148,11 @@ export default function TreeSection() {
         className="flex-1 py-16 px-5"
         style={{ zIndex: 1 }} // Add this to ensure content is behind bottom sheet
       >
-        <Text className="text-text text-4xl font-semibold mb-2">Tree</Text>
+        <Text className="text-text text-4xl font-semibold mb-2 font-mainRegular">
+          Tree
+        </Text>
         <View className="mb-6">
-          <Text className="text-lg font-semibold text-text mb-2">
+          <Text className="text-lg font-semibold text-text mb-2 font-mainRegular">
             Select Duo
           </Text>
           <View className="bg-primary rounded-lg px-4 py-2 flex-row items-center">
@@ -246,7 +248,9 @@ export default function TreeSection() {
               style={{ width: 20, height: 20 }}
               className="pt-2"
             />
-            <Text className="text-background">Leaves: {treeData.leaves}</Text>
+            <Text className="text-background font-mainRegular">
+              Leaves: {treeData.leaves}
+            </Text>
           </View>
           <View className="flex flex-row items-center">
             <Image
@@ -254,7 +258,9 @@ export default function TreeSection() {
               style={{ width: 30, height: 30 }}
               className="pt-2"
             />
-            <Text className="text-background">Fruits: {treeData.fruits}</Text>
+            <Text className="text-background font-mainRegular">
+              Fruits: {treeData.fruits}
+            </Text>
           </View>
           <View className="flex flex-row items-center">
             <Image
@@ -262,7 +268,9 @@ export default function TreeSection() {
               style={{ width: 30, height: 30 }}
               className="pt-2"
             />
-            <Text className="text-background">Decay: {treeData.decay}</Text>
+            <Text className="text-background font-mainRegular">
+              Decay: {treeData.decay}
+            </Text>
           </View>
         </View>
         <View style={{ zIndex: 1 }}>
@@ -272,10 +280,10 @@ export default function TreeSection() {
         {/* Growth Log - Add z-index */}
         <View className={`mb-20 mt-10`} style={{ zIndex: 1 }}>
           <View className="mb-6">
-            <Text className="text-2xl font-bold text-gray-900 mb-1">
+            <Text className="text-2xl font-bold text-gray-900 mb-1 font-mainRegular">
               Growth Activity
             </Text>
-            <Text className="text-sm text-gray-500">
+            <Text className="text-sm text-gray-500 font-mainRegular">
               Track your duo's progress and milestones
             </Text>
           </View>
@@ -293,18 +301,18 @@ export default function TreeSection() {
                     >
                       <View className="flex-row items-center">
                         <View className="w-2 h-2 bg-primary rounded-full mr-3" />
-                        <Text className="text-base font-semibold text-gray-900">
+                        <Text className="text-base font-semibold text-gray-900 font-mainRegular">
                           {dateStr}
                         </Text>
                         <View className="ml-3 px-2 py-1 bg-gray-200 rounded-full">
-                          <Text className="text-xs font-medium text-gray-600">
+                          <Text className="text-xs font-medium text-gray-600 font-mainRegular">
                             {logs.length}{" "}
                             {logs.length === 1 ? "activity" : "activities"}
                           </Text>
                         </View>
                       </View>
                       <View className="flex-row items-center">
-                        <Text className="text-xs text-gray-400 mr-2">
+                        <Text className="text-xs text-gray-400 mr-2 font-mainRegular">
                           {collapsedDates[dateStr] ? "Show" : "Hide"}
                         </Text>
                         <View
@@ -349,12 +357,12 @@ export default function TreeSection() {
 
                             {/* Activity Content */}
                             <View className="flex-1">
-                              <Text className="text-sm font-medium text-gray-900 leading-5 mb-1">
+                              <Text className="text-sm font-medium text-gray-900 leading-5 mb-1 font-mainRegular">
                                 {change}
                               </Text>
                               <View className="flex-row items-center">
                                 <View className="w-1 h-1 bg-gray-300 rounded-full mr-2" />
-                                <Text className="text-xs text-gray-500">
+                                <Text className="text-xs text-gray-500 font-mainRegular">
                                   Activity #{idx + 1}
                                 </Text>
                               </View>
@@ -363,7 +371,7 @@ export default function TreeSection() {
                             {/* Status Indicator */}
                             <View className="ml-3">
                               <View className="px-2 py-1 bg-green-50 rounded-md">
-                                <Text className="text-xs font-medium text-green-700">
+                                <Text className="text-xs font-medium text-green-700 font-mainRegular">
                                   Complete
                                 </Text>
                               </View>
@@ -381,17 +389,17 @@ export default function TreeSection() {
             <View className="bg-white rounded-xl border border-gray-100 shadow-sm">
               <View className="px-8 py-12 items-center">
                 <View className="w-16 h-16 bg-gray-50 rounded-full items-center justify-center mb-4">
-                  <Text className="text-2xl">🌱</Text>
+                  <Text className="text-2xl font-mainRegular">🌱</Text>
                 </View>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">
+                <Text className="text-lg font-semibold text-gray-900 mb-2 font-mainRegular">
                   No Activity Yet
                 </Text>
-                <Text className="text-sm text-gray-500 text-center leading-5 max-w-xs">
+                <Text className="text-sm text-gray-500 text-center leading-5 max-w-xs font-mainRegular">
                   Your growth journey will appear here as you and your duo
                   interact and build trust together.
                 </Text>
                 <View className="mt-6 px-4 py-2 bg-gray-50 rounded-lg">
-                  <Text className="text-xs font-medium text-gray-600">
+                  <Text className="text-xs font-medium text-gray-600 font-mainRegular">
                     Start engaging to see your first activity!
                   </Text>
                 </View>

@@ -267,6 +267,7 @@ const HabitEditBottomSheet = forwardRef<
                       fontSize: 22,
                       fontWeight: "bold",
                     }}
+                    className=" font-mainRegular"
                   >
                     Edit Habit
                   </Text>
@@ -277,6 +278,7 @@ const HabitEditBottomSheet = forwardRef<
                     fontSize: 14,
                     opacity: 0.9,
                   }}
+                  className="font-mainRegular"
                 >
                   Modify your habit details
                 </Text>
@@ -310,6 +312,7 @@ const HabitEditBottomSheet = forwardRef<
                   fontSize: 16,
                   marginBottom: 12,
                 }}
+                className="font-mainRegular"
               >
                 Habit Title
               </Text>
@@ -375,6 +378,7 @@ const HabitEditBottomSheet = forwardRef<
                       fontWeight: "500",
                       flex: 1,
                     }}
+                    className="font-mainRegular"
                   >
                     {validationError}
                   </Text>
@@ -388,7 +392,10 @@ const HabitEditBottomSheet = forwardRef<
                     marginTop: 8,
                   }}
                 >
-                  <Text style={{ color: "#6b7280", fontSize: 14 }}>
+                  <Text
+                    style={{ color: "#6b7280", fontSize: 14 }}
+                    className="font-mainRegular"
+                  >
                     {title.length}/50 characters
                   </Text>
                   {hasChanges && (
@@ -424,6 +431,7 @@ const HabitEditBottomSheet = forwardRef<
                   fontSize: 16,
                   marginBottom: 12,
                 }}
+                className="font-mainRegular"
               >
                 Frequency
               </Text>
@@ -507,12 +515,14 @@ const HabitEditBottomSheet = forwardRef<
                       fontWeight: "600",
                       fontSize: 14,
                     }}
+                    className="font-mainRegular"
                   >
                     Frequency Change Notice
                   </Text>
                 </View>
                 <Text
                   style={{ color: "#92400e", fontSize: 13, lineHeight: 18 }}
+                  className="font-mainRegular"
                 >
                   Changing frequency will reset check-in status for all users.
                   Progress will be cleared.
@@ -561,6 +571,7 @@ const HabitEditBottomSheet = forwardRef<
                     fontSize: 16,
                     textAlign: "center",
                   }}
+                  className="font-mainRegular"
                 >
                   Cancel
                 </Text>
@@ -601,6 +612,7 @@ const HabitEditBottomSheet = forwardRef<
                         fontSize: 16,
                         marginLeft: 8,
                       }}
+                      className="font-mainRegular"
                     >
                       Saving...
                     </Text>
@@ -613,6 +625,7 @@ const HabitEditBottomSheet = forwardRef<
                       fontSize: 16,
                       color: canSave ? "white" : "#9ca3af",
                     }}
+                    className="font-mainRegular"
                   >
                     Save Changes
                   </Text>
@@ -629,6 +642,7 @@ const HabitEditBottomSheet = forwardRef<
                 marginTop: 12,
                 opacity: 0.8,
               }}
+              className="font-mainRegular"
             >
               Changes will be applied immediately after saving
             </Text>

@@ -32,7 +32,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({
     >
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-1">
-          <Text className="text-gray-900 font-semibold text-base mb-1">
+          <Text className="text-gray-900 font-semibold text-base mb-1 font-mainRegular">
             {habit.title}
           </Text>
           <View className="flex-row items-center">
@@ -42,7 +42,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({
               }`}
             >
               <Text
-                className={`text-xs font-medium ${
+                className={`text-xs font-mainRegular font-medium ${
                   habit.frequency === "daily"
                     ? "text-blue-800"
                     : "text-purple-800"
@@ -53,7 +53,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({
             </View>
             {isDoneByMe && isDoneByPartner && (
               <View className="ml-2 px-2 py-1 rounded-full bg-green-100">
-                <Text className="text-xs font-medium text-green-800">
+                <Text className="text-xs font-medium text-green-800 font-mainRegular">
                   Both completed! 🎉
                 </Text>
               </View>
@@ -65,7 +65,9 @@ export const HabitCard: React.FC<HabitCardProps> = ({
           className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center"
           onPress={() => onDelete(habit._id, habit.title)}
         >
-          <Text className="text-red-500 font-bold text-lg">×</Text>
+          <Text className="text-red-500 font-bold text-lg font-mainRegular">
+            ×
+          </Text>
         </Pressable>
       </View>
 
@@ -87,11 +89,13 @@ export const HabitCard: React.FC<HabitCardProps> = ({
               } flex items-center justify-center`}
             >
               {isDoneByMe && (
-                <Text className="text-accent font-bold text-xs">✓</Text>
+                <Text className="text-accent font-bold text-xs font-mainRegular">
+                  ✓
+                </Text>
               )}
             </View>
             <Text
-              className={`text-sm font-medium ${
+              className={`text-sm font-mainRegular font-medium ${
                 isDoneByMe ? "text-white" : "text-gray-600"
               }`}
             >
@@ -113,11 +117,13 @@ export const HabitCard: React.FC<HabitCardProps> = ({
               } flex items-center justify-center`}
             >
               {isDoneByPartner && (
-                <Text className="text-green-500 font-bold text-xs">✓</Text>
+                <Text className="text-green-500 font-bold text-xs font-mainRegular">
+                  ✓
+                </Text>
               )}
             </View>
             <Text
-              className={`text-sm font-medium ${
+              className={`text-sm font-medium font-mainRegular ${
                 isDoneByPartner ? "text-white" : "text-gray-500"
               }`}
             >

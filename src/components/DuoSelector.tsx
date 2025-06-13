@@ -19,7 +19,9 @@ export function DuoSelector({
 
   return (
     <View className="mb-6">
-      <Text className="text-lg font-semibold text-text mb-2">Select Duo</Text>
+      <Text className="text-lg font-semibold text-text mb-2 font-mainRegular">
+        Select Duo
+      </Text>
       <View className="bg-primary rounded-lg px-4 py-2 flex-row items-center">
         <Image
           source={treeImages.leaf}
@@ -65,7 +67,14 @@ export function DuoSelector({
                 marginTop: -12,
               },
             }}
-            Icon={() => <Text style={{ color: "#fff", fontSize: 18 }}>▼</Text>}
+            Icon={() => (
+              <Text
+                style={{ color: "#fff", fontSize: 18 }}
+                className=" font-mainRegular"
+              >
+                ▼
+              </Text>
+            )}
           />
         </View>
       </View>

@@ -70,10 +70,10 @@ export default function LoadingScreen() {
             </LinearGradient>
           </View>
 
-          <Text className="text-2xl font-bold text-gray-900 text-center mb-2">
+          <Text className="text-2xl font-bold text-gray-900 text-center mb-2 font-mainRegular">
             Setting up your account...
           </Text>
-          <Text className="text-base text-gray-600 text-center mb-8">
+          <Text className="text-base text-gray-600 text-center mb-8 font-mainRegular">
             Please wait while we prepare your personalized experience
           </Text>
 

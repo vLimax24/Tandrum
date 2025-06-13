@@ -35,9 +35,13 @@ export function CreateHabitButton({ onPress }: CreateHabitButtonProps) {
       >
         <View className="flex-row items-center justify-center">
           <View className="w-6 h-6 bg-white bg-opacity-20 rounded-full items-center justify-center mr-3">
-            <Text className="text-white font-bold text-lg">+</Text>
+            <Text className="text-white font-bold text-lg font-mainRegular">
+              +
+            </Text>
           </View>
-          <Text className="text-white font-bold text-lg">Create New Habit</Text>
+          <Text className="text-white font-bold text-lg font-mainRegular">
+            Create New Habit
+          </Text>
         </View>
       </LinearGradient>
     </TouchableOpacity>

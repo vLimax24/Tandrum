@@ -205,7 +205,9 @@ export default function EditProfileScreen() {
           >
             <Ionicons name="arrow-back" size={20} color="#374151" />
           </TouchableOpacity>
-          <Text className="text-lg font-bold text-gray-900">Edit Profile</Text>
+          <Text className="text-lg font-bold text-gray-900 font-mainRegular">
+            Edit Profile
+          </Text>
           <TouchableOpacity
             onPress={handleSave}
             disabled={!canSave}
@@ -217,7 +219,7 @@ export default function EditProfileScreen() {
               <ActivityIndicator size="small" color="white" />
             ) : (
               <Text
-                className={`font-semibold ${
+                className={`font-semibold font-mainRegular ${
                   canSave ? "text-white" : "text-gray-500"
                 }`}
               >
@@ -244,7 +246,7 @@ export default function EditProfileScreen() {
               <View className="w-8 h-8 bg-blue-500 rounded-full justify-center items-center mr-3">
                 <Ionicons name="camera" size={16} color="white" />
               </View>
-              <Text className="text-blue-800 text-lg font-bold">
+              <Text className="text-blue-800 font-mainRegular text-lg font-bold">
                 Profile Picture
               </Text>
             </View>
@@ -263,7 +265,7 @@ export default function EditProfileScreen() {
                     resizeMode="cover"
                   />
                 </View>
-                <Text className="text-base font-semibold text-gray-800">
+                <Text className="text-base font-mainRegular font-semibold text-gray-800">
                   {avatarOptions.find((a) => a.id === selectedAvatar)?.name}{" "}
                   Avatar
                 </Text>
@@ -327,7 +329,9 @@ export default function EditProfileScreen() {
               <View className="w-8 h-8 bg-green-500 rounded-full justify-center items-center mr-3">
                 <Ionicons name="person" size={16} color="white" />
               </View>
-              <Text className="text-green-800 text-lg font-bold">Username</Text>
+              <Text className="text-green-800 font-mainRegular text-lg font-bold">
+                Username
+              </Text>
             </View>
           </View>
 
@@ -336,7 +340,7 @@ export default function EditProfileScreen() {
               value={username}
               onChangeText={setUsername}
               placeholder="Enter your username"
-              className={`border-2 rounded-xl px-4 py-3 text-base ${
+              className={`border-2 rounded-xl px-4 py-3 font-mainRegular text-base ${
                 usernameError
                   ? "border-red-300 bg-red-50"
                   : isUsernameValid && username.length > 0
@@ -348,18 +352,20 @@ export default function EditProfileScreen() {
             />
 
             {usernameError ? (
-              <Text className="text-red-600 text-sm mt-2 flex-row items-center">
+              <Text className="text-red-600 font-mainRegular text-sm mt-2 flex-row items-center">
                 <Ionicons name="alert-circle" size={16} color="#dc2626" />
-                <Text className="ml-1">{usernameError}</Text>
+                <Text className="ml-1 font-mainRegular">{usernameError}</Text>
               </Text>
             ) : isUsernameValid && username.length > 0 ? (
-              <Text className="text-green-600 text-sm mt-2 flex-row items-center">
+              <Text className="text-green-600 font-mainRegular text-sm mt-2 flex-row items-center">
                 <Ionicons name="checkmark-circle" size={16} color="#16a34a" />
-                <Text className="ml-1">Username is available</Text>
+                <Text className="ml-1 font-mainRegular">
+                  Username is available
+                </Text>
               </Text>
             ) : null}
 
-            <Text className="text-gray-500 text-xs mt-2">
+            <Text className="text-gray-500 font-mainRegular text-xs mt-2">
               3-20 characters, letters, numbers and underscores only
             </Text>
           </View>
@@ -372,8 +378,12 @@ export default function EditProfileScreen() {
               <View className="w-8 h-8 bg-purple-500 rounded-full justify-center items-center mr-3">
                 <Ionicons name="document-text" size={16} color="white" />
               </View>
-              <Text className="text-purple-800 text-lg font-bold">Bio</Text>
-              <Text className="text-purple-600 text-sm ml-2">(Optional)</Text>
+              <Text className="text-purple-800 text-lg font-bold font-mainRegular">
+                Bio
+              </Text>
+              <Text className="text-purple-600 text-sm ml-2 font-mainRegular">
+                (Optional)
+              </Text>
             </View>
           </View>
 
@@ -382,7 +392,7 @@ export default function EditProfileScreen() {
               value={bio}
               onChangeText={setBio}
               placeholder="Tell others about yourself..."
-              className="border-2 border-gray-300 rounded-xl px-4 py-3 text-base bg-white"
+              className="border-2 border-gray-300 font-mainRegular rounded-xl px-4 py-3 text-base bg-white"
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -390,11 +400,13 @@ export default function EditProfileScreen() {
             />
 
             <View className="flex-row justify-between items-center mt-2">
-              <Text className="text-gray-500 text-xs max-w-[80%]">
+              <Text className="text-gray-500 font-mainRegular text-xs max-w-[80%]">
                 Share your interests, goals, or anything you'd like others to
                 know
               </Text>
-              <Text className="text-gray-400 text-xs">{bio.length}/200</Text>
+              <Text className="text-gray-400 font-mainRegular text-xs">
+                {bio.length}/200
+              </Text>
             </View>
           </View>
         </View>
@@ -406,7 +418,7 @@ export default function EditProfileScreen() {
               <View className="w-8 h-8 bg-gray-500 rounded-full justify-center items-center mr-3">
                 <Ionicons name="information-circle" size={16} color="white" />
               </View>
-              <Text className="text-gray-800 text-lg font-bold">
+              <Text className="text-gray-800 font-mainRegular text-lg font-bold">
                 Account Information
               </Text>
             </View>
@@ -414,8 +426,10 @@ export default function EditProfileScreen() {
 
           <View className="p-6 gap-3">
             <View className="flex-row justify-between items-center">
-              <Text className="text-gray-600 font-medium">Email</Text>
-              <Text className="text-gray-900 font-semibold">
+              <Text className="text-gray-600 font-medium font-mainRegular">
+                Email
+              </Text>
+              <Text className="text-gray-900 font-semibold font-mainRegular">
                 {user?.primaryEmailAddress?.emailAddress}
               </Text>
             </View>
@@ -423,8 +437,10 @@ export default function EditProfileScreen() {
             <View className="h-px bg-gray-200" />
 
             <View className="flex-row justify-between items-center">
-              <Text className="text-gray-600 font-medium">Member Since</Text>
-              <Text className="text-gray-900 font-semibold">
+              <Text className="text-gray-600 font-medium font-mainRegular">
+                Member Since
+              </Text>
+              <Text className="text-gray-900 font-semibold font-mainRegular">
                 {convexUser
                   ? new Date(convexUser.joined_at).toLocaleDateString()
                   : "—"}

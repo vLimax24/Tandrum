@@ -16,6 +16,10 @@ module.exports = {
         white: "#FFFFFF",
         black: "#000000",
       },
+      fontFamily: {
+        mainRegular: ["Poppins_400Regular", "sans-serif"],
+        mainBold: ["Poppins_700Bold", "sans-serif"],
+      },
     },
   },
   future: {

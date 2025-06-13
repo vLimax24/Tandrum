@@ -317,7 +317,9 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             }}
             className="w-10 h-10 bg-[rgba(59,130,246,0.9)] rounded-full justify-center items-center border-3 border-[#3b82f6] shadow-lg"
           >
-            <Text className="text-white text-xl font-bold">+</Text>
+            <Text className="text-white text-xl font-bold font-mainRegular">
+              +
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -396,13 +398,13 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
           </View>
           <View className="flex-1">
             <View className="flex-row items-center mb-1">
-              <Text className="text-lg font-bold text-[#1f2937] mr-2">
+              <Text className="text-lg font-bold text-[#1f2937] mr-2 font-mainRegular">
                 {item.name}
               </Text>
-              <Text className="text-base">{item.icon}</Text>
+              <Text className="text-base font-mainRegular">{item.icon}</Text>
               {/* Simple rarity text */}
               <Text
-                className="text-xs font-medium ml-2 px-2 py-0.5 rounded"
+                className="text-xs font-medium ml-2 px-2 py-0.5 rounded font-mainRegular"
                 style={{
                   color: rarityColors.primary,
                   backgroundColor: rarityColors.light,
@@ -411,12 +413,12 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                 {item.rarity.toUpperCase()}
               </Text>
             </View>
-            <Text className="text-sm text-[#6b7280] mb-1">
+            <Text className="text-sm text-[#6b7280] mb-1 font-mainRegular">
               {item.description}
             </Text>
             <View className="flex-row items-center justify-between">
               <Text
-                className="text-base font-semibold"
+                className="text-base font-semibold font-mainRegular"
                 style={{ color: item.color }}
               >
                 Count: {count}
@@ -426,7 +428,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                   className="px-3 py-1 rounded-xl"
                   style={{ backgroundColor: item.color }}
                 >
-                  <Text className="text-white text-xs font-semibold">
+                  <Text className="text-white text-xs font-semibold font-mainRegular">
                     EQUIP
                   </Text>
                 </View>
@@ -439,12 +441,12 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
           style={{ borderLeftColor: item.color }}
         >
           <Text
-            className="text-xs font-semibold mb-1"
+            className="text-xs font-semibold mb-1 font-mainRegular"
             style={{ color: item.color }}
           >
             ABILITY: {item.ability}
           </Text>
-          <Text className="text-xs text-[#6b7280]">
+          <Text className="text-xs text-[#6b7280] font-mainRegular">
             {item.abilityDescription}
           </Text>
         </View>
@@ -457,11 +459,11 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       return (
         <View className="mb-4 mt-2">
           <View className="flex-row items-center mb-4">
-            <Text className="text-xl font-bold text-[#1f2937]">
+            <Text className="text-xl font-bold text-[#1f2937] font-mainRegular">
               {item.title}
             </Text>
             <View className="ml-2 bg-[#f3f4f6] px-2 py-1 rounded-full">
-              <Text className="text-xs text-[#6b7280] font-medium">
+              <Text className="text-xs text-[#6b7280] font-medium font-mainRegular">
                 {item.count} available
               </Text>
             </View>
@@ -537,10 +539,12 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         onPress={handleOpenBottomSheet}
         className="bg-[#3b82f6] rounded-xl px-5 py-3 mb-4 flex-row items-center justify-center shadow-lg"
       >
-        <Text className="text-white text-lg mr-2">🎒</Text>
-        <Text className="text-white text-base font-semibold">Inventory</Text>
+        <Text className="text-white text-lg mr-2 font-mainRegular">🎒</Text>
+        <Text className="text-white text-base font-semibold font-mainRegular">
+          Inventory
+        </Text>
         <View className="bg-[rgba(255,255,255,0.2)] rounded-xl px-2 py-1 ml-2">
-          <Text className="text-white text-xs font-semibold">
+          <Text className="text-white text-xs font-semibold font-mainRegular">
             {currentDecorations}/{maxAllowed}
           </Text>
         </View>
@@ -559,7 +563,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
           }}
           className="bg-[#ef4444] rounded-xl px-5 py-3 mb-4 shadow-lg"
         >
-          <Text className="text-white text-base font-semibold text-center">
+          <Text className="text-white text-base font-semibold text-center font-mainRegular">
             Cancel Placement
           </Text>
         </TouchableOpacity>
@@ -586,10 +590,10 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         {/* Header - Fixed outside of scrollable area */}
         <View className="flex-row justify-between items-center px-6 mb-5 pt-4">
           <View>
-            <Text className="text-2xl font-bold text-[#1f2937]">
+            <Text className="text-2xl font-bold text-[#1f2937] font-mainRegular">
               Tree Management
             </Text>
-            <Text className="text-sm text-[#6b7280] mt-1">
+            <Text className="text-sm text-[#6b7280] mt-1 font-mainRegular">
               {treeData.stage} • {currentDecorations}/{maxAllowed} slots used
             </Text>
           </View>
@@ -597,7 +601,9 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             onPress={handleCloseBottomSheet}
             className="bg-[#f3f4f6] rounded-full w-10 h-10 justify-center items-center"
           >
-            <Text className="text-[#6b7280] text-lg font-bold">×</Text>
+            <Text className="text-[#6b7280] text-lg font-bold font-mainRegular">
+              ×
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -610,7 +616,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             }`}
           >
             <Text
-              className={`text-center text-base font-semibold ${
+              className={`text-center text-base font-semibold font-mainRegular ${
                 activeTab === "inventory" ? "text-white" : "text-[#6b7280]"
               }`}
             >
@@ -624,7 +630,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             }`}
           >
             <Text
-              className={`text-center text-base font-semibold ${
+              className={`text-center text-base font-semibold font-mainRegular ${
                 activeTab === "equipped" ? "text-white" : "text-[#6b7280]"
               }`}
             >
@@ -673,17 +679,19 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                     </View>
                     <View className="flex-1">
                       <View className="flex-row items-center mb-1">
-                        <Text className="text-base font-bold text-[#1f2937] mr-2">
+                        <Text className="text-base font-bold text-[#1f2937] mr-2 font-mainRegular">
                           {itemData.name}
                         </Text>
-                        <Text className="text-sm">{itemData.icon}</Text>
+                        <Text className="text-sm font-mainRegular">
+                          {itemData.icon}
+                        </Text>
                         <View className="bg-[#10b981] px-2 py-1 rounded-lg ml-2">
-                          <Text className="text-white text-xs font-semibold">
+                          <Text className="text-white text-xs font-semibold font-mainRegular">
                             ACTIVE
                           </Text>
                         </View>
                       </View>
-                      <Text className="text-xs text-[#6b7280]">
+                      <Text className="text-xs text-[#6b7280] font-mainRegular">
                         Position: Slot {index + 1}
                       </Text>
                     </View>
@@ -693,17 +701,17 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                     style={{ borderLeftColor: itemData.color }}
                   >
                     <Text
-                      className="text-xs font-semibold mb-1"
+                      className="text-xs font-semibold mb-1 font-mainRegular"
                       style={{ color: itemData.color }}
                     >
                       ACTIVE ABILITY: {itemData.ability}
                     </Text>
-                    <Text className="text-xs text-[#6b7280] mb-2">
+                    <Text className="text-xs text-[#6b7280] mb-2 font-mainRegular">
                       {itemData.abilityDescription}
                     </Text>
                     {itemData.buffs && (
                       <View className="flex-row items-center">
-                        <Text className="text-xs text-[#059669] font-semibold">
+                        <Text className="text-xs text-[#059669] font-semibold font-mainRegular">
                           ⚡ Buffs: {JSON.stringify(itemData.buffs)}
                         </Text>
                       </View>
@@ -714,11 +722,11 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             }}
             ListEmptyComponent={() => (
               <View className="flex-1 justify-center items-center p-10 mx-6">
-                <Text className="text-5xl mb-4">🌲</Text>
-                <Text className="text-lg font-semibold text-[#6b7280] text-center">
+                <Text className="text-5xl mb-4 font-mainRegular">🌲</Text>
+                <Text className="text-lg font-semibold text-[#6b7280] text-center font-mainRegular">
                   No Items Equipped
                 </Text>
-                <Text className="text-sm text-[#9ca3af] text-center mt-2">
+                <Text className="text-sm text-[#9ca3af] text-center mt-2 font-mainRegular">
                   Equip items from your inventory to enhance your tree's
                   abilities
                 </Text>
@@ -735,7 +743,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
 
         {/* Footer - Fixed at bottom */}
         <View className="px-6 py-4 border-t border-[#e5e7eb] bg-white">
-          <Text className="text-xs text-[#9ca3af] text-center">
+          <Text className="text-xs text-[#9ca3af] text-center font-mainRegular">
             {activeTab === "inventory"
               ? "Tap an item to equip it on your tree"
               : "Tap equipped items to view details or remove them"}

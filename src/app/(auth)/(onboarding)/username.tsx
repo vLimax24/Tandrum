@@ -246,7 +246,9 @@ export default function UsernameScreen() {
           >
             <Ionicons name="arrow-back" size={20} color="#374151" />
           </TouchableOpacity>
-          <Text className="text-sm text-gray-500 font-medium">Step 1 of 2</Text>
+          <Text className="text-sm text-gray-500 font-medium font-mainRegular">
+            Step 1 of 2
+          </Text>
         </View>
 
         {/* Progress Bar */}
@@ -265,10 +267,10 @@ export default function UsernameScreen() {
         >
           {/* Title Section */}
           <View className="mb-8">
-            <Text className="text-3xl font-bold text-gray-900 mb-3">
+            <Text className="text-3xl font-bold text-gray-900 mb-3 font-mainRegular">
               Choose Your Username
             </Text>
-            <Text className="text-lg text-gray-600 leading-6">
+            <Text className="text-lg text-gray-600 leading-6 font-mainRegular">
               This is how other learners will know you. Don't worry, you can
               change it later.
             </Text>
@@ -281,7 +283,7 @@ export default function UsernameScreen() {
                 value={username}
                 onChangeText={setUsername}
                 placeholder="Enter your username"
-                className={`w-full p-4 text-lg border-2 rounded-2xl bg-white ${getBorderColor()}`}
+                className={`w-full p-4 text-lg border-2 rounded-2xl font-mainRegular bg-white ${getBorderColor()}`}
                 autoCapitalize="none"
                 autoCorrect={false}
                 maxLength={20}
@@ -299,21 +301,21 @@ export default function UsernameScreen() {
 
             {/* Status Messages */}
             {isCheckingUsername ? (
-              <Text className="text-yellow-600 text-sm mt-2 ml-1">
+              <Text className="text-yellow-600 text-sm mt-2 ml-1 font-mainRegular">
                 Checking availability...
               </Text>
             ) : errorMessage ? (
-              <Text className="text-red-500 text-sm mt-2 ml-1">
+              <Text className="text-red-500 text-sm mt-2 ml-1 font-mainRegular">
                 {errorMessage}
               </Text>
             ) : username.trim().length >= 3 && isValid ? (
-              <Text className="text-green-600 text-sm mt-2 ml-1">
+              <Text className="text-green-600 text-sm mt-2 ml-1 font-mainRegular">
                 Great! This username is available
               </Text>
             ) : null}
 
             {/* Character Count */}
-            <Text className="text-gray-400 text-sm mt-2 ml-1">
+            <Text className="text-gray-400 text-sm mt-2 ml-1 font-mainRegular">
               {username.length}/20 characters
             </Text>
           </View>
@@ -321,7 +323,7 @@ export default function UsernameScreen() {
           {/* Suggestions */}
           {username.trim().length === 0 && (
             <View className="mb-8">
-              <Text className="text-gray-700 font-medium mb-3">
+              <Text className="text-gray-700 font-medium mb-3 font-mainRegular">
                 Need inspiration? Try these:
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -332,7 +334,9 @@ export default function UsernameScreen() {
                     className="bg-gray-100 px-4 py-2 rounded-full border border-gray-200"
                     activeOpacity={0.7}
                   >
-                    <Text className="text-gray-700">{suggestion}</Text>
+                    <Text className="text-gray-700 font-mainRegular">
+                      {suggestion}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -369,6 +373,7 @@ export default function UsernameScreen() {
                       ? { color: "white" }
                       : { color: "#9ca3af" },
                   ]}
+                  className="font-mainRegular"
                 >
                   {isLoading
                     ? "Saving..."

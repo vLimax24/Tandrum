@@ -105,7 +105,7 @@ const Page = () => {
           >
             <View className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin" />
           </LinearGradient>
-          <Text className="text-slate-700 text-lg font-medium text-center">
+          <Text className="text-slate-700 text-lg font-medium text-center font-mainRegular">
             Loading your dashboard...
           </Text>
         </View>
@@ -157,10 +157,10 @@ const Page = () => {
           <View className="px-6 pt-4 pb-8">
             <View className="flex-row items-center justify-between mb-2">
               <View>
-                <Text className="text-slate-600 text-base font-medium">
+                <Text className="text-slate-600 text-base font-medium font-mainRegular">
                   Welcome back,
                 </Text>
-                <Text className="text-slate-900 text-3xl font-bold">
+                <Text className="text-slate-900 text-3xl font-bold font-mainRegular">
                   {convexUser.name || "Partner"}
                 </Text>
               </View>
@@ -184,7 +184,7 @@ const Page = () => {
               </LinearGradient>
             </View>
 
-            <Text className="text-slate-500 text-base leading-relaxed mt-1">
+            <Text className="text-slate-500 text-base leading-relaxed mt-1 font-mainRegular">
               Your partnership ecosystem at a glance
             </Text>
           </View>
@@ -210,7 +210,7 @@ const Page = () => {
                       className="w-12 h-12 rounded-2xl items-center justify-center border border-blue-300/40"
                       style={{ backgroundColor: "rgba(59, 130, 246, 0.2)" }}
                     >
-                      <Text className="text-blue-600 text-xl font-bold">
+                      <Text className="text-blue-600 text-xl font-bold font-mainRegular">
                         👥
                       </Text>
                     </View>
@@ -218,15 +218,15 @@ const Page = () => {
                       className="px-3 py-1.5 rounded-full border border-blue-300/30"
                       style={{ backgroundColor: "rgba(59, 130, 246, 0.15)" }}
                     >
-                      <Text className="text-blue-700 text-xs font-bold tracking-wide">
+                      <Text className="text-blue-700 text-xs font-bold tracking-wide font-mainRegular">
                         ACTIVE
                       </Text>
                     </View>
                   </View>
-                  <Text className="text-slate-900 text-3xl font-black mb-1">
+                  <Text className="text-slate-900 text-3xl font-black mb-1 font-mainRegular">
                     {activeDuos}
                   </Text>
-                  <Text className="text-slate-600 text-sm font-semibold">
+                  <Text className="text-slate-600 text-sm font-semibold font-mainRegular">
                     Active Duos
                   </Text>
                 </View>
@@ -260,15 +260,15 @@ const Page = () => {
                       className="px-3 py-1.5 rounded-full border border-emerald-300/30"
                       style={{ backgroundColor: "rgba(16, 185, 129, 0.15)" }}
                     >
-                      <Text className="text-emerald-700 text-xs font-bold tracking-wide">
+                      <Text className="text-emerald-700 text-xs font-bold tracking-wide font-mainRegular">
                         TRUST
                       </Text>
                     </View>
                   </View>
-                  <Text className="text-slate-900 text-3xl font-black mb-1">
+                  <Text className="text-slate-900 text-3xl font-black mb-1 font-mainRegular">
                     {totalTrustScore}
                   </Text>
-                  <Text className="text-slate-600 text-sm font-semibold">
+                  <Text className="text-slate-600 text-sm font-semibold font-mainRegular">
                     Total XP
                   </Text>
                 </View>
@@ -302,15 +302,15 @@ const Page = () => {
                       className="px-3 py-1.5 rounded-full border border-orange-300/30"
                       style={{ backgroundColor: "rgba(249, 115, 22, 0.15)" }}
                     >
-                      <Text className="text-orange-700 text-xs font-bold tracking-wide">
+                      <Text className="text-orange-700 text-xs font-bold tracking-wide font-mainRegular">
                         STREAK
                       </Text>
                     </View>
                   </View>
-                  <Text className="text-slate-900 text-3xl font-black mb-1">
+                  <Text className="text-slate-900 text-3xl font-black mb-1 font-mainRegular">
                     {totalStreak}
                   </Text>
-                  <Text className="text-slate-600 text-sm font-semibold">
+                  <Text className="text-slate-600 text-sm font-semibold font-mainRegular">
                     Combined Days
                   </Text>
                 </View>
@@ -334,7 +334,7 @@ const Page = () => {
                       className="w-12 h-12 rounded-2xl items-center justify-center border border-purple-300/40"
                       style={{ backgroundColor: "rgba(139, 92, 246, 0.2)" }}
                     >
-                      <Text className="text-purple-600 text-xl font-bold">
+                      <Text className="text-purple-600 text-xl font-bold font-mainRegular">
                         ⭐
                       </Text>
                     </View>
@@ -342,15 +342,15 @@ const Page = () => {
                       className="px-3 py-1.5 rounded-full border border-purple-300/30"
                       style={{ backgroundColor: "rgba(139, 92, 246, 0.15)" }}
                     >
-                      <Text className="text-purple-700 text-xs font-bold tracking-wide">
+                      <Text className="text-purple-700 text-xs font-bold tracking-wide font-mainRegular">
                         LEVEL
                       </Text>
                     </View>
                   </View>
-                  <Text className="text-slate-900 text-3xl font-black mb-1">
+                  <Text className="text-slate-900 text-3xl font-black mb-1 font-mainRegular">
                     {avgLevel}
                   </Text>
-                  <Text className="text-slate-600 text-sm font-semibold">
+                  <Text className="text-slate-600 text-sm font-semibold font-mainRegular">
                     Avg Level
                   </Text>
                 </View>
@@ -361,12 +361,12 @@ const Page = () => {
           {/* Active Partnerships Section */}
           <View className="px-6 mb-8">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-slate-900 text-xl font-bold">
+              <Text className="text-slate-900 text-xl font-bold font-mainRegular">
                 Active Partnerships
               </Text>
               {userConnections && userConnections.length > 0 && (
                 <View className="px-3 py-1 bg-emerald-100 rounded-full">
-                  <Text className="text-emerald-700 text-sm font-semibold">
+                  <Text className="text-emerald-700 text-sm font-semibold font-mainRegular">
                     {userConnections.length} Active
                   </Text>
                 </View>
@@ -409,15 +409,15 @@ const Page = () => {
                                 backgroundColor: "rgba(255, 255, 255, 0.2)",
                               }}
                             >
-                              <Text className="text-white text-xl font-bold">
+                              <Text className="text-white text-xl font-bold font-mainRegular">
                                 {conn.partnerName?.charAt(0) || "?"}
                               </Text>
                             </View>
                             <View className="flex-1">
-                              <Text className="text-white text-lg font-bold">
+                              <Text className="text-white text-lg font-bold font-mainRegular">
                                 {conn.partnerName}
                               </Text>
-                              <Text className="text-white/80 text-sm font-medium">
+                              <Text className="text-white/80 text-sm font-medium font-mainRegular">
                                 Partnership #{index + 1}
                               </Text>
                             </View>
@@ -458,11 +458,11 @@ const Page = () => {
                                 }}
                                 resizeMode="contain"
                               />
-                              <Text className="text-slate-900 font-bold text-lg">
+                              <Text className="text-slate-900 font-bold text-lg font-mainRegular">
                                 {conn.streak}
                               </Text>
                             </View>
-                            <Text className="text-slate-600 text-xs font-medium text-center">
+                            <Text className="text-slate-600 text-xs font-medium text-center font-mainRegular">
                               Day Streak
                             </Text>
                           </View>
@@ -481,11 +481,11 @@ const Page = () => {
                                 }}
                                 resizeMode="contain"
                               />
-                              <Text className="text-slate-900 font-bold text-lg">
+                              <Text className="text-slate-900 font-bold text-lg font-mainRegular">
                                 {conn.trust_score}
                               </Text>
                             </View>
-                            <Text className="text-slate-600 text-xs font-medium text-center">
+                            <Text className="text-slate-600 text-xs font-medium text-center font-mainRegular">
                               XP
                             </Text>
                           </View>
@@ -504,7 +504,7 @@ const Page = () => {
                                 resizeMode="contain"
                               />
                               <Text
-                                className="text-slate-900 font-bold text-lg capitalize text-center"
+                                className="text-slate-900 font-bold text-lg capitalize text-center font-mainRegular"
                                 numberOfLines={2}
                                 adjustsFontSizeToFit={true}
                                 minimumFontScale={0.8}
@@ -514,7 +514,7 @@ const Page = () => {
                                   .trim()}
                               </Text>
                             </View>
-                            <Text className="text-slate-600 text-xs font-medium text-center">
+                            <Text className="text-slate-600 text-xs font-medium text-center font-mainRegular">
                               Tree Stage
                             </Text>
                           </View>
@@ -536,12 +536,14 @@ const Page = () => {
                 }}
               >
                 <View className="w-20 h-20 bg-slate-100 rounded-full items-center justify-center mb-4">
-                  <Text className="text-slate-400 text-3xl">🌱</Text>
+                  <Text className="text-slate-400 text-3xl font-mainRegular">
+                    🌱
+                  </Text>
                 </View>
-                <Text className="text-slate-900 text-xl font-bold text-center mb-2">
+                <Text className="text-slate-900 text-xl font-bold text-center mb-2 font-mainRegular">
                   No Active Partnerships
                 </Text>
-                <Text className="text-slate-600 text-center text-base leading-relaxed">
+                <Text className="text-slate-600 text-center text-base leading-relaxed font-mainRegular">
                   Start your first duo partnership to begin building habits
                   together and growing your shared tree!
                 </Text>
@@ -594,6 +596,7 @@ const Page = () => {
                       fontSize: 16,
                       fontWeight: "bold",
                     }}
+                    className=" font-mainRegular"
                   >
                     +
                   </Text>
@@ -604,6 +607,7 @@ const Page = () => {
                     fontSize: 18,
                     fontWeight: "bold",
                   }}
+                  className=" font-mainRegular"
                 >
                   Start New Partnership
                 </Text>
@@ -624,7 +628,7 @@ const Page = () => {
                 }}
                 onPress={() => router.push("/tree")}
               >
-                <Text className="text-slate-700 font-semibold text-base ">
+                <Text className="text-slate-700 font-semibold text-base font-mainRegular">
                   View All Trees
                 </Text>
               </TouchableOpacity>
@@ -648,7 +652,7 @@ const Page = () => {
                 }}
                 onPress={() => router.push("/habits")}
               >
-                <Text className="text-slate-700 font-semibold text-base">
+                <Text className="text-slate-700 font-semibold text-base font-mainRegular">
                   My Habits
                 </Text>
               </TouchableOpacity>

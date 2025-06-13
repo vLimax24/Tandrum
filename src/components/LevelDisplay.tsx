@@ -117,22 +117,24 @@ export const LevelDisplay = ({
                 }}
                 className="rounded-xl items-center justify-center mr-3"
               >
-                <Text className="text-blue-700 font-bold text-sm">{level}</Text>
+                <Text className="text-blue-700 font-bold text-sm font-mainRegular">
+                  {level}
+                </Text>
               </View>
               <View className="flex-1">
-                <Text className="text-gray-900 font-semibold text-sm">
+                <Text className="text-gray-900 font-semibold text-sm font-mainRegular">
                   Level {level}
                 </Text>
-                <Text className="text-gray-600 text-xs">
+                <Text className="text-gray-600 text-xs font-mainRegular">
                   {Math.round(progress * 100)}% to Level {level + 1}
                 </Text>
               </View>
             </View>
             <View className="items-end">
-              <Text className="text-gray-900 font-medium text-xs">
+              <Text className="text-gray-900 font-medium text-xs font-mainRegular">
                 {xpIntoLevel.toLocaleString()}
               </Text>
-              <Text className="text-gray-500 text-xs">
+              <Text className="text-gray-500 text-xs font-mainRegular">
                 /{xpNeeded.toLocaleString()} XP
               </Text>
             </View>
@@ -170,14 +172,14 @@ export const LevelDisplay = ({
             <View className="flex-row items-center justify-between mt-2">
               {currentStreak > 0 && (
                 <View className="flex-row items-center">
-                  <Text className="text-orange-600 text-xs font-medium">
+                  <Text className="text-orange-600 text-xs font-medium font-mainRegular">
                     🔥 {currentStreak} day streak
                   </Text>
                 </View>
               )}
               {decorationMultiplier && decorationMultiplier > 1 && (
                 <View className="flex-row items-center">
-                  <Text className="text-purple-600 text-xs font-medium">
+                  <Text className="text-purple-600 text-xs font-medium font-mainRegular">
                     🎄 {decorationMultiplier}x XP
                   </Text>
                 </View>
@@ -217,13 +219,15 @@ export const LevelDisplay = ({
                 }}
                 className="w-14 h-14 rounded-2xl items-center justify-center mr-4"
               >
-                <Text className="text-blue-700 font-bold text-xl">{level}</Text>
+                <Text className="text-blue-700 font-bold text-xl font-mainRegular">
+                  {level}
+                </Text>
               </View>
               <View>
-                <Text className="text-gray-900 font-bold text-xl">
+                <Text className="text-gray-900 font-bold text-xl font-mainRegular">
                   Level {level}
                 </Text>
-                <Text className="text-gray-700 text-base">
+                <Text className="text-gray-700 text-base font-mainRegular">
                   Partnership Progress
                 </Text>
               </View>
@@ -234,10 +238,10 @@ export const LevelDisplay = ({
         {/* Progress Section */}
         <View className="px-6 py-6 bg-[#ffffff]">
           <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-gray-900 font-semibold text-lg">
+            <Text className="text-gray-900 font-semibold text-lg font-mainRegular">
               Progress to Level {level + 1}
             </Text>
-            <Text className="text-gray-700 text-base font-medium">
+            <Text className="text-gray-700 text-base font-medium font-mainRegular">
               {Math.round(progress * 100)}%
             </Text>
           </View>
@@ -267,10 +271,10 @@ export const LevelDisplay = ({
           </View>
 
           <View className="flex-row justify-between items-center">
-            <Text className="text-gray-700 text-base">
+            <Text className="text-gray-700 text-base font-mainRegular">
               {xpIntoLevel.toLocaleString()} XP earned
             </Text>
-            <Text className="text-gray-700 text-base">
+            <Text className="text-gray-700 text-base font-mainRegular">
               {xpNeeded.toLocaleString()} XP needed
             </Text>
           </View>
@@ -286,7 +290,7 @@ export const LevelDisplay = ({
             }}
             className="px-6 py-6"
           >
-            <Text className="text-gray-900 font-semibold text-lg mb-5">
+            <Text className="text-gray-900 font-semibold text-lg mb-5 font-mainRegular">
               Level Statistics
             </Text>
 
@@ -306,14 +310,16 @@ export const LevelDisplay = ({
                     source={treeImages["leaf"]}
                     style={{ width: 18, height: 18, marginRight: 8 }}
                   />
-                  <Text className="text-gray-700 text-xs font-medium uppercase tracking-wide">
+                  <Text className="text-gray-700 text-xs font-medium uppercase tracking-wide font-mainRegular">
                     Current XP
                   </Text>
                 </View>
-                <Text className="text-gray-900 font-bold text-xl">
+                <Text className="text-gray-900 font-bold text-xl font-mainRegular">
                   {duo.trust_score?.toLocaleString() || 0}
                 </Text>
-                <Text className="text-gray-600 text-sm mt-1">Total earned</Text>
+                <Text className="text-gray-600 text-sm mt-1 font-mainRegular">
+                  Total earned
+                </Text>
               </View>
 
               {/* Base Reward */}
@@ -331,18 +337,18 @@ export const LevelDisplay = ({
                     source={treeImages["orange"]}
                     style={{ width: 18, height: 18, marginRight: 8 }}
                   />
-                  <Text className="text-gray-700 text-xs font-medium uppercase tracking-wide">
+                  <Text className="text-gray-700 text-xs font-medium uppercase tracking-wide font-mainRegular">
                     Base Reward
                   </Text>
                 </View>
-                <Text className="text-gray-900 font-bold text-xl">
+                <Text className="text-gray-900 font-bold text-xl font-mainRegular">
                   {effectiveBaseXpReward.toLocaleString()}
                 </Text>
-                <Text className="text-gray-600 text-sm mt-1">
+                <Text className="text-gray-600 text-sm mt-1 font-mainRegular">
                   XP per completion
                 </Text>
                 {decorationMultiplier && decorationMultiplier > 1 && (
-                  <Text className="text-purple-600 text-xs mt-1 font-medium">
+                  <Text className="text-purple-600 text-xs mt-1 font-medium font-mainRegular">
                     🎄 {decorationMultiplier}x multiplier
                   </Text>
                 )}
@@ -361,11 +367,11 @@ export const LevelDisplay = ({
                 <View className="flex-row items-center justify-between">
                   <View>
                     <View className="flex-row items-center mb-2">
-                      <Text className="text-purple-800 font-semibold text-lg">
+                      <Text className="text-purple-800 font-semibold text-lg font-mainRegular">
                         🎄 Tree Decorations
                       </Text>
                     </View>
-                    <Text className="text-purple-700 text-base">
+                    <Text className="text-purple-700 text-base font-mainRegular">
                       XP Multiplier: {decorationMultiplier}x
                     </Text>
                   </View>
@@ -377,7 +383,7 @@ export const LevelDisplay = ({
                     }}
                     className="rounded-xl px-4 py-2"
                   >
-                    <Text className="text-purple-800 font-bold text-base">
+                    <Text className="text-purple-800 font-bold text-base font-mainRegular">
                       +{Math.round((decorationMultiplier - 1) * 100)}% XP
                     </Text>
                   </View>
@@ -396,10 +402,10 @@ export const LevelDisplay = ({
             >
               <View className="flex-row items-center justify-between">
                 <View>
-                  <Text className="text-blue-900 font-semibold text-base mb-2 max-w-[78%]">
+                  <Text className="text-blue-900 font-semibold text-base mb-2 max-w-[78%] font-mainRegular">
                     Estimated Completions to Next Level
                   </Text>
-                  <Text className="text-blue-700 text-sm">
+                  <Text className="text-blue-700 text-sm font-mainRegular">
                     Based on current reward rate
                   </Text>
                 </View>
@@ -411,7 +417,7 @@ export const LevelDisplay = ({
                   }}
                   className="rounded-xl px-5 py-3"
                 >
-                  <Text className="text-blue-900 font-bold text-xl">
+                  <Text className="text-blue-900 font-bold text-xl font-mainRegular">
                     {estimatedCompletionsNeeded}
                   </Text>
                 </View>
@@ -439,13 +445,15 @@ export const LevelDisplay = ({
                 }}
                 className="w-12 h-12 rounded-xl items-center justify-center mr-4"
               >
-                <Text className="text-green-700 text-xl">🎉</Text>
+                <Text className="text-green-700 text-xl font-mainRegular">
+                  🎉
+                </Text>
               </View>
               <View className="flex-1">
-                <Text className="text-green-900 font-semibold text-base">
+                <Text className="text-green-900 font-semibold text-base font-mainRegular">
                   Almost there! Level {level + 1} is within reach
                 </Text>
-                <Text className="text-green-700 text-sm">
+                <Text className="text-green-700 text-sm font-mainRegular">
                   Just {(xpNeeded - xpIntoLevel).toLocaleString()} more XP to
                   go!
                 </Text>

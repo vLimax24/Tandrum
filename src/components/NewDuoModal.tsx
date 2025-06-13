@@ -254,12 +254,12 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
             </LinearGradient>
 
             <Text
-              className={`text-slate-900 ${isKeyboardVisible ? "text-xl" : "text-2xl"} font-bold text-center mb-2`}
+              className={`text-slate-900 font-mainRegular ${isKeyboardVisible ? "text-xl" : "text-2xl"} font-bold text-center mb-2`}
             >
               Start New Partnership
             </Text>
             {!isKeyboardVisible && (
-              <Text className="text-slate-600 text-base text-center leading-relaxed px-4">
+              <Text className="text-slate-600 text-base text-center leading-relaxed px-4 font-mainRegular">
                 Search for a partner by username and start building habits
                 together! 🌱
               </Text>
@@ -268,7 +268,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
 
           {/* Username Search */}
           <View className="mb-6">
-            <Text className="text-slate-700 text-lg font-semibold mb-3">
+            <Text className="text-slate-700 text-lg font-semibold mb-3 font-mainRegular">
               Search Partner
             </Text>
             <View
@@ -289,7 +289,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                 placeholder="Enter username..."
                 autoCapitalize="none"
                 autoComplete="username"
-                className="text-slate-900 text-base"
+                className="text-slate-900 text-base font-mainRegular"
                 style={{ fontSize: 16, color: "#1e293b" }}
                 placeholderTextColor="#94a3b8"
               />
@@ -325,7 +325,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                         }}
                       >
                         <Text
-                          className={`text-lg font-bold ${
+                          className={`text-lg font-bold font-mainRegular ${
                             isSearchResultCurrentUser
                               ? "text-slate-500"
                               : "text-emerald-600"
@@ -335,11 +335,11 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                         </Text>
                       </View>
                       <View className="flex-1">
-                        <Text className="text-slate-900 text-lg font-semibold">
+                        <Text className="text-slate-900 text-lg font-semibold font-mainRegular">
                           {searchResult.name}
                           {isSearchResultCurrentUser && " (You)"}
                         </Text>
-                        <Text className="text-slate-500 text-sm">
+                        <Text className="text-slate-500 text-sm font-mainRegular">
                           {isSearchResultCurrentUser
                             ? "You can't invite yourself"
                             : "Tap to send invite"}
@@ -355,7 +355,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                       }}
                     >
                       <Text
-                        className={`font-semibold text-sm ${
+                        className={`font-semibold text-sm font-mainRegular ${
                           isSearchResultCurrentUser
                             ? "text-slate-500"
                             : "text-emerald-600"
@@ -371,7 +371,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                   </TouchableOpacity>
                 ) : searchUsername.trim().length >= 2 ? (
                   <View className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
-                    <Text className="text-slate-600 text-center">
+                    <Text className="text-slate-600 text-center font-mainRegular">
                       No user found with username "{searchUsername}"
                     </Text>
                   </View>
@@ -382,7 +382,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
             {searchUsername.trim().length > 0 &&
               searchUsername.trim().length < 2 && (
                 <View className="mt-4 bg-blue-50 rounded-2xl p-3 border border-blue-200">
-                  <Text className="text-blue-700 text-sm text-center">
+                  <Text className="text-blue-700 text-sm text-center font-mainRegular">
                     Type at least 2 characters to search
                   </Text>
                 </View>
@@ -406,13 +406,15 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                   className="w-8 h-8 rounded-full items-center justify-center mr-3 mt-0.5"
                   style={{ backgroundColor: "rgba(59, 130, 246, 0.2)" }}
                 >
-                  <Text className="text-blue-600 text-sm font-bold">ℹ️</Text>
+                  <Text className="text-blue-600 text-sm font-bold font-mainRegular">
+                    ℹ️
+                  </Text>
                 </View>
                 <View className="flex-1">
-                  <Text className="text-blue-900 text-sm font-semibold mb-1">
+                  <Text className="text-blue-900 text-sm font-semibold mb-1 font-mainRegular">
                     How it works
                   </Text>
-                  <Text className="text-blue-700 text-sm leading-relaxed">
+                  <Text className="text-blue-700 text-sm leading-relaxed font-mainRegular">
                     Search for a partner by their username. Once you find them,
                     tap to send an invite. They'll be notified and can accept to
                     start your partnership!
@@ -436,7 +438,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                 elevation: 4,
               }}
             >
-              <Text className="text-slate-700 font-semibold text-lg">
+              <Text className="text-slate-700 font-semibold text-lg font-mainRegular">
                 Cancel
               </Text>
             </TouchableOpacity>

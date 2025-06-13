@@ -157,10 +157,10 @@ export default function OnboardingWelcome() {
 
               {/* Title and Subtitle */}
               <View className="items-center">
-                <Text className="text-4xl font-bold text-gray-900 text-center mb-4 leading-tight">
+                <Text className="text-4xl font-bold text-gray-900 text-center mb-4 leading-tight font-mainRegular">
                   Welcome to Your{"\n"}Learning Journey
                 </Text>
-                <Text className="text-lg text-gray-600 text-center leading-7 max-w-sm">
+                <Text className="text-lg text-gray-600 text-center leading-7 max-w-sm font-mainRegular">
                   Let's personalize your experience and connect you with a
                   community of learners just like you.
                 </Text>
@@ -193,7 +193,7 @@ export default function OnboardingWelcome() {
                 onPress={handleGetStarted}
               >
                 <View className="flex-row items-center">
-                  <Text className="text-white font-semibold text-lg mr-2">
+                  <Text className="text-white font-semibold text-lg mr-2 font-mainRegular">
                     Get Started
                   </Text>
                   <Ionicons name="arrow-forward" size={20} color="white" />
@@ -209,7 +209,9 @@ export default function OnboardingWelcome() {
                   AsyncStorage.setItem("onboardingCompleted", "true");
                 }}
               >
-                <Text className="text-gray-500 text-base">Skip for now</Text>
+                <Text className="text-gray-500 text-base font-mainRegular">
+                  Skip for now
+                </Text>
               </TouchableOpacity>
             </Animated.View>
           </View>

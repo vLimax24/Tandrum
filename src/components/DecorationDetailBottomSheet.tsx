@@ -128,7 +128,9 @@ const DecorationDetailBottomSheet = forwardRef<
               onPress={onClose}
               className="absolute top-4 right-4 w-8 h-8 bg-[rgba(255,255,255,0.2)] rounded-full justify-center items-center"
             >
-              <Text className="text-black text-lg font-bold">×</Text>
+              <Text className="text-black text-lg font-bold font-mainRegular">
+                ×
+              </Text>
             </TouchableOpacity>
 
             {/* Item icon and basic info */}
@@ -146,7 +148,7 @@ const DecorationDetailBottomSheet = forwardRef<
               </View>
 
               <View className="items-center justify-center">
-                <View className="flex-row items-center mb-2">
+                <View className="flex-row items-center mb-2 font-mainRegular">
                   <Text className="text-black text-xl font-bold mr-2">
                     {itemDefinition.name}
                   </Text>
@@ -156,7 +158,7 @@ const DecorationDetailBottomSheet = forwardRef<
                   <View
                     className={`${rarityConfig.badge} px-3 py-1 rounded-full`}
                   >
-                    <Text className="text-white text-xs font-bold uppercase tracking-wide">
+                    <Text className="text-white text-xs font-bold uppercase tracking-wide font-mainRegular">
                       {itemDefinition.rarity}
                     </Text>
                   </View>
@@ -169,7 +171,7 @@ const DecorationDetailBottomSheet = forwardRef<
           <View className="flex-1 px-6 ">
             {/* Description */}
             <View className="mb-6">
-              <Text className="text-gray-700 text-base leading-relaxed text-center">
+              <Text className="text-gray-700 text-base leading-relaxed text-center font-mainRegular">
                 {itemDefinition.description}
               </Text>
             </View>
@@ -178,20 +180,24 @@ const DecorationDetailBottomSheet = forwardRef<
             <View className="bg-emerald-50 border border-emerald-500 rounded-2xl p-4 mb-6">
               <View className="flex-row items-center mb-3">
                 <View className="w-8 h-8 bg-emerald-500 rounded-full justify-center items-center mr-3">
-                  <Text className="text-white text-sm">✨</Text>
+                  <Text className="text-white text-sm font-mainRegular">
+                    ✨
+                  </Text>
                 </View>
-                <Text className="text-emerald-500 text-lg font-bold flex-1">
+                <Text className="text-emerald-500 text-lg font-bold flex-1 font-mainRegular">
                   Active Ability
                 </Text>
                 <View className="bg-emerald-500 px-2 py-1 rounded-lg">
-                  <Text className="text-white text-xs font-bold">ACTIVE</Text>
+                  <Text className="text-white text-xs font-bold font-mainRegular">
+                    ACTIVE
+                  </Text>
                 </View>
               </View>
 
-              <Text className="text-emerald-800 text-base font-semibold mb-2">
+              <Text className="text-emerald-800 text-base font-semibold mb-2 font-mainRegular">
                 {itemDefinition.ability}
               </Text>
-              <Text className="text-gray-700 text-sm leading-relaxed">
+              <Text className="text-gray-700 text-sm leading-relaxed font-mainRegular">
                 {itemDefinition.abilityDescription}
               </Text>
 
@@ -199,14 +205,14 @@ const DecorationDetailBottomSheet = forwardRef<
               {decoration.buff && (
                 <View className="mt-4 bg-emerald-100 rounded-xl p-3">
                   <View className="flex-row items-center justify-between">
-                    <Text className="text-emerald-800 text-sm font-semibold">
+                    <Text className="text-emerald-800 text-sm font-semibold font-mainRegular">
                       Current Boost
                     </Text>
                     <View className="flex-row items-center">
-                      <Text className="text-emerald-600 text-lg font-bold mr-1">
+                      <Text className="text-emerald-600 text-lg font-bold mr-1 font-mainRegular">
                         {decoration.buff.xpMultiplier}x
                       </Text>
-                      <Text className="text-emerald-800 text-sm">
+                      <Text className="text-emerald-800 text-sm font-mainRegular">
                         XP Multiplier
                       </Text>
                     </View>
@@ -217,29 +223,35 @@ const DecorationDetailBottomSheet = forwardRef<
 
             {/* Stats or additional info */}
             <View className="bg-gray-50 rounded-2xl p-4 mb-6">
-              <Text className="text-gray-700 text-sm font-semibold mb-3">
+              <Text className="text-gray-700 text-sm font-semibold mb-3 font-mainRegular">
                 Equipment Details
               </Text>
               <View className="space-y-2">
                 <View className="flex-row justify-between items-center py-1">
-                  <Text className="text-gray-500 text-sm">Position</Text>
-                  <Text className="text-gray-700 text-sm font-medium">
+                  <Text className="text-gray-500 text-sm font-mainRegular">
+                    Position
+                  </Text>
+                  <Text className="text-gray-700 text-sm font-medium font-mainRegular">
                     Slot {slotIndex + 1}
                   </Text>
                 </View>
                 <View className="flex-row justify-between items-center py-1">
-                  <Text className="text-gray-500 text-sm">Rarity</Text>
+                  <Text className="text-gray-500 text-sm font-mainRegular">
+                    Rarity
+                  </Text>
                   <Text
-                    className={`text-sm font-medium capitalize ${rarityConfig.text}`}
+                    className={`text-sm font-medium capitalize font-mainRegular ${rarityConfig.text}`}
                   >
                     {itemDefinition.rarity}
                   </Text>
                 </View>
                 <View className="flex-row justify-between items-center py-1">
-                  <Text className="text-gray-500 text-sm">Status</Text>
+                  <Text className="text-gray-500 text-sm font-mainRegular">
+                    Status
+                  </Text>
                   <View className="flex-row items-center">
                     <View className="w-2 h-2 bg-emerald-500 rounded-full mr-2" />
-                    <Text className="text-emerald-600 text-sm font-medium">
+                    <Text className="text-emerald-600 text-sm font-medium font-mainRegular">
                       Equipped
                     </Text>
                   </View>
@@ -255,7 +267,7 @@ const DecorationDetailBottomSheet = forwardRef<
                 onPress={onClose}
                 className="flex-1 bg-gray-100 border border-gray-200 rounded-2xl py-4 px-6"
               >
-                <Text className="text-gray-700 text-base font-semibold text-center">
+                <Text className="text-gray-700 text-base font-semibold text-center font-mainRegular">
                   Keep Equipped
                 </Text>
               </TouchableOpacity>
@@ -264,14 +276,14 @@ const DecorationDetailBottomSheet = forwardRef<
                 onPress={onRemove}
                 className="flex-1 bg-red-600 rounded-2xl py-4 px-6 shadow-lg"
               >
-                <Text className="text-white text-base font-semibold text-center">
+                <Text className="text-white text-base font-semibold text-center font-mainRegular">
                   Remove Item
                 </Text>
               </TouchableOpacity>
             </View>
 
             {/* Warning text */}
-            <Text className="text-gray-400 text-xs text-center mt-3">
+            <Text className="text-gray-400 text-xs text-center mt-3 font-mainRegular">
               Removing this item will return it to your inventory
             </Text>
           </View>

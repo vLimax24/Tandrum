@@ -14,8 +14,12 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
 }) => (
   <View className="flex-row justify-between items-center mb-6">
     <View>
-      <Text className="text-[#111827] font-bold text-2xl mb-1">{title}</Text>
-      <Text className="text-[#6b7280] text-sm">Reset in {resetTime}</Text>
+      <Text className="text-[#111827] font-bold text-2xl mb-1 font-mainRegular">
+        {title}
+      </Text>
+      <Text className="text-[#6b7280] text-sm font-mainRegular">
+        Reset in {resetTime}
+      </Text>
     </View>
     <View
       style={{
@@ -40,7 +44,9 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
           paddingVertical: 4,
         }}
       >
-        <Text className="text-[#059669] text-xs font-bold">YOU</Text>
+        <Text className="text-[#059669] text-xs font-bold font-mainRegular">
+          YOU
+        </Text>
       </View>
       <View
         style={{
@@ -52,7 +58,9 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
           paddingVertical: 4,
         }}
       >
-        <Text className="text-[#1d4ed8] text-xs font-bold">PARTNER</Text>
+        <Text className="text-[#1d4ed8] text-xs font-bold font-mainRegular">
+          PARTNER
+        </Text>
       </View>
     </View>
   </View>

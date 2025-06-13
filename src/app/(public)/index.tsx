@@ -57,10 +57,10 @@ export default function AuthPage() {
             source={require("../../assets/tree-2.png")}
             style={{ width: 350, height: 350, resizeMode: "contain" }}
           />
-          <Text className="text-3xl font-bold text-gray-800 text-center mb-4">
+          <Text className="text-3xl font-bold text-gray-800 text-center mb-4 font-mainRegular">
             Welcome Back!
           </Text>
-          <Text className="text-lg text-gray-600 text-center">
+          <Text className="text-lg text-gray-600 text-center font-mainRegular">
             Sign in to continue your learning journey
           </Text>
         </View>
@@ -70,7 +70,7 @@ export default function AuthPage() {
           activeOpacity={0.8}
           onPress={handleGoogleLogin}
         >
-          <Text className="text-white font-semibold text-lg">
+          <Text className="text-white font-semibold text-lg font-mainRegular">
             Continue with Google
           </Text>
         </TouchableOpacity>

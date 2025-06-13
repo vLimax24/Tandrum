@@ -58,7 +58,7 @@ export const ModalLayout = ({
 
             {/* Title */}
             <Text
-              className="text-xl font-semibold text-center mb-6"
+              className="text-xl font-semibold text-center mb-6 font-mainRegular"
               style={{ color: "#000000" }}
             >
               Invite a Buddy
@@ -67,7 +67,7 @@ export const ModalLayout = ({
             {/* QR Code */}
             <View className="mb-6">
               <Text
-                className="text-sm font-medium mb-2"
+                className="text-sm font-medium mb-2 font-mainRegular"
                 style={{ color: "#1f2937" }}
               >
                 Scan QR Code
@@ -80,7 +80,7 @@ export const ModalLayout = ({
             {/* Share Link */}
             <View className="mb-6">
               <Text
-                className="text-sm font-medium mb-2"
+                className="text-sm font-medium mb-2 font-mainRegular"
                 style={{ color: "#1f2937" }}
               >
                 Or share link
@@ -91,7 +91,7 @@ export const ModalLayout = ({
               >
                 <Text
                   selectable
-                  className="text-xs flex-1"
+                  className="text-xs flex-1 font-mainRegular"
                   style={{ color: "#2563eb" }}
                 >
                   {inviteLink}
@@ -102,7 +102,7 @@ export const ModalLayout = ({
                   style={{ backgroundColor: "#2563eb" }}
                 >
                   <Text
-                    className="text-xs font-semibold"
+                    className="text-xs font-semibold font-mainRegular"
                     style={{ color: "#ffffff" }}
                   >
                     Copy
@@ -114,7 +114,7 @@ export const ModalLayout = ({
             {/* Username Search */}
             <View className="mb-6">
               <Text
-                className="text-sm font-medium mb-2"
+                className="text-sm font-medium mb-2 font-mainRegular"
                 style={{ color: "#1f2937" }}
               >
                 Or search by username
@@ -125,7 +125,7 @@ export const ModalLayout = ({
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize="none"
-                className="px-4 py-2 rounded-md text-base"
+                className="px-4 py-2 rounded-md text-base font-mainRegular"
                 style={{
                   borderWidth: 1,
                   borderColor: "#d1d5db",
@@ -137,7 +137,10 @@ export const ModalLayout = ({
                 <>
                   {userMatch ? (
                     <View className="mt-2">
-                      <Text style={{ color: "#15803d" }}>
+                      <Text
+                        style={{ color: "#15803d" }}
+                        className=" font-mainRegular"
+                      >
                         Found: {userMatch.name}
                       </Text>
                       <Pressable
@@ -149,7 +152,7 @@ export const ModalLayout = ({
                         style={{ backgroundColor: "#16a34a" }}
                       >
                         <Text
-                          className="text-center font-semibold"
+                          className="text-center font-semibold font-mainRegular"
                           style={{ color: "#ffffff" }}
                         >
                           Invite to Duo
@@ -157,7 +160,10 @@ export const ModalLayout = ({
                       </Pressable>
                     </View>
                   ) : (
-                    <Text className="mt-2" style={{ color: "#ef4444" }}>
+                    <Text
+                      className="mt-2 font-mainRegular"
+                      style={{ color: "#ef4444" }}
+                    >
                       User not found
                     </Text>
                   )}
@@ -172,7 +178,7 @@ export const ModalLayout = ({
               style={{ backgroundColor: "#e5e7eb" }}
             >
               <Text
-                className="text-center font-medium"
+                className="text-center font-medium font-mainRegular"
                 style={{ color: "#1f2937" }}
               >
                 Close

@@ -323,9 +323,13 @@ export default function SettingsScreen() {
         <Ionicons name={icon as any} size={20} color={iconColor} />
       </View>
       <View className="flex-1">
-        <Text className="text-gray-900 text-base font-semibold">{title}</Text>
+        <Text className="text-gray-900 text-base font-semibold font-mainRegular">
+          {title}
+        </Text>
         {subtitle && (
-          <Text className="text-gray-500 text-sm mt-1">{subtitle}</Text>
+          <Text className="text-gray-500 text-sm mt-1 font-mainRegular">
+            {subtitle}
+          </Text>
         )}
       </View>
       {rightElement ||
@@ -351,7 +355,9 @@ export default function SettingsScreen() {
           >
             <Ionicons name="arrow-back" size={20} color="#374151" />
           </TouchableOpacity>
-          <Text className="text-xl font-bold text-gray-900">Settings</Text>
+          <Text className="text-xl font-bold text-gray-900 font-mainRegular">
+            Settings
+          </Text>
         </View>
       </LinearGradient>
 
@@ -359,7 +365,7 @@ export default function SettingsScreen() {
         {/* Notifications Section */}
         <View className="bg-white mx-4 mt-6 rounded-2xl border border-gray-200 shadow-sm">
           <View className="bg-blue-50 px-6 py-4 border-b border-blue-100 rounded-t-2xl">
-            <Text className="text-blue-800 text-lg font-bold">
+            <Text className="text-blue-800 text-lg font-bold font-mainRegular">
               Notifications
             </Text>
           </View>
@@ -438,7 +444,9 @@ export default function SettingsScreen() {
         {/* Experience Section */}
         <View className="bg-white mx-4 mt-4 rounded-2xl border border-gray-200 shadow-sm">
           <View className="bg-green-50 px-6 py-4 border-b border-green-100 rounded-t-2xl">
-            <Text className="text-green-800 text-lg font-bold">Experience</Text>
+            <Text className="text-green-800 text-lg font-bold font-mainRegular">
+              Experience
+            </Text>
           </View>
 
           <SettingItem
@@ -497,7 +505,7 @@ export default function SettingsScreen() {
         {/* Support Section */}
         <View className="bg-white mx-4 mt-4 rounded-2xl border border-gray-200 shadow-sm">
           <View className="bg-purple-50 px-6 py-4 border-b border-purple-100 rounded-t-2xl">
-            <Text className="text-purple-800 text-lg font-bold">
+            <Text className="text-purple-800 text-lg font-bold font-mainRegular">
               Support & Feedback
             </Text>
           </View>
@@ -537,7 +545,7 @@ export default function SettingsScreen() {
         {/* Legal Section */}
         <View className="bg-white mx-4 mt-4 rounded-2xl border border-gray-200 shadow-sm">
           <View className="bg-orange-50 px-6 py-4 border-b border-orange-100 rounded-t-2xl">
-            <Text className="text-orange-800 text-lg font-bold">
+            <Text className="text-orange-800 text-lg font-bold font-mainRegular">
               Legal & Privacy
             </Text>
           </View>
@@ -577,7 +585,9 @@ export default function SettingsScreen() {
         {/* Account Section */}
         <View className="bg-white mx-4 mt-4 mb-6 rounded-2xl border border-gray-200 shadow-sm">
           <View className="bg-red-50 px-6 py-4 border-b border-red-100 rounded-t-2xl">
-            <Text className="text-red-800 text-lg font-bold">Account</Text>
+            <Text className="text-red-800 text-lg font-bold font-mainRegular">
+              Account
+            </Text>
           </View>
 
           <SettingItem
@@ -592,8 +602,12 @@ export default function SettingsScreen() {
 
         {/* App Version */}
         <View className="items-center pb-8">
-          <Text className="text-gray-400 text-sm">Version 1.0.0</Text>
-          <Text className="text-gray-400 text-xs mt-1">© 2024 Tandrum</Text>
+          <Text className="text-gray-400 text-sm font-mainRegular">
+            Version 1.0.0
+          </Text>
+          <Text className="text-gray-400 text-xs mt-1 font-mainRegular">
+            © 2024 Tandrum
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>

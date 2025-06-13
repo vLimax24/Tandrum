@@ -39,7 +39,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({
       {/* Header with title and menu */}
       <View className="flex-row items-start justify-between mb-4">
         <View className="flex-1 mr-4">
-          <Text className="text-[#1f2937] font-bold text-lg leading-6 mb-2">
+          <Text className="text-[#1f2937] font-bold text-lg leading-6 mb-2 font-mainRegular">
             {habit.title}
           </Text>
 
@@ -58,7 +58,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Text
-                className="text-xs font-semibold"
+                className="text-xs font-semibold font-mainRegular"
                 style={{
                   color: habit.frequency === "daily" ? "#1d4ed8" : "#7c3aed",
                 }}
@@ -110,7 +110,9 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                 marginBottom: 8,
               }}
             >
-              <Text className="text-[#059669] text-xs font-bold">YOU</Text>
+              <Text className="text-[#059669] text-xs font-bold font-mainRegular">
+                YOU
+              </Text>
             </View>
 
             {/* My checkbox */}
@@ -135,7 +137,9 @@ export const HabitItem: React.FC<HabitItemProps> = ({
               activeOpacity={isDoneByMe ? 1 : 0.7}
             >
               {isDoneByMe ? (
-                <Text className="text-white font-bold text-xl">✓</Text>
+                <Text className="text-white font-bold text-xl font-mainRegular">
+                  ✓
+                </Text>
               ) : (
                 <View
                   style={{
@@ -177,7 +181,9 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                 marginBottom: 8,
               }}
             >
-              <Text className="text-[#1d4ed8] text-xs font-bold">PARTNER</Text>
+              <Text className="text-[#1d4ed8] text-xs font-bold font-mainRegular">
+                PARTNER
+              </Text>
             </View>
 
             {/* Partner's checkbox */}
@@ -199,7 +205,9 @@ export const HabitItem: React.FC<HabitItemProps> = ({
               }}
             >
               {isDoneByPartner ? (
-                <Text className="text-white font-bold text-xl">✓</Text>
+                <Text className="text-white font-bold text-xl font-mainRegular">
+                  ✓
+                </Text>
               ) : (
                 <View
                   style={{
@@ -235,11 +243,14 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                 }}
               >
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text style={{ fontSize: 12, marginRight: 4 }}>
+                  <Text
+                    style={{ fontSize: 12, marginRight: 4 }}
+                    className=" font-mainRegular"
+                  >
                     {isDoneByMe && isDoneByPartner ? "🎉" : "⏳"}
                   </Text>
                   <Text
-                    className="text-xs font-semibold"
+                    className="text-xs font-semibold font-mainRegular"
                     style={{
                       color:
                         isDoneByMe && isDoneByPartner ? "#059669" : "#d97706",

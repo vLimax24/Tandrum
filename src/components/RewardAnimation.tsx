@@ -309,6 +309,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                         color: "#ffffff",
                         fontWeight: "800",
                       }}
+                      className="font-mainRegular"
                     >
                       ✓
                     </Text>
@@ -324,6 +325,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                   textAlign: "center",
                   marginBottom: 4,
                 }}
+                className="font-mainRegular"
               >
                 Perfect Teamwork!
               </Text>
@@ -346,6 +348,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                   textAlign: "center",
                   lineHeight: 20,
                 }}
+                className="font-mainRegular"
               >
                 You both completed this habit together
               </Text>
@@ -402,6 +405,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                         fontSize: 12,
                         fontWeight: "800",
                       }}
+                      className="font-mainRegular"
                     >
                       +
                     </Text>
@@ -432,6 +436,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                         fontSize: 12,
                         fontWeight: "700",
                       }}
+                      className="font-mainRegular"
                     >
                       XP
                     </Text>
@@ -457,6 +462,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                     fontWeight: "600",
                     textAlign: "center",
                   }}
+                  className="font-mainRegular"
                 >
                   ADDED TO TRUST SCORE
                 </Text>
@@ -516,7 +522,12 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                         elevation: 6,
                       }}
                     >
-                      <Text style={{ fontSize: 32 }}>{rewards.item.icon}</Text>
+                      <Text
+                        style={{ fontSize: 32 }}
+                        className="font-mainRegular"
+                      >
+                        {rewards.item.icon}
+                      </Text>
                     </View>
 
                     {/* Rarity badge */}
@@ -536,6 +547,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                           fontWeight: "800",
                           letterSpacing: 0.8,
                         }}
+                        className="font-mainRegular"
                       >
                         {rewards.item.rarity.toUpperCase()}
                       </Text>
@@ -549,6 +561,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                         fontWeight: "700",
                         textAlign: "center",
                       }}
+                      className="font-mainRegular"
                     >
                       {rewards.item.name}
                     </Text>

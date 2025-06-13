@@ -344,10 +344,10 @@ export default function TutorialScreen() {
               </View>
             </View>
 
-            <Text className="text-4xl font-bold text-gray-900 text-center mb-4 leading-tight">
+            <Text className="text-4xl font-bold text-gray-900 text-center mb-4 leading-tight font-mainRegular">
               Ready to Start Your{"\n"}Journey?
             </Text>
-            <Text className="text-lg text-gray-600 text-center leading-7 max-w-sm">
+            <Text className="text-lg text-gray-600 text-center leading-7 max-w-sm font-mainRegular">
               Sign in with Google to unlock your personalized learning
               experience and join our community.
             </Text>
@@ -373,7 +373,7 @@ export default function TutorialScreen() {
             >
               <View className="flex-row items-center">
                 <Ionicons name="logo-google" size={20} color="white" />
-                <Text className="text-white font-semibold text-lg ml-3">
+                <Text className="text-white font-semibold text-lg ml-3 font-mainRegular">
                   Continue with Google
                 </Text>
               </View>
@@ -425,7 +425,9 @@ export default function TutorialScreen() {
             elevation: 2,
           }}
         >
-          <Text className="text-gray-600 text-base font-medium">Skip</Text>
+          <Text className="text-gray-600 text-base font-medium font-mainRegular">
+            Skip
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -510,10 +512,10 @@ export default function TutorialScreen() {
 
               {/* Content */}
               <View className="items-center max-w-sm">
-                <Text className="text-3xl font-bold text-gray-900 text-center mb-4 leading-tight">
+                <Text className="text-3xl font-bold text-gray-900 text-center mb-4 leading-tight font-mainRegular">
                   {page.title}
                 </Text>
-                <Text className="text-lg text-gray-600 text-center leading-7">
+                <Text className="text-lg text-gray-600 text-center leading-7 font-mainRegular">
                   {page.description}
                 </Text>
               </View>
@@ -543,7 +545,7 @@ export default function TutorialScreen() {
           onPress={handleNext}
         >
           <View className="flex-row items-center">
-            <Text className="text-white font-semibold text-lg mr-2">
+            <Text className="text-white font-semibold text-lg mr-2 font-mainRegular">
               {currentPage === tutorialPages.length - 1
                 ? "Get Started"
                 : "Continue"}
