@@ -6,13 +6,7 @@ import { getLevelData } from "@/utils/level";
 import { Doc } from "convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
-
-const treeImages: Record<string, any> = {
-  leaf: require("../assets/hemp-leaf.png"),
-  orange: require("../assets/orange.png"),
-  sprout: require("../assets/tree-1.png"),
-  trophy: require("../assets/orange.png"), // Add if available
-};
+import { treeImages } from "@/utils/treeImages";
 
 interface LevelDisplayProps {
   duo: Doc<"duoConnections">;

@@ -27,11 +27,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "convex/_generated/dataModel";
-
-const treeImages: Record<string, any> = {
-  leaf: require("../assets/hemp-leaf.png"),
-  sprout: require("../assets/tree-1.png"),
-};
+import { treeImages } from "@/utils/treeImages";
 
 interface NewDuoModalProps {
   visible: boolean;

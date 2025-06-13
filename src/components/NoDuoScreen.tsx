@@ -5,17 +5,7 @@ import { NewDuoModal } from "@/components/NewDuoModal";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
-import { Id } from "convex/_generated/dataModel";
-
-const treeImages: Record<string, any> = {
-  sprout: require("../assets/tree-1.png"),
-  smallTree: require("../assets/tree-2.png"),
-  mediumTree: require("../assets/tree-1.png"),
-  grownTree: require("../assets/tree-1.png"),
-  orange: require("../assets/orange.png"),
-  leaf: require("../assets/hemp-leaf.png"),
-  calendar: require("../assets/calendar.png"),
-};
+import { treeImages } from "@/utils/treeImages";
 
 interface NoDuoScreenProps {
   modalVisible: boolean;

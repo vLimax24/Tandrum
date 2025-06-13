@@ -45,7 +45,7 @@ const tutorialPages: TutorialPage[] = [
     title: "Track Your Progress",
     description:
       "Monitor your achievements and see how far you've come with detailed progress tracking and meaningful insights.",
-    image: require("../../../assets/tree-1.png"),
+    image: require("../../../assets/tree-3.png"),
     iconName: "trending-up",
     gradientColors: ["#8b5cf6", "#a855f7"] as const,
   },
@@ -54,7 +54,7 @@ const tutorialPages: TutorialPage[] = [
     title: "Learn with Friends",
     description:
       "Connect with others, share your progress, and learn together in a supportive community of like-minded learners.",
-    image: require("../../../assets/tree-1.png"),
+    image: require("../../../assets/tree-4.png"),
     iconName: "people",
     gradientColors: ["#06b6d4", "#0891b2"] as const,
   },

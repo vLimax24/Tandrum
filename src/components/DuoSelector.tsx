@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, Image } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
+import { treeImages } from "@/utils/treeImages";
 
 interface DuoSelectorProps {
   connections: any[];
@@ -13,10 +14,6 @@ export function DuoSelector({
   selectedIndex,
   setSelectedIndex,
 }: DuoSelectorProps) {
-  const treeImages = {
-    leaf: require("@/assets/hemp-leaf.png"),
-  };
-
   return (
     <View className="mb-6">
       <Text className="text-lg font-semibold text-text mb-2 font-mainRegular">

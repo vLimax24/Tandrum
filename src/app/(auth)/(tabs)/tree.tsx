@@ -12,16 +12,7 @@ import TreeInventory from "@/components/TreeInventory";
 import { LinearGradient } from "expo-linear-gradient";
 import { NoDuoScreen } from "@/components/NoDuoScreen";
 import { ItemType } from "@/components/TreeInventory";
-
-const treeImages: Record<string, any> = {
-  "tree-1": require("../../../assets/tree-1.png"),
-  "tree-2": require("../../../assets/tree-2.png"),
-  "tree-3": require("../../../assets/tree-1.png"),
-  "tree-4": require("../../../assets/tree-1.png"),
-  orange: require("../../../assets/orange.png"),
-  leaf: require("../../../assets/hemp-leaf.png"),
-  calendar: require("../../../assets/calendar.png"),
-};
+import { treeImages } from "@/utils/treeImages";
 
 export default function TreeSection() {
   const { user } = useUser();
@@ -216,7 +207,7 @@ export default function TreeSection() {
         <View className="items-center mb-6 relative">
           <Image
             source={treeImages[treeData.stage]}
-            style={{ width: 180, height: 180 }}
+            style={{ width: 300, height: 300 }}
             resizeMode="contain"
           />
           {/* TreeInventory component will render slots and decorations over the tree */}
