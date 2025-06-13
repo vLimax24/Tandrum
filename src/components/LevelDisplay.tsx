@@ -1,13 +1,8 @@
-import { View, Text, Animated, Image, TouchableOpacity } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import { View, Text, Animated, Image } from "react-native";
+import React, { useEffect, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
-import {
-  getLevelData,
-  getBaseXpReward,
-  calculateXpReward,
-  getLevelingPreview,
-} from "@/utils/level";
+import { getLevelData, calculateXpReward } from "@/utils/level";
 import { Doc } from "convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
