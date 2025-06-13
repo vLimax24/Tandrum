@@ -2,7 +2,7 @@ import { View, Text, Animated, Image } from "react-native";
 import React, { useEffect, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
-import { getLevelData, calculateXpReward } from "@/utils/level";
+import { getLevelData } from "@/utils/level";
 import { Doc } from "convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
@@ -75,13 +75,7 @@ export const LevelDisplay = ({
     }
   }, [progress]);
 
-  // Calculate streak bonus and other multipliers
   const currentStreak = duo.streak || 0;
-  const potentialXpWithBonus = calculateXpReward(level, {
-    streak: currentStreak,
-    difficulty: "medium",
-    perfect: true,
-  });
 
   const decorationMultiplier = useQuery(api.trees.getXpMultiplier, {
     duoId: duo._id,
@@ -89,9 +83,6 @@ export const LevelDisplay = ({
 
   const effectiveBaseXpReward = Math.round(
     baseXpReward * (decorationMultiplier || 1)
-  );
-  const effectivePotentialXpWithBonus = Math.round(
-    potentialXpWithBonus * (decorationMultiplier || 1)
   );
 
   const estimatedCompletionsNeeded = Math.ceil(
@@ -357,50 +348,6 @@ export const LevelDisplay = ({
                 )}
               </View>
             </View>
-
-            {/* Streak and Bonus Information */}
-            {currentStreak > 0 && (
-              <View
-                style={{
-                  backgroundColor: "#FEF3C7",
-                  borderWidth: 1,
-                  borderColor: "#FDE68A",
-                }}
-                className="rounded-2xl p-4 mb-5"
-              >
-                <View className="flex-row items-center justify-between">
-                  <View>
-                    <View className="flex-row items-center mb-2">
-                      <Text className="text-orange-800 font-semibold text-lg">
-                        🔥 {currentStreak} Day Streak
-                      </Text>
-                    </View>
-                    <Text className="text-orange-700 text-base">
-                      Bonus XP: +
-                      {Math.round(
-                        ((effectivePotentialXpWithBonus -
-                          effectiveBaseXpReward) /
-                          effectiveBaseXpReward) *
-                          100
-                      )}
-                      %
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      backgroundColor: "#FED7AA",
-                      borderWidth: 1,
-                      borderColor: "#FDBA74",
-                    }}
-                    className="rounded-xl px-4 py-2"
-                  >
-                    <Text className="text-orange-800 font-bold text-base">
-                      {effectivePotentialXpWithBonus.toLocaleString()} XP
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            )}
 
             {decorationMultiplier && decorationMultiplier > 1 && (
               <View

@@ -73,39 +73,6 @@ export function getTreeStageForLevel(level: number): string {
   return "tree-4";
 }
 
-// Bonus multipliers for streaks, difficulty, etc.
-export function calculateXpReward(
-  baseLevel: number,
-  options: {
-    streak?: number;
-    difficulty?: "easy" | "medium" | "hard";
-    perfect?: boolean;
-  } = {}
-): number {
-  let xp = getBaseXpReward(baseLevel);
-
-  // Streak bonus (up to 50% bonus for 30+ day streaks)
-  if (options.streak && options.streak > 0) {
-    const streakBonus = Math.min(0.5, options.streak * 0.02); // 2% per day, capped at 50%
-    xp *= 1 + streakBonus;
-  }
-
-  // Difficulty multiplier
-  const difficultyMultipliers = {
-    easy: 0.8,
-    medium: 1.0,
-    hard: 1.3,
-  };
-  xp *= difficultyMultipliers[options.difficulty || "medium"];
-
-  // Perfect completion bonus
-  if (options.perfect) {
-    xp *= 1.1; // 10% bonus
-  }
-
-  return Math.floor(xp);
-}
-
 // Utility function to get leveling preview
 export function getLevelingPreview(maxLevel: number = 20): Array<{
   level: number;
