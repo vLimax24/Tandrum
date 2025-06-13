@@ -86,17 +86,15 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
       streakDisplay.push(
         <View key={i} className="items-center" style={{ marginHorizontal: 4 }}>
           <View
-            className={`rounded-full border-2 flex items-center justify-center relative ${
-              isStreakDay
-                ? "shadow-lg"
-                : isToday
-                  ? "bg-[#f0fdf4]"
-                  : "border-[#e5e7eb] bg-[#f9fafb]"
-            }`}
+            className="rounded-full border-2 flex items-center justify-center relative"
             style={{
               width: circleSize,
               height: circleSize,
-              backgroundColor: isStreakDay ? streakColors.primary : undefined,
+              backgroundColor: isStreakDay
+                ? streakColors.primary
+                : isToday
+                  ? "#f0fdf4"
+                  : "#f9fafb",
               borderColor: isStreakDay
                 ? streakColors.primary
                 : isToday
@@ -110,13 +108,7 @@ export const StreakVisualization: React.FC<{ duo: Doc<"duoConnections"> }> = ({
             }}
           >
             <Text
-              className={`text-xs font-bold ${
-                isStreakDay
-                  ? "text-white"
-                  : isToday
-                    ? "text-[#10b981]"
-                    : "text-[#9ca3af]"
-              }`}
+              className="text-xs font-bold"
               style={{
                 color: isStreakDay
                   ? "white"
