@@ -152,7 +152,7 @@ export const LevelDisplay = ({
               className="h-full rounded-full"
             >
               <LinearGradient
-                colors={["#3B82F6", "#9333EA"]}
+                colors={["#10b981", "#059669"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={{ flex: 1, borderRadius: 4 }}
@@ -174,7 +174,7 @@ export const LevelDisplay = ({
               {decorationMultiplier && decorationMultiplier > 1 && (
                 <View className="flex-row items-center">
                   <Text className="text-purple-600 text-xs font-medium font-mainRegular">
-                    🎄 {decorationMultiplier}x XP
+                    🎄 {Math.floor(decorationMultiplier)}x XP
                   </Text>
                 </View>
               )}
@@ -256,7 +256,7 @@ export const LevelDisplay = ({
               className="h-full rounded-full shadow-sm"
             >
               <LinearGradient
-                colors={["#3B82F6", "#9333EA"]}
+                colors={["#10b981", "#059669"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={{ flex: 1, borderRadius: 8 }}
@@ -343,7 +343,7 @@ export const LevelDisplay = ({
                 </Text>
                 {decorationMultiplier && decorationMultiplier > 1 && (
                   <Text className="text-purple-600 text-xs mt-1 font-medium font-mainRegular">
-                    🎄 {decorationMultiplier}x multiplier
+                    🎄 {Math.floor(decorationMultiplier)}x multiplier
                   </Text>
                 )}
               </View>
@@ -366,7 +366,7 @@ export const LevelDisplay = ({
                       </Text>
                     </View>
                     <Text className="text-purple-700 text-base font-mainRegular">
-                      XP Multiplier: {decorationMultiplier}x
+                      XP Multiplier: {Math.floor(decorationMultiplier)}x
                     </Text>
                   </View>
                   <View
