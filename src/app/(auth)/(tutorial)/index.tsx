@@ -210,13 +210,7 @@ export default function TutorialScreen() {
   };
 
   const handleSkip = () => {
-    const targetPage = tutorialPages.length - 1; // Go to last page (index 2)
-    setCurrentPage(targetPage);
-    scrollViewRef.current?.scrollTo({
-      x: targetPage * width,
-      animated: true,
-    });
-    animatePageTransition(targetPage);
+    setShowAuth(true);
   };
 
   const handleGoogleLogin = async () => {
@@ -383,14 +377,6 @@ export default function TutorialScreen() {
                   Continue with Google
                 </Text>
               </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              className="items-center py-3"
-              activeOpacity={0.7}
-              onPress={handleSkip}
-            >
-              <Text className="text-gray-500 text-base">Skip for now</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
