@@ -223,7 +223,7 @@ export default function HabitsSection() {
             timeWeek={Number(timeWeek)}
           />
 
-          <View className="px-6 -mt-6">
+          <View className="px-6">
             <DuoSelector
               connections={connections}
               selectedIndex={selectedIndex}
