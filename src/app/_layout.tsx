@@ -25,7 +25,7 @@ import { DuoProvider } from "@/hooks/useDuo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
-import { AppState } from "react-native";
+import { ThemeProvider } from "@/contexts/themeContext";
 
 const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
@@ -210,11 +210,13 @@ export default function Layout() {
         <SafeAreaProvider>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <BottomSheetModalProvider>
-              <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-                <DuoProvider>
-                  <InitialLayout />
-                </DuoProvider>
-              </ConvexProviderWithClerk>
+              <ThemeProvider>
+                <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+                  <DuoProvider>
+                    <InitialLayout />
+                  </DuoProvider>
+                </ConvexProviderWithClerk>
+              </ThemeProvider>
             </BottomSheetModalProvider>
           </GestureHandlerRootView>
         </SafeAreaProvider>
