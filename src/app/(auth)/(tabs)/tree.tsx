@@ -16,6 +16,7 @@ import { ItemType } from "@/components/TreeInventory";
 import { treeImages } from "@/utils/treeImages";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function TreeSection() {
   const { user } = useUser();
@@ -254,13 +255,10 @@ export default function TreeSection() {
           <View className="p-6">
             <View className="flex-row items-center gap-3 mb-4">
               <View className="w-8 h-8 rounded-xl bg-primary/20 items-center justify-center">
-                <Image
-                  source={treeImages["leaf"]}
-                  style={{
-                    width: 16,
-                    height: 16,
-                    tintColor: theme.colors.primary,
-                  }}
+                <Ionicons
+                  size={15}
+                  name="people"
+                  color={theme.colors.primaryLight}
                 />
               </View>
               <Text
@@ -278,45 +276,55 @@ export default function TreeSection() {
                 borderColor: theme.colors.primary,
               }}
             >
-              <RNPickerSelect
-                onValueChange={setSelectedIndex}
-                placeholder={{}}
-                value={selectedIndex}
-                items={connections.map((c, i) => ({
-                  label: `Duo with ${c.partnerName}`,
-                  value: i,
-                }))}
-                useNativeAndroidPickerStyle={false}
-                style={{
-                  inputIOS: {
-                    color: "#ffffff",
-                    fontSize: 16,
-                    fontWeight: "600",
-                    paddingVertical: 8,
-                    paddingRight: 40,
-                    paddingLeft: 4,
-                  },
-                  inputAndroid: {
-                    color: "#ffffff",
-                    fontSize: 16,
-                    fontWeight: "600",
-                    paddingVertical: 8,
-                    paddingRight: 40,
-                    paddingLeft: 4,
-                  },
-                  iconContainer: {
-                    position: "absolute",
-                    right: 12,
-                    top: "50%",
-                    marginTop: -8,
-                  },
-                }}
-                Icon={() => (
-                  <View className="w-6 h-6 rounded-full bg-white/20 items-center justify-center">
-                    <Text style={{ color: "#ffffff", fontSize: 12 }}>▾</Text>
-                  </View>
-                )}
-              />
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View className="flex-1">
+                  <RNPickerSelect
+                    onValueChange={setSelectedIndex}
+                    placeholder={{}}
+                    value={selectedIndex}
+                    items={connections.map((c, i) => ({
+                      label: `Duo with ${c.partnerName}`,
+                      value: i,
+                    }))}
+                    useNativeAndroidPickerStyle={false}
+                    style={{
+                      inputIOS: {
+                        color: "#ffffff",
+                        fontSize: 16,
+                        fontWeight: "600",
+                        paddingVertical: 8,
+                        paddingRight: 40,
+                        paddingLeft: 4,
+                      },
+                      inputAndroid: {
+                        color: "#ffffff",
+                        fontSize: 16,
+                        fontWeight: "600",
+                        paddingVertical: 8,
+                        paddingRight: 40,
+                        paddingLeft: 4,
+                      },
+                      iconContainer: {
+                        position: "absolute",
+                        right: 0,
+                        top: "50%",
+                        marginTop: -20 / 2, // half icon height
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: 40,
+                        width: 40,
+                      },
+                    }}
+                    Icon={() => (
+                      <View className="w-8 h-8 rounded-full bg-white/20 items-center justify-center mb-5">
+                        <Text style={{ color: "#ffffff", fontSize: 20 }}>
+                          ▾
+                        </Text>
+                      </View>
+                    )}
+                  />
+                </View>
+              </View>
             </View>
           </View>
         </BlurView>
@@ -546,7 +554,7 @@ export default function TreeSection() {
                         }}
                       >
                         <Text
-                          className="text-sm"
+                          className="text-xl"
                           style={{ color: theme.colors.text.tertiary }}
                         >
                           ▾
