@@ -8,8 +8,6 @@ import {
   TouchableOpacity,
   StatusBar,
   SafeAreaView,
-  useColorScheme,
-  ColorValue,
 } from "react-native";
 import { useQuery, useMutation } from "convex/react";
 import { useUser } from "@clerk/clerk-expo";
@@ -22,7 +20,6 @@ import { useDuo } from "@/hooks/useDuo";
 import { NewDuoModal } from "@/components/NewDuoModal";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { treeImages } from "@/utils/treeImages";
 import { createTheme } from "@/utils/theme";
 import { useTheme } from "@/contexts/themeContext";
@@ -30,7 +27,6 @@ import { useTheme } from "@/contexts/themeContext";
 const Page = () => {
   const { user } = useUser();
   const clerkId = user?.id;
-  const systemColorScheme = useColorScheme();
 
   const convexUser = useQuery(
     api.users.getUserByClerkId,
