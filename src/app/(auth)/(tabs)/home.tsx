@@ -239,7 +239,7 @@ const Page = () => {
         <ScrollView
           className="flex-1"
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 32, paddingTop: 40 }}
+          contentContainerStyle={{ paddingBottom: 90, paddingTop: 40 }}
         >
           {/* Header Section */}
           <View className="px-6 pt-4 pb-8 gap-4">
