@@ -172,12 +172,12 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
 
     if (treeData.stage === "tree-4") {
       return [
-        { x: baseX + 20, y: baseY + 180, id: "slot1" },
-        { x: baseX + 170, y: baseY + 220, id: "slot2" },
-        { x: baseX + 110, y: baseY + 185, id: "slot3" },
-        { x: baseX - 40, y: baseY + 250, id: "slot4" },
-        { x: baseX + 200, y: baseY + 300, id: "slot5" },
-        { x: baseX - 50, y: baseY + 320, id: "slot6" },
+        { x: baseX + 20, y: baseY + 70, id: "slot1" },
+        { x: baseX + 170, y: baseY + 110, id: "slot2" },
+        { x: baseX + 110, y: baseY + 75, id: "slot3" },
+        { x: baseX - 40, y: baseY + 140, id: "slot4" },
+        { x: baseX + 200, y: baseY + 190, id: "slot5" },
+        { x: baseX - 50, y: baseY + 210, id: "slot6" },
       ];
     }
 
@@ -525,7 +525,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       {/* Enhanced Inventory Button */}
       <TouchableOpacity
         onPress={handleOpenBottomSheet}
-        className="bg-[#3b82f6] rounded-xl px-5 py-3 mb-4 flex-row items-center justify-center shadow-lg"
+        className="bg-[#3b82f6] rounded-xl px-5 py-3 mb-4 flex-row items-center justify-center shadow-lg w-full"
       >
         <Text className="text-white text-lg mr-2 font-mainRegular">🎒</Text>
         <Text className="text-white text-base font-semibold font-mainRegular">
