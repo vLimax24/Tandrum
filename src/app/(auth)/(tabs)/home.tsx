@@ -8,31 +8,28 @@ import {
   TouchableOpacity,
   StatusBar,
   SafeAreaView,
+  useColorScheme,
+  ColorValue,
 } from "react-native";
 import { useQuery, useMutation } from "convex/react";
 import { useUser } from "@clerk/clerk-expo";
 import { api } from "../../../../convex/_generated/api";
 import { getLevelData } from "@/utils/level";
-import { StartDuoModal } from "@/components/StartDuoModel/index";
 import { LinearGradient } from "expo-linear-gradient";
 import LevelDisplay from "@/components/LevelDisplay";
 import { router } from "expo-router";
 import { useDuo } from "@/hooks/useDuo";
 import { NewDuoModal } from "@/components/NewDuoModal";
-
-const images: Record<string, any> = {
-  sprout: require("../../../assets/tree-1.png"),
-  smallTree: require("../../../assets/tree-2.png"),
-  mediumTree: require("../../../assets/tree-1.png"),
-  grownTree: require("../../../assets/tree-1.png"),
-  streak: require("../../../assets/fire-small.png"),
-  showCaseLeaf: require("../../../assets/hemp-leaf.png"),
-  arrow: require("../../../assets/arrow-up-blue.png"),
-};
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { treeImages } from "@/utils/treeImages";
 
 const Page = () => {
   const { user } = useUser();
   const clerkId = user?.id;
+  const systemColorScheme = useColorScheme();
+  const [isDarkMode, setIsDarkMode] = useState(systemColorScheme === "dark");
 
   const convexUser = useQuery(
     api.users.getUserByClerkId,
@@ -56,8 +53,86 @@ const Page = () => {
   );
 
   const acceptInvite = useMutation(api.duoInvites.respondToInvite);
-
   const { setSelectedIndex } = useDuo();
+
+  // Load dark mode preference from AsyncStorage
+  useEffect(() => {
+    const loadDarkModePreference = async () => {
+      try {
+        const savedDarkMode = await AsyncStorage.getItem("darkMode");
+        if (savedDarkMode !== null) {
+          setIsDarkMode(JSON.parse(savedDarkMode));
+        }
+      } catch (error) {
+        console.log("Error loading dark mode preference:", error);
+      }
+    };
+    loadDarkModePreference();
+  }, []);
+
+  // Save dark mode preference to AsyncStorage
+  const saveDarkModePreference = async (darkMode: boolean) => {
+    try {
+      await AsyncStorage.setItem("darkMode", JSON.stringify(darkMode));
+    } catch (error) {
+      console.log("Error saving dark mode preference:", error);
+    }
+  };
+
+  // Theme configuration
+  const theme = {
+    colors: {
+      background: isDarkMode
+        ? (["#0f172a", "#1e293b", "#0f172a"] as [
+            ColorValue,
+            ColorValue,
+            ColorValue,
+          ])
+        : (["#f8fafc", "#ffffff", "#f1f5f9"] as [
+            ColorValue,
+            ColorValue,
+            ColorValue,
+          ]),
+      cardBackground: isDarkMode
+        ? "rgba(30, 41, 59, 0.85)"
+        : "rgba(255, 255, 255, 0.85)",
+      cardBorder: isDarkMode
+        ? "rgba(148, 163, 184, 0.2)"
+        : "rgba(148, 163, 184, 0.3)",
+      text: {
+        primary: isDarkMode ? "#ffffff" : "#0f172a",
+        secondary: isDarkMode ? "#cbd5e1" : "#64748b",
+        tertiary: isDarkMode ? "#94a3b8" : "#94a3b8",
+      },
+      primary: "#009966",
+      primaryLight: "#00cc88",
+      glass: isDarkMode ? "rgba(30, 41, 59, 0.3)" : "rgba(255, 255, 255, 0.3)",
+    },
+    shadows: {
+      card: isDarkMode
+        ? {
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.4,
+            shadowRadius: 20,
+            elevation: 16,
+          }
+        : {
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 6 },
+            shadowOpacity: 0.12,
+            shadowRadius: 16,
+            elevation: 12,
+          },
+      button: {
+        shadowColor: "#009966",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 16,
+        elevation: 12,
+      },
+    },
+  };
 
   useEffect(() => {
     if (incomingInvite) {
@@ -82,34 +157,55 @@ const Page = () => {
     }
   }, [incomingInvite]);
 
+  // Toggle theme function
+  const toggleTheme = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    saveDarkModePreference(newDarkMode);
+  };
+
+  const treeLabels = {
+    "tree-1": "Sprout",
+    "tree-2": "Small Tree",
+    "tree-3": "Medium Tree",
+    "tree-4": "Grown Tree",
+  };
+
   if (!convexUser || isUserInConnection === undefined) {
     return (
-      <View className="flex-1 justify-center items-center bg-[#f8fafc]">
-        <View
-          className="backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/30"
-          style={{ backgroundColor: "rgba(255, 255, 255, 0.8)" }}
-        >
-          <LinearGradient
-            colors={["#34d399", "#059669"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+      <LinearGradient
+        colors={theme.colors.background}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        className="flex-1"
+      >
+        <View className="flex-1 justify-center items-center">
+          <BlurView
+            intensity={80}
+            tint={isDarkMode ? "dark" : "light"}
+            className="p-8 items-center border"
             style={{
-              width: 64,
-              height: 64,
-              borderRadius: 32,
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 16,
-              alignSelf: "center",
+              borderColor: theme.colors.cardBorder,
             }}
           >
-            <View className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin" />
-          </LinearGradient>
-          <Text className="text-slate-700 text-lg font-medium text-center font-mainRegular">
-            Loading your dashboard...
-          </Text>
+            <LinearGradient
+              colors={[theme.colors.primary, theme.colors.primaryLight]}
+              className="w-16 h-16 rounded-full items-center justify-center mb-4"
+            >
+              <View className="w-8 h-8 border-4 border-white border-t-transparent rounded-full" />
+            </LinearGradient>
+            <Text
+              className="text-lg font-semibold text-center"
+              style={{
+                color: theme.colors.text.primary,
+                fontFamily: "font-mainRegular",
+              }}
+            >
+              Loading your dashboard...
+            </Text>
+          </BlurView>
         </View>
-      </View>
+      </LinearGradient>
     );
   }
 
@@ -137,236 +233,241 @@ const Page = () => {
     setModalVisible(false);
   };
 
+  // Stat Card Component
+  const StatCard = ({
+    icon,
+    value,
+    label,
+    color,
+    bgColor,
+    iconColor,
+    iconName,
+    chipname,
+  }) => (
+    <BlurView
+      intensity={35}
+      tint={isDarkMode ? "dark" : "light"}
+      className="flex-1 min-w-[45%] aspect-square rounded-3xl overflow-hidden"
+    >
+      <TouchableOpacity
+        activeOpacity={0.9}
+        className="flex-1 rounded-3xl p-5 border"
+        style={{
+          backgroundColor: theme.colors.cardBackground,
+          borderColor: theme.colors.cardBorder,
+        }}
+      >
+        <View className="flex-row items-center justify-between mb-4">
+          <View
+            className="w-12 h-12 rounded-2xl items-center justify-center border"
+            style={{
+              backgroundColor: bgColor,
+              borderColor: `${iconColor}30`,
+            }}
+          >
+            <Ionicons name={iconName} size={24} color={iconColor} />
+          </View>
+          <View
+            className="px-3 py-1.5 rounded-full border"
+            style={{
+              backgroundColor: bgColor,
+              borderColor: `${iconColor}30`,
+            }}
+          >
+            <Text
+              className="text-xs font-bold tracking-wider"
+              style={{
+                color: iconColor,
+                fontFamily: "font-mainRegular",
+              }}
+            >
+              {chipname}
+            </Text>
+          </View>
+        </View>
+        <Text
+          className="text-3xl font-bold mb-1"
+          style={{
+            color: theme.colors.text.primary,
+            fontFamily: "font-mainRegular",
+          }}
+        >
+          {value}
+        </Text>
+        <Text
+          className="text-sm font-semibold"
+          style={{
+            color: theme.colors.text.secondary,
+            fontFamily: "font-mainRegular",
+          }}
+        >
+          {label}
+        </Text>
+      </TouchableOpacity>
+    </BlurView>
+  );
+
   return (
     <LinearGradient
-      colors={["#f8fafc", "#dbeafe"]}
+      colors={theme.colors.background}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={{ flex: 1 }}
-      className="pt-10"
+      className="flex-1"
     >
-      <SafeAreaView style={{ flex: 1, zIndex: 0 }}>
-        <StatusBar barStyle="dark-content" translucent />
+      <SafeAreaView className="flex-1">
+        <StatusBar
+          barStyle={isDarkMode ? "light-content" : "dark-content"}
+          translucent
+          backgroundColor="transparent"
+        />
 
         <ScrollView
           className="flex-1"
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 32 }}
+          contentContainerStyle={{ paddingBottom: 32, paddingTop: 40 }}
         >
           {/* Header Section */}
-          <View className="px-6 pt-4 pb-8">
-            <View className="flex-row items-center justify-between mb-2">
-              <View>
-                <Text className="text-slate-600 text-base font-medium font-mainRegular">
+          <View className="px-6 pt-4 pb-8 gap-4">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1">
+                <Text
+                  className="text-base font-medium"
+                  style={{
+                    color: theme.colors.text.secondary,
+                    fontFamily: "font-mainRegular",
+                  }}
+                >
                   Welcome back,
                 </Text>
-                <Text className="text-slate-900 text-3xl font-bold font-mainRegular">
+                <Text
+                  className="text-3xl font-bold"
+                  style={{
+                    color: theme.colors.text.primary,
+                    fontFamily: "font-mainRegular",
+                  }}
+                >
                   {convexUser.name || "Partner"}
                 </Text>
               </View>
-              <LinearGradient
-                colors={["#34d399", "#059669"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{
-                  width: 64,
-                  height: 64,
-                  borderRadius: 16,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Image
-                  source={images.showCaseLeaf}
-                  style={{ width: 32, height: 32, tintColor: "white" }}
-                  resizeMode="contain"
-                />
-              </LinearGradient>
-            </View>
 
-            <Text className="text-slate-500 text-base leading-relaxed mt-1 font-mainRegular">
-              Your partnership ecosystem at a glance
-            </Text>
+              <View className="flex-row items-center gap-3">
+                {/* Theme Toggle */}
+                <TouchableOpacity
+                  onPress={toggleTheme}
+                  className="w-12 h-12 rounded-2xl items-center justify-center border"
+                  style={{
+                    backgroundColor: theme.colors.glass,
+                    borderColor: theme.colors.cardBorder,
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <BlurView
+                    intensity={20}
+                    tint={isDarkMode ? "dark" : "light"}
+                    className="absolute inset-0 rounded-2xl"
+                  />
+                  <Ionicons
+                    name={isDarkMode ? "sunny" : "moon"}
+                    size={20}
+                    color={isDarkMode ? "#fbbf24" : theme.colors.text.secondary}
+                  />
+                </TouchableOpacity>
+
+                {/* Profile Avatar */}
+                <LinearGradient
+                  colors={[theme.colors.primary, theme.colors.primaryLight]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  className="w-12 h-12 items-center justify-center"
+                  style={{ borderRadius: 12 }}
+                >
+                  <Ionicons name="people" size={20} color="white" />
+                </LinearGradient>
+              </View>
+            </View>
           </View>
 
           {/* Dashboard Stats Cards */}
           <View className="px-6 mb-8">
             <View className="flex-row flex-wrap justify-between gap-4">
               {/* Active Duos */}
-              <View className="flex-1 min-w-[45%]">
-                <View
-                  className="rounded-2xl p-6 border-2 border-blue-200/60"
-                  style={{
-                    backgroundColor: "rgba(239, 246, 255, 1)",
-                    shadowColor: "#3B82F6",
-                    shadowOffset: { width: 0, height: 6 },
-                    shadowOpacity: 0.15,
-                    shadowRadius: 16,
-                    elevation: 12,
-                  }}
-                >
-                  <View className="flex-row items-center justify-between mb-4">
-                    <View
-                      className="w-12 h-12 rounded-2xl items-center justify-center border border-blue-300/40"
-                      style={{ backgroundColor: "rgba(59, 130, 246, 0.2)" }}
-                    >
-                      <Text className="text-blue-600 text-xl font-bold font-mainRegular">
-                        👥
-                      </Text>
-                    </View>
-                    <View
-                      className="px-3 py-1.5 rounded-full border border-blue-300/30"
-                      style={{ backgroundColor: "rgba(59, 130, 246, 0.15)" }}
-                    >
-                      <Text className="text-blue-700 text-xs font-bold tracking-wide font-mainRegular">
-                        ACTIVE
-                      </Text>
-                    </View>
-                  </View>
-                  <Text className="text-slate-900 text-3xl font-black mb-1 font-mainRegular">
-                    {activeDuos}
-                  </Text>
-                  <Text className="text-slate-600 text-sm font-semibold font-mainRegular">
-                    Active Duos
-                  </Text>
-                </View>
-              </View>
+              <StatCard
+                icon="users"
+                value={activeDuos}
+                label="Active Duos"
+                color="#3B82F6"
+                bgColor="rgba(59, 130, 246, 0.15)"
+                iconColor="#3B82F6"
+                iconName="people"
+                chipname={"ACTIVE"}
+              />
 
               {/* Total Trust Score */}
-              <View className="flex-1 min-w-[45%]">
-                <View
-                  className="rounded-2xl p-6 border-2 border-emerald-200/60"
-                  style={{
-                    backgroundColor: "rgba(236, 253, 245, 1)",
-                    shadowColor: "#10B981",
-                    shadowOffset: { width: 0, height: 6 },
-                    shadowOpacity: 0.15,
-                    shadowRadius: 16,
-                    elevation: 12,
-                  }}
-                >
-                  <View className="flex-row items-center justify-between mb-4">
-                    <View
-                      className="w-12 h-12 rounded-2xl items-center justify-center border border-emerald-300/40"
-                      style={{ backgroundColor: "rgba(16, 185, 129, 0.2)" }}
-                    >
-                      <Image
-                        source={images.arrow}
-                        style={{ width: 22, height: 22, tintColor: "#059669" }}
-                        resizeMode="contain"
-                      />
-                    </View>
-                    <View
-                      className="px-3 py-1.5 rounded-full border border-emerald-300/30"
-                      style={{ backgroundColor: "rgba(16, 185, 129, 0.15)" }}
-                    >
-                      <Text className="text-emerald-700 text-xs font-bold tracking-wide font-mainRegular">
-                        TRUST
-                      </Text>
-                    </View>
-                  </View>
-                  <Text className="text-slate-900 text-3xl font-black mb-1 font-mainRegular">
-                    {totalTrustScore}
-                  </Text>
-                  <Text className="text-slate-600 text-sm font-semibold font-mainRegular">
-                    Total XP
-                  </Text>
-                </View>
-              </View>
+              <StatCard
+                icon="trending"
+                value={totalTrustScore}
+                label="Total XP"
+                color={theme.colors.primary}
+                bgColor={`${theme.colors.primary}26`}
+                iconColor={theme.colors.primary}
+                iconName="trending-up"
+                chipname={"TRUST"}
+              />
 
               {/* Combined Streak */}
-              <View className="flex-1 min-w-[45%]">
-                <View
-                  className="rounded-2xl p-6 border-2 border-orange-200/60"
-                  style={{
-                    backgroundColor: "rgba(255, 247, 237, 1)",
-                    shadowColor: "#F97316",
-                    shadowOffset: { width: 0, height: 6 },
-                    shadowOpacity: 0.15,
-                    shadowRadius: 16,
-                    elevation: 12,
-                  }}
-                >
-                  <View className="flex-row items-center justify-between mb-4 gap-1">
-                    <View
-                      className="w-12 h-12 rounded-2xl items-center justify-center border border-orange-300/40"
-                      style={{ backgroundColor: "rgba(249, 115, 22, 0.2)" }}
-                    >
-                      <Image
-                        source={images.streak}
-                        style={{ width: 22, height: 22 }}
-                        resizeMode="contain"
-                      />
-                    </View>
-                    <View
-                      className="px-3 py-1.5 rounded-full border border-orange-300/30"
-                      style={{ backgroundColor: "rgba(249, 115, 22, 0.15)" }}
-                    >
-                      <Text className="text-orange-700 text-xs font-bold tracking-wide font-mainRegular">
-                        STREAK
-                      </Text>
-                    </View>
-                  </View>
-                  <Text className="text-slate-900 text-3xl font-black mb-1 font-mainRegular">
-                    {totalStreak}
-                  </Text>
-                  <Text className="text-slate-600 text-sm font-semibold font-mainRegular">
-                    Combined Days
-                  </Text>
-                </View>
-              </View>
+              <StatCard
+                icon="fire"
+                value={totalStreak}
+                label="Combined Days"
+                color="#F97316"
+                bgColor="rgba(249, 115, 22, 0.15)"
+                iconColor="#F97316"
+                iconName="flame"
+                chipname={"STREAK"}
+              />
 
               {/* Average Level */}
-              <View className="flex-1 min-w-[45%]">
-                <View
-                  className="rounded-2xl p-6 border-2 border-purple-200/60"
-                  style={{
-                    backgroundColor: "rgba(250, 245, 255, 1)",
-                    shadowColor: "#8B5CF6",
-                    shadowOffset: { width: 0, height: 6 },
-                    shadowOpacity: 0.15,
-                    shadowRadius: 16,
-                    elevation: 12,
-                  }}
-                >
-                  <View className="flex-row items-center justify-between mb-4">
-                    <View
-                      className="w-12 h-12 rounded-2xl items-center justify-center border border-purple-300/40"
-                      style={{ backgroundColor: "rgba(139, 92, 246, 0.2)" }}
-                    >
-                      <Text className="text-purple-600 text-xl font-bold font-mainRegular">
-                        ⭐
-                      </Text>
-                    </View>
-                    <View
-                      className="px-3 py-1.5 rounded-full border border-purple-300/30"
-                      style={{ backgroundColor: "rgba(139, 92, 246, 0.15)" }}
-                    >
-                      <Text className="text-purple-700 text-xs font-bold tracking-wide font-mainRegular">
-                        LEVEL
-                      </Text>
-                    </View>
-                  </View>
-                  <Text className="text-slate-900 text-3xl font-black mb-1 font-mainRegular">
-                    {avgLevel}
-                  </Text>
-                  <Text className="text-slate-600 text-sm font-semibold font-mainRegular">
-                    Avg Level
-                  </Text>
-                </View>
-              </View>
+              <StatCard
+                icon="star"
+                value={avgLevel}
+                label="Avg Level"
+                color="#8B5CF6"
+                bgColor="rgba(139, 92, 246, 0.15)"
+                iconColor="#8B5CF6"
+                iconName="star"
+                chipname={"LEVEL"}
+              />
             </View>
           </View>
 
           {/* Active Partnerships Section */}
           <View className="px-6 mb-8">
-            <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-slate-900 text-xl font-bold font-mainRegular">
+            <View className="flex-row items-center justify-between mb-5">
+              <Text
+                className="text-xl font-bold"
+                style={{
+                  color: theme.colors.text.primary,
+                  fontFamily: "font-mainRegular",
+                }}
+              >
                 Active Partnerships
               </Text>
               {userConnections && userConnections.length > 0 && (
-                <View className="px-3 py-1 bg-emerald-100 rounded-full">
-                  <Text className="text-emerald-700 text-sm font-semibold font-mainRegular">
+                <View
+                  className="px-3 py-1 rounded-full"
+                  style={{
+                    backgroundColor: isDarkMode
+                      ? "rgba(16, 185, 129, 0.2)"
+                      : "#d1fae5",
+                  }}
+                >
+                  <Text
+                    className="text-sm font-semibold"
+                    style={{
+                      color: isDarkMode ? "#34d399" : "#059669",
+                      fontFamily: "font-mainRegular",
+                    }}
+                  >
                     {userConnections.length} Active
                   </Text>
                 </View>
@@ -379,58 +480,67 @@ const Page = () => {
                   return (
                     <TouchableOpacity
                       key={conn._id}
-                      activeOpacity={0.7}
-                      className="rounded-3xl overflow-hidden"
+                      activeOpacity={0.8}
+                      className="rounded-3xl overflow-hidden border"
                       style={{
-                        backgroundColor: "rgba(255, 255, 255, 0.8)",
-                        shadowColor: "#000",
-                        shadowOffset: { width: 0, height: 6 },
-                        shadowOpacity: 0.1,
-                        shadowRadius: 16,
-                        elevation: 12,
+                        backgroundColor: theme.colors.cardBackground,
+                        borderColor: theme.colors.cardBorder,
                       }}
                       onPress={() => {
                         setSelectedIndex(index);
                         router.push(`/tree`);
                       }}
                     >
+                      <BlurView
+                        intensity={20}
+                        tint={isDarkMode ? "dark" : "light"}
+                        className="absolute inset-0 rounded-3xl"
+                      />
                       {/* Header Gradient */}
                       <LinearGradient
-                        colors={["#10b981", "#059669"]}
+                        colors={[
+                          theme.colors.primary,
+                          theme.colors.primaryLight,
+                        ]}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}
-                        style={{ paddingHorizontal: 24, paddingVertical: 16 }}
+                        className="px-6 py-5"
                       >
                         <View className="flex-row items-center justify-between">
                           <View className="flex-row items-center flex-1">
-                            <View
-                              className="w-12 h-12 rounded-2xl items-center justify-center mr-4"
-                              style={{
-                                backgroundColor: "rgba(255, 255, 255, 0.2)",
-                              }}
-                            >
-                              <Text className="text-white text-xl font-bold font-mainRegular">
+                            <View className="w-12 h-12 rounded-2xl items-center justify-center mr-4 bg-white/20">
+                              <Text
+                                className="text-lg font-bold text-white"
+                                style={{
+                                  fontFamily: "font-mainRegular",
+                                }}
+                              >
                                 {conn.partnerName?.charAt(0) || "?"}
                               </Text>
                             </View>
                             <View className="flex-1">
-                              <Text className="text-white text-lg font-bold font-mainRegular">
+                              <Text
+                                className="text-lg font-bold text-white"
+                                style={{
+                                  fontFamily: "font-mainRegular",
+                                }}
+                              >
                                 {conn.partnerName}
                               </Text>
-                              <Text className="text-white/80 text-sm font-medium font-mainRegular">
+                              <Text
+                                className="text-sm font-medium text-white/80"
+                                style={{
+                                  fontFamily: "font-mainRegular",
+                                }}
+                              >
                                 Partnership #{index + 1}
                               </Text>
                             </View>
                           </View>
-                          <View
-                            className="w-16 h-16 rounded-2xl items-center justify-center"
-                            style={{
-                              backgroundColor: "rgba(255, 255, 255, 0.1)",
-                            }}
-                          >
+                          <View className="w-14 h-14 rounded-2xl items-center justify-center bg-white/10">
                             <Image
-                              source={images[conn.treeState]}
-                              style={{ width: 40, height: 40 }}
+                              source={treeImages[conn.treeState]}
+                              className="w-8 h-8"
                               resizeMode="contain"
                             />
                           </View>
@@ -438,85 +548,150 @@ const Page = () => {
                       </LinearGradient>
 
                       {/* Content */}
-                      <View className="px-6 py-5 bg-white/80">
+                      <View className="px-6 py-5">
                         {/* Level Progress */}
                         <LevelDisplay
                           duo={conn}
                           showDetailedStats={false}
                           compact={true}
                         />
+
                         {/* Stats Grid */}
-                        <View className="flex-row justify-between">
-                          <View className="flex-1 items-center py-3 px-2 min-h-[80px] justify-center">
-                            <View className="flex-row items-center mb-1">
-                              <Image
-                                source={images.streak}
+                        <View className="mt-4">
+                          {/* Top Row - Day Streak and XP */}
+                          <View className="flex-row gap-3 mb-3">
+                            {/* Day Streak Card */}
+                            <View
+                              className="flex-1 items-center py-6 px-4 rounded-2xl"
+                              style={{
+                                borderWidth: 1,
+                                borderColor: theme.colors.cardBorder,
+                              }}
+                            >
+                              <View
+                                className="w-14 h-14 rounded-full items-center justify-center mb-4"
                                 style={{
-                                  width: 16,
-                                  height: 16,
-                                  marginRight: 6,
+                                  backgroundColor: theme.colors.primary + "15",
                                 }}
-                                resizeMode="contain"
-                              />
-                              <Text className="text-slate-900 font-bold text-lg font-mainRegular">
-                                {conn.streak}
-                              </Text>
-                            </View>
-                            <Text className="text-slate-600 text-xs font-medium text-center font-mainRegular">
-                              Day Streak
-                            </Text>
-                          </View>
-
-                          <View className="w-px bg-slate-200 mx-2 self-stretch" />
-
-                          <View className="flex-1 items-center py-3 px-2 min-h-[80px] justify-center">
-                            <View className="flex-row items-center mb-1">
-                              <Image
-                                source={images.arrow}
-                                style={{
-                                  width: 16,
-                                  height: 16,
-                                  marginRight: 6,
-                                  tintColor: "#059669",
-                                }}
-                                resizeMode="contain"
-                              />
-                              <Text className="text-slate-900 font-bold text-lg font-mainRegular">
-                                {conn.trust_score}
-                              </Text>
-                            </View>
-                            <Text className="text-slate-600 text-xs font-medium text-center font-mainRegular">
-                              XP
-                            </Text>
-                          </View>
-
-                          <View className="w-px bg-slate-200 mx-2 self-stretch" />
-
-                          <View className="flex-1 items-center py-3 px-2 min-h-[80px] justify-center">
-                            <View className="flex-row items-center mb-1 flex-wrap justify-center">
-                              <Image
-                                source={images[conn.treeState]}
-                                style={{
-                                  width: 16,
-                                  height: 16,
-                                  marginRight: 6,
-                                }}
-                                resizeMode="contain"
-                              />
+                              >
+                                <Ionicons
+                                  name="flame"
+                                  size={28}
+                                  color={theme.colors.primary}
+                                />
+                              </View>
                               <Text
-                                className="text-slate-900 font-bold text-lg capitalize text-center font-mainRegular"
-                                numberOfLines={2}
+                                className="font-bold text-3xl mb-2"
+                                style={{
+                                  color: theme.colors.text.primary,
+                                  fontFamily: "font-mainRegular",
+                                }}
+                              >
+                                {conn.streak || 0}
+                              </Text>
+                              <Text
+                                className="text-sm font-medium text-center"
+                                style={{
+                                  color: theme.colors.text.tertiary,
+                                  fontFamily: "font-mainRegular",
+                                }}
+                              >
+                                Day Streak
+                              </Text>
+                            </View>
+
+                            {/* XP Card */}
+                            <View
+                              className="flex-1 items-center py-6 px-4 rounded-2xl"
+                              style={{
+                                borderWidth: 1,
+                                borderColor: theme.colors.cardBorder,
+                              }}
+                            >
+                              <View
+                                className="w-14 h-14 rounded-full items-center justify-center mb-4"
+                                style={{
+                                  backgroundColor: theme.colors.primary + "15",
+                                }}
+                              >
+                                <Ionicons
+                                  name="trending-up"
+                                  size={28}
+                                  color={theme.colors.primary}
+                                />
+                              </View>
+                              <Text
+                                className="font-bold text-3xl mb-2"
+                                style={{
+                                  color: theme.colors.text.primary,
+                                  fontFamily: "font-mainRegular",
+                                }}
+                              >
+                                {(() => {
+                                  const score = conn.trust_score || 0;
+                                  if (score >= 100000) {
+                                    return `${Math.round(score / 1000)}k`;
+                                  }
+                                  return score.toLocaleString("de-DE");
+                                })()}
+                              </Text>
+                              <Text
+                                className="text-sm font-medium text-center"
+                                style={{
+                                  color: theme.colors.text.tertiary,
+                                  fontFamily: "font-mainRegular",
+                                }}
+                              >
+                                Experience
+                              </Text>
+                            </View>
+                          </View>
+
+                          {/* Bottom Row - Tree Stage (Full Width) */}
+                          <View
+                            className="flex-row items-center p-6 rounded-2xl"
+                            style={{
+                              borderWidth: 1,
+                              borderColor: theme.colors.cardBorder,
+                            }}
+                          >
+                            <View
+                              className="w-16 h-16 rounded-full items-center justify-center mr-5"
+                              style={{
+                                backgroundColor: theme.colors.primary + "15",
+                              }}
+                            >
+                              <Image
+                                source={treeImages[conn.treeState]}
+                                className="w-8 h-8"
+                                resizeMode="contain"
+                              />
+                            </View>
+                            <View className="flex-1">
+                              <Text
+                                className="text-sm font-medium mb-1"
+                                style={{
+                                  color: theme.colors.text.tertiary,
+                                  fontFamily: "font-mainRegular",
+                                }}
+                              >
+                                Tree Stage
+                              </Text>
+                              <Text
+                                className="font-bold text-2xl"
+                                style={{
+                                  color: theme.colors.text.primary,
+                                  fontFamily: "font-mainRegular",
+                                }}
+                                numberOfLines={1}
                                 adjustsFontSizeToFit={true}
                                 minimumFontScale={0.8}
                               >
-                                {conn.treeState
-                                  .replace(/([A-Z])/g, " $1")
-                                  .trim()}
+                                {treeLabels[conn.treeState] ??
+                                  conn.treeState ??
+                                  "Seed"}
                               </Text>
                             </View>
-                            <Text className="text-slate-600 text-xs font-medium text-center font-mainRegular">
-                              Tree Stage
-                            </Text>
                           </View>
                         </View>
                       </View>
@@ -526,24 +701,43 @@ const Page = () => {
               </View>
             ) : (
               <View
-                className="rounded-3xl border border-white/40 p-8 items-center bg-[#ffffff]"
+                className="rounded-3xl border p-8 items-center"
                 style={{
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 12,
-                  elevation: 8,
+                  borderColor: theme.colors.cardBorder,
+                  backgroundColor: theme.colors.cardBackground,
                 }}
               >
-                <View className="w-20 h-20 bg-slate-100 rounded-full items-center justify-center mb-4">
-                  <Text className="text-slate-400 text-3xl font-mainRegular">
-                    🌱
-                  </Text>
+                <BlurView
+                  intensity={20}
+                  tint={isDarkMode ? "dark" : "light"}
+                  className="absolute inset-0 rounded-3xl"
+                />
+                <View
+                  className="w-20 h-20 rounded-full items-center justify-center mb-4"
+                  style={{
+                    backgroundColor: isDarkMode
+                      ? "rgba(100, 116, 139, 0.2)"
+                      : "#f1f5f9",
+                  }}
+                >
+                  <Text className="text-3xl">🌱</Text>
                 </View>
-                <Text className="text-slate-900 text-xl font-bold text-center mb-2 font-mainRegular">
+                <Text
+                  className="text-xl font-bold text-center mb-2"
+                  style={{
+                    color: theme.colors.text.primary,
+                    fontFamily: "font-mainRegular",
+                  }}
+                >
                   No Active Partnerships
                 </Text>
-                <Text className="text-slate-600 text-center text-base leading-relaxed font-mainRegular">
+                <Text
+                  className="text-center text-base leading-6"
+                  style={{
+                    color: theme.colors.text.secondary,
+                    fontFamily: "font-mainRegular",
+                  }}
+                >
                   Start your first duo partnership to begin building habits
                   together and growing your shared tree!
                 </Text>
@@ -556,61 +750,32 @@ const Page = () => {
             <TouchableOpacity
               onPress={handleStartPartnership}
               activeOpacity={0.8}
-              style={{
-                overflow: "hidden",
-                borderRadius: 16,
-                shadowColor: "#10b981",
-                shadowOffset: { width: 0, height: 6 },
-                shadowOpacity: 0.3,
-                shadowRadius: 12,
-                elevation: 12,
-                width: "100%",
-              }}
+              className="overflow-hidden rounded-2xl"
+              style={theme.shadows.button}
             >
               <LinearGradient
-                colors={["#10b981", "#059669"]}
+                colors={[theme.colors.primary, theme.colors.primaryLight]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                style={{
-                  paddingVertical: 18,
-                  paddingHorizontal: 32,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "row",
-                }}
+                className="py-5 px-8 items-center justify-center flex-row"
               >
-                <View
-                  style={{
-                    width: 24,
-                    height: 24,
-                    backgroundColor: "rgba(255, 255, 255, 0.2)",
-                    borderRadius: 12,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginRight: 12,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 16,
-                      fontWeight: "bold",
-                    }}
-                    className=" font-mainRegular"
-                  >
-                    +
-                  </Text>
+                <View className="w-6 h-6 bg-white/20 rounded-xl items-center justify-center mr-3">
+                  <Ionicons name="add" size={16} color="white" />
                 </View>
                 <Text
+                  className="text-white text-lg font-bold"
                   style={{
-                    color: "white",
-                    fontSize: 18,
-                    fontWeight: "bold",
+                    fontFamily: "font-mainRegular",
                   }}
-                  className=" font-mainRegular"
                 >
                   Start New Partnership
                 </Text>
+                <Ionicons
+                  name="arrow-forward"
+                  size={20}
+                  color="white"
+                  className="ml-3"
+                />
               </LinearGradient>
             </TouchableOpacity>
 
@@ -618,41 +783,62 @@ const Page = () => {
             <View className="flex-row gap-3">
               <TouchableOpacity
                 activeOpacity={0.7}
-                className="flex-1 bg-white rounded-2xl border border-white/40 px-4 py-4 items-center shadow"
+                className="flex-1 rounded-2xl border px-4 py-4 items-center flex-row justify-center"
                 style={{
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 8,
-                  elevation: 4,
+                  backgroundColor: theme.colors.cardBackground,
+                  borderColor: theme.colors.cardBorder,
                 }}
                 onPress={() => router.push("/tree")}
               >
-                <Text className="text-slate-700 font-semibold text-base font-mainRegular">
-                  View All Trees
+                <BlurView
+                  intensity={20}
+                  tint={isDarkMode ? "dark" : "light"}
+                  className="absolute inset-0 rounded-2xl"
+                />
+                <Ionicons
+                  name="leaf"
+                  size={18}
+                  color={theme.colors.primary}
+                  className="mr-2"
+                />
+                <Text
+                  className="font-semibold text-base"
+                  style={{
+                    color: theme.colors.text.primary,
+                    fontFamily: "font-mainRegular",
+                  }}
+                >
+                  View Trees
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 activeOpacity={0.7}
+                className="flex-1 rounded-2xl border px-4 py-4 items-center flex-row justify-center"
                 style={{
-                  flex: 1,
-                  backgroundColor: "rgba(255, 255, 255, 1)",
-                  borderRadius: 16,
-                  borderWidth: 1,
-                  borderColor: "rgba(255, 255, 255, 0.4)",
-                  paddingHorizontal: 16,
-                  paddingVertical: 16,
-                  alignItems: "center",
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 8,
-                  elevation: 4,
+                  backgroundColor: theme.colors.cardBackground,
+                  borderColor: theme.colors.cardBorder,
                 }}
                 onPress={() => router.push("/habits")}
               >
-                <Text className="text-slate-700 font-semibold text-base font-mainRegular">
+                <BlurView
+                  intensity={20}
+                  tint={isDarkMode ? "dark" : "light"}
+                  className="absolute inset-0 rounded-2xl"
+                />
+                <Ionicons
+                  name="checkmark-circle"
+                  size={18}
+                  color="#3B82F6"
+                  className="mr-2"
+                />
+                <Text
+                  className="font-semibold text-base"
+                  style={{
+                    color: theme.colors.text.primary,
+                    fontFamily: "font-mainRegular",
+                  }}
+                >
                   My Habits
                 </Text>
               </TouchableOpacity>
