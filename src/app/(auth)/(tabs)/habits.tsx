@@ -214,7 +214,14 @@ export default function HabitsSection() {
         style={{ flex: 1 }}
       >
         <ScrollView className="flex-1">
-          <HabitsHeader />
+          <HabitsHeader
+            daily={daily}
+            weekly={weekly}
+            duo={duo}
+            now={now}
+            timeToday={Number(timeToday)}
+            timeWeek={Number(timeWeek)}
+          />
 
           <View className="px-6 -mt-6">
             <DuoSelector
