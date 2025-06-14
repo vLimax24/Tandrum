@@ -10,12 +10,17 @@ import { LevelDisplay } from "@/components/LevelDisplay";
 import { useDuo } from "@/hooks/useDuo";
 import TreeInventory from "@/components/TreeInventory";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 import { NoDuoScreen } from "@/components/NoDuoScreen";
 import { ItemType } from "@/components/TreeInventory";
 import { treeImages } from "@/utils/treeImages";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
 
 export default function TreeSection() {
   const { user } = useUser();
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
   const updateTreeStage = useMutation(api.trees.updateTreeStage);
 
   // Add refresh trigger for inventory updates
@@ -104,16 +109,66 @@ export default function TreeSection() {
 
   if (!convexUser)
     return (
-      <View className="flex-1 justify-center items-center bg-background">
-        <Text className="text-text font-mainRegular">Loading user…</Text>
-      </View>
+      <LinearGradient
+        colors={theme.colors.background}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        className="flex-1 justify-center items-center"
+      >
+        <BlurView
+          intensity={20}
+          tint={isDarkMode ? "dark" : "light"}
+          className="rounded-3xl px-8 py-12 items-center"
+          style={{
+            backgroundColor: theme.colors.glass,
+            borderColor: theme.colors.cardBorder,
+            borderWidth: 1,
+          }}
+        >
+          <View className="w-12 h-12 rounded-full bg-primary/20 items-center justify-center mb-4">
+            <Text className="text-2xl">🌱</Text>
+          </View>
+          <Text
+            className="text-lg font-semibold text-center"
+            style={{ color: theme.colors.text.primary }}
+          >
+            Loading your profile...
+          </Text>
+        </BlurView>
+      </LinearGradient>
     );
+
   if (!connections)
     return (
-      <View className="flex-1 justify-center items-center bg-background">
-        <Text className="text-text font-mainRegular">Loading connections…</Text>
-      </View>
+      <LinearGradient
+        colors={theme.colors.background}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        className="flex-1 justify-center items-center"
+      >
+        <BlurView
+          intensity={20}
+          tint={isDarkMode ? "dark" : "light"}
+          className="rounded-3xl px-8 py-12 items-center"
+          style={{
+            backgroundColor: theme.colors.glass,
+            borderColor: theme.colors.cardBorder,
+            borderWidth: 1,
+          }}
+        >
+          <View className="w-12 h-12 rounded-full bg-primary/20 items-center justify-center mb-4">
+            <Text className="text-2xl">🤝</Text>
+          </View>
+          <Text
+            className="text-lg font-semibold text-center"
+            style={{ color: theme.colors.text.primary }}
+          >
+            Loading connections...
+          </Text>
+        </BlurView>
+      </LinearGradient>
     );
+
   if (connections.length === 0)
     return (
       <NoDuoScreen
@@ -121,41 +176,106 @@ export default function TreeSection() {
         setModalVisible={setModalVisible}
       />
     );
+
   if (!treeData)
     return (
-      <View className="flex-1 justify-center items-center bg-background">
-        <Text className="text-text font-mainRegular">Loading tree…</Text>
-      </View>
+      <LinearGradient
+        colors={theme.colors.background}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        className="flex-1 justify-center items-center"
+      >
+        <BlurView
+          intensity={20}
+          tint={isDarkMode ? "dark" : "light"}
+          className="rounded-3xl px-8 py-12 items-center"
+          style={{
+            backgroundColor: theme.colors.glass,
+            borderColor: theme.colors.cardBorder,
+            borderWidth: 1,
+          }}
+        >
+          <View className="w-12 h-12 rounded-full bg-primary/20 items-center justify-center mb-4">
+            <Text className="text-2xl">🌳</Text>
+          </View>
+          <Text
+            className="text-lg font-semibold text-center"
+            style={{ color: theme.colors.text.primary }}
+          >
+            Growing your tree...
+          </Text>
+        </BlurView>
+      </LinearGradient>
     );
 
   return (
     <LinearGradient
-      colors={["#f8fafc", "#dbeafe"]}
+      colors={theme.colors.background}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
     >
       <ScrollView
-        className="flex-1 py-16 px-5"
-        style={{ zIndex: 1 }} // Add this to ensure content is behind bottom sheet
+        className="flex-1 px-6"
+        showsVerticalScrollIndicator={false}
+        style={{ zIndex: 1 }}
+        contentContainerStyle={{ paddingBottom: 90, paddingTop: 50 }}
       >
-        <Text className="text-text text-4xl font-semibold mb-2 font-mainRegular">
-          Tree
-        </Text>
-        <View className="mb-6">
-          <Text className="text-lg font-semibold text-text mb-2 font-mainRegular">
-            Select Duo
+        {/* Header Section */}
+        <View className="mb-8">
+          <View className="flex-row items-center gap-3 mb-2">
+            <Text
+              className="text-3xl font-bold"
+              style={{ color: theme.colors.text.primary }}
+            >
+              Growth Tree
+            </Text>
+          </View>
+          <Text
+            className="text-base leading-6"
+            style={{ color: theme.colors.text.secondary }}
+          >
+            Watch your duo's trust grow into a beautiful tree through daily
+            habits and accountability
           </Text>
-          <View className="bg-primary rounded-lg px-4 py-2 flex-row items-center">
-            <Image
-              source={treeImages["leaf"]}
-              style={{ width: 20, height: 20, marginRight: 8 }}
-            />
+        </View>
+
+        {/* Duo Selection Card */}
+        <BlurView
+          intensity={20}
+          tint={isDarkMode ? "dark" : "light"}
+          className="rounded-3xl mb-8 overflow-hidden"
+          style={{
+            backgroundColor: theme.colors.cardBackground,
+            borderColor: theme.colors.cardBorder,
+            borderWidth: 1,
+          }}
+        >
+          <View className="p-6">
+            <View className="flex-row items-center gap-3 mb-4">
+              <View className="w-8 h-8 rounded-xl bg-primary/20 items-center justify-center">
+                <Image
+                  source={treeImages["leaf"]}
+                  style={{
+                    width: 16,
+                    height: 16,
+                    tintColor: theme.colors.primary,
+                  }}
+                />
+              </View>
+              <Text
+                className="text-lg font-semibold"
+                style={{ color: theme.colors.text.primary }}
+              >
+                Active Duo Partnership
+              </Text>
+            </View>
+
             <View
+              className="rounded-2xl p-4 border"
               style={{
-                flex: 1,
-                position: "relative",
-                justifyContent: "center",
+                backgroundColor: theme.colors.primary,
+                borderColor: theme.colors.primary,
               }}
             >
               <RNPickerSelect
@@ -169,203 +289,320 @@ export default function TreeSection() {
                 useNativeAndroidPickerStyle={false}
                 style={{
                   inputIOS: {
-                    color: "#fff",
+                    color: "#ffffff",
                     fontSize: 16,
-                    fontWeight: "500",
-                    paddingVertical: 10,
-                    paddingRight: 32,
-                    paddingLeft: 8,
-                    borderRadius: 8,
-                    backgroundColor: "transparent",
+                    fontWeight: "600",
+                    paddingVertical: 8,
+                    paddingRight: 40,
+                    paddingLeft: 4,
                   },
                   inputAndroid: {
-                    color: "#fff",
+                    color: "#ffffff",
                     fontSize: 16,
-                    fontWeight: "500",
-                    paddingVertical: 10,
-                    paddingRight: 32,
-                    paddingLeft: 8,
-                    borderRadius: 8,
-                    backgroundColor: "transparent",
+                    fontWeight: "600",
+                    paddingVertical: 8,
+                    paddingRight: 40,
+                    paddingLeft: 4,
                   },
                   iconContainer: {
                     position: "absolute",
-                    right: 8,
+                    right: 12,
                     top: "50%",
-                    marginTop: -12,
+                    marginTop: -8,
                   },
                 }}
                 Icon={() => (
-                  <Text style={{ color: "#fff", fontSize: 18 }}>▼</Text>
+                  <View className="w-6 h-6 rounded-full bg-white/20 items-center justify-center">
+                    <Text style={{ color: "#ffffff", fontSize: 12 }}>▾</Text>
+                  </View>
                 )}
               />
             </View>
           </View>
-        </View>
+        </BlurView>
 
-        {/* Tree Display with Inventory Integration */}
-        <View className="items-center mb-6 relative">
-          <Image
-            source={treeImages[treeData.stage]}
-            style={{ width: 300, height: 300 }}
-            resizeMode="contain"
-          />
-          {/* TreeInventory component will render slots and decorations over the tree */}
-        </View>
-
-        {/* Tree Inventory Component */}
-        <TreeInventory
-          treeData={{
-            duoId: selectedConnection._id as Id<"duoConnections">,
-            stage: treeData.stage,
-            leaves: treeData.leaves,
-            fruits: treeData.fruits,
-            inventory: treeData.inventory || {},
-            decorations: (treeData.decorations || []).map((decoration) => ({
-              ...decoration,
-              itemId: decoration.itemId as ItemType,
-            })),
+        {/* Tree Display Section */}
+        <BlurView
+          intensity={20}
+          tint={isDarkMode ? "dark" : "light"}
+          className="rounded-3xl mb-8 overflow-hidden"
+          style={{
+            backgroundColor: theme.colors.cardBackground,
+            borderColor: theme.colors.cardBorder,
+            borderWidth: 1,
           }}
-          onInventoryUpdate={handleInventoryUpdate}
-        />
-
-        <View
-          className="flex-row justify-between py-4 px-5 rounded-lg mb-6 bg-primary"
-          style={{ zIndex: 1 }}
         >
-          <View className="flex flex-row items-center gap-2">
-            <Image
-              source={treeImages["leaf"]}
-              style={{ width: 20, height: 20 }}
-              className="pt-2"
+          <View className="p-8 items-center">
+            <View className="w-80 h-80 rounded-3xl bg-gradient-to-br from-green-50 to-blue-50 items-center justify-center mb-6 overflow-hidden">
+              <Image
+                source={treeImages[treeData.stage]}
+                style={{ width: 280, height: 280 }}
+                resizeMode="contain"
+              />
+            </View>
+
+            {/* Tree Inventory Component */}
+            <TreeInventory
+              treeData={{
+                duoId: selectedConnection._id as Id<"duoConnections">,
+                stage: treeData.stage,
+                leaves: treeData.leaves,
+                fruits: treeData.fruits,
+                inventory: treeData.inventory || {},
+                decorations: (treeData.decorations || []).map((decoration) => ({
+                  ...decoration,
+                  itemId: decoration.itemId as ItemType,
+                })),
+              }}
+              onInventoryUpdate={handleInventoryUpdate}
             />
-            <Text className="text-background font-mainRegular">
-              Leaves: {treeData.leaves}
-            </Text>
           </View>
-          <View className="flex flex-row items-center">
-            <Image
-              source={treeImages["orange"]}
-              style={{ width: 30, height: 30 }}
-              className="pt-2"
-            />
-            <Text className="text-background font-mainRegular">
-              Fruits: {treeData.fruits}
-            </Text>
-          </View>
-          <View className="flex flex-row items-center">
-            <Image
-              source={treeImages["sprout"]}
-              style={{ width: 30, height: 30 }}
-              className="pt-2"
-            />
-            <Text className="text-background font-mainRegular">
-              Decay: {treeData.decay}
-            </Text>
-          </View>
+        </BlurView>
+
+        {/* Stats Cards */}
+        <View className="flex-row gap-4 mb-8">
+          <BlurView
+            intensity={20}
+            tint={isDarkMode ? "dark" : "light"}
+            className="flex-1 rounded-2xl overflow-hidden"
+            style={{
+              backgroundColor: theme.colors.cardBackground,
+              borderColor: theme.colors.cardBorder,
+              borderWidth: 1,
+            }}
+          >
+            <View className="p-4 items-center">
+              <View className="w-12 h-12 rounded-2xl bg-green-100 items-center justify-center mb-3">
+                <Image
+                  source={treeImages["leaf"]}
+                  style={{ width: 20, height: 20, tintColor: "#22c55e" }}
+                />
+              </View>
+              <Text
+                className="text-2xl font-bold mb-1"
+                style={{ color: theme.colors.text.primary }}
+              >
+                {treeData.leaves}
+              </Text>
+              <Text
+                className="text-sm font-medium"
+                style={{ color: theme.colors.text.secondary }}
+              >
+                Leaves
+              </Text>
+            </View>
+          </BlurView>
+
+          <BlurView
+            intensity={20}
+            tint={isDarkMode ? "dark" : "light"}
+            className="flex-1 rounded-2xl overflow-hidden"
+            style={{
+              backgroundColor: theme.colors.cardBackground,
+              borderColor: theme.colors.cardBorder,
+              borderWidth: 1,
+            }}
+          >
+            <View className="p-4 items-center">
+              <View className="w-12 h-12 rounded-2xl bg-orange-100 items-center justify-center mb-3">
+                <Image
+                  source={treeImages["orange"]}
+                  style={{ width: 24, height: 24 }}
+                />
+              </View>
+              <Text
+                className="text-2xl font-bold mb-1"
+                style={{ color: theme.colors.text.primary }}
+              >
+                {treeData.fruits}
+              </Text>
+              <Text
+                className="text-sm font-medium"
+                style={{ color: theme.colors.text.secondary }}
+              >
+                Fruits
+              </Text>
+            </View>
+          </BlurView>
+
+          <BlurView
+            intensity={20}
+            tint={isDarkMode ? "dark" : "light"}
+            className="flex-1 rounded-2xl overflow-hidden"
+            style={{
+              backgroundColor: theme.colors.cardBackground,
+              borderColor: theme.colors.cardBorder,
+              borderWidth: 1,
+            }}
+          >
+            <View className="p-4 items-center">
+              <View className="w-12 h-12 rounded-2xl bg-purple-100 items-center justify-center mb-3">
+                <Image
+                  source={treeImages["sprout"]}
+                  style={{ width: 20, height: 20, tintColor: "#8b5cf6" }}
+                />
+              </View>
+              <Text
+                className="text-2xl font-bold mb-1"
+                style={{ color: theme.colors.text.primary }}
+              >
+                {treeData.decay}
+              </Text>
+              <Text
+                className="text-sm font-medium"
+                style={{ color: theme.colors.text.secondary }}
+              >
+                Decay
+              </Text>
+            </View>
+          </BlurView>
         </View>
-        <View style={{ zIndex: 1 }}>
+
+        {/* Level Display */}
+        <View className="mb-8" style={{ zIndex: 1 }}>
           <LevelDisplay duo={selectedConnection} />
         </View>
 
-        {/* Growth Log - Add z-index */}
-        <View className={`mb-20 mt-10`} style={{ zIndex: 1 }}>
+        {/* Growth Activity Section */}
+        <View className="mb-8" style={{ zIndex: 1 }}>
           <View className="mb-6">
-            <Text className="text-2xl font-bold text-gray-900 mb-1 font-mainRegular">
-              Growth Activity
-            </Text>
-            <Text className="text-sm text-gray-500 font-mainRegular">
-              Track your duo's progress and milestones
+            <View className="flex-row items-center gap-3 mb-2">
+              <View className="w-10 h-10 rounded-2xl bg-primary/20 items-center justify-center">
+                <Text className="text-xl">📈</Text>
+              </View>
+              <Text
+                className="text-2xl font-bold"
+                style={{ color: theme.colors.text.primary }}
+              >
+                Growth Activity
+              </Text>
+            </View>
+            <Text
+              className="text-base"
+              style={{ color: theme.colors.text.secondary }}
+            >
+              Track your duo's progress and celebrate milestones together
             </Text>
           </View>
 
           {treeData.growth_log.length > 0 ? (
-            <View className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <BlurView
+              intensity={20}
+              tint={isDarkMode ? "dark" : "light"}
+              className="rounded-3xl overflow-hidden"
+              style={{
+                backgroundColor: theme.colors.cardBackground,
+                borderColor: theme.colors.cardBorder,
+                borderWidth: 1,
+              }}
+            >
               {Object.entries(groupedGrowthLog).map(
                 ([dateStr, logs], index) => (
                   <View key={dateStr}>
                     {/* Date Header */}
                     <TouchableOpacity
                       onPress={() => toggleCollapse(dateStr)}
-                      className="px-6 py-4 bg-gray-50 border-b border-gray-100 flex-row items-center justify-between"
+                      className="p-6 flex-row items-center justify-between"
                       activeOpacity={0.7}
+                      style={{
+                        backgroundColor:
+                          index === 0 ? theme.colors.glass : "transparent",
+                        borderBottomWidth: 1,
+                        borderBottomColor: theme.colors.cardBorder,
+                      }}
                     >
-                      <View className="flex-row items-center">
-                        <View className="w-2 h-2 bg-primary rounded-full mr-3" />
-                        <Text className="text-base font-semibold text-gray-900 font-mainRegular">
-                          {dateStr}
-                        </Text>
-                        <View className="ml-3 px-2 py-1 bg-gray-200 rounded-full">
-                          <Text className="text-xs font-medium text-gray-600 font-mainRegular">
+                      <View className="flex-row items-center gap-4">
+                        <View className="w-3 h-3 rounded-full bg-primary" />
+                        <View>
+                          <Text
+                            className="text-lg font-semibold"
+                            style={{ color: theme.colors.text.primary }}
+                          >
+                            {dateStr}
+                          </Text>
+                          <Text
+                            className="text-sm"
+                            style={{ color: theme.colors.text.tertiary }}
+                          >
                             {logs.length}{" "}
                             {logs.length === 1 ? "activity" : "activities"}
                           </Text>
                         </View>
                       </View>
-                      <View className="flex-row items-center">
-                        <Text className="text-xs text-gray-400 mr-2 font-mainRegular">
-                          {collapsedDates[dateStr] ? "Show" : "Hide"}
-                        </Text>
-                        <View
-                          className="w-6 h-6 rounded-full bg-white border border-gray-200 items-center justify-center"
-                          style={{
-                            transform: [
-                              {
-                                rotate: collapsedDates[dateStr]
-                                  ? "0deg"
-                                  : "180deg",
-                              },
-                            ],
-                          }}
+
+                      <View
+                        className="w-8 h-8 rounded-full items-center justify-center"
+                        style={{
+                          backgroundColor: theme.colors.glass,
+                          borderColor: theme.colors.cardBorder,
+                          borderWidth: 1,
+                          transform: [
+                            {
+                              rotate: collapsedDates[dateStr]
+                                ? "0deg"
+                                : "180deg",
+                            },
+                          ],
+                        }}
+                      >
+                        <Text
+                          className="text-sm"
+                          style={{ color: theme.colors.text.tertiary }}
                         >
-                          <Text className="text-gray-400 text-xs">▼</Text>
-                        </View>
+                          ▾
+                        </Text>
                       </View>
                     </TouchableOpacity>
 
                     {/* Activity Items */}
                     {!collapsedDates[dateStr] && (
-                      <View className="px-6 py-2">
+                      <View className="px-6 pb-6">
                         {logs.map(({ idx, change }, logIndex) => (
                           <View
                             key={idx}
-                            className={`py-4 flex-row items-start ${
-                              logIndex !== logs.length - 1
-                                ? "border-b border-gray-50"
-                                : ""
-                            }`}
+                            className="flex-row items-start gap-4 py-4"
+                            style={{
+                              borderBottomWidth:
+                                logIndex !== logs.length - 1 ? 1 : 0,
+                              borderBottomColor: theme.colors.cardBorder,
+                            }}
                           >
                             {/* Timeline Indicator */}
-                            <View className="mr-4 mt-1">
-                              <View className="w-8 h-8 rounded-full bg-green-50 border-2 border-green-200 items-center justify-center">
-                                <Image
-                                  source={treeImages["leaf"]}
-                                  style={{ width: 14, height: 14 }}
-                                  className="tint-green-600"
-                                />
-                              </View>
+                            <View className="w-10 h-10 rounded-2xl bg-green-100 items-center justify-center">
+                              <Image
+                                source={treeImages["leaf"]}
+                                style={{
+                                  width: 16,
+                                  height: 16,
+                                  tintColor: "#22c55e",
+                                }}
+                              />
                             </View>
 
                             {/* Activity Content */}
-                            <View className="flex-1">
-                              <Text className="text-sm font-medium text-gray-900 leading-5 mb-1 font-mainRegular">
+                            <View className="flex-1 gap-2">
+                              <Text
+                                className="text-base font-medium leading-6"
+                                style={{ color: theme.colors.text.primary }}
+                              >
                                 {change}
                               </Text>
-                              <View className="flex-row items-center">
-                                <View className="w-1 h-1 bg-gray-300 rounded-full mr-2" />
-                                <Text className="text-xs text-gray-500 font-mainRegular">
-                                  Activity #{idx + 1}
-                                </Text>
-                              </View>
+                              <Text
+                                className="text-sm"
+                                style={{ color: theme.colors.text.tertiary }}
+                              >
+                                Activity #{idx + 1}
+                              </Text>
                             </View>
 
-                            {/* Status Indicator */}
-                            <View className="ml-3">
-                              <View className="px-2 py-1 bg-green-50 rounded-md">
-                                <Text className="text-xs font-medium text-green-700 font-mainRegular">
-                                  Complete
-                                </Text>
-                              </View>
+                            {/* Status Badge */}
+                            <View
+                              className="px-3 py-1 rounded-full"
+                              style={{ backgroundColor: "#dcfce7" }}
+                            >
+                              <Text className="text-xs font-semibold text-green-700">
+                                ✓ Complete
+                              </Text>
                             </View>
                           </View>
                         ))}
@@ -374,28 +611,49 @@ export default function TreeSection() {
                   </View>
                 )
               )}
-            </View>
+            </BlurView>
           ) : (
-            // Empty State - Professional Design
-            <View className="bg-white rounded-xl border border-gray-100 shadow-sm">
-              <View className="px-8 py-12 items-center">
-                <View className="w-16 h-16 bg-gray-50 rounded-full items-center justify-center mb-4">
-                  <Text className="text-2xl font-mainRegular">🌱</Text>
+            // Empty State
+            <BlurView
+              intensity={20}
+              tint={isDarkMode ? "dark" : "light"}
+              className="rounded-3xl overflow-hidden"
+              style={{
+                backgroundColor: theme.colors.cardBackground,
+                borderColor: theme.colors.cardBorder,
+                borderWidth: 1,
+              }}
+            >
+              <View className="p-12 items-center">
+                <View className="w-20 h-20 rounded-3xl bg-primary/10 items-center justify-center mb-6">
+                  <Text className="text-4xl">🌱</Text>
                 </View>
-                <Text className="text-lg font-semibold text-gray-900 mb-2 font-mainRegular">
-                  No Activity Yet
+                <Text
+                  className="text-xl font-bold mb-3 text-center"
+                  style={{ color: theme.colors.text.primary }}
+                >
+                  Your Growth Journey Starts Here
                 </Text>
-                <Text className="text-sm text-gray-500 text-center leading-5 max-w-xs font-mainRegular">
-                  Your growth journey will appear here as you and your duo
-                  interact and build trust together.
+                <Text
+                  className="text-base text-center leading-6 max-w-sm mb-6"
+                  style={{ color: theme.colors.text.secondary }}
+                >
+                  Begin building habits together with your duo partner. Every
+                  small step counts toward growing your trust tree.
                 </Text>
-                <View className="mt-6 px-4 py-2 bg-gray-50 rounded-lg">
-                  <Text className="text-xs font-medium text-gray-600 font-mainRegular">
-                    Start engaging to see your first activity!
+                <View
+                  className="px-6 py-3 rounded-full"
+                  style={{ backgroundColor: theme.colors.glass }}
+                >
+                  <Text
+                    className="text-sm font-semibold"
+                    style={{ color: theme.colors.text.primary }}
+                  >
+                    🚀 Start your first habit today!
                   </Text>
                 </View>
               </View>
-            </View>
+            </BlurView>
           )}
         </View>
       </ScrollView>
