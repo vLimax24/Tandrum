@@ -25,12 +25,12 @@ import { BlurView } from "expo-blur";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { treeImages } from "@/utils/treeImages";
 import { createTheme } from "@/utils/theme";
+import { useTheme } from "@/contexts/themeContext";
 
 const Page = () => {
   const { user } = useUser();
   const clerkId = user?.id;
   const systemColorScheme = useColorScheme();
-  const [isDarkMode, setIsDarkMode] = useState(systemColorScheme === "dark");
 
   const convexUser = useQuery(
     api.users.getUserByClerkId,
@@ -56,29 +56,7 @@ const Page = () => {
   const acceptInvite = useMutation(api.duoInvites.respondToInvite);
   const { setSelectedIndex } = useDuo();
 
-  // Load dark mode preference from AsyncStorage
-  useEffect(() => {
-    const loadDarkModePreference = async () => {
-      try {
-        const savedDarkMode = await AsyncStorage.getItem("darkMode");
-        if (savedDarkMode !== null) {
-          setIsDarkMode(JSON.parse(savedDarkMode));
-        }
-      } catch (error) {
-        console.log("Error loading dark mode preference:", error);
-      }
-    };
-    loadDarkModePreference();
-  }, []);
-
-  // Save dark mode preference to AsyncStorage
-  const saveDarkModePreference = async (darkMode: boolean) => {
-    try {
-      await AsyncStorage.setItem("darkMode", JSON.stringify(darkMode));
-    } catch (error) {
-      console.log("Error saving dark mode preference:", error);
-    }
-  };
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const theme = createTheme(isDarkMode);
 
@@ -104,13 +82,6 @@ const Page = () => {
       );
     }
   }, [incomingInvite]);
-
-  // Toggle theme function
-  const toggleTheme = () => {
-    const newDarkMode = !isDarkMode;
-    setIsDarkMode(newDarkMode);
-    saveDarkModePreference(newDarkMode);
-  };
 
   const treeLabels = {
     "tree-1": "Sprout",
