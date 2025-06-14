@@ -28,28 +28,4 @@ export const createTheme = (isDarkMode: boolean) => ({
     primaryLight: "#00cc88",
     glass: isDarkMode ? "rgba(30, 41, 59, 0.3)" : "rgba(255, 255, 255, 0.3)",
   },
-  shadows: {
-    card: isDarkMode
-      ? {
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.4,
-          shadowRadius: 20,
-          elevation: 16,
-        }
-      : {
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 6 },
-          shadowOpacity: 0.12,
-          shadowRadius: 16,
-          elevation: 12,
-        },
-    button: {
-      shadowColor: "#009966",
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.3,
-      shadowRadius: 16,
-      elevation: 12,
-    },
-  },
 });

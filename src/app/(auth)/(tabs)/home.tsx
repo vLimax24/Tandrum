@@ -699,7 +699,6 @@ const Page = () => {
               onPress={handleStartPartnership}
               activeOpacity={0.8}
               className="overflow-hidden rounded-2xl"
-              style={theme.shadows.button}
             >
               <LinearGradient
                 colors={[theme.colors.primary, theme.colors.primaryLight]}
