@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  useCallback,
-  useEffect,
-  useMemo,
-} from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,15 +9,13 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-import {
-  BottomSheetModal,
-  BottomSheetView,
-  BottomSheetBackdrop,
-  BottomSheetTextInput,
-} from "@gorhom/bottom-sheet";
-import RNPickerSelect from "react-native-picker-select";
+import { BottomSheetModal, BottomSheetTextInput } from "@gorhom/bottom-sheet";
+
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
+import { TandrumBottomSheet } from "./TandrumBottomSheet";
 
 interface CreateHabitBottomSheetProps {
   onCreate: any;
@@ -35,6 +27,9 @@ const CreateHabitBottomSheet = React.forwardRef<
   BottomSheetModal,
   CreateHabitBottomSheetProps
 >(({ onCreate, duo, existingHabits = [] }, ref) => {
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
+
   const [newTitle, setNewTitle] = useState("");
   const [newFreq, setNewFreq] = useState<"daily" | "weekly">("daily");
   const [isCreating, setIsCreating] = useState(false);
@@ -43,28 +38,17 @@ const CreateHabitBottomSheet = React.forwardRef<
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
-  const scaleAnim = useRef(new Animated.Value(0.95)).current;
-
-  // Updated snap points with more flexibility for keyboard
-  const snapPoints = useMemo(() => ["65%", "85%"], []);
 
   useEffect(() => {
-    // Animate content when sheet opens
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 500,
+        duration: 400,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        tension: 50,
-        friction: 8,
+        duration: 400,
         useNativeDriver: true,
       }),
     ]).start();
@@ -130,7 +114,6 @@ const CreateHabitBottomSheet = React.forwardRef<
     if (ref && "current" in ref && ref.current) {
       ref.current.dismiss();
     }
-    // Reset form
     setTimeout(() => {
       setNewTitle("");
       setNewFreq("daily");
@@ -138,19 +121,6 @@ const CreateHabitBottomSheet = React.forwardRef<
       setIsCreating(false);
     }, 300);
   }, [ref]);
-
-  const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        opacity={0.7}
-        style={[props.style, { backgroundColor: "rgba(0, 0, 0, 0.7)" }]}
-      />
-    ),
-    []
-  );
 
   const handleDismiss = useCallback(() => {
     setValidationError("");
@@ -162,135 +132,66 @@ const CreateHabitBottomSheet = React.forwardRef<
   }, [fadeAnim]);
 
   return (
-    <BottomSheetModal
+    <TandrumBottomSheet
       ref={ref}
-      handleComponent={null}
-      snapPoints={snapPoints}
-      backdropComponent={renderBackdrop}
+      title="Create New Habit"
+      subtitle="Build habits together"
+      icon="people"
+      onClose={handleClose}
       onDismiss={handleDismiss}
-      enablePanDownToClose
-      enableDismissOnClose
-      // Fixed keyboard handling props
-      keyboardBehavior="extend"
-      keyboardBlurBehavior="none"
-      android_keyboardInputMode="adjustResize"
-      enableDynamicSizing={false}
-      backgroundStyle={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
-      style={{
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 24,
-        elevation: 24,
-      }}
+      snapPoints={["83%"]}
     >
-      <BottomSheetView className="flex-1">
-        <Animated.View
-          style={{
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
-          }}
-          className="flex-1"
-        >
-          {/* Header */}
-          <View className="relative overflow-hidden">
-            <LinearGradient
-              colors={["#10b981", "#059669"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{
-                paddingHorizontal: 24,
-                paddingVertical: 20,
-                position: "relative",
-                overflow: "hidden",
-                borderTopLeftRadius: 24,
-                borderTopRightRadius: 24,
-              }}
-            >
-              {/* Background decorative elements */}
-              <View className="absolute inset-0 overflow-hidden">
+      <Animated.View
+        style={{
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }],
+          paddingBottom: 100,
+          backgroundColor: theme.colors.background[1],
+        }}
+        className="flex-1"
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View className="flex-1 px-6 py-8 gap-8">
+            {/* Title Input Section */}
+            <View className="gap-4">
+              <View className="flex-row items-center gap-3">
                 <View
-                  className="absolute rounded-full opacity-10"
+                  className="items-center justify-center rounded-xl"
                   style={{
-                    width: 120,
-                    height: 120,
-                    backgroundColor: "white",
-                    top: -40,
-                    right: -20,
-                  }}
-                />
-                <View
-                  className="absolute rounded-full opacity-5"
-                  style={{
-                    width: 80,
-                    height: 80,
-                    backgroundColor: "white",
-                    bottom: -20,
-                    left: -10,
-                  }}
-                />
-              </View>
-
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center">
-                  <View
-                    className="mr-3 items-center justify-center rounded-full"
-                    style={{
-                      width: 48,
-                      height: 48,
-                      backgroundColor: "rgba(255,255,255,0.2)",
-                    }}
-                  >
-                    <Ionicons name="add-circle" size={24} color="white" />
-                  </View>
-                  <View>
-                    <Text className="text-white text-2xl font-bold font-mainRegular">
-                      Create New Habit
-                    </Text>
-                    <Text className="text-white/80 text-sm font-mainRegular">
-                      Build lasting habits together
-                    </Text>
-                  </View>
-                </View>
-                <TouchableOpacity
-                  onPress={handleClose}
-                  className="items-center justify-center rounded-full"
-                  style={{
-                    width: 36,
-                    height: 36,
-                    backgroundColor: "rgba(255,255,255,0.2)",
+                    width: 40,
+                    height: 40,
+                    backgroundColor: theme.colors.primary + "15",
                   }}
                 >
-                  <Ionicons name="close" size={20} color="white" />
-                </TouchableOpacity>
-              </View>
-            </LinearGradient>
-          </View>
-
-          {/* Content */}
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View className="flex-1 px-6 py-6">
-              {/* Title Input */}
-              <View className="mb-6">
-                <Text className="text-gray-900 font-semibold text-lg mb-3 font-mainRegular">
-                  Habit Title
+                  <Ionicons
+                    name="create"
+                    size={20}
+                    color={theme.colors.primary}
+                  />
+                </View>
+                <Text
+                  className="font-semibold text-lg flex-1"
+                  style={{ color: theme.colors.text.primary }}
+                >
+                  What habit would you like to build?
                 </Text>
+              </View>
+
+              <View className="relative">
                 <View
-                  className="relative overflow-hidden rounded-xl"
+                  className="rounded-2xl overflow-hidden"
                   style={{
-                    backgroundColor: "#f8fafc",
+                    backgroundColor: theme.colors.cardBackground,
                     borderWidth: 2,
                     borderColor: validationError
-                      ? "#ef4444" // Red for validation errors
+                      ? "#ef4444"
                       : newTitle.trim() && !validationError
-                        ? "#10b981" // Green matching header when valid
-                        : "#e5e7eb", // Default gray
+                        ? theme.colors.primary
+                        : theme.colors.cardBorder,
                   }}
                 >
                   <BottomSheetTextInput
-                    className="text-gray-900 text-base"
-                    placeholder="Read 30 Minutes"
-                    placeholderTextColor="#9CA3AF"
+                    placeholder="e.g., Read for 30 minutes"
                     value={newTitle}
                     onChangeText={handleTitleChange}
                     returnKeyType="done"
@@ -299,191 +200,289 @@ const CreateHabitBottomSheet = React.forwardRef<
                     textAlignVertical="center"
                     style={{
                       fontWeight: "500",
-                      color: "#111827",
-                      width: 1000,
+                      color: theme.colors.text.primary,
                       fontSize: 16,
-                      paddingLeft: 16,
-                      paddingRight: 48, // Always reserve space for icon
-                      paddingTop: 16,
-                      paddingBottom: 16,
-                      height: 52, // Fixed height instead of minHeight
-                      includeFontPadding: false, // Android: removes extra font padding
-                      textAlignVertical: "center", // Ensure vertical centering
+                      paddingLeft: 20,
+                      paddingRight: 56,
+                      paddingTop: 18,
+                      paddingBottom: 18,
+                      height: 56,
                     }}
+                    placeholderTextColor={theme.colors.text.tertiary}
                   />
-                  {/* Icon area - always present to prevent layout shifts */}
                   <View
-                    className="absolute right-3 top-1/2 items-center justify-center"
+                    className="absolute right-4 top-1/2 items-center justify-center"
                     style={{
-                      transform: [{ translateY: -10 }],
-                      width: 20,
-                      height: 20,
+                      transform: [{ translateY: -12 }],
+                      width: 24,
+                      height: 24,
                     }}
                   >
                     {validationError ? (
-                      <Ionicons name="warning" size={20} color="#ef4444" />
+                      <Ionicons name="alert-circle" size={24} color="#ef4444" />
                     ) : newTitle.trim() && newTitle.trim().length >= 3 ? (
                       <Ionicons
                         name="checkmark-circle"
-                        size={20}
-                        color="#10b981"
+                        size={24}
+                        color={theme.colors.primary}
                       />
                     ) : null}
                   </View>
                 </View>
 
                 {validationError ? (
-                  <View className="flex-row items-center mt-3">
-                    <Ionicons name="warning" size={16} color="#ef4444" />
-                    <Text className="text-red-500 text-sm font-medium ml-2 font-mainRegular">
+                  <View className="flex-row items-center gap-2 mt-3">
+                    <Ionicons name="alert-circle" size={16} color="#ef4444" />
+                    <Text className="text-red-500 text-sm font-medium">
                       {validationError}
                     </Text>
                   </View>
                 ) : newTitle.trim() &&
                   newTitle.trim().length >= 3 &&
                   !validationError ? (
-                  <View className="flex-row items-center mt-3">
+                  <View className="flex-row items-center gap-2 mt-3">
                     <Ionicons
                       name="checkmark-circle"
                       size={16}
-                      color="#10b981"
+                      color={theme.colors.primary}
                     />
-                    <Text className="text-green-600 text-sm font-medium ml-2 font-mainRegular">
-                      Looks good! ({newTitle.length}/50 characters)
+                    <Text
+                      className="text-sm font-medium"
+                      style={{ color: theme.colors.primary }}
+                    >
+                      Perfect! ({newTitle.length}/50 characters)
                     </Text>
                   </View>
                 ) : (
-                  <Text className="text-gray-500 text-sm mt-2 font-mainRegular">
+                  <Text
+                    className="text-sm mt-3"
+                    style={{ color: theme.colors.text.tertiary }}
+                  >
                     {newTitle.length}/50 characters
                   </Text>
                 )}
               </View>
+            </View>
 
-              {/* Frequency Selector */}
-              <View className="mb-8">
-                <Text className="text-gray-900 font-semibold text-lg mb-3 font-mainRegular">
-                  Frequency
-                </Text>
+            {/* Frequency Selector */}
+            <View className="gap-4">
+              <View className="flex-row items-center gap-3">
                 <View
-                  className="overflow-hidden rounded-xl"
+                  className="items-center justify-center rounded-xl"
                   style={{
-                    backgroundColor: "#f8fafc",
-                    borderWidth: 2,
-                    borderColor: "#e5e7eb",
+                    width: 40,
+                    height: 40,
+                    backgroundColor: theme.colors.primary + "15",
                   }}
                 >
-                  <RNPickerSelect
-                    onValueChange={setNewFreq}
-                    value={newFreq}
-                    placeholder={{}}
-                    items={[
-                      { label: "Daily - Every day", value: "daily" },
-                      { label: "Weekly - Once per week", value: "weekly" },
-                    ]}
-                    useNativeAndroidPickerStyle={false}
-                    style={{
-                      inputIOS: {
-                        color: "#111827",
-                        paddingVertical: 16,
-                        paddingHorizontal: 16,
-                        fontSize: 16,
-                        fontWeight: "500",
-                      },
-                      inputAndroid: {
-                        color: "#111827",
-                        paddingVertical: 16,
-                        paddingHorizontal: 16,
-                        fontSize: 16,
-                        fontWeight: "500",
-                      },
-                      iconContainer: {
-                        top: 20,
-                        right: 16,
-                      },
-                    }}
-                    Icon={() => (
-                      <Ionicons name="chevron-down" size={20} color="#6B7280" />
-                    )}
+                  <Ionicons
+                    name="calendar"
+                    size={20}
+                    color={theme.colors.primary}
                   />
                 </View>
+                <Text
+                  className="font-semibold text-lg flex-1"
+                  style={{ color: theme.colors.text.primary }}
+                >
+                  How often?
+                </Text>
               </View>
 
-              {/* Action Buttons */}
-              <View className="flex-row gap-3 mt-auto">
+              {/* Frequency Selection Buttons */}
+              <View className="flex-row gap-3">
                 <TouchableOpacity
-                  onPress={handleClose}
-                  className="flex-1 items-center justify-center py-4 rounded-xl"
+                  onPress={() => setNewFreq("daily")}
+                  className="flex-1 p-4 rounded-2xl"
                   style={{
-                    backgroundColor: "#f3f4f6",
-                    borderWidth: 1,
-                    borderColor: "#d1d5db",
+                    backgroundColor:
+                      newFreq === "daily"
+                        ? theme.colors.primary + "15"
+                        : theme.colors.cardBackground,
+                    borderWidth: 2,
+                    borderColor:
+                      newFreq === "daily"
+                        ? theme.colors.primary
+                        : theme.colors.cardBorder,
                   }}
                 >
-                  <Text className="text-gray-700 font-semibold text-base font-mainRegular">
-                    Cancel
+                  <View className="flex-row items-center gap-2 mb-2">
+                    <Ionicons
+                      name="sunny"
+                      size={18}
+                      color={
+                        newFreq === "daily"
+                          ? theme.colors.primary
+                          : theme.colors.text.tertiary
+                      }
+                    />
+                    <Text
+                      className="font-semibold text-base"
+                      style={{
+                        color:
+                          newFreq === "daily"
+                            ? theme.colors.primary
+                            : theme.colors.text.secondary,
+                      }}
+                    >
+                      Daily
+                    </Text>
+                    {newFreq === "daily" && (
+                      <View className="ml-auto">
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={20}
+                          color={theme.colors.primary}
+                        />
+                      </View>
+                    )}
+                  </View>
+                  <Text
+                    className="text-sm"
+                    style={{ color: theme.colors.text.tertiary }}
+                  >
+                    Build momentum with consistent daily practice
                   </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onPress={handleCreateHabit}
-                  disabled={!!validationError || !newTitle.trim() || isCreating}
-                  className="flex-1 items-center justify-center py-4 rounded-xl"
+                  onPress={() => setNewFreq("weekly")}
+                  className="flex-1 p-4 rounded-2xl"
                   style={{
                     backgroundColor:
-                      !!validationError || !newTitle.trim() || isCreating
-                        ? "#e5e7eb"
-                        : "#57b686",
-                    shadowColor:
-                      !!validationError || !newTitle.trim() || isCreating
-                        ? "transparent"
-                        : "#57b686",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 8,
-                    elevation:
-                      !!validationError || !newTitle.trim() || isCreating
-                        ? 0
-                        : 6,
+                      newFreq === "weekly"
+                        ? theme.colors.primary + "15"
+                        : theme.colors.cardBackground,
+                    borderWidth: 2,
+                    borderColor:
+                      newFreq === "weekly"
+                        ? theme.colors.primary
+                        : theme.colors.cardBorder,
                   }}
                 >
-                  {isCreating ? (
-                    <View className="flex-row items-center">
-                      <ActivityIndicator size="small" color="white" />
-                      <Text className="text-white font-semibold text-base ml-2 font-mainRegular">
-                        Creating...
-                      </Text>
-                    </View>
-                  ) : (
-                    <View className="flex-row items-center">
-                      <Ionicons
-                        name="checkmark-circle"
-                        size={20}
-                        color={
-                          !!validationError || !newTitle.trim()
-                            ? "#9ca3af"
-                            : "white"
-                        }
-                      />
-                      <Text
-                        className="font-semibold text-base ml-2 font-mainRegular"
-                        style={{
-                          color:
-                            !!validationError || !newTitle.trim()
-                              ? "#9ca3af"
-                              : "white",
-                        }}
-                      >
-                        Create Habit
-                      </Text>
-                    </View>
-                  )}
+                  <View className="flex-row items-center gap-2 mb-2">
+                    <Ionicons
+                      name="calendar-outline"
+                      size={18}
+                      color={
+                        newFreq === "weekly"
+                          ? theme.colors.primary
+                          : theme.colors.text.tertiary
+                      }
+                    />
+                    <Text
+                      className="font-semibold text-base"
+                      style={{
+                        color:
+                          newFreq === "weekly"
+                            ? theme.colors.primary
+                            : theme.colors.text.secondary,
+                      }}
+                    >
+                      Weekly
+                    </Text>
+                    {newFreq === "weekly" && (
+                      <View className="ml-auto">
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={20}
+                          color={theme.colors.primary}
+                        />
+                      </View>
+                    )}
+                  </View>
+                  <Text
+                    className="text-sm"
+                    style={{ color: theme.colors.text.tertiary }}
+                  >
+                    Perfect for bigger goals that need more time
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
-          </TouchableWithoutFeedback>
-        </Animated.View>
-      </BottomSheetView>
-    </BottomSheetModal>
+
+            {/* Action Buttons */}
+            <View className="flex-row gap-4 mt-auto">
+              <TouchableOpacity
+                onPress={handleClose}
+                className="flex-1 items-center justify-center py-4 rounded-2xl"
+                style={{
+                  backgroundColor: theme.colors.cardBackground,
+                  borderWidth: 2,
+                  borderColor: theme.colors.cardBorder,
+                }}
+              >
+                <View className="flex-row items-center gap-2">
+                  <Ionicons
+                    name="close"
+                    size={18}
+                    color={theme.colors.text.secondary}
+                  />
+                  <Text
+                    className="font-semibold text-base"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    Cancel
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleCreateHabit}
+                disabled={!!validationError || !newTitle.trim() || isCreating}
+                className="flex-1 items-center justify-center py-4 rounded-2xl overflow-hidden"
+              >
+                <LinearGradient
+                  colors={
+                    !!validationError || !newTitle.trim() || isCreating
+                      ? [
+                          theme.colors.cardBackground,
+                          theme.colors.cardBackground,
+                        ]
+                      : [theme.colors.primary, theme.colors.primaryLight]
+                  }
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  className="absolute inset-0"
+                />
+
+                {isCreating ? (
+                  <View className="flex-row items-center gap-3">
+                    <ActivityIndicator size="small" color="white" />
+                    <Text className="text-white font-semibold text-base">
+                      Creating...
+                    </Text>
+                  </View>
+                ) : (
+                  <View className="flex-row items-center gap-3">
+                    <Ionicons
+                      name="rocket"
+                      size={20}
+                      color={
+                        !!validationError || !newTitle.trim()
+                          ? theme.colors.text.tertiary
+                          : "white"
+                      }
+                    />
+                    <Text
+                      className="font-semibold text-base"
+                      style={{
+                        color:
+                          !!validationError || !newTitle.trim()
+                            ? theme.colors.text.tertiary
+                            : "white",
+                      }}
+                    >
+                      Start Building
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Animated.View>
+    </TandrumBottomSheet>
   );
 });
 
