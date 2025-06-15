@@ -260,7 +260,7 @@ export default function TreeSection() {
             borderWidth: 1,
           }}
         >
-          <View className="p-8 items-center">
+          <View className="p-4 items-center">
             <View className="w-80 h-80 rounded-3xl bg-gradient-to-br from-green-50 to-blue-50 items-center justify-center mb-6 overflow-hidden">
               <Image
                 source={treeImages[treeData.stage]}
