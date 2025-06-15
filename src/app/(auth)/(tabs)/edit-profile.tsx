@@ -16,16 +16,23 @@ import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { BlurView } from "expo-blur";
 import { api } from "convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
 import { useMutation, useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { avatarOptions } from "@/utils/avatarImages";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
 
 const { width } = Dimensions.get("window");
 const avatarSize = (width - 80) / 3 - 12;
 
 export default function EditProfileScreen() {
+  // Theme integration
+  const { isDarkMode, toggleTheme } = useTheme();
+  const theme = createTheme(isDarkMode);
+
   // Updated state and tracking for changes
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
   const [username, setUsername] = useState("");
@@ -169,7 +176,7 @@ export default function EditProfileScreen() {
         clerkId: user.id,
         name: username.trim(),
         profileImage: selectedAvatarKey,
-        bio: bio.trim(), // Add bio to the update
+        bio: bio.trim(),
       });
 
       Alert.alert("Success", "Your profile has been updated successfully!", [
@@ -190,45 +197,84 @@ export default function EditProfileScreen() {
     username.trim().length >= 3 && isUsernameValid && !isLoading && hasChanges;
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <StatusBar style="dark" />
+    <View
+      className="flex-1"
+      style={{ backgroundColor: theme.colors.background[0] }}
+    >
+      <StatusBar style={isDarkMode ? "light" : "dark"} />
 
-      {/* Header */}
-      <LinearGradient
-        colors={["#ffffff", "#f8fafc"]}
-        className="border-b border-gray-200"
-      >
-        <View className="flex-row items-center justify-between px-6 py-4">
-          <TouchableOpacity
-            onPress={() => router.push("/(auth)/(tabs)/profile")}
-            className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
-          >
-            <Ionicons name="arrow-back" size={20} color="#374151" />
-          </TouchableOpacity>
-          <Text className="text-lg font-bold text-gray-900 font-mainRegular">
-            Edit Profile
-          </Text>
-          <TouchableOpacity
-            onPress={handleSave}
-            disabled={!canSave}
-            className={`px-4 py-2 rounded-full ${
-              canSave ? "bg-blue-600" : "bg-gray-300"
-            }`}
-          >
-            {isLoading ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
+      {/* Enhanced Header with Glassmorphism */}
+      <SafeAreaView className="relative">
+        <LinearGradient
+          colors={theme.colors.background}
+          className="absolute inset-0"
+        />
+        <BlurView
+          intensity={80}
+          tint={isDarkMode ? "dark" : "light"}
+          className="border-b"
+          style={{ borderBottomColor: theme.colors.cardBorder }}
+        >
+          <View className="flex-row items-center justify-between px-6 py-4">
+            <TouchableOpacity
+              onPress={() => router.push("/(auth)/(tabs)/profile")}
+              className="w-11 h-11 items-center justify-center rounded-2xl"
+              style={{ backgroundColor: theme.colors.glass }}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={22}
+                color={theme.colors.text.primary}
+              />
+            </TouchableOpacity>
+
+            <View className="items-center">
               <Text
-                className={`font-semibold font-mainRegular ${
-                  canSave ? "text-white" : "text-gray-500"
-                }`}
+                className="text-xl font-bold font-mainRegular"
+                style={{ color: theme.colors.text.primary }}
               >
-                Save
+                Edit Profile
               </Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      </LinearGradient>
+            </View>
+
+            <View className="flex-row items-center gap-2">
+              <TouchableOpacity
+                onPress={handleSave}
+                disabled={!canSave}
+                className="px-5 py-2.5 rounded-2xl flex-row items-center gap-2"
+                style={{
+                  backgroundColor: canSave
+                    ? theme.colors.primary
+                    : theme.colors.glass,
+                  opacity: canSave ? 1 : 0.6,
+                }}
+                activeOpacity={0.8}
+              >
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <>
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={18}
+                      color={canSave ? "white" : theme.colors.text.tertiary}
+                    />
+                    <Text
+                      className="font-semibold font-mainRegular"
+                      style={{
+                        color: canSave ? "white" : theme.colors.text.tertiary,
+                      }}
+                    >
+                      Save
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </BlurView>
+      </SafeAreaView>
 
       <Animated.ScrollView
         style={{
@@ -237,218 +283,423 @@ export default function EditProfileScreen() {
         }}
         className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={{ paddingBottom: 75 }}
       >
         {/* Profile Picture Section */}
-        <View className="bg-white mx-6 mt-6 rounded-2xl border border-gray-200 shadow-sm">
-          <View className="bg-blue-50 px-6 py-4 border-b border-blue-100 rounded-t-2xl">
-            <View className="flex-row items-center">
-              <View className="w-8 h-8 bg-blue-500 rounded-full justify-center items-center mr-3">
-                <Ionicons name="camera" size={16} color="white" />
-              </View>
-              <Text className="text-blue-800 font-mainRegular text-lg font-bold">
-                Profile Picture
-              </Text>
-            </View>
-          </View>
-
-          <View className="p-6">
-            {/* Current Avatar Preview */}
-            {selectedAvatar && (
-              <View className="items-center mb-6">
-                <View className="w-20 h-20 rounded-full border-3 border-blue-500 p-1 mb-3">
-                  <Image
-                    source={
-                      avatarOptions.find((a) => a.id === selectedAvatar)?.source
-                    }
-                    className="w-full h-full rounded-full"
-                    resizeMode="cover"
-                  />
-                </View>
-                <Text className="text-base font-mainRegular font-semibold text-gray-800">
-                  {avatarOptions.find((a) => a.id === selectedAvatar)?.name}{" "}
-                  Avatar
-                </Text>
-              </View>
-            )}
-
-            {/* Avatar Grid */}
-            <View className="flex-row flex-wrap justify-between">
-              {avatarOptions.map((avatar, index) => (
-                <Animated.View
-                  key={avatar.id}
-                  style={{
-                    transform: [{ scale: scaleAnims[index] }],
-                  }}
-                  className="mb-4"
+        <View className="mx-6 mt-6">
+          <BlurView
+            intensity={60}
+            tint={isDarkMode ? "dark" : "light"}
+            className="rounded-3xl overflow-hidden"
+            style={{
+              backgroundColor: theme.colors.cardBackground,
+              borderWidth: 1,
+              borderColor: theme.colors.cardBorder,
+            }}
+          >
+            {/* Section Header */}
+            <View className="px-6 py-5">
+              <View className="flex-row items-center gap-3">
+                <View
+                  className="w-10 h-10 rounded-2xl justify-center items-center"
+                  style={{ backgroundColor: theme.colors.primary }}
                 >
-                  <TouchableOpacity
-                    onPress={() => handleAvatarSelect(avatar.id)}
-                    style={[
-                      {
-                        borderRadius: 12,
-                        overflow: "hidden",
-                        width: avatarSize,
-                        height: avatarSize,
-                      },
-                      selectedAvatar === avatar.id
-                        ? {
-                            borderWidth: 2,
-                            borderColor: "#3b82f6",
-                          }
-                        : {
-                            borderWidth: 2,
-                            borderColor: "#e5e7eb",
-                          },
-                    ]}
-                    activeOpacity={0.8}
+                  <Ionicons name="person-circle" size={24} color="white" />
+                </View>
+                <View className="flex-1">
+                  <Text
+                    className="text-lg font-bold font-mainRegular"
+                    style={{ color: theme.colors.text.primary }}
+                  >
+                    Avatar Selection
+                  </Text>
+                  <Text
+                    className="text-sm font-mainRegular"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    Choose your visual identity
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View className="px-6 pb-6">
+              {/* Current Avatar Preview */}
+              {selectedAvatar && (
+                <View className="items-center mb-8">
+                  <View
+                    className="w-24 h-24 rounded-3xl p-1 mb-4"
+                    style={{ backgroundColor: theme.colors.primary }}
                   >
                     <Image
-                      source={avatar.source}
-                      style={{ width: "100%", height: "100%" }}
+                      source={
+                        avatarOptions.find((a) => a.id === selectedAvatar)
+                          ?.source
+                      }
+                      className="w-full h-full rounded-2xl"
                       resizeMode="cover"
                     />
+                  </View>
+                  <Text
+                    className="text-base font-semibold font-mainRegular"
+                    style={{ color: theme.colors.text.primary }}
+                  >
+                    {avatarOptions.find((a) => a.id === selectedAvatar)?.name}{" "}
+                    Avatar
+                  </Text>
+                </View>
+              )}
 
-                    {/* Selection Indicator */}
-                    {selectedAvatar === avatar.id && (
-                      <View className="absolute top-2 right-2 w-5 h-5 bg-blue-600 rounded-full items-center justify-center">
-                        <Ionicons name="checkmark" size={12} color="white" />
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                </Animated.View>
-              ))}
+              {/* Avatar Grid */}
+              <View className="flex-row flex-wrap justify-between">
+                {avatarOptions.map((avatar, index) => (
+                  <Animated.View
+                    key={avatar.id}
+                    style={{
+                      transform: [{ scale: scaleAnims[index] }],
+                    }}
+                    className="mb-4"
+                  >
+                    <TouchableOpacity
+                      onPress={() => handleAvatarSelect(avatar.id)}
+                      className="rounded-2xl overflow-hidden"
+                      style={{
+                        width: avatarSize,
+                        height: avatarSize,
+                        borderWidth: 2,
+                        borderColor:
+                          selectedAvatar === avatar.id
+                            ? theme.colors.primary
+                            : theme.colors.cardBorder,
+                      }}
+                      activeOpacity={0.8}
+                    >
+                      <Image
+                        source={avatar.source}
+                        style={{ width: "100%", height: "100%" }}
+                        resizeMode="cover"
+                      />
+
+                      {/* Selection Indicator */}
+                      {selectedAvatar === avatar.id && (
+                        <View
+                          className="absolute top-2 right-2 w-6 h-6 rounded-full items-center justify-center"
+                          style={{ backgroundColor: theme.colors.primary }}
+                        >
+                          <Ionicons name="checkmark" size={14} color="white" />
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  </Animated.View>
+                ))}
+              </View>
             </View>
-          </View>
+          </BlurView>
         </View>
 
         {/* Username Section */}
-        <View className="bg-white mx-6 mt-4 rounded-2xl border border-gray-200 shadow-sm">
-          <View className="bg-green-50 px-6 py-4 border-b border-green-100 rounded-t-2xl">
-            <View className="flex-row items-center">
-              <View className="w-8 h-8 bg-green-500 rounded-full justify-center items-center mr-3">
-                <Ionicons name="person" size={16} color="white" />
+        <View className="mx-6 mt-4">
+          <BlurView
+            intensity={60}
+            tint={isDarkMode ? "dark" : "light"}
+            className="rounded-3xl overflow-hidden"
+            style={{
+              backgroundColor: theme.colors.cardBackground,
+              borderWidth: 1,
+              borderColor: theme.colors.cardBorder,
+            }}
+          >
+            {/* Section Header */}
+            <View className="px-6 py-5">
+              <View className="flex-row items-center gap-3">
+                <View
+                  className="w-10 h-10 rounded-2xl justify-center items-center"
+                  style={{ backgroundColor: theme.colors.primaryLight }}
+                >
+                  <Ionicons name="at" size={20} color="white" />
+                </View>
+                <View className="flex-1">
+                  <Text
+                    className="text-lg font-bold font-mainRegular"
+                    style={{ color: theme.colors.text.primary }}
+                  >
+                    Username
+                  </Text>
+                  <Text
+                    className="text-sm font-mainRegular"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    Your unique tandrum identity
+                  </Text>
+                </View>
               </View>
-              <Text className="text-green-800 font-mainRegular text-lg font-bold">
-                Username
+            </View>
+
+            <View className="px-6 pb-6">
+              <TextInput
+                value={username}
+                onChangeText={setUsername}
+                placeholder="Enter your username"
+                placeholderTextColor={theme.colors.text.tertiary}
+                className="rounded-2xl px-4 py-4 font-mainRegular text-base"
+                style={{
+                  backgroundColor: theme.colors.glass,
+                  borderWidth: 2,
+                  borderColor: usernameError
+                    ? "#ef4444"
+                    : isUsernameValid && username.length > 0
+                      ? theme.colors.primary
+                      : theme.colors.cardBorder,
+                  color: theme.colors.text.primary,
+                }}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+
+              {usernameError ? (
+                <View className="flex-row items-center gap-2 mt-3">
+                  <Ionicons name="alert-circle" size={16} color="#ef4444" />
+                  <Text className="text-red-500 font-mainRegular text-sm flex-1">
+                    {usernameError}
+                  </Text>
+                </View>
+              ) : isUsernameValid && username.length > 0 ? (
+                <View className="flex-row items-center gap-2 mt-3">
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={16}
+                    color={theme.colors.primary}
+                  />
+                  <Text
+                    className="font-mainRegular text-sm flex-1"
+                    style={{ color: theme.colors.primary }}
+                  >
+                    Username is available
+                  </Text>
+                </View>
+              ) : null}
+
+              <Text
+                className="font-mainRegular text-xs mt-2"
+                style={{ color: theme.colors.text.tertiary }}
+              >
+                3-20 characters, letters, numbers and underscores only
               </Text>
             </View>
-          </View>
-
-          <View className="p-6">
-            <TextInput
-              value={username}
-              onChangeText={setUsername}
-              placeholder="Enter your username"
-              className={`border-2 rounded-xl px-4 py-3 font-mainRegular text-base ${
-                usernameError
-                  ? "border-red-300 bg-red-50"
-                  : isUsernameValid && username.length > 0
-                    ? "border-green-300 bg-green-50"
-                    : "border-gray-300 bg-white"
-              }`}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-
-            {usernameError ? (
-              <Text className="text-red-600 font-mainRegular text-sm mt-2 flex-row items-center">
-                <Ionicons name="alert-circle" size={16} color="#dc2626" />
-                <Text className="ml-1 font-mainRegular">{usernameError}</Text>
-              </Text>
-            ) : isUsernameValid && username.length > 0 ? (
-              <Text className="text-green-600 font-mainRegular text-sm mt-2 flex-row items-center">
-                <Ionicons name="checkmark-circle" size={16} color="#16a34a" />
-                <Text className="ml-1 font-mainRegular">
-                  Username is available
-                </Text>
-              </Text>
-            ) : null}
-
-            <Text className="text-gray-500 font-mainRegular text-xs mt-2">
-              3-20 characters, letters, numbers and underscores only
-            </Text>
-          </View>
+          </BlurView>
         </View>
 
         {/* Bio Section */}
-        <View className="bg-white mx-6 mt-4 rounded-2xl border border-gray-200 shadow-sm">
-          <View className="bg-purple-50 px-6 py-4 border-b border-purple-100 rounded-t-2xl">
-            <View className="flex-row items-center">
-              <View className="w-8 h-8 bg-purple-500 rounded-full justify-center items-center mr-3">
-                <Ionicons name="document-text" size={16} color="white" />
+        <View className="mx-6 mt-4">
+          <BlurView
+            intensity={60}
+            tint={isDarkMode ? "dark" : "light"}
+            className="rounded-3xl overflow-hidden"
+            style={{
+              backgroundColor: theme.colors.cardBackground,
+              borderWidth: 1,
+              borderColor: theme.colors.cardBorder,
+            }}
+          >
+            {/* Section Header */}
+            <View className="px-6 py-5">
+              <View className="flex-row items-center gap-3">
+                <View
+                  className="w-10 h-10 rounded-2xl justify-center items-center"
+                  style={{ backgroundColor: "#8b5cf6" }}
+                >
+                  <Ionicons
+                    name="chatbubble-ellipses"
+                    size={18}
+                    color="white"
+                  />
+                </View>
+                <View className="flex-1">
+                  <View className="flex-row items-center gap-2">
+                    <Text
+                      className="text-lg font-bold font-mainRegular"
+                      style={{ color: theme.colors.text.primary }}
+                    >
+                      Bio
+                    </Text>
+                    <Text
+                      className="text-sm font-mainRegular px-2 py-1 rounded-full"
+                      style={{
+                        color: theme.colors.text.tertiary,
+                        backgroundColor: theme.colors.glass,
+                      }}
+                    >
+                      Optional
+                    </Text>
+                  </View>
+                  <Text
+                    className="text-sm font-mainRegular"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    Share your story with the community
+                  </Text>
+                </View>
               </View>
-              <Text className="text-purple-800 text-lg font-bold font-mainRegular">
-                Bio
-              </Text>
-              <Text className="text-purple-600 text-sm ml-2 font-mainRegular">
-                (Optional)
-              </Text>
             </View>
-          </View>
 
-          <View className="p-6">
-            <TextInput
-              value={bio}
-              onChangeText={setBio}
-              placeholder="Tell others about yourself..."
-              className="border-2 border-gray-300 font-mainRegular rounded-xl px-4 py-3 text-base bg-white"
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-              maxLength={200}
-            />
+            <View className="px-6 pb-6">
+              <TextInput
+                value={bio}
+                onChangeText={setBio}
+                placeholder="Tell others about yourself, your goals, or what motivates you..."
+                placeholderTextColor={theme.colors.text.tertiary}
+                className="rounded-2xl px-4 py-4 font-mainRegular text-base"
+                style={{
+                  backgroundColor: theme.colors.glass,
+                  borderWidth: 2,
+                  borderColor: theme.colors.cardBorder,
+                  color: theme.colors.text.primary,
+                  minHeight: 100,
+                  textAlignVertical: "top",
+                }}
+                multiline
+                numberOfLines={4}
+                maxLength={200}
+              />
 
-            <View className="flex-row justify-between items-center mt-2">
-              <Text className="text-gray-500 font-mainRegular text-xs max-w-[80%]">
-                Share your interests, goals, or anything you'd like others to
-                know
-              </Text>
-              <Text className="text-gray-400 font-mainRegular text-xs">
-                {bio.length}/200
-              </Text>
+              <View className="flex-row justify-between items-center mt-3">
+                <Text
+                  className="font-mainRegular text-xs flex-1 mr-4"
+                  style={{ color: theme.colors.text.tertiary }}
+                >
+                  Help others connect with you through shared interests and
+                  goals
+                </Text>
+                <Text
+                  className="font-mainRegular text-xs"
+                  style={{ color: theme.colors.text.tertiary }}
+                >
+                  {bio.length}/200
+                </Text>
+              </View>
             </View>
-          </View>
+          </BlurView>
         </View>
 
         {/* Account Info Section */}
-        <View className="bg-white mx-6 mt-4 rounded-2xl border border-gray-200 shadow-sm">
-          <View className="bg-gray-50 px-6 py-4 border-b border-gray-100 rounded-t-2xl">
-            <View className="flex-row items-center">
-              <View className="w-8 h-8 bg-gray-500 rounded-full justify-center items-center mr-3">
-                <Ionicons name="information-circle" size={16} color="white" />
+        <View className="mx-6 mt-4">
+          <BlurView
+            intensity={60}
+            tint={isDarkMode ? "dark" : "light"}
+            className="rounded-3xl overflow-hidden"
+            style={{
+              backgroundColor: theme.colors.cardBackground,
+              borderWidth: 1,
+              borderColor: theme.colors.cardBorder,
+            }}
+          >
+            {/* Section Header */}
+            <View className="px-6 py-5">
+              <View className="flex-row items-center gap-3">
+                <View
+                  className="w-10 h-10 rounded-2xl justify-center items-center"
+                  style={{ backgroundColor: "#64748b" }}
+                >
+                  <Ionicons name="shield-checkmark" size={20} color="white" />
+                </View>
+                <View className="flex-1">
+                  <Text
+                    className="text-lg font-bold font-mainRegular"
+                    style={{ color: theme.colors.text.primary }}
+                  >
+                    Account Information
+                  </Text>
+                  <Text
+                    className="text-sm font-mainRegular"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    Your tandrum journey details
+                  </Text>
+                </View>
               </View>
-              <Text className="text-gray-800 font-mainRegular text-lg font-bold">
-                Account Information
-              </Text>
-            </View>
-          </View>
-
-          <View className="p-6 gap-3">
-            <View className="flex-row justify-between items-center">
-              <Text className="text-gray-600 font-medium font-mainRegular">
-                Email
-              </Text>
-              <Text className="text-gray-900 font-semibold font-mainRegular">
-                {user?.primaryEmailAddress?.emailAddress}
-              </Text>
             </View>
 
-            <View className="h-px bg-gray-200" />
+            <View className="px-6 pb-6 gap-4">
+              <View className="flex-row justify-between items-center">
+                <View className="flex-row items-center gap-3">
+                  <Ionicons
+                    name="mail"
+                    size={18}
+                    color={theme.colors.text.secondary}
+                  />
+                  <Text
+                    className="font-medium font-mainRegular"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    Email
+                  </Text>
+                </View>
+                <Text
+                  className="font-semibold font-mainRegular flex-1 text-right"
+                  style={{ color: theme.colors.text.primary }}
+                  numberOfLines={1}
+                >
+                  {user?.primaryEmailAddress?.emailAddress}
+                </Text>
+              </View>
 
-            <View className="flex-row justify-between items-center">
-              <Text className="text-gray-600 font-medium font-mainRegular">
-                Member Since
-              </Text>
-              <Text className="text-gray-900 font-semibold font-mainRegular">
-                {convexUser
-                  ? new Date(convexUser.joined_at).toLocaleDateString()
-                  : "—"}
+              <View
+                className="h-px"
+                style={{ backgroundColor: theme.colors.cardBorder }}
+              />
+
+              <View className="flex-row justify-between items-center">
+                <View className="flex-row items-center gap-3">
+                  <Ionicons
+                    name="calendar"
+                    size={18}
+                    color={theme.colors.text.secondary}
+                  />
+                  <Text
+                    className="font-medium font-mainRegular"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    Member Since
+                  </Text>
+                </View>
+                <Text
+                  className="font-semibold font-mainRegular"
+                  style={{ color: theme.colors.text.primary }}
+                >
+                  {convexUser
+                    ? new Date(convexUser.joined_at).toLocaleDateString()
+                    : "—"}
+                </Text>
+              </View>
+            </View>
+          </BlurView>
+        </View>
+
+        {/* Motivational Footer */}
+        <View className="mx-6 mt-6 mb-4">
+          <View
+            className="rounded-3xl p-6"
+            style={{ backgroundColor: theme.colors.glass }}
+          >
+            <View className="flex-row items-center gap-3 mb-3">
+              <Ionicons name="people" size={24} color={theme.colors.primary} />
+              <Text
+                className="text-lg font-bold font-mainRegular flex-1"
+                style={{ color: theme.colors.text.primary }}
+              >
+                Building Habits Together
               </Text>
             </View>
+            <Text
+              className="font-mainRegular text-base leading-6"
+              style={{ color: theme.colors.text.secondary }}
+            >
+              Your profile helps connect you with like-minded habit builders.
+              Share your journey and inspire others in the tandrum community! 🚀
+            </Text>
           </View>
         </View>
       </Animated.ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
