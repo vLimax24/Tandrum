@@ -455,6 +455,7 @@ export default function SettingsScreen() {
           <ScrollView
             className="flex-1 pt-2"
             showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 100 }}
           >
             {/* Notifications Section */}
             <SectionHeader
