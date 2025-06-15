@@ -18,8 +18,11 @@ import {
   BottomSheetBackdrop,
   BottomSheetFlatList,
 } from "@gorhom/bottom-sheet";
+import { BlurView } from "expo-blur";
 import { getRarityColors } from "@/utils/rarities";
 import { treeImages } from "@/utils/treeImages";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
 
 interface TreeInventoryProps {
   treeData: {
@@ -54,6 +57,9 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   treeData,
   onInventoryUpdate,
 }) => {
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
+
   const [activeTab, setActiveTab] = useState<"inventory" | "equipped">(
     "inventory"
   );
@@ -71,6 +77,13 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   const decorationBottomSheetRef = useRef<BottomSheetModal>(null);
   // Fetch all tree items from database
   const allTreeItems = useQuery(api.treeItems.getAllTreeItems);
+
+  const treeLabels = {
+    "tree-1": "Sprout",
+    "tree-2": "Small Tree",
+    "tree-3": "Medium Tree",
+    "tree-4": "Grown Tree",
+  };
 
   // Create lookup map for quick access
   const itemsById = useMemo(() => {
@@ -104,10 +117,11 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         {...props}
         disappearsOnIndex={-1}
         appearsOnIndex={0}
-        opacity={0.5}
+        opacity={0.6}
+        style={{ backgroundColor: isDarkMode ? "#000000" : "#64748b" }}
       />
     ),
-    []
+    [isDarkMode]
   );
 
   const updateTreeDecorations = useMutation(api.trees.updateTreeDecorations);
@@ -176,7 +190,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         { x: baseX + 170, y: baseY + 110, id: "slot2" },
         { x: baseX + 110, y: baseY + 75, id: "slot3" },
         { x: baseX - 40, y: baseY + 140, id: "slot4" },
-        { x: baseX + 200, y: baseY + 190, id: "slot5" },
+        { x: baseX + 190, y: baseY + 190, id: "slot5" },
         { x: baseX - 50, y: baseY + 210, id: "slot6" },
       ];
     }
@@ -298,12 +312,14 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
           <TouchableOpacity
             key={slot.id}
             onPress={() => handleSlotSelect(slot.id)}
+            className="w-10 h-10 rounded-full justify-center items-center border-2"
             style={{
+              backgroundColor: `${theme.colors.primary}CC`,
+              borderColor: theme.colors.primary,
               position: "absolute",
               left: slot.x - 20,
               top: slot.y - 20,
             }}
-            className="w-10 h-10 bg-[rgba(59,130,246,0.9)] rounded-full justify-center items-center border-3 border-[#3b82f6] shadow-lg"
           >
             <Text className="text-white text-xl font-bold font-mainRegular">
               +
@@ -333,8 +349,10 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                 top: decoration.position.y - 25,
               }}
             >
-              <View
-                className="w-16 h-16 rounded-full bg-[rgba(255,255,255,0.9)] border-2 justify-center items-center shadow-lg"
+              <BlurView
+                intensity={80}
+                tint={isDarkMode ? "dark" : "light"}
+                className="w-16 h-16 rounded-full border-2 justify-center items-center overflow-hidden"
                 style={{
                   borderColor: item.color,
                 }}
@@ -343,7 +361,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                   source={getImageSource(decoration.itemId)}
                   className="w-12 h-12"
                 />
-              </View>
+              </BlurView>
             </TouchableOpacity>
           );
         })}
@@ -363,45 +381,50 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       <TouchableOpacity
         onPress={() => handleItemSelect(itemId)}
         disabled={!isAvailable}
-        className={`border-2 rounded-2xl p-4 mb-3 shadow-sm ${
-          isAvailable
-            ? "opacity-100"
-            : "bg-[#f9fafb] border-[#e5e7eb] opacity-60"
-        }`}
-        style={
-          isAvailable
-            ? {
-                backgroundColor: item.bgColor,
-                borderColor: item.borderColor,
-              }
-            : undefined
-        }
+        className="rounded-2xl p-4 mb-3 border overflow-hidden"
+        style={{
+          backgroundColor: theme.colors.cardBackground,
+          borderColor: isAvailable ? item.borderColor : theme.colors.cardBorder,
+          opacity: isAvailable ? 1 : 0.5,
+        }}
       >
-        <View className="flex-row items-center mb-2">
+        <View className="flex-row items-center gap-4 mb-3">
           <View
-            className={`w-15 h-15 rounded-full bg-white justify-center items-center mr-4 border-2`}
-            style={{ borderColor: item.borderColor }}
+            className="w-14 h-14 rounded-full justify-center items-center border-2"
+            style={{
+              backgroundColor: theme.colors.glass,
+              borderColor: item.borderColor,
+            }}
           >
             <Image source={getImageSource(itemId)} className="w-10 h-10" />
           </View>
           <View className="flex-1">
-            <View className="flex-row items-center mb-1">
-              <Text className="text-lg font-bold text-[#1f2937] mr-2 font-mainRegular">
+            <View className="flex-row items-center gap-2 mb-1">
+              <Text
+                className="text-lg font-bold font-mainRegular"
+                style={{ color: theme.colors.text.primary }}
+              >
                 {item.name}
               </Text>
               <Text className="text-base font-mainRegular">{item.icon}</Text>
-              {/* Simple rarity text */}
-              <Text
-                className="text-xs font-medium ml-2 px-2 py-0.5 rounded font-mainRegular"
+              <View
+                className="px-2 py-0.5 rounded-full"
                 style={{
-                  color: rarityColors.primary,
                   backgroundColor: rarityColors.light,
                 }}
               >
-                {item.rarity.toUpperCase()}
-              </Text>
+                <Text
+                  className="text-xs font-medium font-mainRegular"
+                  style={{ color: rarityColors.primary }}
+                >
+                  {item.rarity.toUpperCase()}
+                </Text>
+              </View>
             </View>
-            <Text className="text-sm text-[#6b7280] mb-1 font-mainRegular">
+            <Text
+              className="text-sm mb-2 font-mainRegular"
+              style={{ color: theme.colors.text.secondary }}
+            >
               {item.description}
             </Text>
             <View className="flex-row items-center justify-between">
@@ -414,7 +437,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
               {isAvailable && (
                 <View
                   className="px-3 py-1 rounded-xl"
-                  style={{ backgroundColor: item.color }}
+                  style={{ backgroundColor: theme.colors.primary }}
                 >
                   <Text className="text-white text-xs font-semibold font-mainRegular">
                     EQUIP
@@ -424,8 +447,10 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             </View>
           </View>
         </View>
-        <View
-          className="bg-[rgba(255,255,255,0.8)] rounded-lg p-2 border-l-4"
+        <BlurView
+          intensity={40}
+          tint={isDarkMode ? "dark" : "light"}
+          className="rounded-xl p-3 border-l-4 overflow-hidden"
           style={{ borderLeftColor: item.color }}
         >
           <Text
@@ -434,10 +459,13 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
           >
             ABILITY: {item.ability}
           </Text>
-          <Text className="text-xs text-[#6b7280] font-mainRegular">
+          <Text
+            className="text-xs font-mainRegular"
+            style={{ color: theme.colors.text.secondary }}
+          >
             {item.abilityDescription}
           </Text>
-        </View>
+        </BlurView>
       </TouchableOpacity>
     );
   };
@@ -446,15 +474,25 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     if (item.type === "section_header") {
       return (
         <View className="mb-4 mt-2">
-          <View className="flex-row items-center mb-4">
-            <Text className="text-xl font-bold text-[#1f2937] font-mainRegular">
+          <View className="flex-row items-center gap-3 mb-4">
+            <Text
+              className="text-xl font-bold font-mainRegular"
+              style={{ color: theme.colors.text.primary }}
+            >
               {item.title}
             </Text>
-            <View className="ml-2 bg-[#f3f4f6] px-2 py-1 rounded-full">
-              <Text className="text-xs text-[#6b7280] font-medium font-mainRegular">
+            <BlurView
+              intensity={60}
+              tint={isDarkMode ? "dark" : "light"}
+              className="px-3 py-1 rounded-full overflow-hidden"
+            >
+              <Text
+                className="text-xs font-medium font-mainRegular"
+                style={{ color: theme.colors.text.secondary }}
+              >
                 {item.count} available
               </Text>
-            </View>
+            </BlurView>
           </View>
         </View>
       );
@@ -525,13 +563,25 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       {/* Enhanced Inventory Button */}
       <TouchableOpacity
         onPress={handleOpenBottomSheet}
-        className="bg-[#3b82f6] rounded-xl px-5 py-3 mb-4 flex-row items-center justify-center shadow-lg w-full"
+        className="rounded-2xl p-4 flex-row items-center justify-center w-full overflow-hidden"
+        style={{ backgroundColor: theme.colors.cardBackground }}
       >
-        <Text className="text-white text-lg mr-2 font-mainRegular">🎒</Text>
-        <Text className="text-white text-base font-semibold font-mainRegular">
-          Inventory
+        <BlurView
+          intensity={80}
+          tint={isDarkMode ? "dark" : "light"}
+          className="absolute inset-0"
+        />
+        <Text className="text-lg mr-3 font-mainRegular">🎒</Text>
+        <Text
+          className="text-base font-semibold font-mainRegular"
+          style={{ color: theme.colors.text.primary }}
+        >
+          Tree Inventory
         </Text>
-        <View className="bg-[rgba(255,255,255,0.2)] rounded-xl px-2 py-1 ml-2">
+        <View
+          className="rounded-xl px-3 py-1 ml-3"
+          style={{ backgroundColor: theme.colors.primary }}
+        >
           <Text className="text-white text-xs font-semibold font-mainRegular">
             {currentDecorations}/{maxAllowed}
           </Text>
@@ -549,10 +599,11 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             setShowSlots(false);
             setSelectedItemId(null);
           }}
-          className="bg-[#ef4444] rounded-xl px-5 py-3 mb-4 shadow-lg"
+          className="rounded-2xl p-4 mb-4 overflow-hidden w-full"
+          style={{ backgroundColor: "#ef4444" }}
         >
           <Text className="text-white text-base font-semibold text-center font-mainRegular">
-            Cancel Placement
+            ✕ Cancel Placement
           </Text>
         </TouchableOpacity>
       )}
@@ -566,63 +617,96 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         enablePanDownToClose={true}
         enableDynamicSizing={false}
         handleIndicatorStyle={{
-          backgroundColor: "#d1d5db",
+          backgroundColor: theme.colors.text.tertiary,
           width: 40,
         }}
         backgroundStyle={{
-          backgroundColor: "white",
+          backgroundColor: theme.colors.background[1],
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
         }}
       >
         {/* Header - Fixed outside of scrollable area */}
-        <View className="flex-row justify-between items-center px-6 mb-5 pt-4">
+        <View className="flex-row justify-between items-center px-6 mb-5 pt-4 pb-4">
           <View>
-            <Text className="text-2xl font-bold text-[#1f2937] font-mainRegular">
+            <Text
+              className="text-2xl font-bold font-mainRegular"
+              style={{ color: theme.colors.text.primary }}
+            >
               Tree Management
             </Text>
-            <Text className="text-sm text-[#6b7280] mt-1 font-mainRegular">
-              {treeData.stage} • {currentDecorations}/{maxAllowed} slots used
+            <Text
+              className="text-sm mt-1 font-mainRegular"
+              style={{ color: theme.colors.text.secondary }}
+            >
+              {treeLabels[treeData.stage]} • {currentDecorations}/{maxAllowed}{" "}
+              slots used
             </Text>
           </View>
           <TouchableOpacity
             onPress={handleCloseBottomSheet}
-            className="bg-[#f3f4f6] rounded-full w-10 h-10 justify-center items-center"
+            className="w-10 h-10 rounded-full justify-center items-center"
+            style={{ backgroundColor: theme.colors.glass }}
           >
-            <Text className="text-[#6b7280] text-lg font-bold font-mainRegular">
-              ×
+            <Text
+              className="text-lg font-bold font-mainRegular"
+              style={{ color: theme.colors.text.secondary }}
+            >
+              ✕
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Enhanced Tabs - Fixed outside of scrollable area */}
-        <View className="flex-row mx-6 mb-5 bg-[#f8fafc] rounded-xl p-1">
+        <View
+          className="flex-row mx-6 mb-5 rounded-2xl p-1 overflow-hidden"
+          style={{ backgroundColor: theme.colors.glass }}
+        >
+          <BlurView
+            intensity={60}
+            tint={isDarkMode ? "dark" : "light"}
+            className="absolute inset-0"
+          />
           <TouchableOpacity
             onPress={() => setActiveTab("inventory")}
-            className={`flex-1 py-3 px-4 rounded-lg ${
-              activeTab === "inventory" ? "bg-[#3b82f6]" : "bg-transparent"
-            }`}
+            className="flex-1 py-3 px-4 rounded-xl overflow-hidden"
+            style={{
+              backgroundColor:
+                activeTab === "inventory"
+                  ? theme.colors.primary
+                  : "transparent",
+            }}
           >
             <Text
-              className={`text-center text-base font-semibold font-mainRegular ${
-                activeTab === "inventory" ? "text-white" : "text-[#6b7280]"
-              }`}
+              className="text-center text-base font-semibold font-mainRegular"
+              style={{
+                color:
+                  activeTab === "inventory"
+                    ? "#ffffff"
+                    : theme.colors.text.secondary,
+              }}
             >
-              Inventory
+              📦 Inventory
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setActiveTab("equipped")}
-            className={`flex-1 py-3 px-4 rounded-lg ${
-              activeTab === "equipped" ? "bg-[#3b82f6]" : "bg-transparent"
-            }`}
+            className="flex-1 py-3 px-4 rounded-xl overflow-hidden"
+            style={{
+              backgroundColor:
+                activeTab === "equipped" ? theme.colors.primary : "transparent",
+            }}
           >
             <Text
-              className={`text-center text-base font-semibold font-mainRegular ${
-                activeTab === "equipped" ? "text-white" : "text-[#6b7280]"
-              }`}
+              className="text-center text-base font-semibold font-mainRegular"
+              style={{
+                color:
+                  activeTab === "equipped"
+                    ? "#ffffff"
+                    : theme.colors.text.secondary,
+              }}
             >
-              Equipped
+              ⚡ Equipped
             </Text>
           </TouchableOpacity>
         </View>
@@ -635,7 +719,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             keyExtractor={(item) => item.id}
             contentContainerStyle={{
               paddingHorizontal: 24,
-              paddingBottom: 100,
+              paddingBottom: 120,
             }}
             showsVerticalScrollIndicator={false}
           />
@@ -649,16 +733,19 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
               return (
                 <TouchableOpacity
                   onPress={() => handleDecorationPress(index)}
-                  className="border-2 rounded-2xl p-4 mb-3 shadow-sm mx-6"
+                  className="rounded-2xl p-4 mb-3 mx-6 border overflow-hidden"
                   style={{
-                    backgroundColor: itemData.bgColor,
+                    backgroundColor: theme.colors.cardBackground,
                     borderColor: itemData.borderColor,
                   }}
                 >
-                  <View className="flex-row items-center mb-2">
+                  <View className="flex-row items-center gap-4 mb-3">
                     <View
-                      className={`w-12 h-12 rounded-full bg-white justify-center items-center mr-4 border-2`}
-                      style={{ borderColor: itemData.borderColor }}
+                      className="w-12 h-12 rounded-full justify-center items-center border-2"
+                      style={{
+                        backgroundColor: theme.colors.glass,
+                        borderColor: itemData.borderColor,
+                      }}
                     >
                       <Image
                         source={getImageSource(item.itemId)}
@@ -666,26 +753,37 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                       />
                     </View>
                     <View className="flex-1">
-                      <View className="flex-row items-center mb-1">
-                        <Text className="text-base font-bold text-[#1f2937] mr-2 font-mainRegular">
+                      <View className="flex-row items-center gap-2 mb-1">
+                        <Text
+                          className="text-base font-bold font-mainRegular"
+                          style={{ color: theme.colors.text.primary }}
+                        >
                           {itemData.name}
                         </Text>
                         <Text className="text-sm font-mainRegular">
                           {itemData.icon}
                         </Text>
-                        <View className="bg-[#10b981] px-2 py-1 rounded-lg ml-2">
+                        <View
+                          className="px-2 py-1 rounded-lg"
+                          style={{ backgroundColor: theme.colors.primary }}
+                        >
                           <Text className="text-white text-xs font-semibold font-mainRegular">
-                            ACTIVE
+                            ⚡ ACTIVE
                           </Text>
                         </View>
                       </View>
-                      <Text className="text-xs text-[#6b7280] font-mainRegular">
+                      <Text
+                        className="text-xs font-mainRegular"
+                        style={{ color: theme.colors.text.secondary }}
+                      >
                         Position: Slot {index + 1}
                       </Text>
                     </View>
                   </View>
-                  <View
-                    className="bg-[rgba(255,255,255,0.9)] rounded-lg p-3 border-l-4"
+                  <BlurView
+                    intensity={40}
+                    tint={isDarkMode ? "dark" : "light"}
+                    className="rounded-xl p-3 border-l-4 overflow-hidden"
                     style={{ borderLeftColor: itemData.color }}
                   >
                     <Text
@@ -694,35 +792,57 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                     >
                       ACTIVE ABILITY: {itemData.ability}
                     </Text>
-                    <Text className="text-xs text-[#6b7280] mb-2 font-mainRegular">
+                    <Text
+                      className="text-xs mb-2 font-mainRegular"
+                      style={{ color: theme.colors.text.secondary }}
+                    >
                       {itemData.abilityDescription}
                     </Text>
                     {itemData.buffs && (
                       <View className="flex-row items-center">
-                        <Text className="text-xs text-[#059669] font-semibold font-mainRegular">
-                          ⚡ Buffs: {JSON.stringify(itemData.buffs)}
+                        <Text
+                          className="text-xs font-semibold font-mainRegular"
+                          style={{ color: theme.colors.primary }}
+                        >
+                          ⚡ Buffs: {itemData.buffs.xpMultiplier}x Multiplier{" "}
+                          {itemData.buffs.dailyBonus && [
+                            ", +",
+                            itemData.buffs.dailyBonus,
+                            "Bonus Daily XP",
+                          ]}
                         </Text>
                       </View>
                     )}
-                  </View>
+                  </BlurView>
                 </TouchableOpacity>
               );
             }}
             ListEmptyComponent={() => (
               <View className="flex-1 justify-center items-center p-10 mx-6">
-                <Text className="text-5xl mb-4 font-mainRegular">🌲</Text>
-                <Text className="text-lg font-semibold text-[#6b7280] text-center font-mainRegular">
+                <View
+                  className="w-20 h-20 rounded-full justify-center items-center mb-4"
+                  style={{ backgroundColor: theme.colors.glass }}
+                >
+                  <Text className="text-4xl font-mainRegular">🌲</Text>
+                </View>
+                <Text
+                  className="text-lg font-semibold text-center font-mainRegular"
+                  style={{ color: theme.colors.text.primary }}
+                >
                   No Items Equipped
                 </Text>
-                <Text className="text-sm text-[#9ca3af] text-center mt-2 font-mainRegular">
+                <Text
+                  className="text-sm text-center mt-2 font-mainRegular"
+                  style={{ color: theme.colors.text.secondary }}
+                >
                   Equip items from your inventory to enhance your tree's
-                  abilities
+                  abilities and unlock new growth potential
                 </Text>
               </View>
             )}
             keyExtractor={(item, index) => `equipped_${index}`}
             contentContainerStyle={{
-              paddingBottom: 100,
+              paddingBottom: 120,
               flexGrow: 1,
             }}
             showsVerticalScrollIndicator={false}
@@ -730,13 +850,21 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         )}
 
         {/* Footer - Fixed at bottom */}
-        <View className="px-6 py-4 border-t border-[#e5e7eb] bg-white">
-          <Text className="text-xs text-[#9ca3af] text-center font-mainRegular">
+        <BlurView
+          intensity={80}
+          tint={isDarkMode ? "dark" : "light"}
+          className="px-6 py-4 border-t"
+          style={{ borderTopColor: theme.colors.cardBorder }}
+        >
+          <Text
+            className="text-xs text-center font-mainRegular"
+            style={{ color: theme.colors.text.tertiary }}
+          >
             {activeTab === "inventory"
-              ? "Tap an item to equip it on your tree"
-              : "Tap equipped items to view details or remove them"}
+              ? "💡 Tap an item to equip it on your tree and boost your growth"
+              : "🔧 Tap equipped items to view details or remove them"}
           </Text>
-        </View>
+        </BlurView>
       </BottomSheetModal>
 
       {/* Decoration Detail Modal */}
