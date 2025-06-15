@@ -13,21 +13,19 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Image,
   FlatList,
   Keyboard,
 } from "react-native";
-import {
-  BottomSheetModal,
-  BottomSheetView,
-  BottomSheetBackdrop,
-  BottomSheetBackdropProps,
-} from "@gorhom/bottom-sheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "convex/_generated/dataModel";
-import { treeImages } from "@/utils/treeImages";
+import { TandrumBottomSheet } from "@/components/TandrumBottomSheet";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
 
 interface NewDuoModalProps {
   visible: boolean;
@@ -41,20 +39,21 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
   userId,
 }) => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
+
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [searchUsername, setSearchUsername] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Adjust snap points based on keyboard visibility
   const snapPoints = useMemo(() => {
     if (isKeyboardVisible && keyboardHeight > 0) {
-      // When keyboard is open, make the sheet taller to accommodate
-      return ["80%"];
+      return ["85%"];
     }
-    return ["65%"];
+    return ["76%"];
   }, [isKeyboardVisible, keyboardHeight]);
-
-  const [searchUsername, setSearchUsername] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   // Keyboard event listeners
   useEffect(() => {
@@ -101,34 +100,6 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
 
   const sendInvite = useMutation(api.duoInvites.sendInvite);
 
-  const handleSheetChanges = useCallback(
-    (index: number) => {
-      if (index === -1) {
-        // Dismiss keyboard when sheet closes
-        Keyboard.dismiss();
-        onClose();
-      }
-    },
-    [onClose]
-  );
-
-  // Backdrop component
-  const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...props}
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-        opacity={0.5}
-        onPress={() => {
-          Keyboard.dismiss();
-          bottomSheetModalRef.current?.dismiss();
-        }}
-      />
-    ),
-    []
-  );
-
   const handleSendInvite = async (
     partnerId: Id<"users">,
     partnerName: string
@@ -158,7 +129,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
             onPress: () => {
               setSearchUsername("");
               Keyboard.dismiss();
-              bottomSheetModalRef.current?.dismiss();
+              onClose();
             },
           },
         ]
@@ -174,273 +145,350 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
     }
   };
 
-  const handleCloseBottomSheet = () => {
+  const handleClose = useCallback(() => {
     Keyboard.dismiss();
-    bottomSheetModalRef.current?.dismiss();
-  };
+    setSearchUsername("");
+    onClose();
+  }, [onClose]);
 
   // Check if search result is the current user
   const isSearchResultCurrentUser = searchResult && searchResult.id === userId;
 
-  return (
-    <BottomSheetModal
-      ref={bottomSheetModalRef}
-      index={0}
-      snapPoints={snapPoints}
-      onChange={handleSheetChanges}
-      enablePanDownToClose={true}
-      backdropComponent={renderBackdrop}
-      keyboardBehavior="interactive"
-      keyboardBlurBehavior="restore"
-      android_keyboardInputMode="adjustResize"
-      backgroundStyle={{
-        backgroundColor: "rgba(248, 250, 252, 0.98)",
-        borderTopLeftRadius: 32,
-        borderTopRightRadius: 32,
-      }}
-      handleIndicatorStyle={{
-        backgroundColor: "#cbd5e1",
-        width: 48,
-        height: 4,
-      }}
-      onDismiss={() => {
-        Keyboard.dismiss();
-        onClose();
-      }}
-    >
-      <BottomSheetView
-        style={{
-          flex: 1,
-          paddingHorizontal: 24,
-          paddingTop: 8,
-          paddingBottom: isKeyboardVisible ? 0 : 8,
-        }}
+  const renderSearchResult = () => {
+    if (searchUsername.trim().length < 2) {
+      return (
+        <View className="rounded-3xl overflow-hidden mt-4">
+          <BlurView
+            intensity={20}
+            tint={isDarkMode ? "dark" : "light"}
+            className="p-6"
+            style={{ backgroundColor: theme.colors.glass }}
+          >
+            <View className="flex-row items-center gap-3">
+              <View
+                className="w-10 h-10 rounded-2xl items-center justify-center"
+                style={{ backgroundColor: theme.colors.primary + "20" }}
+              >
+                <Ionicons
+                  name="search"
+                  size={20}
+                  color={theme.colors.primary}
+                />
+              </View>
+              <Text
+                className="flex-1 text-base"
+                style={{ color: theme.colors.text.secondary }}
+              >
+                Type at least 2 characters to search for partners
+              </Text>
+            </View>
+          </BlurView>
+        </View>
+      );
+    }
+
+    if (!searchResult) {
+      return (
+        <View className="rounded-3xl overflow-hidden mt-4">
+          <BlurView
+            intensity={20}
+            tint={isDarkMode ? "dark" : "light"}
+            className="p-6"
+            style={{ backgroundColor: theme.colors.glass }}
+          >
+            <View className="flex-row items-center gap-3">
+              <View
+                className="w-10 h-10 rounded-2xl items-center justify-center"
+                style={{ backgroundColor: theme.colors.text.tertiary + "20" }}
+              >
+                <Ionicons
+                  name="person-remove"
+                  size={20}
+                  color={theme.colors.text.tertiary}
+                />
+              </View>
+              <Text
+                className="flex-1 text-base"
+                style={{ color: theme.colors.text.secondary }}
+              >
+                No user found with username "{searchUsername}"
+              </Text>
+            </View>
+          </BlurView>
+        </View>
+      );
+    }
+
+    return (
+      <TouchableOpacity
+        onPress={() => handleSendInvite(searchResult.id, searchResult.name)}
+        disabled={isLoading || isSearchResultCurrentUser}
+        activeOpacity={0.8}
+        className="mt-4"
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ flex: 1 }}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-        >
-          {/* Header - Reduce size when keyboard is visible */}
-          <View
-            className={`items-center ${isKeyboardVisible ? "mb-4" : "mb-8"}`}
+        <View className="rounded-3xl overflow-hidden">
+          <BlurView
+            intensity={30}
+            tint={isDarkMode ? "dark" : "light"}
+            style={{ backgroundColor: theme.colors.cardBackground }}
           >
             <LinearGradient
-              colors={["#34d399", "#059669"]}
+              colors={
+                isSearchResultCurrentUser
+                  ? [
+                      theme.colors.text.tertiary + "10",
+                      theme.colors.text.tertiary + "05",
+                    ]
+                  : [
+                      theme.colors.primary + "10",
+                      theme.colors.primaryLight + "05",
+                    ]
+              }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={{
-                width: isKeyboardVisible ? 60 : 80,
-                height: isKeyboardVisible ? 60 : 80,
-                borderRadius: 20,
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: isKeyboardVisible ? 12 : 16,
-              }}
+              className="p-6"
             >
-              <Image
-                source={treeImages.leaf}
-                style={{
-                  width: isKeyboardVisible ? 30 : 40,
-                  height: isKeyboardVisible ? 30 : 40,
-                  tintColor: "white",
-                }}
-                resizeMode="contain"
-              />
+              <View className="flex-row items-center gap-4">
+                <View
+                  className="w-14 h-14 rounded-3xl items-center justify-center"
+                  style={{
+                    backgroundColor: isSearchResultCurrentUser
+                      ? theme.colors.text.tertiary + "20"
+                      : theme.colors.primary + "20",
+                  }}
+                >
+                  <Text
+                    className="text-xl font-bold"
+                    style={{
+                      color: isSearchResultCurrentUser
+                        ? theme.colors.text.tertiary
+                        : theme.colors.primary,
+                    }}
+                  >
+                    {searchResult.name.charAt(0).toUpperCase()}
+                  </Text>
+                </View>
+
+                <View className="flex-1">
+                  <Text
+                    className="text-lg font-bold mb-1"
+                    style={{ color: theme.colors.text.primary }}
+                  >
+                    {searchResult.name}
+                    {isSearchResultCurrentUser && " (You)"}
+                  </Text>
+                  <Text
+                    className="text-sm"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    {isSearchResultCurrentUser
+                      ? "You can't invite yourself"
+                      : "Tap to send partnership invite"}
+                  </Text>
+                </View>
+
+                <View
+                  className="px-4 py-2 rounded-2xl"
+                  style={{
+                    backgroundColor: isSearchResultCurrentUser
+                      ? theme.colors.text.tertiary + "20"
+                      : theme.colors.primary + "20",
+                    opacity: isLoading ? 0.6 : 1,
+                  }}
+                >
+                  {isLoading ? (
+                    <View className="flex-row items-center gap-2">
+                      <Text
+                        className="text-sm font-semibold"
+                        style={{ color: theme.colors.primary }}
+                      >
+                        Sending...
+                      </Text>
+                    </View>
+                  ) : (
+                    <View className="flex-row items-center gap-2">
+                      <Ionicons
+                        name={
+                          isSearchResultCurrentUser ? "person" : "paper-plane"
+                        }
+                        size={16}
+                        color={
+                          isSearchResultCurrentUser
+                            ? theme.colors.text.tertiary
+                            : theme.colors.primary
+                        }
+                      />
+                      <Text
+                        className="text-sm font-semibold"
+                        style={{
+                          color: isSearchResultCurrentUser
+                            ? theme.colors.text.tertiary
+                            : theme.colors.primary,
+                        }}
+                      >
+                        {isSearchResultCurrentUser ? "You" : "Invite"}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </View>
             </LinearGradient>
+          </BlurView>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
-            <Text
-              className={`text-slate-900 font-mainRegular ${isKeyboardVisible ? "text-xl" : "text-2xl"} font-bold text-center mb-2`}
-            >
-              Start New Partnership
-            </Text>
-            {!isKeyboardVisible && (
-              <Text className="text-slate-600 text-base text-center leading-relaxed px-4 font-mainRegular">
-                Search for a partner by username and start building habits
-                together! 🌱
-              </Text>
-            )}
-          </View>
-
-          {/* Username Search */}
+  return (
+    <TandrumBottomSheet
+      ref={bottomSheetModalRef}
+      title="Find Your Partner"
+      subtitle="Start building habits together"
+      icon="people"
+      snapPoints={snapPoints}
+      onClose={handleClose}
+      onDismiss={handleClose}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1"
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+        style={{
+          backgroundColor: theme.colors.background[1],
+          paddingBottom: 100,
+        }}
+      >
+        <View
+          className="flex-1 px-6"
+          style={{
+            paddingTop: isKeyboardVisible ? 16 : 24,
+            paddingBottom: isKeyboardVisible ? 8 : 24,
+          }}
+        >
+          {/* Search Input */}
           <View className="mb-6">
-            <Text className="text-slate-700 text-lg font-semibold mb-3 font-mainRegular">
-              Search Partner
-            </Text>
-            <View
-              className="bg-white rounded-2xl px-4 py-4 border-2 border-slate-200"
-              style={{
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 8,
-                elevation: 4,
-              }}
+            <Text
+              className="text-lg font-bold mb-4"
+              style={{ color: theme.colors.text.primary }}
             >
-              <TextInput
-                value={searchUsername}
-                onChangeText={(text) => {
-                  setSearchUsername(text);
-                }}
-                placeholder="Enter username..."
-                autoCapitalize="none"
-                autoComplete="username"
-                className="text-slate-900 text-base font-mainRegular"
-                style={{ fontSize: 16, color: "#1e293b" }}
-                placeholderTextColor="#94a3b8"
-              />
+              Search by Username
+            </Text>
+
+            <View className="rounded-3xl overflow-hidden">
+              <BlurView
+                intensity={30}
+                tint={isDarkMode ? "dark" : "light"}
+                style={{ backgroundColor: theme.colors.cardBackground }}
+              >
+                <View className="flex-row items-center p-4 gap-3">
+                  <View
+                    className="w-10 h-10 rounded-2xl items-center justify-center"
+                    style={{ backgroundColor: theme.colors.primary + "20" }}
+                  >
+                    <Ionicons
+                      name="search"
+                      size={20}
+                      color={theme.colors.primary}
+                    />
+                  </View>
+                  <TextInput
+                    value={searchUsername}
+                    onChangeText={setSearchUsername}
+                    placeholder="Enter username..."
+                    autoCapitalize="none"
+                    autoComplete="username"
+                    className="flex-1 text-base"
+                    style={{
+                      color: theme.colors.text.primary,
+                      fontSize: 16,
+                    }}
+                    placeholderTextColor={theme.colors.text.tertiary}
+                  />
+                  {searchUsername.length > 0 && (
+                    <TouchableOpacity
+                      onPress={() => setSearchUsername("")}
+                      className="w-8 h-8 rounded-full items-center justify-center"
+                      style={{
+                        backgroundColor: theme.colors.text.tertiary + "20",
+                      }}
+                    >
+                      <Ionicons
+                        name="close"
+                        size={16}
+                        color={theme.colors.text.tertiary}
+                      />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </BlurView>
             </View>
 
             {/* Search Results */}
-            {searchUsername.trim().length >= 2 && (
-              <View className="mt-4">
-                {searchResult ? (
-                  <TouchableOpacity
-                    onPress={() =>
-                      handleSendInvite(searchResult.id, searchResult.name)
-                    }
-                    disabled={isLoading || isSearchResultCurrentUser}
-                    activeOpacity={0.7}
-                    className="bg-white rounded-2xl p-4 border border-slate-200 flex-row items-center justify-between"
-                    style={{
-                      shadowColor: "#000",
-                      shadowOffset: { width: 0, height: 2 },
-                      shadowOpacity: 0.1,
-                      shadowRadius: 8,
-                      elevation: 4,
-                      opacity: isLoading || isSearchResultCurrentUser ? 0.5 : 1,
-                    }}
-                  >
-                    <View className="flex-row items-center flex-1">
-                      <View
-                        className="w-12 h-12 rounded-2xl items-center justify-center mr-4"
-                        style={{
-                          backgroundColor: isSearchResultCurrentUser
-                            ? "rgba(148, 163, 184, 0.1)"
-                            : "rgba(16, 185, 129, 0.1)",
-                        }}
-                      >
-                        <Text
-                          className={`text-lg font-bold font-mainRegular ${
-                            isSearchResultCurrentUser
-                              ? "text-slate-500"
-                              : "text-emerald-600"
-                          }`}
-                        >
-                          {searchResult.name.charAt(0).toUpperCase()}
-                        </Text>
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-slate-900 text-lg font-semibold font-mainRegular">
-                          {searchResult.name}
-                          {isSearchResultCurrentUser && " (You)"}
-                        </Text>
-                        <Text className="text-slate-500 text-sm font-mainRegular">
-                          {isSearchResultCurrentUser
-                            ? "You can't invite yourself"
-                            : "Tap to send invite"}
-                        </Text>
-                      </View>
-                    </View>
-                    <View
-                      className="px-4 py-2 rounded-xl"
-                      style={{
-                        backgroundColor: isSearchResultCurrentUser
-                          ? "rgba(148, 163, 184, 0.1)"
-                          : "rgba(16, 185, 129, 0.1)",
-                      }}
-                    >
-                      <Text
-                        className={`font-semibold text-sm font-mainRegular ${
-                          isSearchResultCurrentUser
-                            ? "text-slate-500"
-                            : "text-emerald-600"
-                        }`}
-                      >
-                        {isLoading
-                          ? "Sending..."
-                          : isSearchResultCurrentUser
-                            ? "You"
-                            : "Invite"}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                ) : searchUsername.trim().length >= 2 ? (
-                  <View className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
-                    <Text className="text-slate-600 text-center font-mainRegular">
-                      No user found with username "{searchUsername}"
-                    </Text>
-                  </View>
-                ) : null}
-              </View>
-            )}
-
-            {searchUsername.trim().length > 0 &&
-              searchUsername.trim().length < 2 && (
-                <View className="mt-4 bg-blue-50 rounded-2xl p-3 border border-blue-200">
-                  <Text className="text-blue-700 text-sm text-center font-mainRegular">
-                    Type at least 2 characters to search
-                  </Text>
-                </View>
-              )}
+            {renderSearchResult()}
           </View>
 
-          {/* Info Box - Hide when keyboard is visible to save space */}
+          {/* How It Works - Only show when keyboard is not visible */}
           {!isKeyboardVisible && (
-            <View
-              className="bg-blue-50 rounded-2xl p-4 mb-8 border border-blue-200"
-              style={{
-                shadowColor: "#3b82f6",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 8,
-                elevation: 2,
-              }}
-            >
-              <View className="flex-row items-start">
-                <View
-                  className="w-8 h-8 rounded-full items-center justify-center mr-3 mt-0.5"
-                  style={{ backgroundColor: "rgba(59, 130, 246, 0.2)" }}
-                >
-                  <Text className="text-blue-600 text-sm font-bold font-mainRegular">
-                    ℹ️
-                  </Text>
+            <View className="rounded-3xl overflow-hidden mb-6">
+              <BlurView
+                intensity={20}
+                tint={isDarkMode ? "dark" : "light"}
+                className="p-6"
+                style={{ backgroundColor: theme.colors.glass }}
+              >
+                <View className="flex-row items-start gap-4">
+                  <LinearGradient
+                    colors={[theme.colors.primary, theme.colors.primaryLight]}
+                    className="w-10 h-10 items-center justify-center"
+                    style={{ borderRadius: 16 }}
+                  >
+                    <Ionicons name="information" size={20} color="white" />
+                  </LinearGradient>
+                  <View className="flex-1">
+                    <Text
+                      className="text-base font-bold mb-2"
+                      style={{ color: theme.colors.text.primary }}
+                    >
+                      How Partnership Works
+                    </Text>
+                    <Text
+                      className="text-sm leading-relaxed"
+                      style={{ color: theme.colors.text.secondary }}
+                    >
+                      Once you send an invite, they'll receive a notification.
+                      When they accept, you'll both be able to track each
+                      other's progress and celebrate wins together!
+                    </Text>
+                  </View>
                 </View>
-                <View className="flex-1">
-                  <Text className="text-blue-900 text-sm font-semibold mb-1 font-mainRegular">
-                    How it works
-                  </Text>
-                  <Text className="text-blue-700 text-sm leading-relaxed font-mainRegular">
-                    Search for a partner by their username. Once you find them,
-                    tap to send an invite. They'll be notified and can accept to
-                    start your partnership!
-                  </Text>
-                </View>
-              </View>
+              </BlurView>
             </View>
           )}
 
           {/* Action Buttons */}
-          <View className="gap-3 pb-8">
+          <View className="gap-3 mt-auto">
             <TouchableOpacity
-              onPress={handleCloseBottomSheet}
-              activeOpacity={0.7}
-              className="bg-white rounded-2xl border border-slate-200 px-6 py-4 items-center"
-              style={{
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 8,
-                elevation: 4,
-              }}
+              onPress={handleClose}
+              activeOpacity={0.8}
+              className="overflow-hidden rounded-3xl"
             >
-              <Text className="text-slate-700 font-semibold text-lg font-mainRegular">
-                Cancel
-              </Text>
+              <BlurView
+                intensity={30}
+                tint={isDarkMode ? "dark" : "light"}
+                className="p-4"
+                style={{ backgroundColor: theme.colors.cardBackground }}
+              >
+                <Text
+                  className="text-center text-lg font-semibold"
+                  style={{ color: theme.colors.text.secondary }}
+                >
+                  Cancel
+                </Text>
+              </BlurView>
             </TouchableOpacity>
           </View>
-        </KeyboardAvoidingView>
-      </BottomSheetView>
-    </BottomSheetModal>
+        </View>
+      </KeyboardAvoidingView>
+    </TandrumBottomSheet>
   );
 };
