@@ -1,6 +1,9 @@
 import React from "react";
 import { View, Text, Alert } from "react-native";
+import { BlurView } from "expo-blur";
 import { HabitItem } from "./HabitItem";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
 
 interface HabitsGridProps {
   habits: any[];
@@ -32,23 +35,48 @@ export const HabitsGrid: React.FC<HabitsGridProps> = ({
   emptyStateIcon,
   emptyStateMessage,
 }) => {
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
+
   if (habits.length === 0) {
     return (
-      <View className="bg-[#f8fafc] border border-[#e5e7eb] rounded-2xl p-8 text-center">
-        <View className="w-16 h-16 bg-[#f3f4f6] rounded-full items-center justify-center mx-auto mb-4">
-          <Text className="text-[#9ca3af] text-2xl font-mainRegular">
-            {emptyStateIcon}
+      <View className="relative overflow-hidden rounded-3xl">
+        <BlurView
+          intensity={isDarkMode ? 20 : 40}
+          className="absolute inset-0"
+        />
+        <View
+          className="rounded-3xl p-8 items-center border"
+          style={{
+            backgroundColor: theme.colors.cardBackground,
+            borderColor: theme.colors.cardBorder,
+          }}
+        >
+          <View
+            className="w-16 h-16 rounded-full items-center justify-center mb-4"
+            style={{
+              backgroundColor: isDarkMode
+                ? "rgba(0, 153, 102, 0.15)"
+                : "rgba(0, 153, 102, 0.1)",
+            }}
+          >
+            <Text className="text-2xl" style={{ color: theme.colors.primary }}>
+              {emptyStateIcon}
+            </Text>
+          </View>
+          <Text
+            className="text-center text-base"
+            style={{ color: theme.colors.text.secondary }}
+          >
+            {emptyStateMessage}
           </Text>
         </View>
-        <Text className="text-[#6b7280] text-center text-base font-mainRegular">
-          {emptyStateMessage}
-        </Text>
       </View>
     );
   }
 
   return (
-    <>
+    <View className="gap-4">
       {habits.map((h) => {
         const lastA = h.last_checkin_at_userA ?? 0;
         const lastB = h.last_checkin_at_userB ?? 0;
@@ -61,31 +89,29 @@ export const HabitsGrid: React.FC<HabitsGridProps> = ({
           (isDaily ? isSameDay(lastB, now) : isSameWeek(lastB, now));
 
         return (
-          <HabitItem
-            key={h._id}
-            habit={h}
-            isDoneByMe={amI_A ? doneA : doneB}
-            isDoneByPartner={amI_A ? doneB : doneA}
-            onCheck={async () => {
-              try {
-                const result = await checkInHabit(h._id, amI_A);
-
-                // The reward handling is already done in the parent component (HabitsSection)
-                // through the handleHabitCheckIn function, so we don't need to do anything else here
-              } catch (error) {
-                console.error("Check-in error:", error);
-                setTimeout(() => {
-                  Alert.alert(
-                    "Error",
-                    "Failed to update habit. Please try again."
-                  );
-                }, 100);
-              }
-            }}
-            onMenuPress={onMenuPress}
-          />
+          <View key={h._id} className="relative overflow-hidden rounded-3xl">
+            <HabitItem
+              habit={h}
+              isDoneByMe={amI_A ? doneA : doneB}
+              isDoneByPartner={amI_A ? doneB : doneA}
+              onCheck={async () => {
+                try {
+                  const result = await checkInHabit(h._id, amI_A);
+                } catch (error) {
+                  console.error("Check-in error:", error);
+                  setTimeout(() => {
+                    Alert.alert(
+                      "Error",
+                      "Failed to update habit. Please try again."
+                    );
+                  }, 100);
+                }
+              }}
+              onMenuPress={onMenuPress}
+            />
+          </View>
         );
       })}
-    </>
+    </View>
   );
 };
