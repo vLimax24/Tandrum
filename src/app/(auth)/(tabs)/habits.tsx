@@ -7,6 +7,7 @@ import { useLiveTimers } from "@/hooks/useLiveTimer";
 import { LevelDisplay } from "@/components/LevelDisplay";
 import { useDuo } from "@/hooks/useDuo";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 import { StreakVisualization } from "@/components/StreakVisualization";
 import HabitActionBottomSheet from "@/components/HabitActionBottomSheet";
 import HabitEditBottomSheet from "@/components/HabitEditBottomSheet";
@@ -19,6 +20,8 @@ import { HabitsContainer } from "@/components/HabitsContainer";
 import { RewardAnimation } from "@/components/RewardAnimation";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { NoDuoScreen } from "@/components/NoDuoScreen";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -28,6 +31,8 @@ export default function HabitsSection() {
   const { user } = useUser();
   const { timeToday, timeWeek } = useLiveTimers();
   const { selectedIndex, setSelectedIndex } = useDuo();
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [activeMenuHabitId, setActiveMenuHabitId] = useState<string | null>(
@@ -208,12 +213,16 @@ export default function HabitsSection() {
   return (
     <BottomSheetModalProvider>
       <LinearGradient
-        colors={["#f8fafc", "#dbeafe"]}
+        colors={theme.colors.background}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{ flex: 1 }}
       >
-        <ScrollView className="flex-1">
+        <ScrollView
+          className="flex-1"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 70 }}
+        >
           <HabitsHeader
             daily={daily}
             weekly={weekly}
@@ -223,7 +232,7 @@ export default function HabitsSection() {
             timeWeek={Number(timeWeek)}
           />
 
-          <View className="px-6">
+          <View className="px-6 mt-10">
             <DuoSelector
               connections={connections}
               selectedIndex={selectedIndex}
@@ -251,6 +260,7 @@ export default function HabitsSection() {
         </ScrollView>
       </LinearGradient>
 
+      {/* Bottom Sheets */}
       <CreateHabitBottomSheet
         ref={createHabitBottomSheetRef}
         onCreate={createHabit}
