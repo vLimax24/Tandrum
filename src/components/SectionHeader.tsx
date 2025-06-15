@@ -1,5 +1,8 @@
 import React from "react";
 import { View, Text } from "react-native";
+import { BlurView } from "expo-blur";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
 
 interface SectionHeaderProps {
   title: string;
@@ -11,57 +14,88 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   title,
   resetTime,
   isDaily = true,
-}) => (
-  <View className="flex-row justify-between items-center mb-6">
-    <View>
-      <Text className="text-[#111827] font-bold text-2xl mb-1 font-mainRegular">
-        {title}
-      </Text>
-      <Text className="text-[#6b7280] text-sm font-mainRegular">
-        Reset in {resetTime}
-      </Text>
-    </View>
-    <View
-      style={{
-        backgroundColor: "#f8fafc",
-        borderWidth: 1,
-        borderColor: "#e2e8f0",
-        borderRadius: 20,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 12,
-      }}
-    >
-      <View
-        style={{
-          backgroundColor: "#d1fae5",
-          borderWidth: 1,
-          borderColor: "#6ee7b7",
-          borderRadius: 12,
-          paddingHorizontal: 8,
-          paddingVertical: 4,
-        }}
-      >
-        <Text className="text-[#059669] text-xs font-bold font-mainRegular">
-          YOU
+}) => {
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
+
+  return (
+    <View className="flex-row justify-between items-center mb-8">
+      {/* Title Section */}
+      <View className="flex-1">
+        <Text
+          className="font-bold text-2xl font-mainRegular"
+          style={{ color: theme.colors.text.primary }}
+        >
+          {title}
         </Text>
+        <View className="flex-row items-center gap-2">
+          <Text
+            className="text-sm font-mainRegular"
+            style={{ color: theme.colors.text.secondary }}
+          >
+            Reset in {resetTime}
+          </Text>
+        </View>
       </View>
-      <View
-        style={{
-          backgroundColor: "#dbeafe",
-          borderWidth: 1,
-          borderColor: "#93c5fd",
-          borderRadius: 12,
-          paddingHorizontal: 8,
-          paddingVertical: 4,
-        }}
-      >
-        <Text className="text-[#1d4ed8] text-xs font-bold font-mainRegular">
-          PARTNER
-        </Text>
+
+      {/* Partner Status Pills */}
+      <View className="flex-row gap-3">
+        {/* User Pill */}
+        <BlurView
+          intensity={20}
+          tint={isDarkMode ? "dark" : "light"}
+          className="rounded-2xl overflow-hidden"
+        >
+          <View
+            className="px-4 py-3 flex-row items-center gap-2 rounded-2xl border"
+            style={{
+              backgroundColor: theme.colors.cardBackground,
+              borderColor: theme.colors.cardBorder,
+            }}
+          >
+            <View
+              className="w-2 h-2 rounded-full"
+              style={{ backgroundColor: theme.colors.primary }}
+            />
+            <Text
+              className="text-xs font-bold font-mainRegular tracking-wide"
+              style={{ color: theme.colors.primary }}
+            >
+              YOU
+            </Text>
+          </View>
+        </BlurView>
+
+        {/* Partner Pill */}
+        <BlurView
+          intensity={20}
+          tint={isDarkMode ? "dark" : "light"}
+          className="rounded-2xl overflow-hidden"
+        >
+          <View
+            className="px-4 py-3 flex-row items-center gap-2 rounded-2xl border"
+            style={{
+              backgroundColor: theme.colors.cardBackground,
+              borderColor: theme.colors.cardBorder,
+            }}
+          >
+            <View
+              className="w-2 h-2 rounded-full"
+              style={{
+                backgroundColor: isDarkMode ? "#60a5fa" : "#3b82f6",
+              }}
+            />
+            <Text
+              className="text-xs font-bold font-mainRegular tracking-wide"
+              style={{
+                color: isDarkMode ? "#60a5fa" : "#3b82f6",
+              }}
+            >
+              PARTNER
+            </Text>
+          </View>
+        </BlurView>
       </View>
     </View>
-  </View>
-);
+  );
+};
