@@ -45,7 +45,7 @@ export function HabitsHeader({
   };
 
   return (
-    <View className="relative overflow-hidden">
+    <View className="relative overflow-hidden rounded-b-3xl">
       {/* Main gradient background */}
       <LinearGradient
         colors={
