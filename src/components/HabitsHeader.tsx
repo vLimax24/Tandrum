@@ -30,20 +30,30 @@ export function HabitsHeader({
   const getTodayCompletedCount = () => {
     if (!daily.length) return 0;
 
-    const todayStart = new Date(now);
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date(now);
-    todayEnd.setHours(23, 59, 59, 999);
+    // Get today's start and end timestamps
+    const today = new Date(now);
+    const todayStart = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    ).getTime();
+    const todayEnd = todayStart + 24 * 60 * 60 * 1000 - 1; // End of day
 
     return daily.filter((habit) => {
-      const todayEntry = habit.entries?.find((entry: any) => {
-        const entryDate = new Date(entry._creationTime);
-        return entryDate >= todayStart && entryDate <= todayEnd;
-      });
-      return todayEntry && (todayEntry.completedByA || todayEntry.completedByB);
+      // Check if either user completed the habit today using the timestamp fields
+      const userACompletedToday =
+        habit.last_checkin_at_userA &&
+        habit.last_checkin_at_userA >= todayStart &&
+        habit.last_checkin_at_userA <= todayEnd;
+
+      const userBCompletedToday =
+        habit.last_checkin_at_userB &&
+        habit.last_checkin_at_userB >= todayStart &&
+        habit.last_checkin_at_userB <= todayEnd;
+
+      return userACompletedToday || userBCompletedToday;
     }).length;
   };
-
   return (
     <View className="relative overflow-hidden rounded-b-3xl">
       {/* Main gradient background */}
