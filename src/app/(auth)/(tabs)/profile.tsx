@@ -12,14 +12,20 @@ import { api } from "../../../../convex/_generated/api";
 import { useRouter } from "expo-router";
 import { useCallback } from "react";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { avatarOptions } from "@/utils/avatarImages";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
+import { Ionicons } from "@expo/vector-icons";
 
 const Profile = () => {
   const { user, isLoaded } = useUser();
   const { signOut, isSignedIn } = useAuth();
   const router = useRouter();
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
 
   // Only run the query if user exists and has an id
   const convexUser = useQuery(
@@ -133,34 +139,87 @@ const Profile = () => {
     }
   };
 
+  const GlassCard = ({ children, className = "" }) => (
+    <BlurView
+      intensity={20}
+      tint={isDarkMode ? "dark" : "light"}
+      className={`rounded-3xl border overflow-hidden ${className}`}
+      style={{
+        backgroundColor: theme.colors.cardBackground,
+        borderColor: theme.colors.cardBorder,
+      }}
+    >
+      {children}
+    </BlurView>
+  );
+
+  const IconContainer = ({ icon, color, bgColor }) => (
+    <View
+      className="w-10 h-10 rounded-2xl justify-center items-center"
+      style={{ backgroundColor: bgColor }}
+    >
+      <Ionicons name={icon} size={20} color={color} />
+    </View>
+  );
+
   return (
     <LinearGradient
-      colors={["#f8fafc", "#dbeafe"]}
+      colors={theme.colors.background}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
     >
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Header Section with Gradient Background */}
-        <View className="bg-gradient-to-br from-blue-600 to-purple-700 px-6 pt-16 pb-8 relative overflow-hidden">
-          {/* Background Pattern */}
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
+        {/* Header Section */}
+        <View className="px-6 pt-16 pb-8 relative">
+          {/* Decorative Background Elements */}
           <View className="absolute inset-0 opacity-10">
-            <View className="absolute top-8 right-8 w-32 h-32 rounded-full bg-white opacity-20" />
-            <View className="absolute bottom-4 left-4 w-24 h-24 rounded-full bg-white opacity-15" />
-            <View className="absolute top-1/2 left-1/2 w-16 h-16 rounded-full bg-white opacity-10" />
+            <View
+              className="absolute top-8 right-8 w-32 h-32 rounded-full"
+              style={{ backgroundColor: theme.colors.primary }}
+            />
+            <View
+              className="absolute bottom-4 left-4 w-24 h-24 rounded-full"
+              style={{ backgroundColor: theme.colors.primaryLight }}
+            />
+            <View
+              className="absolute top-1/2 left-1/2 w-16 h-16 rounded-full"
+              style={{ backgroundColor: theme.colors.glass }}
+            />
           </View>
 
           {/* Settings Button */}
           <TouchableOpacity
             onPress={handleSettings}
-            className="absolute top-16 right-6 w-10 h-10 bg-white bg-opacity-20 rounded-full justify-center items-center border border-white border-opacity-30"
+            className="absolute top-16 right-6 w-12 h-12 rounded-2xl justify-center items-center"
           >
-            <Text className="text-white text-lg font-mainRegular">⚙️</Text>
+            <BlurView
+              intensity={15}
+              tint={isDarkMode ? "dark" : "light"}
+              className="w-full h-full rounded-2xl justify-center items-center border"
+              style={{
+                backgroundColor: theme.colors.glass,
+                borderColor: theme.colors.cardBorder,
+              }}
+            >
+              <Ionicons
+                name="settings-outline"
+                size={22}
+                color={theme.colors.text.primary}
+              />
+            </BlurView>
           </TouchableOpacity>
 
           {/* Profile Header */}
           <View className="items-center mb-8">
-            <View className="w-24 h-24 rounded-full border-4 border-white mb-4 overflow-hidden">
+            <View
+              className="w-28 h-28 rounded-full mb-6 overflow-hidden border-2"
+              style={{ borderColor: theme.colors.primary }}
+            >
               <Image
                 source={
                   convexUser?.avatar
@@ -172,205 +231,331 @@ const Profile = () => {
                 resizeMode="cover"
               />
             </View>
-            <Text className="text-2xl font-bold text-black mb-1 font-mainRegular">
+            <Text
+              className="text-3xl font-bold mb-2 font-mainRegular text-center"
+              style={{ color: theme.colors.text.primary }}
+            >
               {convexUser?.name || "Loading..."}
             </Text>
-            <Text className="text-black text-base font-mainRegular">
+            <Text
+              className="text-base font-mainRegular text-center"
+              style={{ color: theme.colors.text.secondary }}
+            >
               {user?.primaryEmailAddress?.emailAddress}
             </Text>
           </View>
         </View>
 
         {/* Main Content */}
-        <View className="px-6 py-6 flex-col gap-3">
+        <View className="px-6 pb-6 flex gap-6">
           {/* Account Information Card */}
-          <View className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-            <View className="bg-blue-50 px-6 py-4 border-b border-blue-100">
-              <View className="flex-row items-center">
-                <View className="w-8 h-8 bg-blue-500 rounded-full justify-center items-center mr-3">
-                  <Text className="text-white text-sm font-bold font-mainRegular">
-                    👤
+          <GlassCard>
+            <View className="p-6">
+              <View className="flex-row items-center mb-6">
+                <IconContainer
+                  icon="person-outline"
+                  color="#ffffff"
+                  bgColor={theme.colors.primary}
+                />
+                <View className="ml-4 flex-1">
+                  <Text
+                    className="text-lg font-bold font-mainRegular"
+                    style={{ color: theme.colors.text.primary }}
+                  >
+                    Account Information
+                  </Text>
+                  <Text
+                    className="text-sm font-mainRegular"
+                    style={{ color: theme.colors.text.tertiary }}
+                  >
+                    Your profile details
                   </Text>
                 </View>
-                <Text className="text-blue-800 text-lg font-bold flex-1 font-mainRegular">
-                  Account Information
-                </Text>
-                <View className="bg-blue-500 px-2 py-1 rounded-lg">
-                  <Text className="text-white text-xs font-bold font-mainRegular">
+                <View
+                  className="px-3 py-1 rounded-full"
+                  style={{ backgroundColor: `${theme.colors.primary}20` }}
+                >
+                  <Text
+                    className="text-xs font-bold font-mainRegular"
+                    style={{ color: theme.colors.primary }}
+                  >
                     VERIFIED
                   </Text>
                 </View>
               </View>
-            </View>
 
-            <View className="p-6 space-y-4">
-              <View className="flex-row justify-between items-center py-2">
-                <Text className="text-gray-600 text-sm font-medium font-mainRegular">
-                  Member Since
-                </Text>
-                <View className="items-end">
-                  <Text className="text-gray-900 text-base font-semibold font-mainRegular">
-                    {new Date(convexUser.joined_at).toLocaleDateString(
-                      "en-US",
-                      {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      }
-                    )}
+              <View className="gap-4">
+                <View className="flex-row justify-between items-center">
+                  <Text
+                    className="text-sm font-medium font-mainRegular"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    Member Since
                   </Text>
-                  <Text className="text-gray-500 text-xs font-mainRegular">
-                    {formatJoinDate(convexUser.joined_at.toString())}
+                  <View className="items-end">
+                    <Text
+                      className="text-base font-semibold font-mainRegular"
+                      style={{ color: theme.colors.text.primary }}
+                    >
+                      {new Date(convexUser.joined_at).toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        }
+                      )}
+                    </Text>
+                    <Text
+                      className="text-xs font-mainRegular"
+                      style={{ color: theme.colors.text.tertiary }}
+                    >
+                      {formatJoinDate(convexUser.joined_at.toString())}
+                    </Text>
+                  </View>
+                </View>
+
+                <View
+                  className="h-px"
+                  style={{ backgroundColor: theme.colors.cardBorder }}
+                />
+
+                <View className="flex-row justify-between items-center">
+                  <Text
+                    className="text-sm font-medium font-mainRegular"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    Account Status
                   </Text>
+                  <View className="flex-row items-center">
+                    <View
+                      className="w-2 h-2 rounded-full mr-2"
+                      style={{ backgroundColor: theme.colors.primary }}
+                    />
+                    <Text
+                      className="text-sm font-semibold font-mainRegular"
+                      style={{ color: theme.colors.primary }}
+                    >
+                      Active
+                    </Text>
+                  </View>
                 </View>
               </View>
-
-              <View className="h-px bg-gray-100" />
-
-              <View className="flex-row justify-between items-center py-2">
-                <Text className="text-gray-600 text-sm font-medium font-mainRegular">
-                  Account Status
-                </Text>
-                <View className="flex-row items-center">
-                  <View className="w-2 h-2 bg-green-500 rounded-full mr-2" />
-                  <Text className="text-green-600 text-sm font-semibold font-mainRegular">
-                    Active
-                  </Text>
-                </View>
-              </View>
             </View>
-          </View>
+          </GlassCard>
 
           {/* Preferences Card */}
-          <View className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-            <View className="bg-purple-50 px-6 py-4 border-b border-purple-100">
-              <View className="flex-row items-center">
-                <View className="w-8 h-8 bg-purple-500 rounded-full justify-center items-center mr-3">
-                  <Text className="text-white text-sm font-bold font-mainRegular">
-                    ⚙️
+          <GlassCard>
+            <View className="p-6">
+              <View className="flex-row items-center mb-6">
+                <IconContainer
+                  icon="options-outline"
+                  color="#ffffff"
+                  bgColor="#8b5cf6"
+                />
+                <View className="ml-4">
+                  <Text
+                    className="text-lg font-bold font-mainRegular"
+                    style={{ color: theme.colors.text.primary }}
+                  >
+                    Preferences
+                  </Text>
+                  <Text
+                    className="text-sm font-mainRegular"
+                    style={{ color: theme.colors.text.tertiary }}
+                  >
+                    Your app settings
                   </Text>
                 </View>
-                <Text className="text-purple-800 text-lg font-bold font-mainRegular">
-                  Preferences
-                </Text>
+              </View>
+
+              <View className="gap-4">
+                <View className="flex-row justify-between items-center">
+                  <Text
+                    className="text-sm font-medium font-mainRegular"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    Timezone
+                  </Text>
+                  <Text
+                    className="text-base font-semibold font-mainRegular"
+                    style={{ color: theme.colors.text.primary }}
+                  >
+                    {convexUser.timezone}
+                  </Text>
+                </View>
+
+                <View
+                  className="h-px"
+                  style={{ backgroundColor: theme.colors.cardBorder }}
+                />
+
+                <View className="flex-row justify-between items-center">
+                  <Text
+                    className="text-sm font-medium font-mainRegular"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    Language
+                  </Text>
+                  <Text
+                    className="text-base font-semibold font-mainRegular"
+                    style={{ color: theme.colors.text.primary }}
+                  >
+                    {convexUser.language}
+                  </Text>
+                </View>
               </View>
             </View>
-
-            <View className="p-6 space-y-4">
-              <View className="flex-row justify-between items-center py-2">
-                <Text className="text-gray-600 text-sm font-medium font-mainRegular">
-                  Timezone
-                </Text>
-                <Text className="text-gray-900 text-base font-semibold font-mainRegular">
-                  {convexUser.timezone}
-                </Text>
-              </View>
-
-              <View className="h-px bg-gray-100" />
-
-              <View className="flex-row justify-between items-center py-2">
-                <Text className="text-gray-600 text-sm font-medium font-mainRegular">
-                  Language
-                </Text>
-                <Text className="text-gray-900 text-base font-semibold font-mainRegular">
-                  {convexUser.language}
-                </Text>
-              </View>
-            </View>
-          </View>
+          </GlassCard>
 
           {/* Bio Card (if exists) */}
           {convexUser.bio && (
-            <View className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-              <View className="bg-green-50 px-6 py-4 border-b border-green-100">
-                <View className="flex-row items-center">
-                  <View className="w-8 h-8 bg-green-500 rounded-full justify-center items-center mr-3">
-                    <Text className="text-white text-sm font-bold font-mainRegular">
-                      📝
+            <GlassCard>
+              <View className="p-6">
+                <View className="flex-row items-center mb-6">
+                  <IconContainer
+                    icon="document-text-outline"
+                    color="#ffffff"
+                    bgColor="#10b981"
+                  />
+                  <View className="ml-4">
+                    <Text
+                      className="text-lg font-bold font-mainRegular"
+                      style={{ color: theme.colors.text.primary }}
+                    >
+                      About Me
+                    </Text>
+                    <Text
+                      className="text-sm font-mainRegular"
+                      style={{ color: theme.colors.text.tertiary }}
+                    >
+                      Your personal bio
                     </Text>
                   </View>
-                  <Text className="text-green-800 text-lg font-bold font-mainRegular">
-                    About Me
-                  </Text>
                 </View>
-              </View>
 
-              <View className="p-6">
-                <Text className="text-gray-700 text-base leading-relaxed font-mainRegular">
+                <Text
+                  className="text-base leading-relaxed font-mainRegular"
+                  style={{ color: theme.colors.text.secondary }}
+                >
                   {convexUser.bio}
                 </Text>
               </View>
-            </View>
+            </GlassCard>
           )}
 
           {/* Quick Actions Card */}
-          <View className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-            <View className="bg-orange-50 px-6 py-4 border-b border-orange-100">
-              <View className="flex-row items-center">
-                <View className="w-8 h-8 bg-orange-500 rounded-full justify-center items-center mr-3">
-                  <Text className="text-white text-sm font-bold font-mainRegular">
-                    ⚡
+          <GlassCard>
+            <View className="p-6">
+              <View className="flex-row items-center mb-6">
+                <IconContainer
+                  icon="flash-outline"
+                  color="#ffffff"
+                  bgColor="#f59e0b"
+                />
+                <View className="ml-4">
+                  <Text
+                    className="text-lg font-bold font-mainRegular"
+                    style={{ color: theme.colors.text.primary }}
+                  >
+                    Quick Actions
+                  </Text>
+                  <Text
+                    className="text-sm font-mainRegular"
+                    style={{ color: theme.colors.text.tertiary }}
+                  >
+                    Manage your profile
                   </Text>
                 </View>
-                <Text className="text-orange-800 text-lg font-bold font-mainRegular">
-                  Quick Actions
-                </Text>
               </View>
-            </View>
 
-            <View className="p-6">
-              <View className="flex-row gap-3">
+              <View className="flex-row gap-4">
                 <TouchableOpacity
                   onPress={handleEditProfile}
-                  className="flex-1 bg-blue-50 border border-blue-200 rounded-2xl py-4 px-4 items-center"
+                  className="flex-1 rounded-2xl py-4 px-4 items-center border"
+                  style={{
+                    backgroundColor: `${theme.colors.primary}15`,
+                    borderColor: `${theme.colors.primary}30`,
+                  }}
                 >
-                  <Text className="text-blue-600 text-base font-semibold mb-1 font-mainRegular">
+                  <Ionicons
+                    name="create-outline"
+                    size={20}
+                    color={theme.colors.primary}
+                    style={{ marginBottom: 4 }}
+                  />
+                  <Text
+                    className="text-base font-semibold mb-1 font-mainRegular"
+                    style={{ color: theme.colors.primary }}
+                  >
                     Edit Profile
                   </Text>
-                  <Text className="text-blue-500 text-xs text-center font-mainRegular">
+                  <Text
+                    className="text-xs text-center font-mainRegular"
+                    style={{ color: theme.colors.text.tertiary }}
+                  >
                     Update your information
                   </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   onPress={handleSettings}
-                  className="flex-1 bg-purple-50 border border-purple-200 rounded-2xl py-4 px-4 items-center"
+                  className="flex-1 rounded-2xl py-4 px-4 items-center border"
+                  style={{
+                    backgroundColor: "#8b5cf615",
+                    borderColor: "#8b5cf630",
+                  }}
                 >
-                  <Text className="text-purple-600 text-base font-semibold mb-1 font-mainRegular">
+                  <Ionicons
+                    name="settings-outline"
+                    size={20}
+                    color="#8b5cf6"
+                    style={{ marginBottom: 4 }}
+                  />
+                  <Text
+                    className="text-base font-semibold mb-1 font-mainRegular"
+                    style={{ color: "#8b5cf6" }}
+                  >
                     Settings
                   </Text>
-                  <Text className="text-purple-500 text-xs text-center font-mainRegular">
+                  <Text
+                    className="text-xs text-center font-mainRegular"
+                    style={{ color: theme.colors.text.tertiary }}
+                  >
                     Manage preferences
                   </Text>
                 </TouchableOpacity>
               </View>
             </View>
-          </View>
+          </GlassCard>
 
           {/* Sign Out Section */}
-          <View className="bg-white rounded-3xl border border-red-200 shadow-sm overflow-hidden">
+          <GlassCard>
             <View className="p-6">
               <TouchableOpacity
                 onPress={handleSignOut}
-                className="bg-red-500 rounded-2xl py-4 px-6 shadow-lg flex-row items-center justify-center"
-                style={{
-                  shadowColor: "#dc2626",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 4,
-                  elevation: 4,
-                }}
+                className="rounded-2xl py-4 px-6 flex-row items-center justify-center"
+                style={{ backgroundColor: "#ef4444" }}
               >
-                <Text className="text-white text-base font-semibold mr-2 font-mainRegular">
+                <Ionicons
+                  name="log-out-outline"
+                  size={20}
+                  color="#ffffff"
+                  style={{ marginRight: 8 }}
+                />
+                <Text className="text-white text-base font-semibold font-mainRegular">
                   Sign Out
                 </Text>
               </TouchableOpacity>
 
-              <Text className="text-gray-500 text-xs text-center mt-3 font-mainRegular">
+              <Text
+                className="text-xs text-center mt-4 font-mainRegular"
+                style={{ color: theme.colors.text.tertiary }}
+              >
                 You can always sign back in with your credentials
               </Text>
             </View>
-          </View>
+          </GlassCard>
 
           {/* Bottom Spacing */}
           <View className="h-6" />
