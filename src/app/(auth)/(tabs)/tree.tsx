@@ -18,6 +18,7 @@ import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { DuoSelector } from "@/components/DuoSelector";
+import LoadingState from "@/components/LoadingState";
 
 export default function TreeSection() {
   const { user } = useUser();
@@ -179,36 +180,7 @@ export default function TreeSection() {
       />
     );
 
-  if (!treeData)
-    return (
-      <LinearGradient
-        colors={theme.colors.background}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="flex-1 justify-center items-center"
-      >
-        <BlurView
-          intensity={20}
-          tint={isDarkMode ? "dark" : "light"}
-          className="rounded-3xl px-8 py-12 items-center"
-          style={{
-            backgroundColor: theme.colors.glass,
-            borderColor: theme.colors.cardBorder,
-            borderWidth: 1,
-          }}
-        >
-          <View className="w-12 h-12 rounded-full bg-primary/20 items-center justify-center mb-4">
-            <Text className="text-2xl">🌳</Text>
-          </View>
-          <Text
-            className="text-lg font-semibold text-center"
-            style={{ color: theme.colors.text.primary }}
-          >
-            Growing your tree...
-          </Text>
-        </BlurView>
-      </LinearGradient>
-    );
+  if (!treeData) return <LoadingState screen="tree" />;
 
   return (
     <LinearGradient

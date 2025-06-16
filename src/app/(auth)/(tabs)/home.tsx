@@ -23,6 +23,7 @@ import { BlurView } from "expo-blur";
 import { treeImages } from "@/utils/treeImages";
 import { createTheme } from "@/utils/theme";
 import { useTheme } from "@/contexts/themeContext";
+import LoadingState from "@/components/LoadingState";
 
 const Page = () => {
   const { user } = useUser();
@@ -87,41 +88,7 @@ const Page = () => {
   };
 
   if (!convexUser || isUserInConnection === undefined) {
-    return (
-      <LinearGradient
-        colors={theme.colors.background}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="flex-1"
-      >
-        <View className="flex-1 justify-center items-center">
-          <BlurView
-            intensity={80}
-            tint={isDarkMode ? "dark" : "light"}
-            className="p-8 items-center border"
-            style={{
-              borderColor: theme.colors.cardBorder,
-            }}
-          >
-            <LinearGradient
-              colors={[theme.colors.primary, theme.colors.primaryLight]}
-              className="w-16 h-16 rounded-full items-center justify-center mb-4"
-            >
-              <View className="w-8 h-8 border-4 border-white border-t-transparent rounded-full" />
-            </LinearGradient>
-            <Text
-              className="text-lg font-semibold text-center"
-              style={{
-                color: theme.colors.text.primary,
-                fontFamily: "font-mainRegular",
-              }}
-            >
-              Loading your dashboard...
-            </Text>
-          </BlurView>
-        </View>
-      </LinearGradient>
-    );
+    return <LoadingState screen="home" />;
   }
 
   // Calculate summary stats

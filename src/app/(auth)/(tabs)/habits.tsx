@@ -14,7 +14,7 @@ import HabitEditBottomSheet from "@/components/HabitEditBottomSheet";
 import { DuoSelector } from "@/components/DuoSelector";
 import { CreateHabitBottomSheet } from "@/components/CreateHabitBottomSheet";
 import { HabitsHeader } from "@/components/HabitsHeader";
-import { LoadingState } from "@/components/LoadingState";
+import LoadingState from "@/components/LoadingState";
 import { CreateHabitButton } from "@/components/CreateHabitButton";
 import { HabitsContainer } from "@/components/HabitsContainer";
 import { RewardAnimation } from "@/components/RewardAnimation";
@@ -202,7 +202,7 @@ export default function HabitsSection() {
 
   // Show loading if habits are still loading
   if (!habits) {
-    return <LoadingState />;
+    return <LoadingState screen="habits" />;
   }
 
   const duo = connections[selectedIndex];
