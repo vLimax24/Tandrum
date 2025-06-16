@@ -396,7 +396,11 @@ export default function TreeSection() {
           <View className="mb-6">
             <View className="flex-row items-center gap-3 mb-2">
               <View className="w-10 h-10 rounded-2xl bg-primary/20 items-center justify-center">
-                <Text className="text-xl">📈</Text>
+                <Ionicons
+                  color={theme.colors.primaryLight}
+                  size={18}
+                  name="bar-chart"
+                />
               </View>
               <Text
                 className="text-2xl font-bold"
