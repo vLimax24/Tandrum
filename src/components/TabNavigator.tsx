@@ -352,7 +352,7 @@ export default function TabNavigator() {
         name="profile"
         component={ProfileScreen}
         options={{
-          title: "Team",
+          title: "Profile",
           tabBarAccessibilityLabel:
             "Team tab - Connect with your accountability partners",
         }}
