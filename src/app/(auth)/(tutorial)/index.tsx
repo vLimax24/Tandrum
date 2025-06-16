@@ -18,6 +18,9 @@ import { api } from "convex/_generated/api";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { BlurView } from "expo-blur";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
 
 const { width, height } = Dimensions.get("window");
 
@@ -33,30 +36,30 @@ interface TutorialPage {
 const tutorialPages: TutorialPage[] = [
   {
     id: 1,
-    title: "Welcome to Your Learning Journey",
+    title: "Build Habits Together",
     description:
-      "Discover a new way to learn and grow with personalized lessons tailored just for you. Start your transformation today.",
+      "Join a community where accountability meets motivation. Transform your daily routines with the power of shared commitment.",
     image: require("../../../assets/tree-1.png"),
-    iconName: "rocket",
-    gradientColors: ["#57b686", "#4ade80"] as const,
+    iconName: "people-circle",
+    gradientColors: ["#009966", "#00cc88"] as const,
   },
   {
     id: 2,
-    title: "Track Your Progress",
+    title: "Track Your Growth",
     description:
-      "Monitor your achievements and see how far you've come with detailed progress tracking and meaningful insights.",
+      "Visualize your progress with beautiful insights and celebrate every milestone with your accountability partners.",
     image: require("../../../assets/tree-3.png"),
-    iconName: "trending-up",
-    gradientColors: ["#8b5cf6", "#a855f7"] as const,
+    iconName: "analytics",
+    gradientColors: ["#009966", "#00cc88"] as const,
   },
   {
     id: 3,
-    title: "Learn with Friends",
+    title: "Stay Motivated Daily",
     description:
-      "Connect with others, share your progress, and learn together in a supportive community of like-minded learners.",
+      "Turn habit-building into an engaging journey with gamified progress and meaningful connections that keep you going.",
     image: require("../../../assets/tree-4.png"),
-    iconName: "people",
-    gradientColors: ["#06b6d4", "#0891b2"] as const,
+    iconName: "trophy",
+    gradientColors: ["#009966", "#00cc88"] as const,
   },
 ];
 
@@ -67,6 +70,8 @@ export default function TutorialScreen() {
   const router = useRouter();
   const { startSSOFlow } = useSSO();
   const { user } = useUser();
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
   const clerkId = user?.id;
 
   // Animation refs
@@ -246,10 +251,13 @@ export default function TutorialScreen() {
 
   const renderAnimatedDots = () => {
     return (
-      <View className="flex-row justify-center items-center mb-8">
+      <View className="flex-row justify-center items-center mb-4 gap-2">
         {tutorialPages.map((_, index) => (
-          <View key={index} className="mx-1">
-            <View className="w-8 h-2 bg-gray-200 rounded-full overflow-hidden">
+          <View key={index} className="relative">
+            <View
+              className="w-8 h-2 rounded-full overflow-hidden"
+              style={{ backgroundColor: theme.colors.cardBorder }}
+            >
               <Animated.View
                 style={{
                   width: dotAnimations[index].interpolate({
@@ -257,7 +265,7 @@ export default function TutorialScreen() {
                     outputRange: ["0%", "100%"],
                   }),
                   height: "100%",
-                  backgroundColor: "#57b686",
+                  backgroundColor: theme.colors.primary,
                   borderRadius: 4,
                 }}
               />
@@ -270,298 +278,419 @@ export default function TutorialScreen() {
 
   if (showAuth) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
-        <StatusBar style="dark" />
+      <LinearGradient colors={theme.colors.background} className="flex-1">
+        <StatusBar style={isDarkMode ? "light" : "dark"} />
 
-        {/* Background Elements */}
+        {/* Floating background elements */}
         <View className="absolute inset-0 overflow-hidden">
           <View
             className="absolute rounded-full"
             style={{
-              width: 300,
-              height: 300,
-              backgroundColor: "rgba(87, 182, 134, 0.04)",
-              top: -150,
-              right: -150,
+              width: 400,
+              height: 400,
+              backgroundColor: theme.colors.primary + "15",
+              top: -200,
+              right: -200,
             }}
           />
           <View
             className="absolute rounded-full"
             style={{
-              width: 250,
-              height: 250,
-              backgroundColor: "rgba(139, 92, 246, 0.03)",
-              bottom: -125,
-              left: -125,
+              width: 320,
+              height: 320,
+              backgroundColor: theme.colors.primaryLight + "10",
+              bottom: -160,
+              left: -160,
+            }}
+          />
+          <View
+            className="absolute rounded-full"
+            style={{
+              width: 200,
+              height: 200,
+              backgroundColor: theme.colors.primary + "08",
+              top: height * 0.2,
+              left: -100,
             }}
           />
         </View>
 
-        <Animated.View
-          style={{
-            flex: 1,
-            opacity: authFadeAnim,
-            transform: [{ translateY: authSlideAnim }],
-          }}
-          className="justify-center items-center px-6"
-        >
-          <View className="items-center mb-12">
-            {/* Hero Icon */}
-            <View className="items-center mb-8">
-              <View
-                className="relative items-center justify-center mb-6"
-                style={{ width: 120, height: 120 }}
-              >
-                <View
-                  className="absolute rounded-full"
-                  style={{
-                    width: 120,
-                    height: 120,
-                    backgroundColor: "rgba(87, 182, 134, 0.1)",
-                    borderWidth: 1,
-                    borderColor: "rgba(87, 182, 134, 0.2)",
-                  }}
-                />
-                <LinearGradient
-                  colors={["#57b686", "#4ade80"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: 40,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    shadowColor: "#57b686",
-                    shadowOffset: { width: 0, height: 8 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 16,
-                    elevation: 8,
-                  }}
+        <SafeAreaView className="flex-1">
+          <Animated.View
+            style={{
+              flex: 1,
+              opacity: authFadeAnim,
+              transform: [{ translateY: authSlideAnim }],
+            }}
+            className="justify-center items-center px-6"
+          >
+            <View className="items-center w-full">
+              {/* Hero Section */}
+              <View className="items-center mb-16">
+                <View className="relative items-center justify-center mb-12">
+                  {/* Main glassmorphic container */}
+                  <BlurView
+                    intensity={isDarkMode ? 15 : 25}
+                    tint={isDarkMode ? "dark" : "light"}
+                    className="rounded-3xl"
+                    style={{
+                      width: 180,
+                      height: 180,
+                      backgroundColor: theme.colors.glass,
+                      borderWidth: 1,
+                      borderColor: theme.colors.cardBorder,
+                    }}
+                  >
+                    <View className="flex-1 items-center justify-center">
+                      {/* Inner gradient container */}
+                      <LinearGradient
+                        colors={["#009966", "#00cc88"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        className="items-center justify-center"
+                        style={{
+                          width: 110,
+                          height: 110,
+                          borderRadius: 24,
+                        }}
+                      >
+                        <Ionicons name="rocket" size={48} color="white" />
+                      </LinearGradient>
+                    </View>
+                  </BlurView>
+
+                  {/* Floating accent elements */}
+                  <View
+                    className="absolute rounded-full"
+                    style={{
+                      width: 24,
+                      height: 24,
+                      backgroundColor: theme.colors.primary + "40",
+                      top: 15,
+                      right: 10,
+                    }}
+                  />
+                  <View
+                    className="absolute rounded-full"
+                    style={{
+                      width: 18,
+                      height: 18,
+                      backgroundColor: theme.colors.primaryLight + "30",
+                      bottom: 20,
+                      left: 15,
+                    }}
+                  />
+                </View>
+
+                <Text
+                  className="text-4xl font-bold text-center mb-6 leading-tight tracking-tight"
+                  style={{ color: theme.colors.text.primary }}
                 >
-                  <Ionicons name="checkmark-circle" size={36} color="white" />
-                </LinearGradient>
-              </View>
-            </View>
+                  Welcome to{"\n"}
+                  <Text style={{ color: theme.colors.primary }}>Tandrum</Text>
+                </Text>
 
-            <Text className="text-4xl font-bold text-gray-900 text-center mb-4 leading-tight font-mainRegular">
-              Ready to Start Your{"\n"}Journey?
-            </Text>
-            <Text className="text-lg text-gray-600 text-center leading-7 max-w-sm font-mainRegular">
-              Sign in with Google to unlock your personalized learning
-              experience and join our community.
-            </Text>
-          </View>
-
-          <View className="w-full max-w-sm">
-            <TouchableOpacity
-              style={{
-                paddingVertical: 16,
-                paddingHorizontal: 32,
-                alignItems: "center",
-                borderRadius: 16,
-                backgroundColor: "#57b686",
-                shadowColor: "#57b686",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 12,
-                elevation: 8,
-                marginBottom: 16,
-              }}
-              activeOpacity={0.8}
-              onPress={handleGoogleLogin}
-            >
-              <View className="flex-row items-center">
-                <Ionicons name="logo-google" size={20} color="white" />
-                <Text className="text-white font-semibold text-lg ml-3 font-mainRegular">
-                  Continue with Google
+                <Text
+                  className="text-lg text-center leading-7 max-w-md px-4"
+                  style={{ color: theme.colors.text.secondary }}
+                >
+                  Start building lasting habits with the support of an amazing
+                  community. Your transformation begins here.
                 </Text>
               </View>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
-      </SafeAreaView>
+
+              {/* CTA Section */}
+              <View className="w-full max-w-sm">
+                <TouchableOpacity
+                  className="mb-6 rounded-3xl overflow-hidden"
+                  activeOpacity={0.85}
+                  onPress={handleGoogleLogin}
+                >
+                  <BlurView
+                    intensity={isDarkMode ? 20 : 30}
+                    tint={isDarkMode ? "dark" : "light"}
+                    className="relative"
+                    style={{
+                      backgroundColor: theme.colors.glass,
+                      borderWidth: 1,
+                      borderColor: theme.colors.cardBorder,
+                    }}
+                  >
+                    <LinearGradient
+                      colors={["#009966", "#00cc88"]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      className="px-8 py-5"
+                      style={{ borderRadius: 24 }}
+                    >
+                      <View className="flex-row items-center justify-center gap-3">
+                        <Ionicons name="logo-google" size={24} color="white" />
+                        <Text className="text-white font-bold text-lg">
+                          Continue with Google
+                        </Text>
+                      </View>
+                    </LinearGradient>
+                  </BlurView>
+                </TouchableOpacity>
+
+                <Text
+                  className="text-sm text-center px-6 leading-5"
+                  style={{ color: theme.colors.text.tertiary }}
+                >
+                  By continuing, you agree to build better habits together with
+                  our supportive community
+                </Text>
+              </View>
+            </View>
+          </Animated.View>
+        </SafeAreaView>
+      </LinearGradient>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <StatusBar style="dark" />
+    <LinearGradient colors={theme.colors.background} className="flex-1">
+      <StatusBar style={isDarkMode ? "light" : "dark"} />
 
-      {/* Background Elements */}
+      {/* Enhanced floating background elements */}
       <View className="absolute inset-0 overflow-hidden">
         <View
           className="absolute rounded-full"
           style={{
-            width: 400,
-            height: 400,
-            backgroundColor: "rgba(87, 182, 134, 0.03)",
-            top: -200,
-            right: -200,
+            width: 480,
+            height: 480,
+            backgroundColor: theme.colors.primary + "12",
+            top: -240,
+            right: -240,
           }}
         />
         <View
           className="absolute rounded-full"
           style={{
-            width: 300,
-            height: 300,
-            backgroundColor: "rgba(139, 92, 246, 0.02)",
-            bottom: -150,
-            left: -150,
+            width: 360,
+            height: 360,
+            backgroundColor: theme.colors.primaryLight + "08",
+            bottom: -180,
+            left: -180,
+          }}
+        />
+        <View
+          className="absolute rounded-full"
+          style={{
+            width: 160,
+            height: 160,
+            backgroundColor: theme.colors.primary + "06",
+            top: height * 0.3,
+            left: -80,
+          }}
+        />
+        <View
+          className="absolute rounded-full"
+          style={{
+            width: 120,
+            height: 120,
+            backgroundColor: theme.colors.primaryLight + "10",
+            top: height * 0.6,
+            right: -60,
           }}
         />
       </View>
 
-      {/* Skip button */}
-      <View className="absolute top-12 right-6 z-10">
-        <TouchableOpacity
-          onPress={handleSkip}
-          className="py-2 px-4 bg-white/80 backdrop-blur-sm rounded-full border border-gray-100"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.05,
-            shadowRadius: 8,
-            elevation: 2,
-          }}
-        >
-          <Text className="text-gray-600 text-base font-medium font-mainRegular">
-            Skip
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Tutorial pages */}
-      <ScrollView
-        ref={scrollViewRef}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        className="flex-1"
-      >
-        {tutorialPages.map((page, index) => (
-          <View
-            key={page.id}
-            style={{ width }}
-            className="flex-1 justify-center items-center px-8"
+      <SafeAreaView className="flex-1">
+        {/* Enhanced skip button */}
+        <View className="absolute top-10 right-6 z-10">
+          <TouchableOpacity
+            onPress={handleSkip}
+            className="rounded-2xl"
+            activeOpacity={0.8}
           >
-            <Animated.View
+            <BlurView
+              intensity={isDarkMode ? 15 : 25}
+              tint={isDarkMode ? "dark" : "light"}
+              className="py-2 px-4 rounded-full"
               style={{
-                opacity: fadeAnims[index],
-                transform: [
-                  { translateY: slideAnims[index] },
-                  { scale: scaleAnims[index] },
-                ],
+                backgroundColor: theme.colors.glass,
+                borderWidth: 1,
+                borderColor: theme.colors.cardBorder,
               }}
-              className="items-center"
             >
-              {/* Hero Icon Section */}
-              <View className="items-center mb-8">
-                <View
-                  className="relative items-center justify-center mb-6"
-                  style={{ width: 140, height: 140 }}
-                >
-                  {/* Outer glow ring */}
-                  <View
-                    className="absolute rounded-full"
-                    style={{
-                      width: 140,
-                      height: 140,
-                      backgroundColor: `${page.gradientColors[0]}15`,
-                      borderWidth: 1,
-                      borderColor: `${page.gradientColors[0]}25`,
-                    }}
-                  />
-                  {/* Inner gradient circle */}
-                  <LinearGradient
-                    colors={page.gradientColors}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={{
-                      width: 100,
-                      height: 100,
-                      borderRadius: 50,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      shadowColor: page.gradientColors[0],
-                      shadowOffset: { width: 0, height: 8 },
-                      shadowOpacity: 0.3,
-                      shadowRadius: 16,
-                      elevation: 8,
-                    }}
-                  >
-                    <Ionicons name={page.iconName} size={40} color="white" />
-                  </LinearGradient>
-                </View>
+              <Text
+                className="text-base font-semibold"
+                style={{ color: theme.colors.text.secondary }}
+              >
+                Skip
+              </Text>
+            </BlurView>
+          </TouchableOpacity>
+        </View>
 
-                {/* Decorative Image */}
-                <View className="mb-6">
-                  <Image
-                    source={page.image}
-                    style={{
-                      width: 200,
-                      height: 200,
-                      resizeMode: "contain",
-                      opacity: 0.8,
-                    }}
-                  />
-                </View>
-              </View>
-
-              {/* Content */}
-              <View className="items-center max-w-sm">
-                <Text className="text-3xl font-bold text-gray-900 text-center mb-4 leading-tight font-mainRegular">
-                  {page.title}
-                </Text>
-                <Text className="text-lg text-gray-600 text-center leading-7 font-mainRegular">
-                  {page.description}
-                </Text>
-              </View>
-            </Animated.View>
-          </View>
-        ))}
-      </ScrollView>
-
-      {/* Bottom section with animated dots and next button */}
-      <View className="pb-8 px-8">
-        {renderAnimatedDots()}
-
-        <TouchableOpacity
-          style={{
-            paddingVertical: 16,
-            paddingHorizontal: 32,
-            alignItems: "center",
-            borderRadius: 16,
-            backgroundColor: "#57b686",
-            shadowColor: "#57b686",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 12,
-            elevation: 8,
-          }}
-          activeOpacity={0.8}
-          onPress={handleNext}
+        {/* Tutorial pages */}
+        <ScrollView
+          ref={scrollViewRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          className="flex-1"
         >
-          <View className="flex-row items-center">
-            <Text className="text-white font-semibold text-lg mr-2 font-mainRegular">
-              {currentPage === tutorialPages.length - 1
-                ? "Get Started"
-                : "Continue"}
-            </Text>
-            <Ionicons
-              name={
-                currentPage === tutorialPages.length - 1
-                  ? "rocket"
-                  : "arrow-forward"
-              }
-              size={20}
-              color="white"
-            />
-          </View>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+          {tutorialPages.map((page, index) => (
+            <View
+              key={page.id}
+              style={{ width }}
+              className="flex-1 justify-center items-center px-6"
+            >
+              <Animated.View
+                style={{
+                  opacity: fadeAnims[index],
+                  transform: [
+                    { translateY: slideAnims[index] },
+                    { scale: scaleAnims[index] },
+                  ],
+                }}
+                className="items-center"
+              >
+                {/* Enhanced Hero Icon Section */}
+                <View className="items-center mb-12">
+                  <View className="relative items-center justify-center mb-5">
+                    {/* Main glassmorphic background */}
+                    <BlurView
+                      intensity={isDarkMode ? 15 : 25}
+                      tint={isDarkMode ? "dark" : "light"}
+                      className="rounded-3xl"
+                      style={{
+                        width: 160,
+                        height: 160,
+                        backgroundColor: theme.colors.glass,
+                        borderWidth: 1,
+                        borderColor: theme.colors.cardBorder,
+                      }}
+                    >
+                      <View className="flex-1 items-center justify-center">
+                        {/* Icon container */}
+                        <LinearGradient
+                          colors={page.gradientColors}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                          className="items-center justify-center"
+                          style={{
+                            width: 120,
+                            height: 120,
+                            borderRadius: 24,
+                          }}
+                        >
+                          <Ionicons
+                            name={page.iconName}
+                            size={56}
+                            color="white"
+                          />
+                        </LinearGradient>
+                      </View>
+                    </BlurView>
+
+                    {/* Floating accent elements */}
+                    <View
+                      className="absolute rounded-full"
+                      style={{
+                        width: 28,
+                        height: 28,
+                        backgroundColor: theme.colors.primary + "30",
+                        top: 10,
+                        right: 10,
+                      }}
+                    />
+                    <View
+                      className="absolute rounded-full"
+                      style={{
+                        width: 20,
+                        height: 20,
+                        backgroundColor: theme.colors.primaryLight + "25",
+                        bottom: 15,
+                        left: 15,
+                      }}
+                    />
+                  </View>
+
+                  {/* Enhanced Decorative Image */}
+                  <View className="mb-8 opacity-90">
+                    <Image
+                      source={page.image}
+                      style={{
+                        width: 240,
+                        height: 180,
+                        resizeMode: "contain",
+                      }}
+                    />
+                  </View>
+                </View>
+
+                {/* Enhanced Content */}
+                <View className="items-center max-w-md px-4">
+                  <Text
+                    className="text-3xl font-bold text-center mb-2 leading-tight tracking-tight"
+                    style={{ color: theme.colors.text.primary }}
+                  >
+                    {page.title}
+                  </Text>
+                  <Text
+                    className="text-md text-center leading-5"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    {page.description}
+                  </Text>
+                </View>
+              </Animated.View>
+            </View>
+          ))}
+        </ScrollView>
+
+        {/* Enhanced Bottom section with animated dots and next button */}
+        <View className="pb-8 px-6">
+          {renderAnimatedDots()}
+
+          <TouchableOpacity
+            className="rounded-3xl overflow-hidden"
+            activeOpacity={0.85}
+            onPress={handleNext}
+          >
+            <BlurView
+              intensity={isDarkMode ? 20 : 30}
+              tint={isDarkMode ? "dark" : "light"}
+              className="relative"
+              style={{
+                backgroundColor: theme.colors.glass,
+                borderWidth: 1,
+                borderColor: theme.colors.cardBorder,
+              }}
+            >
+              <LinearGradient
+                colors={["#009966", "#00cc88"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                className="px-8 py-5"
+                style={{ borderRadius: 24 }}
+              >
+                <View className="flex-row items-center justify-center gap-3">
+                  <Text className="text-white font-bold text-lg">
+                    {currentPage === tutorialPages.length - 1
+                      ? "Get Started"
+                      : "Continue"}
+                  </Text>
+                  <Ionicons
+                    name={
+                      currentPage === tutorialPages.length - 1
+                        ? "rocket"
+                        : "arrow-forward"
+                    }
+                    size={22}
+                    color="white"
+                  />
+                </View>
+              </LinearGradient>
+            </BlurView>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
