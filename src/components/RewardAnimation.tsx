@@ -6,10 +6,12 @@ import {
   Dimensions,
   Platform,
   TouchableWithoutFeedback,
+  Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { getRarityColors } from "@/utils/rarities";
+import { treeImages } from "@/utils/treeImages";
 
 interface RewardAnimationProps {
   visible: boolean;
@@ -522,12 +524,14 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                         elevation: 6,
                       }}
                     >
-                      <Text
-                        style={{ fontSize: 32 }}
-                        className="font-mainRegular"
-                      >
-                        {rewards.item.icon}
-                      </Text>
+                      <Image
+                        source={treeImages[rewards.item.itemId]}
+                        style={{
+                          width: 40,
+                          height: 40,
+                          resizeMode: "contain",
+                        }}
+                      />
                     </View>
 
                     {/* Rarity badge */}
