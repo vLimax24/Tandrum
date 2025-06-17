@@ -19,6 +19,9 @@ import { avatarOptions } from "@/utils/avatarImages";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import type { NavigationProp } from "@react-navigation/native";
+import type { RootStackParamList } from "@/types/navigation";
 
 const Profile = () => {
   const { user, isLoaded } = useUser();
@@ -26,6 +29,8 @@ const Profile = () => {
   const router = useRouter();
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
+
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   // Only run the query if user exists and has an id
   const convexUser = useQuery(
@@ -105,11 +110,11 @@ const Profile = () => {
   };
 
   const handleEditProfile = () => {
-    router.push("/(auth)/(tabs)/edit-profile");
+    navigation.navigate("EditProfile");
   };
 
   const handleSettings = () => {
-    router.push("(auth)/settings");
+    navigation.navigate("Settings");
   };
 
   const formatJoinDate = (date) => {

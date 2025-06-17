@@ -22,6 +22,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@clerk/clerk-expo";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
+import { useNavigation } from "@react-navigation/native";
+import type { NavigationProp } from "@react-navigation/native";
+import type { RootStackParamList } from "@/types/navigation";
 
 export default function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -32,15 +35,12 @@ export default function SettingsScreen() {
   const [weeklyReports, setWeeklyReports] = useState(true);
   const [partnerUpdates, setPartnerUpdates] = useState(true);
 
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   const router = useRouter();
   const { user } = useUser();
   const { isDarkMode, toggleTheme } = useTheme();
   const theme = createTheme(isDarkMode);
-
-  const convexUser = useQuery(
-    api.users.getUserByClerkId,
-    user ? { clerkId: user.id } : "skip"
-  );
 
   const { signOut } = useAuth();
   const deleteAccountMutation = useMutation(api.users.deleteAccount);
@@ -425,7 +425,9 @@ export default function SettingsScreen() {
           >
             <View className="flex-row items-center px-6 py-4 gap-4">
               <TouchableOpacity
-                onPress={() => router.push("/(auth)/(tabs)/profile")}
+                onPress={() =>
+                  navigation.navigate("Tabs", { screen: "profile" })
+                }
                 className="w-11 h-11 items-center justify-center rounded-2xl"
                 style={{ backgroundColor: theme.colors.glass }}
               >

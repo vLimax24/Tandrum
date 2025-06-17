@@ -10,8 +10,9 @@ import ProfileScreen from "@/app/(auth)/(tabs)/profile";
 import { createTheme } from "@/utils/theme";
 import { useTheme } from "@/contexts/themeContext";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import type { TabParamList } from "@/types/navigation";
 
-const Tab = createMaterialTopTabNavigator();
+const Tab = createMaterialTopTabNavigator<TabParamList>();
 
 const TabBarButton = ({
   children,
@@ -223,7 +224,21 @@ export default function TabNavigator() {
       id={undefined}
       tabBarPosition="bottom"
       style={{
-        backgroundColor: "transparent",
+        backgroundColor: theme.colors.background[1],
+      }}
+      screenOptions={({ route, navigation }) => {
+        const routeName =
+          navigation.getState().routes[navigation.getState().index]?.name;
+
+        const swipeDisabled = ["settings", "edit-profile"].includes(
+          routeName as string
+        );
+
+        return {
+          swipeEnabled: !swipeDisabled,
+          animationEnabled: true, // Add this
+          lazy: false, // Add this to prevent loading delays
+        };
       }}
       tabBar={({ state, descriptors, navigation }) => {
         return (
@@ -272,50 +287,56 @@ export default function TabNavigator() {
 
             {/* Tab buttons container */}
             <View className="flex-1 flex-row items-center justify-around px-2">
-              {state.routes.map((route, index) => {
-                const { options } = descriptors[route.key];
-                const label = options.title || route.name;
-                const isFocused = state.index === index;
+              {state.routes
+                .filter(
+                  (route) => !["settings", "edit-profile"].includes(route.name)
+                )
+                .map((route, index) => {
+                  const { options } = descriptors[route.key];
+                  const label = options.title || route.name;
+                  const isFocused =
+                    state.index ===
+                    state.routes.findIndex((r) => r.key === route.key);
 
-                const onPress = () => {
-                  const event = navigation.emit({
-                    type: "tabPress",
-                    target: route.key,
-                    canPreventDefault: true,
-                  });
+                  const onPress = () => {
+                    const event = navigation.emit({
+                      type: "tabPress",
+                      target: route.key,
+                      canPreventDefault: true,
+                    });
 
-                  if (!isFocused && !event.defaultPrevented) {
-                    navigation.navigate(route.name);
-                  }
-                };
+                    if (!isFocused && !event.defaultPrevented) {
+                      navigation.navigate(route.name);
+                    }
+                  };
 
-                return (
-                  <TabBarButton
-                    key={index}
-                    onPress={onPress}
-                    accessibilityState={{ selected: isFocused }}
-                    isDarkMode={isDarkMode}
-                    style={{ flex: 1 }}
-                  >
-                    <TabBarIcon
-                      focused={isFocused}
-                      color={
-                        isFocused
-                          ? theme.colors.text.primary
-                          : theme.colors.text.tertiary
-                      }
-                      route={route}
+                  return (
+                    <TabBarButton
+                      key={route.key}
+                      onPress={onPress}
+                      accessibilityState={{ selected: isFocused }}
                       isDarkMode={isDarkMode}
-                    />
-                    <TabBarLabel
-                      focused={isFocused}
-                      children={label}
-                      route={route}
-                      isDarkMode={isDarkMode}
-                    />
-                  </TabBarButton>
-                );
-              })}
+                      style={{ flex: 1 }}
+                    >
+                      <TabBarIcon
+                        focused={isFocused}
+                        color={
+                          isFocused
+                            ? theme.colors.text.primary
+                            : theme.colors.text.tertiary
+                        }
+                        route={route}
+                        isDarkMode={isDarkMode}
+                      />
+                      <TabBarLabel
+                        focused={isFocused}
+                        children={label}
+                        route={route}
+                        isDarkMode={isDarkMode}
+                      />
+                    </TabBarButton>
+                  );
+                })}
             </View>
           </View>
         );

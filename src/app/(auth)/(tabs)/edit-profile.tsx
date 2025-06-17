@@ -24,6 +24,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { avatarOptions } from "@/utils/avatarImages";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
+import { useNavigation } from "@react-navigation/native";
+import type { NavigationProp } from "@react-navigation/native";
+import type { RootStackParamList } from "@/types/navigation";
 
 const { width } = Dimensions.get("window");
 const avatarSize = (width - 80) / 3 - 12;
@@ -61,6 +64,8 @@ export default function EditProfileScreen() {
     api.users.checkUsernameAvailability,
     username.length >= 3 ? { username, excludeClerkId: user?.id } : "skip"
   );
+
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const convexUser = useQuery(
     api.users.getUserByClerkId,
@@ -182,7 +187,7 @@ export default function EditProfileScreen() {
       Alert.alert("Success", "Your profile has been updated successfully!", [
         {
           text: "OK",
-          onPress: () => router.push("/(auth)/(tabs)/profile"),
+          onPress: () => navigation.navigate("Tabs", { screen: "profile" }),
         },
       ]);
     } catch (error) {
@@ -217,7 +222,7 @@ export default function EditProfileScreen() {
         >
           <View className="flex-row items-center justify-between px-6 py-4">
             <TouchableOpacity
-              onPress={() => router.push("/(auth)/(tabs)/profile")}
+              onPress={() => navigation.navigate("Tabs", { screen: "profile" })}
               className="w-11 h-11 items-center justify-center rounded-2xl"
               style={{ backgroundColor: theme.colors.glass }}
               activeOpacity={0.7}
