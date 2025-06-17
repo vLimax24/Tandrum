@@ -1,12 +1,18 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import { createTheme } from "@/utils/theme";
+import { useTheme } from "@/contexts/themeContext";
 
 interface CreateHabitButtonProps {
   onPress: () => void;
 }
 
 export function CreateHabitButton({ onPress }: CreateHabitButtonProps) {
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -23,26 +29,28 @@ export function CreateHabitButton({ onPress }: CreateHabitButtonProps) {
       activeOpacity={0.85}
     >
       <LinearGradient
-        colors={["#10b981", "#059669"]}
+        colors={[theme.colors.primary, theme.colors.primaryLight]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
-        style={{
-          borderRadius: 16,
-          padding: 20,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+        className="py-5 px-8 items-center justify-center flex-row"
       >
-        <View className="flex-row items-center justify-center">
-          <View className="w-6 h-6 bg-white bg-opacity-20 rounded-full items-center justify-center mr-3">
-            <Text className="text-white font-bold text-lg font-mainRegular">
-              +
-            </Text>
-          </View>
-          <Text className="text-white font-bold text-lg font-mainRegular">
-            Create New Habit
-          </Text>
+        <View className="w-6 h-6 bg-white/20 rounded-xl items-center justify-center mr-3">
+          <Ionicons name="add" size={16} color="white" />
         </View>
+        <Text
+          className="text-white text-lg font-bold"
+          style={{
+            fontFamily: "font-mainRegular",
+          }}
+        >
+          Create new Habit
+        </Text>
+        <Ionicons
+          name="arrow-forward"
+          size={20}
+          color="white"
+          className="ml-3"
+        />
       </LinearGradient>
     </TouchableOpacity>
   );
