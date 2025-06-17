@@ -24,10 +24,15 @@ import { treeImages } from "@/utils/treeImages";
 import { createTheme } from "@/utils/theme";
 import { useTheme } from "@/contexts/themeContext";
 import LoadingState from "@/components/LoadingState";
+import { useNavigation } from "@react-navigation/native";
+import type { TabParamList } from "@/types/navigation";
+import type { NavigationProp } from "@react-navigation/native";
 
 const Page = () => {
   const { user } = useUser();
   const clerkId = user?.id;
+
+  const navigation = useNavigation<NavigationProp<TabParamList>>();
 
   const convexUser = useQuery(
     api.users.getUserByClerkId,
@@ -669,7 +674,7 @@ const Page = () => {
                   backgroundColor: theme.colors.cardBackground,
                   borderColor: theme.colors.cardBorder,
                 }}
-                onPress={() => router.push("/tree")}
+                onPress={() => navigation.navigate("tree")}
               >
                 <BlurView
                   intensity={20}
@@ -700,7 +705,7 @@ const Page = () => {
                   backgroundColor: theme.colors.cardBackground,
                   borderColor: theme.colors.cardBorder,
                 }}
-                onPress={() => router.push("/habits")}
+                onPress={() => navigation.navigate("habits")}
               >
                 <BlurView
                   intensity={20}
