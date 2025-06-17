@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { BlurView } from "expo-blur";
 import { useTheme } from "@/contexts/themeContext";
@@ -21,6 +21,22 @@ export const HabitItem: React.FC<HabitItemProps> = ({
 }) => {
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
+  const isProcessingRef = useRef(false);
+
+  const handleCheck = () => {
+    // Prevent multiple rapid clicks
+    if (isDoneByMe || isProcessingRef.current) {
+      return;
+    }
+
+    isProcessingRef.current = true;
+    onCheck();
+
+    // Reset the processing flag after a short delay
+    setTimeout(() => {
+      isProcessingRef.current = false;
+    }, 500);
+  };
 
   const getFrequencyBadgeColors = () => {
     if (habit.frequency === "daily") {
@@ -73,7 +89,6 @@ export const HabitItem: React.FC<HabitItemProps> = ({
               >
                 {habit.title}
               </Text>
-
               {/* Frequency Badge */}
               <View
                 className="self-start rounded-full px-4 py-2"
@@ -91,7 +106,6 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                 </Text>
               </View>
             </View>
-
             {/* Menu Button */}
             <TouchableOpacity
               className="rounded-2xl p-3 ml-4"
@@ -113,7 +127,6 @@ export const HabitItem: React.FC<HabitItemProps> = ({
               </View>
             </TouchableOpacity>
           </View>
-
           {/* Completion Status Section */}
           <View
             className="rounded-2xl p-6"
@@ -149,7 +162,6 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                     YOU
                   </Text>
                 </View>
-
                 {/* You Checkbox */}
                 <TouchableOpacity
                   className="rounded-full items-center justify-center"
@@ -164,7 +176,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                       ? theme.colors.primary
                       : "transparent",
                   }}
-                  onPress={isDoneByMe ? undefined : onCheck}
+                  onPress={handleCheck}
                   disabled={isDoneByMe}
                   activeOpacity={isDoneByMe ? 1 : 0.7}
                 >
@@ -182,7 +194,6 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                   )}
                 </TouchableOpacity>
               </View>
-
               {/* Connection Line */}
               <View className="flex-1 items-center pb-8">
                 <View
@@ -196,7 +207,6 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                   }}
                 />
               </View>
-
               {/* Partner Section */}
               <View className="flex-1 items-center gap-4">
                 {/* Partner Badge */}
@@ -221,7 +231,6 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                     PARTNER
                   </Text>
                 </View>
-
                 {/* Partner Checkbox */}
                 <View
                   className="rounded-full items-center justify-center"
@@ -256,7 +265,6 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                 </View>
               </View>
             </View>
-
             {/* Progress Status */}
             {(isDoneByMe || isDoneByPartner) && (
               <View
