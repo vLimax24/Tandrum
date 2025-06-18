@@ -1,16 +1,9 @@
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-} from "react-native";
+import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
 import { useUser, useAuth } from "@clerk/clerk-expo";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { useRouter } from "expo-router";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { useFocusEffect } from "@react-navigation/native";
@@ -22,6 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import type { NavigationProp } from "@react-navigation/native";
 import type { RootStackParamList } from "@/types/navigation";
+import { AlertModal } from "@/components/AlertModal";
 
 const Profile = () => {
   const { user, isLoaded } = useUser();
@@ -31,6 +25,21 @@ const Profile = () => {
   const theme = createTheme(isDarkMode);
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  // Alert modal state
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message?: string;
+    buttons: any[];
+    icon?: any;
+    iconColor?: string;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    buttons: [],
+  });
 
   // Only run the query if user exists and has an id
   const convexUser = useQuery(
@@ -57,6 +66,31 @@ const Profile = () => {
     }, [user, isSignedIn, isLoaded, router])
   );
 
+  const showAlert = (
+    title: string,
+    message: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>,
+    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
+    iconColor?: string
+  ) => {
+    setAlertModal({
+      visible: true,
+      title,
+      message,
+      buttons,
+      icon,
+      iconColor,
+    });
+  };
+
+  const closeAlert = () => {
+    setAlertModal((prev) => ({ ...prev, visible: false }));
+  };
+
   // Show loading state while auth is loading
   if (!isLoaded) {
     return null; // or a loading spinner
@@ -73,7 +107,7 @@ const Profile = () => {
   }
 
   const handleSignOut = async () => {
-    Alert.alert(
+    showAlert(
       "Sign Out",
       "Are you sure you want to sign out of your account?",
       [
@@ -101,11 +135,19 @@ const Profile = () => {
               // This prevents navigation timing issues
             } catch (error) {
               console.error("Sign out error:", error);
-              Alert.alert("Error", "Failed to sign out. Please try again.");
+              showAlert(
+                "Error",
+                "Failed to sign out. Please try again.",
+                [{ text: "OK", style: "default" }],
+                "alert-circle",
+                "#ef4444"
+              );
             }
           },
         },
-      ]
+      ],
+      "log-out",
+      "#ef4444"
     );
   };
 
@@ -566,6 +608,17 @@ const Profile = () => {
           <View className="h-6" />
         </View>
       </ScrollView>
+
+      {/* Custom Alert Modal */}
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        buttons={alertModal.buttons}
+        icon={alertModal.icon}
+        iconColor={alertModal.iconColor}
+        onClose={closeAlert}
+      />
     </LinearGradient>
   );
 };
