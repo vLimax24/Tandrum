@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Alert,
   Image,
   ScrollView,
   TouchableOpacity,
@@ -27,6 +26,7 @@ import LoadingState from "@/components/LoadingState";
 import { useNavigation } from "@react-navigation/native";
 import type { TabParamList } from "@/types/navigation";
 import type { NavigationProp } from "@react-navigation/native";
+import { AlertModal } from "@/components/AlertModal";
 
 const Page = () => {
   const { user } = useUser();
@@ -62,9 +62,49 @@ const Page = () => {
 
   const theme = createTheme(isDarkMode);
 
+  // Alert modal state
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message?: string;
+    buttons: any[];
+    icon?: any;
+    iconColor?: string;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    buttons: [],
+  });
+
+  const showAlert = (
+    title: string,
+    message: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>,
+    icon?: keyof typeof Ionicons.glyphMap,
+    iconColor?: string
+  ) => {
+    setAlertModal({
+      visible: true,
+      title,
+      message,
+      buttons,
+      icon,
+      iconColor,
+    });
+  };
+
+  const closeAlert = () => {
+    setAlertModal((prev) => ({ ...prev, visible: false }));
+  };
+
   useEffect(() => {
     if (incomingInvite) {
-      Alert.alert(
+      showAlert(
         "Duo Invite 📬",
         "Someone wants to team up with you!",
         [
@@ -80,7 +120,8 @@ const Page = () => {
               acceptInvite({ inviteId: incomingInvite._id, accept: true }),
           },
         ],
-        { cancelable: false }
+        "mail",
+        theme.colors.primary
       );
     }
   }, [incomingInvite]);
@@ -375,7 +416,7 @@ const Page = () => {
                       }}
                       onPress={() => {
                         setSelectedIndex(index);
-                        router.push(`/tree`);
+                        navigation.navigate("tree");
                       }}
                     >
                       <BlurView
@@ -732,6 +773,7 @@ const Page = () => {
           </View>
         </ScrollView>
       </SafeAreaView>
+
       {convexUser && (
         <NewDuoModal
           visible={modalVisible}
@@ -739,6 +781,17 @@ const Page = () => {
           userId={convexUser._id}
         />
       )}
+
+      {/* Custom Alert Modal */}
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        buttons={alertModal.buttons}
+        icon={alertModal.icon}
+        iconColor={alertModal.iconColor}
+        onClose={closeAlert}
+      />
     </LinearGradient>
   );
 };
