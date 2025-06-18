@@ -384,155 +384,157 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
   };
 
   return (
-    <TandrumBottomSheet
-      ref={bottomSheetModalRef}
-      title="Find Your Partner"
-      subtitle="Start building habits together"
-      icon="people"
-      snapPoints={snapPoints}
-      onClose={handleClose}
-      onDismiss={handleClose}
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-        style={{
-          backgroundColor: theme.colors.background[1],
-          paddingBottom: 100,
-        }}
+    <>
+      <TandrumBottomSheet
+        ref={bottomSheetModalRef}
+        title="Find Your Partner"
+        subtitle="Start building habits together"
+        icon="people"
+        snapPoints={snapPoints}
+        onClose={handleClose}
+        onDismiss={handleClose}
       >
-        <View
-          className="flex-1 px-6"
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1"
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
           style={{
-            paddingTop: isKeyboardVisible ? 16 : 24,
-            paddingBottom: isKeyboardVisible ? 8 : 24,
+            backgroundColor: theme.colors.background[1],
+            paddingBottom: 100,
           }}
         >
-          {/* Search Input */}
-          <View className="mb-6">
-            <Text
-              className="text-lg font-bold mb-4"
-              style={{ color: theme.colors.text.primary }}
-            >
-              Search by Username
-            </Text>
-
-            <View className="rounded-3xl overflow-hidden">
-              <BlurView
-                intensity={30}
-                tint={isDarkMode ? "dark" : "light"}
-                style={{ backgroundColor: theme.colors.cardBackground }}
+          <View
+            className="flex-1 px-6"
+            style={{
+              paddingTop: isKeyboardVisible ? 16 : 24,
+              paddingBottom: isKeyboardVisible ? 8 : 24,
+            }}
+          >
+            {/* Search Input */}
+            <View className="mb-6">
+              <Text
+                className="text-lg font-bold mb-4"
+                style={{ color: theme.colors.text.primary }}
               >
-                <View className="flex-row items-center p-4 gap-3">
-                  <View
-                    className="w-10 h-10 rounded-2xl items-center justify-center"
-                    style={{ backgroundColor: theme.colors.primary + "20" }}
-                  >
-                    <Ionicons
-                      name="search"
-                      size={20}
-                      color={theme.colors.primary}
-                    />
-                  </View>
-                  <TextInput
-                    value={searchUsername}
-                    onChangeText={setSearchUsername}
-                    placeholder="Enter username..."
-                    autoCapitalize="none"
-                    autoComplete="username"
-                    className="flex-1 text-base"
-                    style={{
-                      color: theme.colors.text.primary,
-                      fontSize: 16,
-                    }}
-                    placeholderTextColor={theme.colors.text.tertiary}
-                  />
-                  {searchUsername.length > 0 && (
-                    <TouchableOpacity
-                      onPress={() => setSearchUsername("")}
-                      className="w-8 h-8 rounded-full items-center justify-center"
-                      style={{
-                        backgroundColor: theme.colors.text.tertiary + "20",
-                      }}
+                Search by Username
+              </Text>
+
+              <View className="rounded-3xl overflow-hidden">
+                <BlurView
+                  intensity={30}
+                  tint={isDarkMode ? "dark" : "light"}
+                  style={{ backgroundColor: theme.colors.cardBackground }}
+                >
+                  <View className="flex-row items-center p-4 gap-3">
+                    <View
+                      className="w-10 h-10 rounded-2xl items-center justify-center"
+                      style={{ backgroundColor: theme.colors.primary + "20" }}
                     >
                       <Ionicons
-                        name="close"
-                        size={16}
-                        color={theme.colors.text.tertiary}
+                        name="search"
+                        size={20}
+                        color={theme.colors.primary}
                       />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </BlurView>
-            </View>
-
-            {/* Search Results */}
-            {renderSearchResult()}
-          </View>
-
-          {/* How It Works - Only show when keyboard is not visible */}
-          {!isKeyboardVisible && (
-            <View className="rounded-3xl overflow-hidden mb-6">
-              <BlurView
-                intensity={20}
-                tint={isDarkMode ? "dark" : "light"}
-                className="p-6"
-                style={{ backgroundColor: theme.colors.glass }}
-              >
-                <View className="flex-row items-start gap-4">
-                  <LinearGradient
-                    colors={[theme.colors.primary, theme.colors.primaryLight]}
-                    className="w-10 h-10 items-center justify-center"
-                    style={{ borderRadius: 16 }}
-                  >
-                    <Ionicons name="information" size={20} color="white" />
-                  </LinearGradient>
-                  <View className="flex-1">
-                    <Text
-                      className="text-base font-bold mb-2"
-                      style={{ color: theme.colors.text.primary }}
-                    >
-                      How Partnership Works
-                    </Text>
-                    <Text
-                      className="text-sm leading-relaxed"
-                      style={{ color: theme.colors.text.secondary }}
-                    >
-                      Once you send an invite, they'll receive a notification.
-                      When they accept, you'll both be able to track each
-                      other's progress and celebrate wins together!
-                    </Text>
+                    </View>
+                    <TextInput
+                      value={searchUsername}
+                      onChangeText={setSearchUsername}
+                      placeholder="Enter username..."
+                      autoCapitalize="none"
+                      autoComplete="username"
+                      className="flex-1 text-base"
+                      style={{
+                        color: theme.colors.text.primary,
+                        fontSize: 16,
+                      }}
+                      placeholderTextColor={theme.colors.text.tertiary}
+                    />
+                    {searchUsername.length > 0 && (
+                      <TouchableOpacity
+                        onPress={() => setSearchUsername("")}
+                        className="w-8 h-8 rounded-full items-center justify-center"
+                        style={{
+                          backgroundColor: theme.colors.text.tertiary + "20",
+                        }}
+                      >
+                        <Ionicons
+                          name="close"
+                          size={16}
+                          color={theme.colors.text.tertiary}
+                        />
+                      </TouchableOpacity>
+                    )}
                   </View>
-                </View>
-              </BlurView>
-            </View>
-          )}
+                </BlurView>
+              </View>
 
-          {/* Action Buttons */}
-          <View className="gap-3 mt-auto">
-            <TouchableOpacity
-              onPress={handleClose}
-              activeOpacity={0.8}
-              className="overflow-hidden rounded-3xl"
-            >
-              <BlurView
-                intensity={30}
-                tint={isDarkMode ? "dark" : "light"}
-                className="p-4"
-                style={{ backgroundColor: theme.colors.cardBackground }}
-              >
-                <Text
-                  className="text-center text-lg font-semibold"
-                  style={{ color: theme.colors.text.secondary }}
+              {/* Search Results */}
+              {renderSearchResult()}
+            </View>
+
+            {/* How It Works - Only show when keyboard is not visible */}
+            {!isKeyboardVisible && (
+              <View className="rounded-3xl overflow-hidden mb-6">
+                <BlurView
+                  intensity={20}
+                  tint={isDarkMode ? "dark" : "light"}
+                  className="p-6"
+                  style={{ backgroundColor: theme.colors.glass }}
                 >
-                  Cancel
-                </Text>
-              </BlurView>
-            </TouchableOpacity>
+                  <View className="flex-row items-start gap-4">
+                    <LinearGradient
+                      colors={[theme.colors.primary, theme.colors.primaryLight]}
+                      className="w-10 h-10 items-center justify-center"
+                      style={{ borderRadius: 16 }}
+                    >
+                      <Ionicons name="information" size={20} color="white" />
+                    </LinearGradient>
+                    <View className="flex-1">
+                      <Text
+                        className="text-base font-bold mb-2"
+                        style={{ color: theme.colors.text.primary }}
+                      >
+                        How Partnership Works
+                      </Text>
+                      <Text
+                        className="text-sm leading-relaxed"
+                        style={{ color: theme.colors.text.secondary }}
+                      >
+                        Once you send an invite, they'll receive a notification.
+                        When they accept, you'll both be able to track each
+                        other's progress and celebrate wins together!
+                      </Text>
+                    </View>
+                  </View>
+                </BlurView>
+              </View>
+            )}
+
+            {/* Action Buttons */}
+            <View className="gap-3 mt-auto">
+              <TouchableOpacity
+                onPress={handleClose}
+                activeOpacity={0.8}
+                className="overflow-hidden rounded-3xl"
+              >
+                <BlurView
+                  intensity={30}
+                  tint={isDarkMode ? "dark" : "light"}
+                  className="p-4"
+                  style={{ backgroundColor: theme.colors.cardBackground }}
+                >
+                  <Text
+                    className="text-center text-lg font-semibold"
+                    style={{ color: theme.colors.text.secondary }}
+                  >
+                    Cancel
+                  </Text>
+                </BlurView>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </TandrumBottomSheet>
       <AlertModal
         visible={alertModal.visible}
         title={alertModal.title}
@@ -542,6 +544,6 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
         iconColor={alertModal.iconColor}
         onClose={() => setAlertModal((prev) => ({ ...prev, visible: false }))}
       />
-    </TandrumBottomSheet>
+    </>
   );
 };
