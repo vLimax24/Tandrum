@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { View } from "react-native";
 import { SectionHeader } from "@/components/SectionHeader";
 import { HabitsGrid } from "@/components/HabitsGrid";
+import { AlertModal } from "./AlertModal";
 
 interface HabitsContainerProps {
   daily: any[];
@@ -28,6 +29,19 @@ export function HabitsContainer({
   deleteHabit,
   onMenuPress,
 }: HabitsContainerProps) {
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message?: string;
+    buttons: any[];
+    icon?: any;
+    iconColor?: string;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    buttons: [],
+  });
   const isSameDay = (timestamp1: number, timestamp2: number) => {
     const date1 = new Date(timestamp1);
     const date2 = new Date(timestamp2);
@@ -53,6 +67,27 @@ export function HabitsContainer({
     return startOfWeek1.getTime() === startOfWeek2.getTime();
   };
 
+  const showAlert = (
+    title: string,
+    message: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>,
+    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
+    iconColor?: string
+  ) => {
+    setAlertModal({
+      visible: true,
+      title,
+      message,
+      buttons,
+      icon,
+      iconColor,
+    });
+  };
+
   return (
     <View className="gap-5">
       {/* Daily Habits Section */}
@@ -74,6 +109,7 @@ export function HabitsContainer({
           onMenuPress={onMenuPress}
           emptyStateIcon="📅"
           emptyStateMessage="No daily habits yet. Create one to get started!"
+          onShowAlert={showAlert}
         />
       </View>
 
@@ -96,6 +132,7 @@ export function HabitsContainer({
           onMenuPress={onMenuPress}
           emptyStateIcon="📊"
           emptyStateMessage="No weekly habits yet. Create one to get started!"
+          onShowAlert={showAlert}
         />
       </View>
     </View>
