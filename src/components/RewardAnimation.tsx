@@ -12,6 +12,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { getRarityColors } from "@/utils/rarities";
 import { treeImages } from "@/utils/treeImages";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
 
 interface RewardAnimationProps {
   visible: boolean;
@@ -39,6 +41,8 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
   onComplete,
 }) => {
   const [displayXP, setDisplayXP] = useState(0);
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
 
   const isMountedRef = useRef(true);
 
@@ -48,7 +52,39 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
   const itemScaleAnim = useRef(new Animated.Value(0)).current;
   const itemFloatAnim = useRef(new Animated.Value(0)).current;
   const successPulseAnim = useRef(new Animated.Value(1)).current;
-  const xpCounterAnim = useRef(new Animated.Value(0)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
+
+  // Separate ref for XP counter to avoid listener performance issues
+  const xpCounterRef = useRef(0);
+  const animationFrameRef = useRef<number | null>(null);
+
+  // Optimized XP counter function using requestAnimationFrame
+  const animateXPCounter = (targetXP: number, duration: number = 600) => {
+    const startTime = Date.now();
+    const startValue = 0;
+
+    const updateXP = () => {
+      if (!isMountedRef.current) return;
+
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Use easing function for smooth animation
+      const easedProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      const currentXP = Math.round(
+        startValue + (targetXP - startValue) * easedProgress
+      );
+
+      setDisplayXP(currentXP);
+      xpCounterRef.current = currentXP;
+
+      if (progress < 1) {
+        animationFrameRef.current = requestAnimationFrame(updateXP);
+      }
+    };
+
+    animationFrameRef.current = requestAnimationFrame(updateXP);
+  };
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -61,8 +97,14 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
       itemScaleAnim.setValue(0);
       itemFloatAnim.setValue(0);
       successPulseAnim.setValue(1);
-      xpCounterAnim.setValue(0);
+      glowAnim.setValue(0);
       setDisplayXP(0);
+      xpCounterRef.current = 0;
+
+      // Cancel any existing animation frame
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
 
       // Store the animation sequence
       const animationSequence = Animated.sequence([
@@ -84,6 +126,11 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
             duration: 500,
             useNativeDriver: true,
           }),
+          Animated.timing(glowAnim, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: false,
+          }),
         ]),
 
         // Success pulse
@@ -102,12 +149,8 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
           }),
         ]),
 
-        // XP counter
-        Animated.timing(xpCounterAnim, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: false,
-        }),
+        // Start XP counter animation (no Animated.Value needed)
+        Animated.delay(100), // Small delay before starting XP counter
 
         ...(rewards.item
           ? [
@@ -138,7 +181,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
           : []),
 
         // Hold for viewing
-        Animated.delay(6000),
+        Animated.delay(30000), // Reduced slightly since XP animation is faster
 
         // Exit
         Animated.parallel([
@@ -152,6 +195,11 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
             duration: 300,
             useNativeDriver: true,
           }),
+          Animated.timing(glowAnim, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: false,
+          }),
         ]),
       ]);
 
@@ -162,18 +210,21 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
         }
       });
 
-      // Add listener for XP counter animation
-      const listener = xpCounterAnim.addListener(({ value }) => {
+      // Start XP counter animation after a short delay
+      const xpTimeout = setTimeout(() => {
         if (isMountedRef.current) {
-          setDisplayXP(Math.round(value * rewards.xp));
+          animateXPCounter(rewards.xp);
         }
-      });
+      }, 1100); // Start after entrance + pulse animations
 
       // Cleanup function
       return () => {
         isMountedRef.current = false;
-        xpCounterAnim.removeListener(listener);
         animationSequence.stop();
+        clearTimeout(xpTimeout);
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
       };
     }
   }, [visible, rewards]);
@@ -181,6 +232,9 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
   }, []);
 
@@ -188,14 +242,19 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
 
   const itemFloat = itemFloatAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -4],
+    outputRange: [0, -8],
+  });
+
+  const glowOpacity = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 0.6],
   });
 
   const rarityColors = rewards.item
     ? getRarityColors(rewards.item.rarity)
     : null;
 
-  // Backdrop
+  // Backdrop with enhanced blur
   const Backdrop = () => (
     <TouchableWithoutFeedback onPress={onComplete}>
       <Animated.View
@@ -209,23 +268,16 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
           zIndex: 99998,
         }}
       >
-        {Platform.OS === "ios" ? (
-          <BlurView
-            intensity={80}
-            tint="dark"
-            style={{
-              flex: 1,
-              backgroundColor: "rgba(31, 41, 55, 0.9)",
-            }}
-          />
-        ) : (
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "rgba(31, 41, 55, 0.95)",
-            }}
-          />
-        )}
+        <BlurView
+          intensity={isDarkMode ? 40 : 60}
+          tint={isDarkMode ? "dark" : "light"}
+          style={{
+            flex: 1,
+            backgroundColor: isDarkMode
+              ? "rgba(15, 23, 42, 0.4)"
+              : "rgba(248, 250, 252, 0.6)",
+          }}
+        />
       </Animated.View>
     </TouchableWithoutFeedback>
   );
@@ -238,342 +290,271 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 100000, // Increased from 99999
-        elevation: 100000, // Increased from 99999
+        zIndex: 100000,
+        elevation: 100000,
       }}
       pointerEvents={visible ? "auto" : "none"}
     >
       <Backdrop />
 
       <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          paddingHorizontal: 24,
-          zIndex: 100000,
-          elevation: 100000,
-        }}
+        className="flex-1 justify-center items-center px-4"
+        style={{ zIndex: 100000, elevation: 100000 }}
         pointerEvents="box-none"
       >
         <Animated.View
           style={{
             transform: [{ scale: scaleAnim }, { translateY: slideUpAnim }],
             opacity: fadeAnim,
-            width: Math.min(width - 48, 320),
+            width: Math.min(width - 32, 320), // Reduced from 380 to 320
+            maxHeight: height * 0.8, // Ensure it doesn't exceed 80% of screen height
           }}
         >
-          {/* Card Container */}
-          <View
+          {/* Main Glass Card Container */}
+          <BlurView
+            intensity={20}
+            tint={isDarkMode ? "dark" : "light"}
             style={{
-              backgroundColor: "#ffffff",
-              borderRadius: 24,
-              padding: 24,
-              shadowColor: "#1e293b",
-              shadowOffset: { width: 0, height: 20 },
-              shadowOpacity: 0.15,
-              shadowRadius: 25,
-              elevation: 20,
+              backgroundColor: theme.colors.cardBackground,
+              borderColor: theme.colors.cardBorder,
+              borderWidth: 1,
+              borderRadius: 24, // Reduced from 32
+              overflow: "hidden",
             }}
           >
-            {/* Success Header */}
-            <View style={{ alignItems: "center", marginBottom: 20 }}>
-              <Animated.View
-                style={{
-                  transform: [{ scale: successPulseAnim }],
-                  marginBottom: 12,
-                }}
-              >
-                <View
-                  style={{
-                    backgroundColor: "#f0fdf4",
-                    borderRadius: 32,
-                    padding: 8,
-                    borderWidth: 2,
-                    borderColor: "#bbf7d0",
-                  }}
+            <View className="p-5">
+              {/* Reduced from p-8 to p-5 */}
+              {/* Success Header with Team Icons */}
+              <View className="items-center mb-5">
+                {/* Reduced from mb-8 to mb-5 */}
+                <Animated.View
+                  style={{ transform: [{ scale: successPulseAnim }] }}
+                  className="mb-4" // Reduced from mb-6 to mb-4
                 >
-                  <LinearGradient
-                    colors={["#10b981", "#059669"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 24,
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Text
+                  {/* Team Success Icon Container */}
+                  <View className="relative">
+                    <View
                       style={{
-                        fontSize: 20,
-                        color: "#ffffff",
-                        fontWeight: "800",
+                        backgroundColor: theme.colors.background[1],
+                        borderColor: theme.colors.primary,
+                        borderRadius: 1600,
                       }}
-                      className="font-mainRegular"
+                      className="rounded-full p-3 border-2" // Reduced from p-4 to p-3
                     >
-                      ✓
-                    </Text>
-                  </LinearGradient>
-                </View>
-              </Animated.View>
+                      <LinearGradient
+                        colors={[
+                          theme.colors.primary,
+                          theme.colors.primaryLight,
+                        ]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        className="w-12 h-12 items-center justify-center" // Reduced from w-16 h-16
+                        style={{ borderRadius: 10000 }}
+                      >
+                        {/* Team Success Icon */}
+                        <View className="flex-row items-center gap-1">
+                          <View className="w-2 h-2 bg-white rounded-full" />
+                          {/* Reduced from w-3 h-3 */}
+                          <Text className="text-white text-base font-bold">
+                            {/* Reduced from text-lg */}+
+                          </Text>
+                          <View className="w-2 h-2 bg-white rounded-full" />
+                          {/* Reduced from w-3 h-3 */}
+                        </View>
+                      </LinearGradient>
+                    </View>
 
-              <Text
-                style={{
-                  color: "#0f172a",
-                  fontSize: 22,
-                  fontWeight: "800",
-                  textAlign: "center",
-                  marginBottom: 4,
-                }}
-                className="font-mainRegular"
-              >
-                Perfect Teamwork!
-              </Text>
-
-              <View
-                style={{
-                  width: 40,
-                  height: 2,
-                  backgroundColor: "#10b981",
-                  borderRadius: 1,
-                  marginBottom: 8,
-                }}
-              />
-
-              <Text
-                style={{
-                  color: "#64748b",
-                  fontSize: 14,
-                  fontWeight: "500",
-                  textAlign: "center",
-                  lineHeight: 20,
-                }}
-                className="font-mainRegular"
-              >
-                You both completed this habit together
-              </Text>
-            </View>
-
-            {/* XP Reward */}
-            <View
-              style={{
-                alignItems: "center",
-                marginBottom: rewards.item ? 20 : 0,
-              }}
-            >
-              <View
-                style={{
-                  backgroundColor: "#f0f9ff",
-                  borderRadius: 20,
-                  padding: 16,
-                  borderWidth: 2,
-                  borderColor: "#bae6fd",
-                  shadowColor: "#0ea5e9",
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 16,
-                  elevation: 8,
-                }}
-              >
-                <LinearGradient
-                  colors={["#0ea5e9", "#0284c7"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={{
-                    borderRadius: 16,
-                    paddingHorizontal: 24,
-                    paddingVertical: 12,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <View
-                    style={{
-                      backgroundColor: "#ffffff",
-                      width: 20,
-                      height: 20,
-                      borderRadius: 10,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginRight: 8,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: "#0ea5e9",
-                        fontSize: 12,
-                        fontWeight: "800",
-                      }}
-                      className="font-mainRegular"
-                    >
-                      +
-                    </Text>
+                    {/* Floating particles effect */}
+                    <View className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full opacity-80" />
+                    <View className="absolute -bottom-0 -left-1 w-2 h-2 bg-blue-400 rounded-full opacity-60" />
                   </View>
-
-                  <Animated.Text
-                    style={{
-                      color: "white",
-                      fontSize: 24,
-                      fontWeight: "800",
-                      marginRight: 8,
-                    }}
-                  >
-                    {displayXP}
-                  </Animated.Text>
-
-                  <View
-                    style={{
-                      backgroundColor: "#ffffff",
-                      paddingHorizontal: 8,
-                      paddingVertical: 2,
-                      borderRadius: 8,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: "#0ea5e9",
-                        fontSize: 12,
-                        fontWeight: "700",
-                      }}
-                      className="font-mainRegular"
-                    >
-                      XP
-                    </Text>
-                  </View>
-                </LinearGradient>
-              </View>
-
-              <View
-                style={{
-                  backgroundColor: "#f8fafc",
-                  borderRadius: 12,
-                  paddingHorizontal: 12,
-                  paddingVertical: 6,
-                  marginTop: 8,
-                  borderWidth: 1,
-                  borderColor: "#e2e8f0",
-                }}
-              >
+                </Animated.View>
                 <Text
-                  style={{
-                    color: "#475569",
-                    fontSize: 11,
-                    fontWeight: "600",
-                    textAlign: "center",
-                  }}
-                  className="font-mainRegular"
+                  style={{ color: theme.colors.text.primary }}
+                  className="text-2xl font-bold text-center mb-2 tracking-tight" // Reduced from text-3xl, mb-3
                 >
-                  ADDED TO TRUST SCORE
+                  Team Victory!
+                </Text>
+                <View
+                  style={{ backgroundColor: theme.colors.primary }}
+                  className="w-12 h-1 rounded-full mb-3" // Reduced from w-16, mb-4
+                />
+                <Text
+                  style={{ color: theme.colors.text.secondary }}
+                  className="text-sm font-medium text-center leading-5 max-w-xs" // Reduced from text-base, leading-6
+                >
+                  Perfect synchronization—you both crushed this habit together
+                  🙌
+                </Text>
+              </View>
+              {/* Enhanced XP Reward Section */}
+              <View
+                className={`items-center ${rewards.item ? "mb-5" : "mb-0"}`} // Reduced from mb-8
+              >
+                <View className="w-full">
+                  {/* XP Header */}
+                  <View className="flex-row items-center justify-center gap-2 mb-3">
+                    <View
+                      style={{ backgroundColor: theme.colors.primary }}
+                      className="w-1.5 h-1.5 rounded-full"
+                    />
+                    <Text
+                      style={{ color: theme.colors.text.secondary }}
+                      className="text-xs font-semibold tracking-wide text-center" // Added text-center and reduced tracking
+                    >
+                      TRUST SCORE BOOST
+                    </Text>
+                    <View
+                      style={{ backgroundColor: theme.colors.primary }}
+                      className="w-1.5 h-1.5 rounded-full"
+                    />
+                  </View>
+
+                  {/* XP Display Card */}
+                  <BlurView
+                    intensity={15}
+                    tint={isDarkMode ? "dark" : "light"}
+                    style={{
+                      backgroundColor: isDarkMode
+                        ? "rgba(14, 165, 233, 0.08)"
+                        : "rgba(240, 249, 255, 0.7)",
+                      borderColor: isDarkMode
+                        ? "rgba(14, 165, 233, 0.25)"
+                        : "rgba(186, 230, 253, 0.6)",
+                      borderWidth: 1,
+                      borderRadius: 20, // Reduced from 24
+                      overflow: "hidden",
+                    }}
+                  >
+                    <View className="p-4">
+                      {/* Reduced from p-6 */}
+                      <LinearGradient
+                        colors={["#0ea5e9", "#0284c7", "#0369a1"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        className="rounded-xl px-6 py-4 flex-row items-center justify-center" // Reduced padding
+                        style={{ borderRadius: 12 }} // Reduced from 16
+                      >
+                        {/* Plus Icon */}
+                        <View className="bg-white w-6 h-6 rounded-full items-center justify-center mr-3">
+                          {/* Reduced from w-8 h-8, mr-4 */}
+                          <Text
+                            style={{ color: "#0ea5e9" }}
+                            className="text-base font-bold" // Reduced from text-lg
+                          >
+                            +
+                          </Text>
+                        </View>
+
+                        {/* XP Number */}
+                        <Text className="text-white text-3xl font-bold mr-3 tracking-tight">
+                          {/* Reduced from text-4xl, mr-4 */}
+                          {displayXP}
+                        </Text>
+
+                        {/* XP Badge */}
+                        <View className="bg-white rounded-lg px-3 py-1">
+                          {/* Increased px from 2 to 3 */}
+                          <Text
+                            style={{ color: "#0ea5e9" }}
+                            className="text-xs font-bold tracking-wide" // Added tracking-wide for better spacing
+                          >
+                            XP
+                          </Text>
+                        </View>
+                      </LinearGradient>
+                    </View>
+                  </BlurView>
+                </View>
+              </View>
+              {/* Enhanced Item Reward */}
+              {rewards.item && rarityColors && (
+                <Animated.View
+                  style={{
+                    transform: [
+                      { scale: itemScaleAnim },
+                      { translateY: itemFloat },
+                    ],
+                  }}
+                  className="items-center"
+                >
+                  <View className="mb-3">
+                    {/* Reduced from mb-4 */}
+                    <Text
+                      style={{ color: theme.colors.text.secondary }}
+                      className="text-xs font-semibold text-center tracking-wider" // Reduced from text-sm
+                    >
+                      BONUS REWARD UNLOCKED
+                    </Text>
+                  </View>
+
+                  <BlurView
+                    intensity={10}
+                    tint={isDarkMode ? "dark" : "light"}
+                    style={{
+                      backgroundColor: theme.colors.cardBackground,
+                      borderColor: rarityColors.border,
+                      borderWidth: 2,
+                      borderRadius: 20, // Reduced from 24
+                      overflow: "hidden",
+                    }}
+                  >
+                    <View className="p-4">
+                      {/* Reduced from p-6 */}
+                      <LinearGradient
+                        colors={[rarityColors.primary, rarityColors.accent]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        className="rounded-xl p-4 items-center min-w-[140px]" // Reduced padding and min-width
+                        style={{ borderRadius: 12 }} // Reduced from 16
+                      >
+                        {/* Item icon container */}
+                        <View
+                          style={{
+                            backgroundColor: "rgba(255, 255, 255, 0.95)",
+                          }}
+                          className="w-14 h-14 rounded-full items-center justify-center mb-3" // Reduced from w-20 h-20, mb-5
+                        >
+                          <Image
+                            source={treeImages[rewards.item.itemId]}
+                            className="w-8 h-8" // Reduced from w-12 h-12
+                            style={{ resizeMode: "contain" }}
+                          />
+                        </View>
+
+                        {/* Rarity badge with enhanced styling */}
+                        <View className="bg-white rounded-xl px-3 py-1 mb-2">
+                          {/* Reduced padding and margin */}
+                          <Text
+                            style={{ color: rarityColors.accent }}
+                            className="text-xs font-bold tracking-wide" // Reduced tracking
+                          >
+                            {rewards.item.rarity.toUpperCase()}
+                          </Text>
+                        </View>
+
+                        {/* Item name */}
+                        <Text className="text-white text-base font-bold text-center leading-5">
+                          {/* Reduced from text-lg, leading-6 */}
+                          {rewards.item.name}
+                        </Text>
+                      </LinearGradient>
+                    </View>
+                  </BlurView>
+                </Animated.View>
+              )}
+              {/* Tap to Continue Hint */}
+              <View className="items-center mt-5">
+                {/* Reduced from mt-8 */}
+                <Text
+                  style={{ color: theme.colors.text.tertiary }}
+                  className="text-xs font-medium opacity-60"
+                >
+                  Tap anywhere to continue
                 </Text>
               </View>
             </View>
-
-            {/* Item Reward */}
-            {rewards.item && rarityColors && (
-              <Animated.View
-                style={{
-                  transform: [
-                    { scale: itemScaleAnim },
-                    { translateY: itemFloat },
-                  ],
-                  alignItems: "center",
-                }}
-              >
-                <View
-                  style={{
-                    backgroundColor: "#ffffff",
-                    borderRadius: 20,
-                    padding: 20,
-                    borderWidth: 2,
-                    borderColor: rarityColors.border,
-                    shadowColor: rarityColors.primary,
-                    shadowOffset: { width: 0, height: 12 },
-                    shadowOpacity: 0.15,
-                    shadowRadius: 20,
-                    elevation: 15,
-                  }}
-                >
-                  <LinearGradient
-                    colors={[rarityColors.primary, rarityColors.accent]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={{
-                      borderRadius: 16,
-                      padding: 20,
-                      alignItems: "center",
-                      minWidth: 160,
-                    }}
-                  >
-                    {/* Item icon */}
-                    <View
-                      style={{
-                        backgroundColor: "#ffffff",
-                        width: 60,
-                        height: 60,
-                        borderRadius: 30,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginBottom: 12,
-                        shadowColor: rarityColors.primary,
-                        shadowOffset: { width: 0, height: 4 },
-                        shadowOpacity: 0.2,
-                        shadowRadius: 8,
-                        elevation: 6,
-                      }}
-                    >
-                      <Image
-                        source={treeImages[rewards.item.itemId]}
-                        style={{
-                          width: 40,
-                          height: 40,
-                          resizeMode: "contain",
-                        }}
-                      />
-                    </View>
-
-                    {/* Rarity badge */}
-                    <View
-                      style={{
-                        backgroundColor: "#ffffff",
-                        borderRadius: 12,
-                        paddingHorizontal: 12,
-                        paddingVertical: 4,
-                        marginBottom: 8,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: rarityColors.accent,
-                          fontSize: 10,
-                          fontWeight: "800",
-                          letterSpacing: 0.8,
-                        }}
-                        className="font-mainRegular"
-                      >
-                        {rewards.item.rarity.toUpperCase()}
-                      </Text>
-                    </View>
-
-                    {/* Item name */}
-                    <Text
-                      style={{
-                        color: "white",
-                        fontSize: 16,
-                        fontWeight: "700",
-                        textAlign: "center",
-                      }}
-                      className="font-mainRegular"
-                    >
-                      {rewards.item.name}
-                    </Text>
-                  </LinearGradient>
-                </View>
-              </Animated.View>
-            )}
-          </View>
+          </BlurView>
         </Animated.View>
       </View>
     </View>
