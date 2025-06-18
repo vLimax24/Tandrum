@@ -23,6 +23,7 @@ import { getRarityColors } from "@/utils/rarities";
 import { treeImages } from "@/utils/treeImages";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
+import { AlertModal } from "@/components/AlertModal";
 
 interface TreeInventoryProps {
   treeData: {
@@ -85,6 +86,20 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     "tree-4": "Grown Tree",
   };
 
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message?: string;
+    buttons: any[];
+    icon?: any;
+    iconColor?: string;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    buttons: [],
+  });
+
   // Create lookup map for quick access
   const itemsById = useMemo(() => {
     if (!allTreeItems) return {};
@@ -109,6 +124,27 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   const handleCloseBottomSheet = useCallback(() => {
     bottomSheetModalRef.current?.dismiss();
   }, []);
+
+  const showAlert = (
+    title: string,
+    message: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>,
+    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
+    iconColor?: string
+  ) => {
+    setAlertModal({
+      visible: true,
+      title,
+      message,
+      buttons,
+      icon,
+      iconColor,
+    });
+  };
 
   // Custom backdrop component
   const renderBackdrop = useCallback(
@@ -236,14 +272,23 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
           Math.abs(dec.position.y - chosenSlot.y) < 20
       );
       if (overlap) {
-        Alert.alert("Slot Occupied", "This position is already taken!");
+        showAlert(
+          "Slot Occupied",
+          "This position is already taken!",
+          [{ text: "OK", style: "default" }],
+          "warning",
+          "#f59e0b"
+        );
         return;
       }
 
       if (currentDecorations >= maxAllowed) {
-        Alert.alert(
+        showAlert(
           "Maximum Reached",
-          `You can only place ${maxAllowed} decorations on this tree stage.`
+          `You can only place ${maxAllowed} decorations on this tree stage.`,
+          [{ text: "OK", style: "default" }],
+          "information-circle",
+          "#3b82f6"
         );
         return;
       }
@@ -262,7 +307,13 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       setSelectedItemId(null);
       onInventoryUpdate?.();
     } catch (err: any) {
-      Alert.alert("Placement Error", err.message);
+      showAlert(
+        "Placement Error",
+        err.message,
+        [{ text: "OK", style: "default" }],
+        "alert-circle",
+        "#ef4444"
+      );
     }
   };
 
@@ -293,7 +344,13 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       setSelectedDecoration(null);
       onInventoryUpdate?.();
     } catch (err: any) {
-      Alert.alert("Removal Error", err.message);
+      showAlert(
+        "Removal Error",
+        err.message,
+        [{ text: "OK", style: "default" }],
+        "alert-circle",
+        "#ef4444"
+      );
     }
   };
 
@@ -894,6 +951,15 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             : null
         }
         slotIndex={selectedDecoration?.index || 0}
+      />
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        buttons={alertModal.buttons}
+        icon={alertModal.icon}
+        iconColor={alertModal.iconColor}
+        onClose={() => setAlertModal((prev) => ({ ...prev, visible: false }))}
       />
     </>
   );
