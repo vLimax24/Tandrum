@@ -98,7 +98,7 @@ const LoadingState: React.FC<LoadingScreenProps> = ({ screen = "default" }) => {
                 <View className="absolute inset-0 items-center justify-center">
                   <Ionicons
                     name={getLoadingIconName()}
-                    size={28}
+                    size={20}
                     color="white"
                   />
                 </View>
