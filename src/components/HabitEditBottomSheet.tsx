@@ -4,27 +4,21 @@ import React, {
   forwardRef,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
-  TextInput,
   ActivityIndicator,
   Animated,
-  KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import {
-  BottomSheetModal,
-  BottomSheetView,
-  BottomSheetBackdrop,
-  BottomSheetHandle,
-  BottomSheetTextInput,
-} from "@gorhom/bottom-sheet";
-import RNPickerSelect from "react-native-picker-select";
-import { LinearGradient } from "expo-linear-gradient";
+import { BottomSheetModal, BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
+import { TandrumBottomSheet } from "./TandrumBottomSheet";
 
 interface HabitEditBottomSheetProps {
   onSave: (data: {
@@ -43,23 +37,23 @@ const HabitEditBottomSheet = forwardRef<
   BottomSheetModal,
   HabitEditBottomSheetProps
 >(({ onSave, habit, existingHabits }, ref) => {
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
   const [title, setTitle] = useState("");
   const [frequency, setFrequency] = useState<"daily" | "weekly">("daily");
   const [isSaving, setIsSaving] = useState(false);
   const [validationError, setValidationError] = useState("");
   const [fadeAnim] = useState(new Animated.Value(0));
 
-  // Updated snap points with more flexibility
-  const snapPoints = useMemo(() => ["73%", "90%"], []);
+  // Add this ref to track previous frequency
+  const previousFrequencyRef = useRef<"daily" | "weekly" | null>(null);
 
-  // Initialize form when habit changes
   useEffect(() => {
     if (habit) {
       setTitle(habit.title);
       setFrequency(habit.frequency);
       setValidationError("");
-
-      // Animate content in
+      previousFrequencyRef.current = habit.frequency; // Store initial frequency
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 400,
@@ -68,7 +62,34 @@ const HabitEditBottomSheet = forwardRef<
     }
   }, [habit]);
 
-  // Enhanced validation function
+  const snapPoints = useMemo(() => {
+    const hasFrequencyChanged = habit && frequency !== habit.frequency;
+    return hasFrequencyChanged ? ["85%", "97%"] : ["85%"];
+  }, [habit, frequency]);
+
+  // Update the useEffect to handle frequency changes and auto-expand/collapse
+  useEffect(() => {
+    if (habit && previousFrequencyRef.current) {
+      const hasFrequencyChanged = frequency !== habit.frequency;
+      const wasFrequencyChanged =
+        previousFrequencyRef.current !== habit.frequency;
+
+      // Handle transitions between states
+      if (hasFrequencyChanged && !wasFrequencyChanged) {
+        // Transitioning from no change to change - expand to 95%
+        setTimeout(() => {
+          (ref as any)?.current?.snapToIndex(1); // 95% is index 1 when warning shows
+        }, 50);
+      } else if (!hasFrequencyChanged && wasFrequencyChanged) {
+        // Transitioning from change back to no change - collapse to 85% first
+        // Snap to 85% while we still have both snap points available
+        (ref as any)?.current?.snapToIndex(0); // 85% is index 0
+        // The snap points will change after this effect runs
+      }
+    }
+    previousFrequencyRef.current = frequency;
+  }, [frequency, habit, ref]);
+
   const validateHabitTitle = useCallback(
     (inputTitle: string): string => {
       const trimmedTitle = inputTitle.trim();
@@ -81,14 +102,11 @@ const HabitEditBottomSheet = forwardRef<
       if (trimmedTitle.length > 50) {
         return "Habit title must be less than 50 characters";
       }
-
-      // Check for duplicate habits (excluding current habit)
       const duplicateExists = existingHabits.some(
         (h) =>
           h._id !== habit?._id &&
           h.title.toLowerCase() === trimmedTitle.toLowerCase()
       );
-
       if (duplicateExists) {
         return "A habit with this title already exists";
       }
@@ -97,7 +115,6 @@ const HabitEditBottomSheet = forwardRef<
     [existingHabits, habit]
   );
 
-  // Enhanced input change handler
   const handleTitleChange = useCallback(
     (text: string) => {
       setTitle(text);
@@ -109,14 +126,12 @@ const HabitEditBottomSheet = forwardRef<
     [validationError, validateHabitTitle]
   );
 
-  // Enhanced save handler
   const handleSave = useCallback(async () => {
     const error = validateHabitTitle(title);
     if (error) {
       setValidationError(error);
       return;
     }
-
     setIsSaving(true);
     try {
       await onSave({
@@ -140,519 +155,347 @@ const HabitEditBottomSheet = forwardRef<
     }).start();
   }, [fadeAnim]);
 
-  // Backdrop component
-  const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-        opacity={0.6}
-      />
-    ),
-    []
-  );
-
   if (!habit) return null;
 
-  // Check if changes were made
   const hasChanges =
     title.trim() !== habit.title || frequency !== habit.frequency;
   const canSave = !validationError && title.trim() && hasChanges && !isSaving;
 
   return (
-    <BottomSheetModal
+    <TandrumBottomSheet
       ref={ref}
-      handleComponent={null}
+      title="Edit Habit"
+      subtitle="Modify your collaborative habit"
+      icon="people"
       snapPoints={snapPoints}
-      backdropComponent={renderBackdrop}
       onDismiss={handleDismiss}
-      enablePanDownToClose
-      enableDismissOnClose
-      keyboardBehavior="extend"
-      keyboardBlurBehavior="none"
-      android_keyboardInputMode="adjustResize"
-      enableDynamicSizing={false}
-      backgroundStyle={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
-      style={{
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 24,
-        elevation: 24,
-      }}
     >
-      <BottomSheetView style={{ flex: 1 }}>
-        <Animated.View
-          style={{
-            flex: 1,
-            opacity: fadeAnim,
-          }}
+      <Animated.View
+        style={{
+          flex: 1,
+          opacity: fadeAnim,
+          paddingBottom: 100,
+        }}
+      >
+        {/* Content */}
+        <View
+          className="px-6 py-6 flex-1"
+          style={{ backgroundColor: theme.colors.background[1] }}
         >
-          {/* Gradient Header */}
-          <LinearGradient
-            colors={["#10b981", "#059669"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{
-              paddingHorizontal: 24,
-              paddingVertical: 20,
-              position: "relative",
-              overflow: "hidden",
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-            }}
-          >
-            {/* Background pattern */}
-            <View
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                opacity: 0.1,
-              }}
-            >
+          {/* Title Input Section */}
+          <View className="mb-6 gap-4">
+            <View className="flex-row items-center gap-3">
               <View
+                className="items-center justify-center rounded-xl"
                 style={{
-                  position: "absolute",
-                  top: -20,
-                  right: -20,
-                  width: 80,
-                  height: 80,
-                  borderRadius: 40,
-                  backgroundColor: "white",
-                  opacity: 0.2,
-                }}
-              />
-              <View
-                style={{
-                  position: "absolute",
-                  bottom: -10,
-                  left: -10,
-                  width: 60,
-                  height: 60,
-                  borderRadius: 30,
-                  backgroundColor: "white",
-                  opacity: 0.15,
-                }}
-              />
-            </View>
-
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <View style={{ flex: 1 }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 4,
-                  }}
-                >
-                  <Ionicons
-                    name="create-outline"
-                    size={24}
-                    color="white"
-                    style={{ marginRight: 12 }}
-                  />
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 22,
-                      fontWeight: "bold",
-                    }}
-                    className=" font-mainRegular"
-                  >
-                    Edit Habit
-                  </Text>
-                </View>
-                <Text
-                  style={{
-                    color: "white",
-                    fontSize: 14,
-                    opacity: 0.9,
-                  }}
-                  className="font-mainRegular"
-                >
-                  Modify your habit details
-                </Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => (ref as any)?.current?.dismiss()}
-                style={{
-                  width: 36,
-                  height: 36,
-                  backgroundColor: "rgba(255,255,255,0.2)",
-                  borderRadius: 18,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderWidth: 1,
-                  borderColor: "rgba(255,255,255,0.3)",
+                  width: 40,
+                  height: 40,
+                  backgroundColor: theme.colors.primary + "15",
                 }}
               >
-                <Ionicons name="close" size={20} color="white" />
-              </TouchableOpacity>
-            </View>
-          </LinearGradient>
-
-          {/* Content Section */}
-          <View style={{ paddingHorizontal: 24, paddingVertical: 24, flex: 1 }}>
-            {/* Title Input */}
-            <View style={{ marginBottom: 24 }}>
+                <Ionicons
+                  name="create"
+                  size={20}
+                  color={theme.colors.primary}
+                />
+              </View>
               <Text
-                style={{
-                  color: "#111827",
-                  fontWeight: "600",
-                  fontSize: 16,
-                  marginBottom: 12,
-                }}
-                className="font-mainRegular"
+                className="font-semibold text-lg flex-1"
+                style={{ color: theme.colors.text.primary }}
               >
                 Habit Title
               </Text>
-              <View
-                style={{
-                  backgroundColor: "#f8fafc",
-                  borderWidth: 2,
-                  borderColor: validationError
-                    ? "rgba(220,38,38,0.5)"
-                    : "rgba(16,185,129,0.2)",
-                  borderRadius: 16,
-                  shadowColor: validationError ? "#dc2626" : "#10b981",
-                  shadowOffset: { width: 0, height: 0 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 8,
-                  elevation: 2,
-                }}
-              >
-                <BottomSheetTextInput
-                  style={{
-                    paddingHorizontal: 16,
-                    paddingVertical: 16,
-                    fontSize: 16,
-                    color: "#111827",
-                    fontWeight: "500",
-                    minHeight: 50,
-                  }}
-                  placeholder="Enter your habit"
-                  placeholderTextColor="#9CA3AF"
-                  value={title}
-                  onChangeText={handleTitleChange}
-                  returnKeyType="done"
-                  maxLength={50}
-                  multiline={false}
-                  blurOnSubmit={true}
-                />
-              </View>
-
-              {validationError ? (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginTop: 8,
-                    backgroundColor: "rgba(220,38,38,0.05)",
-                    paddingHorizontal: 12,
-                    paddingVertical: 8,
-                    borderRadius: 8,
-                    borderWidth: 1,
-                    borderColor: "rgba(220,38,38,0.2)",
-                  }}
-                >
-                  <Ionicons
-                    name="warning"
-                    size={16}
-                    color="#dc2626"
-                    style={{ marginRight: 8 }}
-                  />
-                  <Text
-                    style={{
-                      color: "#dc2626",
-                      fontSize: 14,
-                      fontWeight: "500",
-                      flex: 1,
-                    }}
-                    className="font-mainRegular"
-                  >
-                    {validationError}
-                  </Text>
-                </View>
-              ) : (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginTop: 8,
-                  }}
-                >
-                  <Text
-                    style={{ color: "#6b7280", fontSize: 14 }}
-                    className="font-mainRegular"
-                  >
-                    {title.length}/50 characters
-                  </Text>
-                  {hasChanges && (
-                    <View
-                      style={{
-                        backgroundColor: "rgba(16,185,129,0.1)",
-                        paddingHorizontal: 8,
-                        paddingVertical: 4,
-                        borderRadius: 8,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: "#10b981",
-                          fontSize: 12,
-                          fontWeight: "600",
-                        }}
-                      >
-                        Modified
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              )}
             </View>
-
-            {/* Frequency Selector */}
-            <View style={{ marginBottom: 24 }}>
-              <Text
+            <View
+              className="rounded-2xl border-2"
+              style={{
+                backgroundColor: theme.colors.cardBackground,
+                borderColor: validationError
+                  ? "rgba(239, 68, 68, 0.4)"
+                  : theme.colors.cardBorder,
+              }}
+            >
+              <BottomSheetTextInput
+                className="px-4 py-4 text-base font-medium"
                 style={{
-                  color: "#111827",
-                  fontWeight: "600",
-                  fontSize: 16,
-                  marginBottom: 12,
+                  color: theme.colors.text.primary,
+                  minHeight: 52,
                 }}
-                className="font-mainRegular"
-              >
-                Frequency
-              </Text>
-              <View
-                style={{
-                  backgroundColor: "#f8fafc",
-                  borderWidth: 2,
-                  borderColor: "rgba(16,185,129,0.2)",
-                  borderRadius: 16,
-                  shadowColor: "#10b981",
-                  shadowOffset: { width: 0, height: 0 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 8,
-                  elevation: 2,
-                }}
-              >
-                <RNPickerSelect
-                  onValueChange={setFrequency}
-                  value={frequency}
-                  placeholder={{}}
-                  items={[
-                    { label: "Daily - Every day", value: "daily" },
-                    { label: "Weekly - Once per week", value: "weekly" },
-                  ]}
-                  useNativeAndroidPickerStyle={false}
-                  style={{
-                    inputIOS: {
-                      color: "#111827",
-                      paddingVertical: 16,
-                      paddingHorizontal: 16,
-                      fontSize: 16,
-                      fontWeight: "500",
-                    },
-                    inputAndroid: {
-                      color: "#111827",
-                      paddingVertical: 16,
-                      paddingHorizontal: 16,
-                      fontSize: 16,
-                      fontWeight: "500",
-                    },
-                    iconContainer: {
-                      top: 20,
-                      right: 16,
-                    },
-                  }}
-                  Icon={() => (
-                    <Ionicons name="chevron-down" size={20} color="#10b981" />
-                  )}
-                />
-              </View>
+                placeholder="Enter your habit title"
+                placeholderTextColor={theme.colors.text.tertiary}
+                value={title}
+                onChangeText={handleTitleChange}
+                returnKeyType="done"
+                maxLength={50}
+                multiline={false}
+              />
             </View>
-
-            {/* Warning for frequency change */}
-            {frequency !== habit.frequency && (
+            {validationError ? (
               <View
+                className="flex-row items-center gap-2 px-3 py-2 rounded-xl border"
                 style={{
-                  backgroundColor: "rgba(245,158,11,0.05)",
-                  borderWidth: 1,
-                  borderColor: "rgba(245,158,11,0.2)",
-                  borderRadius: 12,
-                  padding: 16,
-                  marginBottom: 24,
+                  backgroundColor: "rgba(239, 68, 68, 0.05)",
+                  borderColor: "rgba(239, 68, 68, 0.2)",
                 }}
               >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 8,
-                  }}
-                >
-                  <Ionicons
-                    name="warning"
-                    size={20}
-                    color="#92400e"
-                    style={{ marginRight: 8 }}
-                  />
-                  <Text
-                    style={{
-                      color: "#92400e",
-                      fontWeight: "600",
-                      fontSize: 14,
-                    }}
-                    className="font-mainRegular"
-                  >
-                    Frequency Change Notice
-                  </Text>
-                </View>
-                <Text
-                  style={{ color: "#92400e", fontSize: 13, lineHeight: 18 }}
-                  className="font-mainRegular"
-                >
-                  Changing frequency will reset check-in status for all users.
-                  Progress will be cleared.
+                <Ionicons name="alert-circle" size={16} color="#ef4444" />
+                <Text className="text-red-500 text-sm font-medium flex-1">
+                  {validationError}
                 </Text>
+              </View>
+            ) : (
+              <View className="flex-row justify-between items-center">
+                <Text
+                  className="text-sm"
+                  style={{ color: theme.colors.text.tertiary }}
+                >
+                  {title.length}/50 characters
+                </Text>
+                {hasChanges && (
+                  <View
+                    className="px-3 py-1.5 rounded-full"
+                    style={{
+                      backgroundColor: `${theme.colors.primary}20`,
+                    }}
+                  >
+                    <Text
+                      className="text-xs font-semibold"
+                      style={{ color: theme.colors.primary }}
+                    >
+                      Modified
+                    </Text>
+                  </View>
+                )}
               </View>
             )}
           </View>
 
-          {/* Action Buttons */}
-          <View
-            style={{
-              paddingHorizontal: 24,
-              paddingBottom: Platform.OS === "ios" ? 34 : 24,
-              paddingTop: 16,
-              borderTopWidth: 1,
-              borderTopColor: "rgba(229,231,235,0.5)",
-              backgroundColor: "rgba(255,255,255,0.95)",
-            }}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 12,
-              }}
-            >
-              <TouchableOpacity
-                onPress={() => (ref as any)?.current?.dismiss()}
+          {/* Frequency Selector */}
+          <View className="gap-4">
+            <View className="flex-row items-center gap-3">
+              <View
+                className="items-center justify-center rounded-xl"
                 style={{
-                  flex: 1,
-                  backgroundColor: "#f3f4f6",
-                  borderWidth: 1,
-                  borderColor: "rgba(209,213,219,0.8)",
-                  borderRadius: 16,
-                  paddingVertical: 16,
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.05,
-                  shadowRadius: 4,
-                  elevation: 2,
+                  width: 40,
+                  height: 40,
+                  backgroundColor: theme.colors.primary + "15",
                 }}
               >
+                <Ionicons
+                  name="calendar"
+                  size={20}
+                  color={theme.colors.primary}
+                />
+              </View>
+              <Text
+                className="font-semibold text-lg flex-1"
+                style={{ color: theme.colors.text.primary }}
+              >
+                How often?
+              </Text>
+            </View>
+
+            {/* Frequency Selection Buttons */}
+            <View className="flex-row gap-3">
+              <TouchableOpacity
+                onPress={() => setFrequency("daily")}
+                className="flex-1 p-4 rounded-2xl"
+                style={{
+                  backgroundColor:
+                    frequency === "daily"
+                      ? theme.colors.primary + "15"
+                      : theme.colors.cardBackground,
+                  borderWidth: 2,
+                  borderColor:
+                    frequency === "daily"
+                      ? theme.colors.primary
+                      : theme.colors.cardBorder,
+                }}
+              >
+                <View className="flex-row items-center gap-2 mb-2">
+                  <Ionicons
+                    name="sunny"
+                    size={18}
+                    color={
+                      frequency === "daily"
+                        ? theme.colors.primary
+                        : theme.colors.text.tertiary
+                    }
+                  />
+                  <Text
+                    className="font-semibold text-base"
+                    style={{
+                      color:
+                        frequency === "daily"
+                          ? theme.colors.primary
+                          : theme.colors.text.secondary,
+                    }}
+                  >
+                    Daily
+                  </Text>
+                  {frequency === "daily" && (
+                    <View className="ml-auto">
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={20}
+                        color={theme.colors.primary}
+                      />
+                    </View>
+                  )}
+                </View>
                 <Text
-                  style={{
-                    color: "#374151",
-                    fontWeight: "600",
-                    fontSize: 16,
-                    textAlign: "center",
-                  }}
-                  className="font-mainRegular"
+                  className="text-sm"
+                  style={{ color: theme.colors.text.tertiary }}
                 >
-                  Cancel
+                  Build momentum with consistent daily practice
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={handleSave}
-                disabled={!canSave}
+                onPress={() => setFrequency("weekly")}
+                className="flex-1 p-4 rounded-2xl"
                 style={{
-                  flex: 1,
-                  borderRadius: 16,
-                  paddingVertical: 16,
-                  backgroundColor: canSave ? "#10b981" : "#e5e7eb",
-                  borderWidth: 1,
-                  borderColor: canSave
-                    ? "rgba(16,185,129,0.3)"
-                    : "rgba(209,213,219,0.8)",
-                  shadowColor: canSave ? "#10b981" : "transparent",
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: canSave ? 0.3 : 0,
-                  shadowRadius: 8,
-                  elevation: canSave ? 6 : 2,
+                  backgroundColor:
+                    frequency === "weekly"
+                      ? theme.colors.primary + "15"
+                      : theme.colors.cardBackground,
+                  borderWidth: 2,
+                  borderColor:
+                    frequency === "weekly"
+                      ? theme.colors.primary
+                      : theme.colors.cardBorder,
                 }}
               >
-                {isSaving ? (
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <ActivityIndicator size="small" color="#fff" />
-                    <Text
-                      style={{
-                        color: "white",
-                        fontWeight: "600",
-                        fontSize: 16,
-                        marginLeft: 8,
-                      }}
-                      className="font-mainRegular"
-                    >
-                      Saving...
-                    </Text>
-                  </View>
-                ) : (
+                <View className="flex-row items-center gap-2 mb-2">
+                  <Ionicons
+                    name="calendar-outline"
+                    size={18}
+                    color={
+                      frequency === "weekly"
+                        ? theme.colors.primary
+                        : theme.colors.text.tertiary
+                    }
+                  />
                   <Text
+                    className="font-semibold text-base"
                     style={{
-                      textAlign: "center",
-                      fontWeight: "600",
-                      fontSize: 16,
-                      color: canSave ? "white" : "#9ca3af",
+                      color:
+                        frequency === "weekly"
+                          ? theme.colors.primary
+                          : theme.colors.text.secondary,
                     }}
-                    className="font-mainRegular"
                   >
-                    Save Changes
+                    Weekly
                   </Text>
-                )}
+                  {frequency === "weekly" && (
+                    <View className="ml-auto">
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={20}
+                        color={theme.colors.primary}
+                      />
+                    </View>
+                  )}
+                </View>
+                <Text
+                  className="text-sm"
+                  style={{ color: theme.colors.text.tertiary }}
+                >
+                  Perfect for bigger goals that need more time
+                </Text>
               </TouchableOpacity>
             </View>
-
-            {/* Helper text */}
-            <Text
-              style={{
-                color: "#6b7280",
-                fontSize: 12,
-                textAlign: "center",
-                marginTop: 12,
-                opacity: 0.8,
-              }}
-              className="font-mainRegular"
-            >
-              Changes will be applied immediately after saving
-            </Text>
           </View>
-        </Animated.View>
-      </BottomSheetView>
-    </BottomSheetModal>
+
+          {/* Frequency Change Warning */}
+          {frequency !== habit.frequency && (
+            <View
+              className="flex-row gap-3 p-4 rounded-2xl border mt-2"
+              style={{
+                backgroundColor: "rgba(245, 158, 11, 0.05)",
+                borderColor: "rgba(245, 158, 11, 0.2)",
+              }}
+            >
+              <Ionicons name="warning" size={20} color="#f59e0b" />
+              <View className="flex-1">
+                <Text className="text-amber-600 font-semibold text-sm mb-1">
+                  Team Progress Reset
+                </Text>
+                <Text className="text-amber-700 text-xs leading-4">
+                  Changing frequency will reset check-in status for all team
+                  members. Progress will be cleared to ensure fair
+                  collaboration.
+                </Text>
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* Action Buttons */}
+        <View
+          className="px-6 pb-8 pt-4"
+          style={{
+            paddingBottom: Platform.OS === "ios" ? 34 : 24,
+            borderTopWidth: 1,
+            borderTopColor: theme.colors.cardBorder,
+            backgroundColor: theme.colors.background[1],
+          }}
+        >
+          <View className="flex-row gap-4">
+            <TouchableOpacity
+              onPress={() => (ref as any)?.current?.dismiss()}
+              className="flex-1 rounded-2xl py-4 border"
+              style={{
+                backgroundColor: theme.colors.cardBackground,
+                borderColor: theme.colors.cardBorder,
+              }}
+            >
+              <Text
+                className="text-center font-semibold text-base"
+                style={{ color: theme.colors.text.secondary }}
+              >
+                Cancel
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleSave}
+              disabled={!canSave}
+              className="flex-1 rounded-2xl py-4"
+              style={{
+                backgroundColor: canSave
+                  ? theme.colors.primary
+                  : theme.colors.cardBorder,
+                opacity: canSave ? 1 : 0.6,
+              }}
+            >
+              {isSaving ? (
+                <View className="flex-row items-center justify-center gap-2">
+                  <ActivityIndicator size="small" color="white" />
+                  <Text className="text-white font-semibold text-base">
+                    Saving...
+                  </Text>
+                </View>
+              ) : (
+                <View className="flex-row items-center justify-center gap-2">
+                  <Ionicons name="checkmark" size={18} color="white" />
+                  <Text className="text-white font-semibold text-base">
+                    Save Changes
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+          <Text
+            className="text-center text-xs mt-3 opacity-70"
+            style={{ color: theme.colors.text.tertiary }}
+          >
+            Changes will sync with your teammates immediately
+          </Text>
+        </View>
+      </Animated.View>
+    </TandrumBottomSheet>
   );
 });
 
 HabitEditBottomSheet.displayName = "HabitEditBottomSheet";
-
 export default HabitEditBottomSheet;
