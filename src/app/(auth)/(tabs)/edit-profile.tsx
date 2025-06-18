@@ -27,6 +27,7 @@ import { createTheme } from "@/utils/theme";
 import { useNavigation } from "@react-navigation/native";
 import type { NavigationProp } from "@react-navigation/native";
 import type { RootStackParamList } from "@/types/navigation";
+import { treeImages } from "@/utils/treeImages";
 
 const { width } = Dimensions.get("window");
 const avatarSize = (width - 80) / 3 - 12;
@@ -340,7 +341,7 @@ export default function EditProfileScreen() {
                           avatarOptions.find((a) => a.id === selectedAvatar)
                             ?.source
                         }
-                        className="w-full h-full rounded-2xl"
+                        className="w-full h-full rounded-[17]"
                         resizeMode="cover"
                       />
                     </View>
