@@ -21,6 +21,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { BlurView } from "expo-blur";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
+import { AlertModal } from "@/components/AlertModal";
 
 const { width, height } = Dimensions.get("window");
 
@@ -74,10 +75,47 @@ export default function TutorialScreen() {
   const theme = createTheme(isDarkMode);
   const clerkId = user?.id;
 
-  // Animation refs
-  const dotAnimations = useRef(
-    tutorialPages.map(() => new Animated.Value(0))
-  ).current;
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message?: string;
+    buttons: any[];
+    icon?: any;
+    iconColor?: string;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    buttons: [],
+  });
+
+  const showAlert = (
+    title: string,
+    message: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>,
+    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
+    iconColor?: string
+  ) => {
+    setAlertModal({
+      visible: true,
+      title,
+      message,
+      buttons,
+      icon,
+      iconColor,
+    });
+  };
+
+  const closeAlert = () => {
+    setAlertModal((prev) => ({ ...prev, visible: false }));
+  };
+
+  // Animation refs - using single scroll position for smooth dot animations
+  const scrollX = useRef(new Animated.Value(0)).current;
   const fadeAnims = useRef(
     tutorialPages.map(() => new Animated.Value(0))
   ).current;
@@ -116,9 +154,6 @@ export default function TutorialScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-
-    // Animate first dot
-    animateDot(0);
   }, []);
 
   // Store convex user when available
@@ -153,17 +188,6 @@ export default function TutorialScreen() {
     }
   }, [showAuth]);
 
-  const animateDot = (index: number) => {
-    // Reset all dots
-    dotAnimations.forEach((anim, i) => {
-      Animated.timing(anim, {
-        toValue: i === index ? 1 : 0,
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
-    });
-  };
-
   const animatePageTransition = (pageIndex: number) => {
     // Fade out previous page
     if (currentPage !== pageIndex) {
@@ -196,8 +220,6 @@ export default function TutorialScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-
-    animateDot(pageIndex);
   };
 
   const handleNext = () => {
@@ -231,47 +253,81 @@ export default function TutorialScreen() {
       if (createdSessionId) {
         setActive!({ session: createdSessionId });
       }
-    } catch (error) {
+    } catch (error: any) {
       // Reset flags on error
       await AsyncStorage.removeItem("isFirstTime");
       await AsyncStorage.removeItem("tutorialCompleted");
       console.error("Login error:", error);
-      Alert.alert("Login failed", error.message);
+
+      showAlert(
+        "Login Failed",
+        error.message || "An error occurred during login. Please try again.",
+        [{ text: "OK", style: "default" }],
+        "alert-circle",
+        "#ef4444"
+      );
     }
   };
 
   const handleScroll = (event: any) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
     const page = Math.round(scrollPosition / width);
+
     if (page !== currentPage) {
       setCurrentPage(page);
       animatePageTransition(page);
     }
   };
 
-  const renderAnimatedDots = () => {
+  const renderSmoothAnimatedDots = () => {
     return (
       <View className="flex-row justify-center items-center mb-4 gap-2">
-        {tutorialPages.map((_, index) => (
-          <View key={index} className="relative">
-            <View
-              className="w-8 h-2 rounded-full overflow-hidden"
-              style={{ backgroundColor: theme.colors.cardBorder }}
-            >
-              <Animated.View
-                style={{
-                  width: dotAnimations[index].interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ["0%", "100%"],
-                  }),
-                  height: "100%",
-                  backgroundColor: theme.colors.primary,
-                  borderRadius: 4,
-                }}
-              />
-            </View>
-          </View>
-        ))}
+        {tutorialPages.map((_, index) => {
+          // Calculate the input range for each dot
+          const inputRange = [
+            (index - 1) * width,
+            index * width,
+            (index + 1) * width,
+          ];
+
+          // Smooth width animation based on scroll position
+          const dotWidth = scrollX.interpolate({
+            inputRange,
+            outputRange: [8, 32, 8], // inactive: 8px, active: 32px
+            extrapolate: "clamp",
+          });
+
+          // Smooth opacity animation
+          const opacity = scrollX.interpolate({
+            inputRange,
+            outputRange: [0.3, 1, 0.3], // inactive: 30%, active: 100%
+            extrapolate: "clamp",
+          });
+
+          // Smooth background color transition
+          const backgroundColor = scrollX.interpolate({
+            inputRange,
+            outputRange: [
+              theme.colors.text.tertiary,
+              theme.colors.primary,
+              theme.colors.text.tertiary,
+            ],
+            extrapolate: "clamp",
+          });
+
+          return (
+            <Animated.View
+              key={index}
+              style={{
+                width: dotWidth,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor,
+                opacity,
+              }}
+            />
+          );
+        })}
       </View>
     );
   };
@@ -530,7 +586,13 @@ export default function TutorialScreen() {
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
-          onScroll={handleScroll}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+            {
+              useNativeDriver: false,
+              listener: handleScroll,
+            }
+          )}
           scrollEventThrottle={16}
           className="flex-1"
         >
@@ -644,9 +706,9 @@ export default function TutorialScreen() {
           ))}
         </ScrollView>
 
-        {/* Enhanced Bottom section with animated dots and next button */}
+        {/* Enhanced Bottom section with smooth animated dots and next button */}
         <View className="pb-8 px-6">
-          {renderAnimatedDots()}
+          {renderSmoothAnimatedDots()}
 
           <TouchableOpacity
             className="rounded-3xl overflow-hidden"
@@ -691,6 +753,15 @@ export default function TutorialScreen() {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        buttons={alertModal.buttons}
+        icon={alertModal.icon}
+        iconColor={alertModal.iconColor}
+        onClose={() => setAlertModal((prev) => ({ ...prev, visible: false }))}
+      />
     </LinearGradient>
   );
 }
