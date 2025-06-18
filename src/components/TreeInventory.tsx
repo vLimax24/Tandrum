@@ -877,8 +877,13 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             ? {
                 type: selectedDecoration.decoration.itemId,
                 position: selectedDecoration.decoration.position,
-                buff: selectedDecoration.decoration.itemId.includes("Leaf")
-                  ? { xpMultiplier: 1.5 }
+                // Show buff if the item has buffs defined, regardless of item type
+                buff: itemsById[selectedDecoration.decoration.itemId]?.buffs
+                  ? {
+                      xpMultiplier:
+                        itemsById[selectedDecoration.decoration.itemId].buffs
+                          .xpMultiplier,
+                    }
                   : undefined,
               }
             : null
