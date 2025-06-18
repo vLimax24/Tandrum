@@ -513,7 +513,11 @@ export default function TreeSection() {
             >
               <View className="p-12 items-center">
                 <View className="w-20 h-20 rounded-3xl bg-primary/10 items-center justify-center mb-6">
-                  <Text className="text-4xl">🌱</Text>
+                  <Ionicons
+                    name="leaf"
+                    size={40}
+                    color={theme.colors.primaryLight}
+                  />
                 </View>
                 <Text
                   className="text-xl font-bold mb-3 text-center"
