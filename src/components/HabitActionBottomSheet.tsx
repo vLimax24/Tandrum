@@ -1,6 +1,6 @@
 // HabitActionBottomSheet.tsx
 import React, { forwardRef, useMemo } from "react";
-import { View, Text, TouchableOpacity, Dimensions } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import {
   BottomSheetModal,
   BottomSheetView,
@@ -9,8 +9,9 @@ import {
 } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-
-const { height } = Dimensions.get("window");
+import { BlurView } from "expo-blur";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
 
 interface HabitActionBottomSheetProps {
   onEdit: () => void;
@@ -21,30 +22,35 @@ const HabitActionBottomSheet = forwardRef<
   BottomSheetModal,
   HabitActionBottomSheetProps
 >(({ onEdit, onDelete }, ref) => {
-  const snapPoints = useMemo(() => ["45%"], []);
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
+  const snapPoints = useMemo(() => ["65%"], []);
 
-  // Custom backdrop component
+  // Custom backdrop component with glassmorphism
   const renderBackdrop = React.useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
         {...props}
         disappearsOnIndex={-1}
         appearsOnIndex={0}
-        opacity={0.3}
+        opacity={isDarkMode ? 0.4 : 0.2}
       />
     ),
-    []
+    [isDarkMode]
   );
 
   const handleEdit = () => {
+    // Call onEdit immediately while the bottom sheet is still open
     onEdit();
-    // Close the bottom sheet
-    (ref as React.RefObject<BottomSheetModal>)?.current?.dismiss();
+
+    // Then dismiss after a very short delay to ensure the edit sheet can open
+    setTimeout(() => {
+      (ref as React.RefObject<BottomSheetModal>)?.current?.dismiss();
+    }, 50);
   };
 
   const handleDelete = () => {
     onDelete();
-    // Close the bottom sheet
     (ref as React.RefObject<BottomSheetModal>)?.current?.dismiss();
   };
 
@@ -57,145 +63,200 @@ const HabitActionBottomSheet = forwardRef<
       enablePanDownToClose
       animateOnMount={true}
       handleIndicatorStyle={{
-        backgroundColor: "#e5e7eb",
-        width: 40,
+        backgroundColor: theme.colors.text.tertiary,
+        width: 48,
         height: 4,
+        borderRadius: 2,
       }}
       backgroundStyle={{
-        backgroundColor: "white",
+        backgroundColor: theme.colors.cardBackground,
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 16,
-        elevation: 16,
       }}
     >
-      <BottomSheetView className="flex-1 px-6 pb-8">
-        {/* Background Elements */}
-        <View className="absolute inset-0 overflow-hidden">
+      <BlurView
+        intensity={isDarkMode ? 25 : 15}
+        tint={isDarkMode ? "dark" : "light"}
+        className="flex-1 overflow-hidden"
+        style={{
+          backgroundColor: theme.colors.cardBackground,
+        }}
+      >
+        {/* Subtle decorative elements - positioned relative to entire bottom sheet */}
+        <View className="absolute inset-0 overflow-hidden" style={{ top: -24 }}>
           <View
-            className="absolute rounded-full"
+            className="absolute rounded-full opacity-10"
             style={{
-              width: 200,
-              height: 200,
-              backgroundColor: "rgba(87, 182, 134, 0.04)",
-              top: -100,
-              right: -100,
-            }}
-          />
-          <View
-            className="absolute rounded-full"
-            style={{
-              width: 150,
-              height: 150,
-              backgroundColor: "rgba(220, 38, 38, 0.03)",
-              bottom: -75,
-              left: -75,
+              width: 120,
+              height: 120,
+              backgroundColor: theme.colors.primaryLight,
+              bottom: -60,
+              left: -60,
             }}
           />
         </View>
 
-        {/* Header */}
-        <View className="items-center mb-8 mt-4">
-          <Text className="text-2xl font-bold text-gray-900 text-center mb-2 font-mainRegular">
-            Habit Actions
-          </Text>
-          <Text className="text-base text-gray-600 text-center font-mainRegular">
-            Choose what you'd like to do with this habit
-          </Text>
-        </View>
+        <BottomSheetView className="flex-1 px-6 py-8">
+          {/* Header Section */}
+          <View className="items-center mb-8">
+            <View
+              className="w-16 h-16 rounded-2xl items-center justify-center mb-4"
+              style={{ backgroundColor: theme.colors.glass }}
+            >
+              <Ionicons
+                name="options-outline"
+                size={28}
+                color={theme.colors.primary}
+              />
+            </View>
+            <Text
+              className="text-2xl font-bold text-center mb-2"
+              style={{ color: theme.colors.text.primary }}
+            >
+              Habit Actions
+            </Text>
+            <Text
+              className="text-base text-center max-w-xs"
+              style={{ color: theme.colors.text.secondary }}
+            >
+              Choose what you'd like to do with this habit
+            </Text>
+          </View>
 
-        {/* Action Buttons */}
-        <View className="flex-1 justify-center gap-4">
-          {/* Edit Button */}
-          <TouchableOpacity
-            onPress={handleEdit}
-            className="w-full"
-            activeOpacity={0.8}
-          >
-            <View className="relative overflow-hidden rounded-2xl">
-              <LinearGradient
-                colors={["#10b981", "#34d399"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+          {/* Action Buttons Container */}
+          <View className="flex-1 justify-center gap-4">
+            {/* Edit Button */}
+            <TouchableOpacity
+              onPress={handleEdit}
+              className="w-full"
+              activeOpacity={0.75}
+            >
+              <View
+                className="relative overflow-hidden rounded-2xl border"
                 style={{
-                  paddingVertical: 18,
-                  paddingHorizontal: 24,
-                  shadowColor: "#10b981",
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 12,
-                  elevation: 8,
+                  backgroundColor: theme.colors.glass,
+                  borderColor: theme.colors.cardBorder,
                 }}
               >
-                <View className="flex-row items-center justify-center">
-                  <View
-                    className="w-10 h-10 rounded-full items-center justify-center mr-4"
-                    style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
-                  >
-                    <Ionicons name="create-outline" size={22} color="white" />
+                <BlurView
+                  intensity={isDarkMode ? 15 : 10}
+                  tint={isDarkMode ? "dark" : "light"}
+                  className="absolute inset-0"
+                />
+                <LinearGradient
+                  colors={[
+                    `${theme.colors.primary}15`,
+                    `${theme.colors.primaryLight}10`,
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  className="p-5"
+                >
+                  <View className="flex-row items-center">
+                    <View
+                      className="w-12 h-12 rounded-xl items-center justify-center mr-4"
+                      style={{ backgroundColor: theme.colors.primary }}
+                    >
+                      <Ionicons name="create-outline" size={24} color="white" />
+                    </View>
+                    <View className="flex-1">
+                      <Text
+                        className="font-bold text-lg mb-1"
+                        style={{ color: theme.colors.text.primary }}
+                      >
+                        Edit Habit
+                      </Text>
+                      <Text
+                        className="text-sm"
+                        style={{ color: theme.colors.text.secondary }}
+                      >
+                        Modify your habit details and settings
+                      </Text>
+                    </View>
+                    <View
+                      className="w-8 h-8 rounded-full items-center justify-center"
+                      style={{ backgroundColor: theme.colors.glass }}
+                    >
+                      <Ionicons
+                        name="chevron-forward"
+                        size={18}
+                        color={theme.colors.text.tertiary}
+                      />
+                    </View>
                   </View>
-                  <View className="flex-1">
-                    <Text className="text-white font-bold text-lg font-mainRegular">
-                      Edit Habit
-                    </Text>
-                    <Text className="text-white/80 text-sm font-mainRegular">
-                      Modify your habit details
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={20} color="white" />
-                </View>
-              </LinearGradient>
-            </View>
-          </TouchableOpacity>
+                </LinearGradient>
+              </View>
+            </TouchableOpacity>
 
-          {/* Delete Button */}
-          <TouchableOpacity
-            onPress={handleDelete}
-            className="w-full"
-            activeOpacity={0.8}
-          >
-            <View className="relative overflow-hidden rounded-2xl">
-              <LinearGradient
-                colors={["#dc2626", "#ef4444"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+            {/* Delete Button */}
+            <TouchableOpacity
+              onPress={handleDelete}
+              className="w-full"
+              activeOpacity={0.75}
+            >
+              <View
+                className="relative overflow-hidden rounded-2xl border"
                 style={{
-                  paddingVertical: 18,
-                  paddingHorizontal: 24,
-                  shadowColor: "#dc2626",
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 12,
-                  elevation: 8,
+                  backgroundColor: theme.colors.glass,
+                  borderColor: theme.colors.cardBorder,
                 }}
               >
-                <View className="flex-row items-center justify-center">
-                  <View
-                    className="w-10 h-10 rounded-full items-center justify-center mr-4"
-                    style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
-                  >
-                    <Ionicons name="trash-outline" size={22} color="white" />
+                <BlurView
+                  intensity={isDarkMode ? 15 : 10}
+                  tint={isDarkMode ? "dark" : "light"}
+                  className="absolute inset-0"
+                />
+                <LinearGradient
+                  colors={["#dc262615", "#ef444410"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  className="p-5"
+                >
+                  <View className="flex-row items-center">
+                    <View
+                      className="w-12 h-12 rounded-xl items-center justify-center mr-4"
+                      style={{ backgroundColor: "#dc2626" }}
+                    >
+                      <Ionicons name="trash-outline" size={24} color="white" />
+                    </View>
+                    <View className="flex-1">
+                      <Text
+                        className="font-bold text-lg mb-1"
+                        style={{ color: theme.colors.text.primary }}
+                      >
+                        Delete Habit
+                      </Text>
+                      <Text
+                        className="text-sm"
+                        style={{ color: theme.colors.text.secondary }}
+                      >
+                        Remove this habit permanently
+                      </Text>
+                    </View>
+                    <View
+                      className="w-8 h-8 rounded-full items-center justify-center"
+                      style={{ backgroundColor: theme.colors.glass }}
+                    >
+                      <Ionicons
+                        name="chevron-forward"
+                        size={18}
+                        color={theme.colors.text.tertiary}
+                      />
+                    </View>
                   </View>
-                  <View className="flex-1">
-                    <Text className="text-white font-bold text-lg font-mainRegular">
-                      Delete Habit
-                    </Text>
-                    <Text className="text-white/80 text-sm font-mainRegular">
-                      Remove this habit permanently
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={20} color="white" />
-                </View>
-              </LinearGradient>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </BottomSheetView>
+                </LinearGradient>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          {/* Bottom spacing for safe area */}
+          <View className="h-4" />
+        </BottomSheetView>
+      </BlurView>
     </BottomSheetModal>
   );
 });
+
+HabitActionBottomSheet.displayName = "HabitActionBottomSheet";
 
 export default HabitActionBottomSheet;
