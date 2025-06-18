@@ -26,6 +26,7 @@ import { Id } from "convex/_generated/dataModel";
 import { TandrumBottomSheet } from "@/components/TandrumBottomSheet";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
+import { AlertModal } from "@/components/AlertModal";
 
 interface NewDuoModalProps {
   visible: boolean;
@@ -46,6 +47,19 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [searchUsername, setSearchUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message?: string;
+    buttons: any[];
+    icon?: any;
+    iconColor?: string;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    buttons: [],
+  });
 
   // Adjust snap points based on keyboard visibility
   const snapPoints = useMemo(() => {
@@ -79,6 +93,27 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
     };
   }, []);
 
+  const showAlert = (
+    title: string,
+    message: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>,
+    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
+    iconColor?: string
+  ) => {
+    setAlertModal({
+      visible: true,
+      title,
+      message,
+      buttons,
+      icon,
+      iconColor,
+    });
+  };
+
   // Handle visibility changes
   useEffect(() => {
     if (visible) {
@@ -106,9 +141,12 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
   ) => {
     // Prevent self-invite
     if (partnerId === userId) {
-      Alert.alert(
+      showAlert(
         "Oops! 😅",
-        "You can't invite yourself! Find a friend to be your accountability partner instead."
+        "You can't invite yourself! Find a friend to be your accountability partner instead.",
+        [{ text: "OK", style: "default" }],
+        "person",
+        "#f59e0b"
       );
       return;
     }
@@ -120,25 +158,31 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
         to: partnerId,
       });
 
-      Alert.alert(
+      showAlert(
         "Invite Sent! 🚀",
         `Your invite has been sent to ${partnerName}. Once they accept, you can start building habits together!`,
         [
           {
             text: "Great!",
+            style: "default",
             onPress: () => {
               setSearchUsername("");
               Keyboard.dismiss();
               onClose();
             },
           },
-        ]
+        ],
+        "checkmark-circle",
+        "#10b981"
       );
     } catch (error) {
       console.error("NewDuoModal: Error sending invite:", error);
-      Alert.alert(
+      showAlert(
         "Oops! 😅",
-        "Something went wrong while sending the invite. Please try again."
+        "Something went wrong while sending the invite. Please try again.",
+        [{ text: "OK", style: "default" }],
+        "alert-circle",
+        "#ef4444"
       );
     } finally {
       setIsLoading(false);
@@ -489,6 +533,15 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
           </View>
         </View>
       </KeyboardAvoidingView>
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        buttons={alertModal.buttons}
+        icon={alertModal.icon}
+        iconColor={alertModal.iconColor}
+        onClose={() => setAlertModal((prev) => ({ ...prev, visible: false }))}
+      />
     </TandrumBottomSheet>
   );
 };
