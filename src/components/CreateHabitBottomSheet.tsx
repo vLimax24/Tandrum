@@ -431,6 +431,16 @@ const CreateHabitBottomSheet = React.forwardRef<
                 onPress={handleCreateHabit}
                 disabled={!!validationError || !newTitle.trim() || isCreating}
                 className="flex-1 items-center justify-center py-4 rounded-2xl overflow-hidden"
+                style={{
+                  backgroundColor:
+                    !!validationError || !newTitle.trim() || isCreating
+                      ? theme.colors.primary
+                      : theme.colors.cardBorder,
+                  opacity:
+                    !!validationError || !newTitle.trim() || isCreating
+                      ? 1
+                      : 0.6,
+                }}
               >
                 <LinearGradient
                   colors={
