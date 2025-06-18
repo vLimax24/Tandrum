@@ -18,6 +18,7 @@ import { api } from "convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
 import { useMutation, useQuery } from "convex/react";
 import { avatarOptions } from "@/utils/avatarImages";
+import { AlertModal } from "@/components/AlertModal";
 
 const { width } = Dimensions.get("window");
 const avatarSize = (width - 60) / 3 - 10; // 3 columns with spacing
@@ -39,6 +40,20 @@ export default function AvatarScreen() {
     user ? { clerkId: user.id } : "skip"
   );
 
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message?: string;
+    buttons: any[];
+    icon?: any;
+    iconColor?: string;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    buttons: [],
+  });
+
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -53,6 +68,27 @@ export default function AvatarScreen() {
       }),
     ]).start();
   }, []);
+
+  const showAlert = (
+    title: string,
+    message: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>,
+    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
+    iconColor?: string
+  ) => {
+    setAlertModal({
+      visible: true,
+      title,
+      message,
+      buttons,
+      icon,
+      iconColor,
+    });
+  };
 
   const handleAvatarSelect = (avatarId: number) => {
     setSelectedAvatar(avatarId);
@@ -89,7 +125,13 @@ export default function AvatarScreen() {
       router.dismissAll();
       router.replace("/(auth)/(tabs)/home");
     } catch (error) {
-      Alert.alert("Error", "Failed to save avatar. Please try again.");
+      showAlert(
+        "Error",
+        "Failed to save avatar. Please try again.",
+        [{ text: "OK", style: "default" }],
+        "alert-circle",
+        "#ef4444"
+      );
       console.error("Avatar update error:", error);
     } finally {
       setIsLoading(false);
@@ -262,6 +304,15 @@ export default function AvatarScreen() {
           </TouchableOpacity>
         </View>
       </Animated.View>
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        buttons={alertModal.buttons}
+        icon={alertModal.icon}
+        iconColor={alertModal.iconColor}
+        onClose={() => setAlertModal((prev) => ({ ...prev, visible: false }))}
+      />
     </SafeAreaView>
   );
 }
