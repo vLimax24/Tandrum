@@ -17,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
+import { AlertModal } from "@/components/AlertModal";
 
 export default function UsernameScreen() {
   const [username, setUsername] = useState("");
@@ -29,6 +30,19 @@ export default function UsernameScreen() {
   const { user } = useUser();
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(30)).current;
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message?: string;
+    buttons: any[];
+    icon?: any;
+    iconColor?: string;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    buttons: [],
+  });
 
   const updateUser = useMutation(api.users.updateUserInfo);
 
@@ -42,6 +56,27 @@ export default function UsernameScreen() {
     api.users.getUserByUsername,
     shouldCheckUsername ? { username: debouncedUsername } : "skip"
   );
+
+  const showAlert = (
+    title: string,
+    message: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>,
+    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
+    iconColor?: string
+  ) => {
+    setAlertModal({
+      visible: true,
+      title,
+      message,
+      buttons,
+      icon,
+      iconColor,
+    });
+  };
 
   // Debounce username input
   useEffect(() => {
@@ -156,13 +191,18 @@ export default function UsernameScreen() {
 
       router.push("/(auth)/(onboarding)/avatar");
     } catch (error) {
-      Alert.alert("Error", "Failed to update username. Please try again.");
+      showAlert(
+        "Error",
+        "Failed to update username. Please try again.",
+        [{ text: "OK", style: "default" }],
+        "alert-circle",
+        "#ef4444"
+      );
       console.error("Username update error:", error);
     } finally {
       setIsLoading(false);
     }
   };
-
   const generateSuggestions = useCallback(() => {
     const baseNames = ["learner", "student", "explorer", "scholar", "genius"];
     const suggestions = baseNames.map(
@@ -394,6 +434,15 @@ export default function UsernameScreen() {
             </TouchableOpacity>
           </View>
         </Animated.View>
+        <AlertModal
+          visible={alertModal.visible}
+          title={alertModal.title}
+          message={alertModal.message}
+          buttons={alertModal.buttons}
+          icon={alertModal.icon}
+          iconColor={alertModal.iconColor}
+          onClose={() => setAlertModal((prev) => ({ ...prev, visible: false }))}
+        />
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
