@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { View, Text } from "react-native";
 import { BlurView } from "expo-blur";
 import { HabitItem } from "./HabitItem";
-import { AlertModal } from "@/components/AlertModal";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
+import { Ionicons } from "@expo/vector-icons";
 
 interface HabitsGridProps {
   habits: any[];
@@ -73,9 +73,11 @@ export const HabitsGrid: React.FC<HabitsGridProps> = ({
                 : "rgba(0, 153, 102, 0.1)",
             }}
           >
-            <Text className="text-2xl" style={{ color: theme.colors.primary }}>
-              {emptyStateIcon}
-            </Text>
+            <Ionicons
+              name={emptyStateIcon as any}
+              size={24}
+              color={theme.colors.primary}
+            />
           </View>
           <Text
             className="text-center text-base"

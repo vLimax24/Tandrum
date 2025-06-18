@@ -107,7 +107,7 @@ export function HabitsContainer({
           isSameDay={isSameDay}
           isSameWeek={isSameWeek}
           onMenuPress={onMenuPress}
-          emptyStateIcon="📅"
+          emptyStateIcon="calendar-number"
           emptyStateMessage="No daily habits yet. Create one to get started!"
           onShowAlert={showAlert}
         />
@@ -130,7 +130,7 @@ export function HabitsContainer({
           isSameDay={isSameDay}
           isSameWeek={isSameWeek}
           onMenuPress={onMenuPress}
-          emptyStateIcon="📊"
+          emptyStateIcon="calendar-number"
           emptyStateMessage="No weekly habits yet. Create one to get started!"
           onShowAlert={showAlert}
         />
