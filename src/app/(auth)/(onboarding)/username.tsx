@@ -18,6 +18,9 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
 import { AlertModal } from "@/components/AlertModal";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
+import { BlurView } from "expo-blur";
 
 export default function UsernameScreen() {
   const [username, setUsername] = useState("");
@@ -28,6 +31,9 @@ export default function UsernameScreen() {
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const router = useRouter();
   const { user } = useUser();
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
+
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(30)).current;
   const [alertModal, setAlertModal] = useState<{
@@ -203,6 +209,7 @@ export default function UsernameScreen() {
       setIsLoading(false);
     }
   };
+
   const generateSuggestions = useCallback(() => {
     const baseNames = ["learner", "student", "explorer", "scholar", "genius"];
     const suggestions = baseNames.map(
@@ -251,189 +258,345 @@ export default function UsernameScreen() {
       case "checking":
         return "#f59e0b";
       case "valid":
-        return "#10b981";
+        return theme.colors.primary;
       case "invalid":
         return "#ef4444";
       default:
-        return "#d1d5db";
+        return theme.colors.text.tertiary;
     }
   };
 
-  const getBorderColor = () => {
+  const getInputBorderColor = () => {
     const status = getInputStatus();
     switch (status) {
       case "checking":
-        return "border-yellow-400";
+        return "rgba(245, 158, 11, 0.4)";
       case "valid":
-        return "border-green-400";
+        return "rgba(0, 153, 102, 0.4)";
       case "invalid":
-        return "border-red-400";
+        return "rgba(239, 68, 68, 0.4)";
       default:
-        return "border-gray-200";
+        return theme.colors.cardBorder;
     }
   };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <SafeAreaView className="flex-1 bg-white">
-        <StatusBar style="dark" />
+      <View style={{ flex: 1, backgroundColor: theme.colors.background[0] }}>
+        <StatusBar style={isDarkMode ? "light" : "dark"} />
 
-        {/* Header */}
-        <View className="flex-row items-center justify-between px-6 py-4">
-          <TouchableOpacity
-            onPress={handleBackPress}
-            className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
-          >
-            <Ionicons name="arrow-back" size={20} color="#374151" />
-          </TouchableOpacity>
-          <Text className="text-sm text-gray-500 font-medium font-mainRegular">
-            Step 1 of 2
-          </Text>
-        </View>
-
-        {/* Progress Bar */}
-        <View className="px-6 mb-8">
-          <View className="w-full h-2 bg-gray-200 rounded-full">
-            <View className="w-1/2 h-2 bg-primary rounded-full" />
-          </View>
-        </View>
-
-        <Animated.View
+        {/* Background Gradient Overlay */}
+        <View
           style={{
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "50%",
           }}
-          className="flex-1 px-6"
-        >
-          {/* Title Section */}
-          <View className="mb-8">
-            <Text className="text-3xl font-bold text-gray-900 mb-3 font-mainRegular">
-              Choose Your Username
-            </Text>
-            <Text className="text-lg text-gray-600 leading-6 font-mainRegular">
-              This is how other learners will know you. Don't worry, you can
-              change it later.
-            </Text>
-          </View>
+          className="absolute top-0 left-0 right-0 h-1/2"
+        />
 
-          {/* Input Section */}
-          <View className="mb-6">
-            <View className="relative">
-              <TextInput
-                value={username}
-                onChangeText={setUsername}
-                placeholder="Enter your username"
-                className={`w-full p-4 text-lg border-2 rounded-2xl font-mainRegular bg-white ${getBorderColor()}`}
-                autoCapitalize="none"
-                autoCorrect={false}
-                maxLength={20}
+        <SafeAreaView className="flex-1">
+          {/* Header */}
+          <View className="flex-row items-center justify-between px-6 py-4 mb-2">
+            <TouchableOpacity
+              onPress={handleBackPress}
+              style={{
+                backgroundColor: theme.colors.cardBackground,
+                borderColor: theme.colors.cardBorder,
+                borderWidth: 1,
+              }}
+              className="w-12 h-12 items-center justify-center rounded-2xl"
+            >
+              <Ionicons
+                name="arrow-back"
+                size={22}
+                color={theme.colors.text.primary}
               />
-              {username.trim().length > 0 && (
-                <View className="absolute right-4 top-1/2 -translate-y-1/2">
-                  <Ionicons
-                    name={getStatusIcon()}
-                    size={24}
-                    color={getStatusColor()}
-                  />
-                </View>
-              )}
-            </View>
+            </TouchableOpacity>
 
-            {/* Status Messages */}
-            {isCheckingUsername ? (
-              <Text className="text-yellow-600 text-sm mt-2 ml-1 font-mainRegular">
-                Checking availability...
+            <BlurView
+              intensity={20}
+              tint={isDarkMode ? "dark" : "light"}
+              style={{
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                borderRadius: 20,
+                backgroundColor: theme.colors.glass,
+              }}
+            >
+              <Text
+                style={{ color: theme.colors.text.secondary }}
+                className="text-sm font-medium font-mainRegular"
+              >
+                Step 1 of 2
               </Text>
-            ) : errorMessage ? (
-              <Text className="text-red-500 text-sm mt-2 ml-1 font-mainRegular">
-                {errorMessage}
-              </Text>
-            ) : username.trim().length >= 3 && isValid ? (
-              <Text className="text-green-600 text-sm mt-2 ml-1 font-mainRegular">
-                Great! This username is available
-              </Text>
-            ) : null}
-
-            {/* Character Count */}
-            <Text className="text-gray-400 text-sm mt-2 ml-1 font-mainRegular">
-              {username.length}/20 characters
-            </Text>
+            </BlurView>
           </View>
 
-          {/* Suggestions */}
-          {username.trim().length === 0 && (
-            <View className="mb-8">
-              <Text className="text-gray-700 font-medium mb-3 font-mainRegular">
-                Need inspiration? Try these:
-              </Text>
-              <View className="flex-row flex-wrap gap-2">
-                {suggestions.map((suggestion, index) => (
-                  <TouchableOpacity
-                    key={`${suggestion}-${index}`}
-                    onPress={() => handleSuggestionPress(suggestion)}
-                    className="bg-gray-100 px-4 py-2 rounded-full border border-gray-200"
-                    activeOpacity={0.7}
+          {/* Progress Bar */}
+          <View className="px-6 mb-8">
+            <View
+              style={{ backgroundColor: theme.colors.cardBorder }}
+              className="w-full h-2 rounded-full overflow-hidden"
+            >
+              <View
+                style={{ backgroundColor: theme.colors.primary }}
+                className="w-1/2 h-2 rounded-full"
+              />
+            </View>
+          </View>
+
+          <Animated.View
+            style={{
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            }}
+            className="flex-1 px-6"
+          >
+            {/* Title Section */}
+            <View className="mb-10">
+              <View className="flex-row items-center gap-3 mb-4">
+                <View
+                  style={{ backgroundColor: theme.colors.primary }}
+                  className="w-12 h-12 rounded-2xl items-center justify-center"
+                >
+                  <Ionicons name="person" size={24} color="white" />
+                </View>
+                <View className="flex-1">
+                  <Text
+                    style={{ color: theme.colors.text.primary }}
+                    className="text-2xl font-bold font-mainRegular"
                   >
-                    <Text className="text-gray-700 font-mainRegular">
-                      {suggestion}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                    Choose Your Username
+                  </Text>
+                </View>
               </View>
             </View>
-          )}
 
-          <View className="flex-1 justify-end pb-6">
-            <TouchableOpacity
-              style={[
-                {
-                  paddingVertical: 16,
+            {/* Input Card */}
+            <BlurView
+              intensity={20}
+              tint={isDarkMode ? "dark" : "light"}
+              style={{
+                backgroundColor: theme.colors.cardBackground,
+                borderColor: getInputBorderColor(),
+                borderWidth: 1,
+                borderRadius: 24,
+                marginBottom: 24,
+                overflow: "hidden",
+              }}
+            >
+              <View className="p-6">
+                <View className="relative">
+                  <TextInput
+                    value={username}
+                    onChangeText={setUsername}
+                    placeholder="Enter your username"
+                    placeholderTextColor={theme.colors.text.tertiary}
+                    style={{
+                      color: theme.colors.text.primary,
+                      fontSize: 18,
+                      paddingVertical: 16,
+                      paddingHorizontal: 20,
+                      paddingRight: username.trim().length > 0 ? 60 : 20,
+                      borderRadius: 16,
+                      backgroundColor: isDarkMode
+                        ? "rgba(0, 0, 0, 0.2)"
+                        : "rgba(255, 255, 255, 0.5)",
+                      borderWidth: 1,
+                      borderColor: theme.colors.cardBorder,
+                    }}
+                    className="font-mainRegular"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    maxLength={20}
+                  />
+                  {username.trim().length > 0 && (
+                    <View className="absolute right-4 top-1/2 -translate-y-1/2">
+                      <Ionicons
+                        name={getStatusIcon()}
+                        size={24}
+                        color={getStatusColor()}
+                      />
+                    </View>
+                  )}
+                </View>
+
+                {/* Status Messages */}
+                <View className="mt-4 min-h-6">
+                  {isCheckingUsername ? (
+                    <View className="flex-row items-center gap-2">
+                      <Ionicons name="refresh" size={16} color="#f59e0b" />
+                      <Text
+                        style={{ color: "#f59e0b" }}
+                        className="text-sm font-mainRegular"
+                      >
+                        Checking availability...
+                      </Text>
+                    </View>
+                  ) : errorMessage ? (
+                    <View className="flex-row items-center gap-2">
+                      <Ionicons name="alert-circle" size={16} color="#ef4444" />
+                      <Text
+                        style={{ color: "#ef4444" }}
+                        className="text-sm font-mainRegular"
+                      >
+                        {errorMessage}
+                      </Text>
+                    </View>
+                  ) : username.trim().length >= 3 && isValid ? (
+                    <View className="flex-row items-center gap-2">
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={16}
+                        color={theme.colors.primary}
+                      />
+                      <Text
+                        style={{ color: theme.colors.primary }}
+                        className="text-sm font-mainRegular"
+                      >
+                        Perfect! This username is available
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+
+                {/* Character Count */}
+                <View className="flex-row justify-between items-center mt-2">
+                  <Text
+                    style={{ color: theme.colors.text.tertiary }}
+                    className="text-sm font-mainRegular"
+                  >
+                    {username.length}/20 characters
+                  </Text>
+                  {username.length >= 18 && (
+                    <View className="flex-row items-center gap-1">
+                      <Ionicons name="warning" size={14} color="#f59e0b" />
+                      <Text
+                        style={{ color: "#f59e0b" }}
+                        className="text-xs font-mainRegular"
+                      >
+                        Almost at limit
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </BlurView>
+
+            {/* Suggestions */}
+            {username.trim().length === 0 && (
+              <BlurView
+                intensity={15}
+                tint={isDarkMode ? "dark" : "light"}
+                style={{
+                  backgroundColor: theme.colors.cardBackground,
+                  borderColor: theme.colors.cardBorder,
+                  borderWidth: 1,
+                  borderRadius: 20,
+                  marginBottom: 32,
+                  overflow: "hidden",
+                }}
+              >
+                <View className="p-6">
+                  <View className="flex-row items-center gap-2 mb-4">
+                    <Ionicons
+                      name="bulb"
+                      size={20}
+                      color={theme.colors.primary}
+                    />
+                    <Text
+                      style={{ color: theme.colors.text.primary }}
+                      className="font-semibold font-mainRegular"
+                    >
+                      Need inspiration?
+                    </Text>
+                  </View>
+                  <View className="flex-row flex-wrap gap-3">
+                    {suggestions.map((suggestion, index) => (
+                      <TouchableOpacity
+                        key={`${suggestion}-${index}`}
+                        onPress={() => handleSuggestionPress(suggestion)}
+                        style={{
+                          backgroundColor: isDarkMode
+                            ? "rgba(0, 153, 102, 0.1)"
+                            : "rgba(0, 153, 102, 0.05)",
+                          borderColor: theme.colors.primary + "40",
+                          borderWidth: 1,
+                        }}
+                        className="px-4 py-3 rounded-full"
+                        activeOpacity={0.7}
+                      >
+                        <Text
+                          style={{ color: theme.colors.primary }}
+                          className="font-medium font-mainRegular"
+                        >
+                          {suggestion}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              </BlurView>
+            )}
+
+            <View className="flex-1 justify-end pb-6">
+              <TouchableOpacity
+                style={{
+                  paddingVertical: 18,
                   paddingHorizontal: 32,
                   alignItems: "center",
-                  borderRadius: 16,
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 8,
-                  elevation: 5,
-                },
-                isValid && !isLoading && !isCheckingUsername
-                  ? { backgroundColor: "#57b686" }
-                  : { backgroundColor: "#e5e7eb" },
-              ]}
-              activeOpacity={0.8}
-              onPress={handleContinue}
-              disabled={!isValid || isLoading || isCheckingUsername}
-            >
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text
-                  style={[
-                    { fontWeight: "600", fontSize: 18 },
+                  borderRadius: 20,
+                  backgroundColor:
                     isValid && !isLoading && !isCheckingUsername
-                      ? { color: "white" }
-                      : { color: "#9ca3af" },
-                  ]}
-                  className="font-mainRegular"
+                      ? theme.colors.primary
+                      : theme.colors.cardBorder,
+                  ...(isValid &&
+                    !isLoading &&
+                    !isCheckingUsername && {
+                      borderWidth: 1,
+                      borderColor: theme.colors.primary + "40",
+                    }),
+                }}
+                activeOpacity={0.8}
+                onPress={handleContinue}
+                disabled={!isValid || isLoading || isCheckingUsername}
+              >
+                <View
+                  style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
                 >
-                  {isLoading
-                    ? "Saving..."
-                    : isCheckingUsername
-                      ? "Checking..."
-                      : "Continue"}
-                </Text>
-                {!isLoading && !isCheckingUsername && (
-                  <View style={{ marginLeft: 8 }}>
+                  <Text
+                    style={{
+                      fontWeight: "600",
+                      fontSize: 18,
+                      color:
+                        isValid && !isLoading && !isCheckingUsername
+                          ? "white"
+                          : theme.colors.text.tertiary,
+                    }}
+                    className="font-mainRegular"
+                  >
+                    {isLoading
+                      ? "Saving..."
+                      : isCheckingUsername
+                        ? "Checking..."
+                        : "Continue Your Journey"}
+                  </Text>
+                  {!isLoading && !isCheckingUsername && (
                     <Ionicons
                       name="arrow-forward"
                       size={20}
-                      color={isValid ? "white" : "#9ca3af"}
+                      color={isValid ? "white" : theme.colors.text.tertiary}
                     />
-                  </View>
-                )}
-              </View>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
+                  )}
+                </View>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </SafeAreaView>
+
         <AlertModal
           visible={alertModal.visible}
           title={alertModal.title}
@@ -443,7 +606,7 @@ export default function UsernameScreen() {
           iconColor={alertModal.iconColor}
           onClose={() => setAlertModal((prev) => ({ ...prev, visible: false }))}
         />
-      </SafeAreaView>
+      </View>
     </TouchableWithoutFeedback>
   );
 }
