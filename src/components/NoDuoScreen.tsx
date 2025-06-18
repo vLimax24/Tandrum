@@ -1,11 +1,15 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 import { NewDuoModal } from "@/components/NewDuoModal";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
 import { treeImages } from "@/utils/treeImages";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
+import { Ionicons } from "@expo/vector-icons";
 
 interface NoDuoScreenProps {
   modalVisible: boolean;
@@ -17,6 +21,9 @@ export const NoDuoScreen: React.FC<NoDuoScreenProps> = ({
   setModalVisible,
 }) => {
   const { user } = useUser();
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
+
   const clerkId = user?.id;
   const convexUser = useQuery(
     api.users.getUserByClerkId,
@@ -33,134 +40,147 @@ export const NoDuoScreen: React.FC<NoDuoScreenProps> = ({
 
   return (
     <LinearGradient
-      colors={["#f8fafc", "#dbeafe"]}
+      colors={theme.colors.background}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={{ flex: 1 }}
+      className="flex-1"
     >
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          paddingHorizontal: 32,
-        }}
-      >
-        {/* Main illustration */}
-        <View
+      <View className="flex-1 justify-center items-center px-8">
+        {/* Floating glass card container */}
+        <BlurView
+          intensity={isDarkMode ? 60 : 80}
+          tint={isDarkMode ? "dark" : "light"}
+          className="rounded-3xl overflow-hidden w-full max-w-sm"
           style={{
-            width: 120,
-            height: 120,
-            backgroundColor: "rgba(16, 185, 129, 0.1)",
-            borderRadius: 60,
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: 32,
+            backgroundColor: theme.colors.glass,
+            borderColor: theme.colors.cardBorder,
+            borderWidth: 1,
           }}
         >
-          <Image
-            source={treeImages.leaf}
-            style={{
-              width: 60,
-              height: 60,
-              tintColor: "#10b981",
-            }}
-            resizeMode="contain"
-          />
-        </View>
-
-        {/* Title */}
-        <Text
-          style={{
-            fontSize: 28,
-            fontWeight: "bold",
-            color: "#111827",
-            textAlign: "center",
-            marginBottom: 16,
-          }}
-          className=" font-mainRegular"
-        >
-          Start Your Journey
-        </Text>
-
-        {/* Description */}
-        <Text
-          style={{
-            fontSize: 16,
-            color: "#6b7280",
-            textAlign: "center",
-            lineHeight: 24,
-            marginBottom: 48,
-            paddingHorizontal: 16,
-          }}
-          className=" font-mainRegular"
-        >
-          Create your first duo partnership to begin building habits together
-          and watch your shared tree grow! 🌱
-        </Text>
-
-        {/* CTA Button */}
-        <TouchableOpacity
-          onPress={handleStartPartnership}
-          activeOpacity={0.8}
-          style={{
-            overflow: "hidden",
-            borderRadius: 16,
-            shadowColor: "#10b981",
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: 0.3,
-            shadowRadius: 12,
-            elevation: 12,
-            width: "100%",
-            maxWidth: 280,
-          }}
-        >
-          <LinearGradient
-            colors={["#10b981", "#059669"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={{
-              paddingVertical: 18,
-              paddingHorizontal: 32,
-              alignItems: "center",
-              justifyContent: "center",
-              flexDirection: "row",
-            }}
-          >
-            <View
-              style={{
-                width: 24,
-                height: 24,
-                backgroundColor: "rgba(255, 255, 255, 0.2)",
-                borderRadius: 12,
-                alignItems: "center",
-                justifyContent: "center",
-                marginRight: 12,
-              }}
-            >
-              <Text
+          <View className="p-8 items-center">
+            {/* Icon container with glassmorphism */}
+            <View className="relative mb-8">
+              <BlurView
+                intensity={40}
+                tint={isDarkMode ? "dark" : "light"}
+                className="w-24 h-24 rounded-full items-center justify-center"
                 style={{
-                  color: "white",
-                  fontSize: 16,
-                  fontWeight: "bold",
+                  backgroundColor: isDarkMode
+                    ? "rgba(0, 153, 102, 0.15)"
+                    : "rgba(0, 153, 102, 0.1)",
                 }}
-                className=" font-mainRegular"
               >
-                +
+                <View
+                  className="w-16 h-16 rounded-full items-center justify-center"
+                  style={{
+                    backgroundColor: isDarkMode
+                      ? "rgba(0, 153, 102, 0.25)"
+                      : "rgba(0, 153, 102, 0.15)",
+                  }}
+                >
+                  <Image
+                    source={treeImages.leaf}
+                    className="w-8 h-8"
+                    style={{
+                      tintColor: theme.colors.primary,
+                    }}
+                    resizeMode="contain"
+                  />
+                </View>
+              </BlurView>
+
+              {/* Subtle glow effect */}
+              <View
+                className="absolute inset-0 w-24 h-24 rounded-full opacity-20"
+                style={{
+                  backgroundColor: theme.colors.primary,
+                  transform: [{ scale: 1.1 }],
+                }}
+              />
+            </View>
+
+            {/* Content */}
+            <View className="items-center gap-4 mb-8">
+              <Text
+                className="text-3xl font-bold text-center font-mainRegular"
+                style={{ color: theme.colors.text.primary }}
+              >
+                Begin Together
+              </Text>
+
+              <Text
+                className="text-base text-center leading-6 font-mainRegular"
+                style={{ color: theme.colors.text.secondary }}
+              >
+                Create your first partnership and start building habits that
+                matter. Watch your shared journey flourish! 🌱
               </Text>
             </View>
-            <Text
-              style={{
-                color: "white",
-                fontSize: 18,
-                fontWeight: "bold",
-              }}
-              className=" font-mainRegular"
+
+            {/* CTA Button with glassmorphism */}
+            <TouchableOpacity
+              onPress={handleStartPartnership}
+              activeOpacity={0.8}
+              className="overflow-hidden rounded-2xl"
             >
-              Start First Partnership
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
+              <LinearGradient
+                colors={[theme.colors.primary, theme.colors.primaryLight]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                className="py-5 px-8 items-center justify-center flex-row"
+              >
+                <View className="w-6 h-6 bg-white/20 rounded-xl items-center justify-center mr-3">
+                  <Ionicons name="add" size={16} color="white" />
+                </View>
+                <Text
+                  className="text-white text-lg font-bold"
+                  style={{
+                    fontFamily: "font-mainRegular",
+                  }}
+                >
+                  Start New Partnership
+                </Text>
+                <Ionicons
+                  name="arrow-forward"
+                  size={20}
+                  color="white"
+                  className="ml-3"
+                />
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </BlurView>
+
+        {/* Secondary content - floating below */}
+        <View className="mt-8 px-4">
+          <BlurView
+            intensity={40}
+            tint={isDarkMode ? "dark" : "light"}
+            className="rounded-2xl px-6 py-4"
+            style={{
+              backgroundColor: theme.colors.glass,
+              borderColor: theme.colors.cardBorder,
+              borderWidth: 1,
+            }}
+          >
+            <View className="flex-row items-center justify-center gap-2">
+              <View
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: theme.colors.primary }}
+              />
+              <Text
+                className="text-sm font-medium font-mainRegular"
+                style={{ color: theme.colors.text.tertiary }}
+              >
+                Building habits is better together
+              </Text>
+              <View
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: theme.colors.primary }}
+              />
+            </View>
+          </BlurView>
+        </View>
 
         {/* Modal */}
         {convexUser && (
