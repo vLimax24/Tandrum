@@ -353,6 +353,7 @@ async function addItemToInventory(
 }
 
 // Helper function for enhanced streak calculation
+// Helper function for enhanced streak calculation
 async function updateDuoStreak(
   ctx: any,
   duoId: Id<"duoConnections">,
@@ -388,26 +389,25 @@ async function updateDuoStreak(
     const lastB = habit.last_checkin_at_userB ?? 0;
 
     // Check today's completions
-    const aCompletedToday =
-      lastA > 0 &&
-      new Date(lastA).toISOString().split("T")[0] === todayDateString;
-    const bCompletedToday =
-      lastB > 0 &&
-      new Date(lastB).toISOString().split("T")[0] === todayDateString;
+    if (lastA > 0) {
+      const aDate = new Date(lastA).toISOString().split("T")[0];
+      if (aDate === todayDateString) {
+        userACompletedToday = true;
+      }
+      if (aDate === yesterdayDateString) {
+        userACompletedYesterday = true;
+      }
+    }
 
-    if (aCompletedToday) userACompletedToday = true;
-    if (bCompletedToday) userBCompletedToday = true;
-
-    // Check yesterday's completions
-    const aCompletedYesterday =
-      lastA > 0 &&
-      new Date(lastA).toISOString().split("T")[0] === yesterdayDateString;
-    const bCompletedYesterday =
-      lastB > 0 &&
-      new Date(lastB).toISOString().split("T")[0] === yesterdayDateString;
-
-    if (aCompletedYesterday) userACompletedYesterday = true;
-    if (bCompletedYesterday) userBCompletedYesterday = true;
+    if (lastB > 0) {
+      const bDate = new Date(lastB).toISOString().split("T")[0];
+      if (bDate === todayDateString) {
+        userBCompletedToday = true;
+      }
+      if (bDate === yesterdayDateString) {
+        userBCompletedYesterday = true;
+      }
+    }
   }
 
   // Both users completed at least one habit today and yesterday
@@ -417,47 +417,77 @@ async function updateDuoStreak(
 
   // Calculate new streak value
   let newStreak = duo.streak || 0;
-  let newStreakDate = duo.streakDate || now;
+  let newStreakDate = duo.streakDate || 0;
 
   // Get the current streak date to check if we've already incremented today
-  const currentStreakDate = new Date(duo.streakDate || 0);
+  const currentStreakDate = new Date(newStreakDate);
   const currentStreakDateString = currentStreakDate.toISOString().split("T")[0];
   const alreadyIncrementedToday = currentStreakDateString === todayDateString;
 
-  if (bothCompletedToday && !alreadyIncrementedToday) {
+  console.log("Streak Debug:", {
+    bothCompletedToday,
+    bothCompletedYesterday,
+    alreadyIncrementedToday,
+    currentStreak: newStreak,
+    todayDateString,
+    currentStreakDateString,
+    userACompletedToday,
+    userBCompletedToday,
+  });
+
+  if (bothCompletedToday) {
     if (newStreak === 0) {
-      // Starting a new streak
+      // Starting a new streak - always set to 1 regardless of date
       newStreak = 1;
       newStreakDate = now;
-    } else if (bothCompletedYesterday) {
-      // Continue existing streak - only increment once per day
-      newStreak += 1;
-      newStreakDate = now;
+      console.log("Starting new streak");
+    } else if (!alreadyIncrementedToday) {
+      // Only increment if we haven't already incremented today
+      // Check if there's a gap between yesterday and today
+      const lastStreakDate = new Date(duo.streakDate || 0);
+      const lastStreakDateString = lastStreakDate.toISOString().split("T")[0];
+
+      // If the last streak was yesterday or today, continue the streak
+      if (
+        lastStreakDateString === yesterdayDateString ||
+        bothCompletedYesterday
+      ) {
+        newStreak += 1;
+        newStreakDate = now;
+        console.log("Continuing streak, new value:", newStreak);
+      } else {
+        // Gap detected, restart streak
+        newStreak = 1;
+        newStreakDate = now;
+        console.log("Gap detected, restarting streak");
+      }
     } else {
-      // Gap in streak, start over
-      newStreak = 1;
-      newStreakDate = now;
+      console.log("Already incremented today, no change needed");
     }
   } else if (!bothCompletedToday) {
-    // Check if streak should be broken
-    const daysSinceLastStreak = Math.floor(
-      (now - (duo.streakDate || 0)) / oneDayMs
-    );
+    // Check if streak should be broken (more than 1 day has passed)
+    const daysSinceLastStreak = Math.floor((now - newStreakDate) / oneDayMs);
 
-    // Break streak if more than 1 day has passed without both users completing
     if (daysSinceLastStreak > 1) {
+      console.log("Breaking streak due to gap:", daysSinceLastStreak, "days");
       newStreak = 0;
       newStreakDate = now;
     }
   }
 
   // Only update if there's actually a change
-  if (newStreak !== duo.streak || newStreakDate !== duo.streakDate) {
+  if (
+    newStreak !== duo.streak ||
+    Math.abs(newStreakDate - (duo.streakDate || 0)) > 1000
+  ) {
+    console.log("Updating streak from", duo.streak, "to", newStreak);
     await ctx.db.patch(duoId, {
       streak: newStreak,
       streakDate: newStreakDate,
       lastUpdated: now,
     });
+  } else {
+    console.log("No streak update needed");
   }
 }
 
