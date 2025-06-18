@@ -69,4 +69,16 @@ export const treeImages: Record<string, any> = {
   "tree-2": require("@/assets/tree-2.png"),
   "tree-3": require("@/assets/tree-3.png"),
   "tree-4": require("@/assets/tree-4.png"),
+
+  // avatars
+
+  "avatar-1": require("@/assets/avatars/avatar-1.png"),
+  "avatar-2": require("@/assets/avatars/avatar-2.png"),
+  "avatar-3": require("@/assets/avatars/avatar-3.png"),
+  "avatar-4": require("@/assets/avatars/avatar-4.png"),
+  "avatar-5": require("@/assets/avatars/avatar-5.png"),
+  "avatar-6": require("@/assets/avatars/avatar-6.png"),
+  "avatar-7": require("@/assets/avatars/avatar-7.png"),
+  "avatar-8": require("@/assets/avatars/avatar-8.png"),
+  "avatar-9": require("@/assets/avatars/avatar-9.png"),
 };
