@@ -1,7 +1,8 @@
-import React from "react";
-import { View, Text, Alert } from "react-native";
+import React, { useState } from "react";
+import { View, Text } from "react-native";
 import { BlurView } from "expo-blur";
 import { HabitItem } from "./HabitItem";
+import { AlertModal } from "@/components/AlertModal";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
 
@@ -22,6 +23,17 @@ interface HabitsGridProps {
   onMenuPress: (event: any, habit: any) => void;
   emptyStateIcon: string;
   emptyStateMessage: string;
+  onShowAlert: (
+    title: string,
+    message: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>,
+    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
+    iconColor?: string
+  ) => void;
 }
 
 export const HabitsGrid: React.FC<HabitsGridProps> = ({
@@ -34,6 +46,7 @@ export const HabitsGrid: React.FC<HabitsGridProps> = ({
   onMenuPress,
   emptyStateIcon,
   emptyStateMessage,
+  onShowAlert,
 }) => {
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
@@ -100,9 +113,12 @@ export const HabitsGrid: React.FC<HabitsGridProps> = ({
                 } catch (error) {
                   console.error("Check-in error:", error);
                   setTimeout(() => {
-                    Alert.alert(
+                    onShowAlert(
                       "Error",
-                      "Failed to update habit. Please try again."
+                      "Failed to update habit. Please try again.",
+                      [{ text: "OK", style: "default" }],
+                      "alert-circle",
+                      "#ef4444"
                     );
                   }, 100);
                 }
