@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  Alert,
   Animated,
   Dimensions,
   TextInput,
@@ -27,7 +26,7 @@ import { createTheme } from "@/utils/theme";
 import { useNavigation } from "@react-navigation/native";
 import type { NavigationProp } from "@react-navigation/native";
 import type { RootStackParamList } from "@/types/navigation";
-import { treeImages } from "@/utils/treeImages";
+import { AlertModal } from "@/components/AlertModal";
 
 const { width } = Dimensions.get("window");
 const avatarSize = (width - 80) / 3 - 12;
@@ -45,6 +44,19 @@ export default function EditProfileScreen() {
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [usernameError, setUsernameError] = useState("");
   const [isUsernameValid, setIsUsernameValid] = useState(true);
+  const [alertConfig, setAlertConfig] = useState<{
+    visible: boolean;
+    title: string;
+    message?: string;
+    buttons: any[];
+    icon?: any;
+    iconColor?: string;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    buttons: [],
+  });
 
   // Track original values to detect changes
   const [originalUsername, setOriginalUsername] = useState("");
@@ -185,14 +197,35 @@ export default function EditProfileScreen() {
         bio: bio.trim(),
       });
 
-      Alert.alert("Success", "Your profile has been updated successfully!", [
-        {
-          text: "OK",
-          onPress: () => navigation.navigate("Tabs", { screen: "profile" }),
-        },
-      ]);
+      setAlertConfig({
+        visible: true,
+        title: "Success",
+        message: "Your profile has been updated successfully!",
+        icon: "checkmark-circle",
+        iconColor: theme.colors.primary,
+        buttons: [
+          {
+            text: "OK",
+            onPress: () => navigation.navigate("Tabs", { screen: "profile" }),
+            style: "default",
+          },
+        ],
+      });
     } catch (error) {
-      Alert.alert("Error", "Failed to update profile. Please try again.");
+      // Updated to use custom AlertModal instead of native Alert
+      setAlertConfig({
+        visible: true,
+        title: "Error",
+        message: "Failed to update profile. Please try again.",
+        icon: "alert-circle",
+        iconColor: "#ef4444",
+        buttons: [
+          {
+            text: "OK",
+            style: "default",
+          },
+        ],
+      });
       console.error("Profile update error:", error);
     } finally {
       setIsLoading(false);
@@ -715,6 +748,17 @@ export default function EditProfileScreen() {
           </View>
         </Animated.ScrollView>
       </LinearGradient>
+
+      {/* Custom Alert Modal */}
+      <AlertModal
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        icon={alertConfig.icon}
+        iconColor={alertConfig.iconColor}
+        onClose={() => setAlertConfig((prev) => ({ ...prev, visible: false }))}
+      />
     </View>
   );
 }
