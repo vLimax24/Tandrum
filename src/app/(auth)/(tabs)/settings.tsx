@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Switch,
-  Alert,
   Share,
   Linking,
 } from "react-native";
@@ -25,6 +24,7 @@ import { createTheme } from "@/utils/theme";
 import { useNavigation } from "@react-navigation/native";
 import type { NavigationProp } from "@react-navigation/native";
 import type { RootStackParamList } from "@/types/navigation";
+import { AlertModal } from "@/components/AlertModal";
 
 export default function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -45,10 +45,50 @@ export default function SettingsScreen() {
   const { signOut } = useAuth();
   const deleteAccountMutation = useMutation(api.users.deleteAccount);
 
+  // Alert modal state
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message?: string;
+    buttons: any[];
+    icon?: any;
+    iconColor?: string;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    buttons: [],
+  });
+
   // Load settings from AsyncStorage
   useEffect(() => {
     loadSettings();
   }, []);
+
+  const showAlert = (
+    title: string,
+    message: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>,
+    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
+    iconColor?: string
+  ) => {
+    setAlertModal({
+      visible: true,
+      title,
+      message,
+      buttons,
+      icon,
+      iconColor,
+    });
+  };
+
+  const closeAlert = () => {
+    setAlertModal((prev) => ({ ...prev, visible: false }));
+  };
 
   const loadSettings = async () => {
     try {
@@ -151,7 +191,7 @@ export default function SettingsScreen() {
   };
 
   const handleRateApp = () => {
-    Alert.alert(
+    showAlert(
       "Love Tandrum? 💚",
       "Your review helps us grow our community of habit builders!",
       [
@@ -162,12 +202,14 @@ export default function SettingsScreen() {
             Linking.openURL("https://apps.apple.com/app/tandrum");
           },
         },
-      ]
+      ],
+      "star",
+      "#F59E0B"
     );
   };
 
   const handleContactSupport = () => {
-    Alert.alert(
+    showAlert(
       "We're Here to Help! 🤝",
       "How would you like to reach our support team?",
       [
@@ -179,12 +221,17 @@ export default function SettingsScreen() {
         {
           text: "Live Chat 💬",
           onPress: () =>
-            Alert.alert(
+            showAlert(
               "Coming Soon!",
-              "Live chat will be available in the next update! 🚀"
+              "Live chat will be available in the next update! 🚀",
+              [{ text: "OK", style: "default" }],
+              "chatbubble-ellipses",
+              "#10B981"
             ),
         },
-      ]
+      ],
+      "help-circle",
+      "#10B981"
     );
   };
 
@@ -197,7 +244,7 @@ export default function SettingsScreen() {
   };
 
   const handleDataExport = () => {
-    Alert.alert(
+    showAlert(
       "Export Your Journey 📊",
       "We'll prepare your habit data and progress history. You'll receive it within 24 hours!",
       [
@@ -205,17 +252,22 @@ export default function SettingsScreen() {
         {
           text: "Request Export 📤",
           onPress: () =>
-            Alert.alert(
+            showAlert(
               "Export Requested! ✅",
-              "Your data export is being prepared. Check your email within 24 hours."
+              "Your data export is being prepared. Check your email within 24 hours.",
+              [{ text: "OK", style: "default" }],
+              "checkmark-circle",
+              "#10B981"
             ),
         },
-      ]
+      ],
+      "download",
+      "#059669"
     );
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert(
+    showAlert(
       "Delete Account? 😢",
       "We're sorry to see you go! This will permanently remove your account and all progress data. This action cannot be undone.",
       [
@@ -224,9 +276,9 @@ export default function SettingsScreen() {
           text: "Delete Forever",
           style: "destructive",
           onPress: () => {
-            Alert.alert(
+            showAlert(
               "Final Confirmation ⚠️",
-              "This will permanently delete your account, habits, and all progress data. Type 'DELETE' to confirm this action.",
+              "This will permanently delete your account, habits, and all progress data. Are you absolutely sure?",
               [
                 { text: "Cancel", style: "cancel" },
                 {
@@ -234,11 +286,15 @@ export default function SettingsScreen() {
                   style: "destructive",
                   onPress: confirmDeleteAccount,
                 },
-              ]
+              ],
+              "warning",
+              "#EF4444"
             );
           },
         },
-      ]
+      ],
+      "trash",
+      "#EF4444"
     );
   };
 
@@ -246,9 +302,12 @@ export default function SettingsScreen() {
     if (!user) return;
 
     try {
-      Alert.alert(
+      showAlert(
         "Deleting Account...",
-        "Please wait while we process your request..."
+        "Please wait while we process your request...",
+        [],
+        "hourglass",
+        "#6B7280"
       );
 
       await AsyncStorage.multiRemove([
@@ -264,7 +323,7 @@ export default function SettingsScreen() {
       await AsyncStorage.setItem("isFirstTime", "true");
       await AsyncStorage.setItem("tutorialCompleted", "false");
 
-      Alert.alert(
+      showAlert(
         "Account Deleted ✅",
         "Your account has been successfully deleted. Thank you for being part of our community.",
         [
@@ -274,14 +333,18 @@ export default function SettingsScreen() {
               router.replace("/(auth)/(tutorial)/");
             },
           },
-        ]
+        ],
+        "checkmark-circle",
+        "#10B981"
       );
     } catch (error) {
       console.error("Error deleting account:", error);
-      Alert.alert(
+      showAlert(
         "Oops! Something went wrong 😕",
         "We couldn't delete your account right now. Please try again or contact our support team.",
-        [{ text: "OK" }]
+        [{ text: "OK" }],
+        "alert-circle",
+        "#EF4444"
       );
     }
   };
@@ -709,6 +772,17 @@ export default function SettingsScreen() {
           </ScrollView>
         </SafeAreaView>
       </LinearGradient>
+
+      {/* Custom Alert Modal */}
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        buttons={alertModal.buttons}
+        icon={alertModal.icon}
+        iconColor={alertModal.iconColor}
+        onClose={closeAlert}
+      />
     </View>
   );
 }
