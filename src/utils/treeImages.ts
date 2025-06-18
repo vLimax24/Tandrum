@@ -57,8 +57,6 @@ export const treeImages: Record<string, any> = {
   quantumLeaf: require("@/assets/leaves/quantum_leaf.png"),
 
   // other
-
-  orange: require("@/assets/orange.png"),
   leaf: require("@/assets/hemp-leaf.png"),
   calendar: require("@/assets/calendar.png"),
 
@@ -81,4 +79,35 @@ export const treeImages: Record<string, any> = {
   "avatar-7": require("@/assets/avatars/avatar-7.png"),
   "avatar-8": require("@/assets/avatars/avatar-8.png"),
   "avatar-9": require("@/assets/avatars/avatar-9.png"),
+
+  // fruits
+
+  goldenKiwiBerry: require("@/assets/fruits/golden_kiwi_berry.png"),
+  miracleBerry: require("@/assets/fruits/miracle_berry.png"),
+  apple: require("@/assets/fruits/apple.png"),
+  orange: require("@/assets/fruits/orange.png"),
+  pear: require("@/assets/fruits/pear.png"),
+  pineapple: require("@/assets/fruits/pineapple.png"),
+  blackSapote: require("@/assets/fruits/black_sapote.png"),
+  whiteStrawberry: require("@/assets/fruits/white_strawberry.png"),
+  horned_melon: require("@/assets/fruits/horned_melon.png"),
+  durian: require("@/assets/fruits/durian.png"),
+  rambutan: require("@/assets/fruits/rambutan.png"),
+  lychee: require("@/assets/fruits/lychee.png"),
+  starFruit: require("@/assets/fruits/star_fruit.png"),
+  passionFruit: require("@/assets/fruits/passion_fruit.png"),
+  dragonFruit: require("@/assets/fruits/dragon_fruit.png"),
+  coconut: require("@/assets/fruits/coconut.png"),
+  papaya: require("@/assets/fruits/papaya.png"),
+  avocado: require("@/assets/fruits/avocado.png"),
+  pomegranate: require("@/assets/fruits/pomegranate.png"),
+  mango: require("@/assets/fruits/mango.png"),
+  kiwi: require("@/assets/fruits/kiwi.png"),
+  melon: require("@/assets/fruits/melon.png"),
+  grape: require("@/assets/fruits/grape.png"),
+  peach: require("@/assets/fruits/peach.png"),
+  strawberry: require("@/assets/fruits/strawberry.png"),
+  banana: require("@/assets/fruits/banana.png"),
+  pineBerry: require("@/assets/fruits/pineberry.png"),
+  yubariKingMelon: require("@/assets/fruits/yubari_king_melon.png"),
 };
