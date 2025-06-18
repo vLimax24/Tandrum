@@ -125,9 +125,20 @@ export default function HabitsSection() {
   };
 
   const handleBottomSheetEdit = () => {
-    const habit = habits?.find((h) => h._id === activeMenuHabitId);
+    if (!activeMenuHabitId || !habits) {
+      console.log("Missing activeMenuHabitId or habits");
+      return;
+    }
+
+    const habit = habits.find((h) => h._id === activeMenuHabitId);
+
     if (habit) {
-      handleEditHabit(habit);
+      setEditingHabit(habit);
+      setTimeout(() => {
+        editBottomSheetRef.current?.present();
+      }, 100);
+    } else {
+      console.log("Habit not found with id:", activeMenuHabitId);
     }
   };
 
