@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, ScrollView, Alert } from "react-native";
+import { View, ScrollView } from "react-native";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
@@ -18,6 +18,7 @@ import LoadingState from "@/components/LoadingState";
 import { CreateHabitButton } from "@/components/CreateHabitButton";
 import { HabitsContainer } from "@/components/HabitsContainer";
 import { RewardAnimation } from "@/components/RewardAnimation";
+import { AlertModal } from "@/components/AlertModal";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { NoDuoScreen } from "@/components/NoDuoScreen";
 import { useTheme } from "@/contexts/themeContext";
@@ -43,6 +44,21 @@ export default function HabitsSection() {
 
   const editBottomSheetRef = useRef<BottomSheetModal>(null);
   const [editingHabit, setEditingHabit] = useState<any>(null);
+
+  // Alert modal state
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message?: string;
+    buttons: any[];
+    icon?: any;
+    iconColor?: string;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    buttons: [],
+  });
 
   const handleEditHabit = (habit: any) => {
     setEditingHabit(habit);
@@ -90,6 +106,31 @@ export default function HabitsSection() {
     return () => clearInterval(id);
   }, []);
 
+  const showAlert = (
+    title: string,
+    message: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>,
+    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
+    iconColor?: string
+  ) => {
+    setAlertModal({
+      visible: true,
+      title,
+      message,
+      buttons,
+      icon,
+      iconColor,
+    });
+  };
+
+  const closeAlert = () => {
+    setAlertModal((prev) => ({ ...prev, visible: false }));
+  };
+
   const handleMenuPress = (event: any, habit: any) => {
     // Set the active habit and present the bottom sheet
     setActiveMenuHabitId(habit._id);
@@ -101,7 +142,7 @@ export default function HabitsSection() {
   };
 
   const handleDeleteHabit = (habitId: Id<"duoHabits">, habitTitle: string) => {
-    Alert.alert(
+    showAlert(
       "Delete Habit",
       `Are you sure you want to delete "${habitTitle}"? This action cannot be undone.`,
       [
@@ -116,11 +157,19 @@ export default function HabitsSection() {
             try {
               await deleteHabit({ habitId });
             } catch (error) {
-              Alert.alert("Error", "Failed to delete habit. Please try again.");
+              showAlert(
+                "Error",
+                "Failed to delete habit. Please try again.",
+                [{ text: "OK", style: "default" }],
+                "alert-circle",
+                "#ef4444"
+              );
             }
           },
         },
-      ]
+      ],
+      "trash",
+      "#ef4444"
     );
   };
 
@@ -145,7 +194,11 @@ export default function HabitsSection() {
   const handleBottomSheetDelete = () => {
     const habit = habits?.find((h) => h._id === activeMenuHabitId);
     if (habit) {
-      handleDeleteHabit(habit._id, habit.title);
+      // Dismiss the bottom sheet first, then show the alert
+      bottomSheetModalRef.current?.dismiss();
+      setTimeout(() => {
+        handleDeleteHabit(habit._id, habit.title);
+      }, 300); // Small delay to ensure bottom sheet is fully dismissed
     }
   };
 
@@ -186,7 +239,13 @@ export default function HabitsSection() {
     } catch (error) {
       console.error("Check-in error:", error);
       setTimeout(() => {
-        Alert.alert("Error", "Failed to update habit. Please try again.");
+        showAlert(
+          "Error",
+          "Failed to update habit. Please try again.",
+          [{ text: "OK", style: "default" }],
+          "alert-circle",
+          "#ef4444"
+        );
       }, 100);
     }
   };
@@ -296,6 +355,17 @@ export default function HabitsSection() {
         visible={showRewardAnimation}
         rewards={currentRewards}
         onComplete={handleRewardAnimationComplete}
+      />
+
+      {/* Custom Alert Modal */}
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        buttons={alertModal.buttons}
+        icon={alertModal.icon}
+        iconColor={alertModal.iconColor}
+        onClose={() => setAlertModal((prev) => ({ ...prev, visible: false }))}
       />
     </BottomSheetModalProvider>
   );
