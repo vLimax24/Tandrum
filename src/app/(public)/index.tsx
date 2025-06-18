@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, View, Image, TouchableOpacity, Alert } from "react-native";
 import { useSSO, useUser } from "@clerk/clerk-expo";
 import { StatusBar } from "expo-status-bar";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AlertModal } from "@/components/AlertModal";
 
 export default function AuthPage() {
   const { startSSOFlow } = useSSO();
@@ -15,6 +16,46 @@ export default function AuthPage() {
     api.users.getUserByClerkId,
     clerkId ? { clerkId } : "skip"
   );
+
+  const [alertModal, setAlertModal] = useState<{
+    visible: boolean;
+    title: string;
+    message?: string;
+    buttons: any[];
+    icon?: any;
+    iconColor?: string;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    buttons: [],
+  });
+
+  // Add helper functions for alert modal (add these before handleGoogleLogin)
+  const showAlert = (
+    title: string,
+    message: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }> = [{ text: "OK", style: "default" }],
+    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
+    iconColor?: string
+  ) => {
+    setAlertModal({
+      visible: true,
+      title,
+      message,
+      buttons,
+      icon,
+      iconColor,
+    });
+  };
+
+  const closeAlert = () => {
+    setAlertModal((prev) => ({ ...prev, visible: false }));
+  };
 
   useEffect(() => {
     const storeConvexUser = async () => {
@@ -41,9 +82,12 @@ export default function AuthPage() {
         await AsyncStorage.setItem("tutorialCompleted", "true");
       }
     } catch (error) {
-      Alert.alert(
+      showAlert(
         "Login failed",
-        error.message || "An error occurred during login"
+        error.message || "An error occurred during login",
+        [{ text: "OK", style: "default" }],
+        "alert-circle",
+        "#ef4444"
       );
     }
   };
@@ -75,6 +119,15 @@ export default function AuthPage() {
           </Text>
         </TouchableOpacity>
       </View>
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        buttons={alertModal.buttons}
+        icon={alertModal.icon}
+        iconColor={alertModal.iconColor}
+        onClose={closeAlert}
+      />
     </View>
   );
 }
