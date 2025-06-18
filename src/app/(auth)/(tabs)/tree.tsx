@@ -271,10 +271,18 @@ export default function TreeSection() {
             }}
           >
             <View className="p-4 items-center">
-              <View className="w-12 h-12 rounded-2xl bg-green-100 items-center justify-center mb-3">
-                <Image
-                  source={treeImages["leaf"]}
-                  style={{ width: 20, height: 20, tintColor: "#22c55e" }}
+              <View
+                className="w-12 h-12 rounded-2xl items-center justify-center mb-3"
+                style={{
+                  backgroundColor: `${theme.colors.primary}15`,
+                  borderWidth: 1,
+                  borderColor: `${theme.colors.primary}30`,
+                }}
+              >
+                <Ionicons
+                  size={20}
+                  name="leaf"
+                  color={theme.colors.primaryLight}
                 />
               </View>
               <Text
@@ -303,10 +311,18 @@ export default function TreeSection() {
             }}
           >
             <View className="p-4 items-center">
-              <View className="w-12 h-12 rounded-2xl bg-orange-100 items-center justify-center mb-3">
-                <Image
-                  source={treeImages["orange"]}
-                  style={{ width: 24, height: 24 }}
+              <View
+                className="w-12 h-12 rounded-2xl items-center justify-center mb-3"
+                style={{
+                  backgroundColor: `${theme.colors.primary}15`,
+                  borderWidth: 1,
+                  borderColor: `${theme.colors.primary}30`,
+                }}
+              >
+                <Ionicons
+                  size={20}
+                  name="egg"
+                  color={theme.colors.primaryLight}
                 />
               </View>
               <Text
@@ -320,38 +336,6 @@ export default function TreeSection() {
                 style={{ color: theme.colors.text.secondary }}
               >
                 Fruits
-              </Text>
-            </View>
-          </BlurView>
-
-          <BlurView
-            intensity={20}
-            tint={isDarkMode ? "dark" : "light"}
-            className="flex-1 rounded-2xl overflow-hidden"
-            style={{
-              backgroundColor: theme.colors.cardBackground,
-              borderColor: theme.colors.cardBorder,
-              borderWidth: 1,
-            }}
-          >
-            <View className="p-4 items-center">
-              <View className="w-12 h-12 rounded-2xl bg-purple-100 items-center justify-center mb-3">
-                <Image
-                  source={treeImages["sprout"]}
-                  style={{ width: 20, height: 20, tintColor: "#8b5cf6" }}
-                />
-              </View>
-              <Text
-                className="text-2xl font-bold mb-1"
-                style={{ color: theme.colors.text.primary }}
-              >
-                {treeData.decay}
-              </Text>
-              <Text
-                className="text-sm font-medium"
-                style={{ color: theme.colors.text.secondary }}
-              >
-                Decay
               </Text>
             </View>
           </BlurView>
