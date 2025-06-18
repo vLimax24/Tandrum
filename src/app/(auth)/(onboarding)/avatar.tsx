@@ -14,24 +14,32 @@ import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { BlurView } from "expo-blur";
 import { api } from "convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
 import { useMutation, useQuery } from "convex/react";
 import { avatarOptions } from "@/utils/avatarImages";
 import { AlertModal } from "@/components/AlertModal";
+import { useTheme } from "@/contexts/themeContext";
+import { createTheme } from "@/utils/theme";
 
-const { width } = Dimensions.get("window");
-const avatarSize = (width - 60) / 3 - 10; // 3 columns with spacing
+const { width, height } = Dimensions.get("window");
+const avatarSize = (width - 80) / 3 - 12; // 3 columns with better spacing
 
 export default function AvatarScreen() {
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { user } = useUser();
+  const { isDarkMode } = useTheme();
+  const theme = createTheme(isDarkMode);
+
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const slideAnim = React.useRef(new Animated.Value(30)).current;
+  const slideAnim = React.useRef(new Animated.Value(50)).current;
+  const headerAnim = React.useRef(new Animated.Value(-50)).current;
+  const progressAnim = React.useRef(new Animated.Value(0)).current;
   const scaleAnims = React.useRef(
-    avatarOptions.map(() => new Animated.Value(1))
+    avatarOptions.map(() => new Animated.Value(0.8))
   ).current;
 
   const updateUser = useMutation(api.users.completeOnboarding);
@@ -55,17 +63,43 @@ export default function AvatarScreen() {
   });
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 600,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 600,
-        useNativeDriver: true,
-      }),
+    // Staggered animations for better UX
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(headerAnim, {
+          toValue: 0,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(progressAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+      ]),
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.stagger(
+        80,
+        scaleAnims.map((anim) =>
+          Animated.spring(anim, {
+            toValue: 1,
+            useNativeDriver: true,
+            tension: 120,
+            friction: 8,
+          })
+        )
+      ),
     ]).start();
   }, []);
 
@@ -93,13 +127,13 @@ export default function AvatarScreen() {
   const handleAvatarSelect = (avatarId: number) => {
     setSelectedAvatar(avatarId);
 
-    // Animate the selected avatar
+    // Animate the selected avatar with more refined animation
     scaleAnims.forEach((anim, index) => {
       Animated.spring(anim, {
-        toValue: avatarOptions[index].id === avatarId ? 1.1 : 1,
+        toValue: avatarOptions[index].id === avatarId ? 1.08 : 1,
         useNativeDriver: true,
-        tension: 100,
-        friction: 7,
+        tension: 150,
+        friction: 8,
       }).start();
     });
   };
@@ -109,19 +143,16 @@ export default function AvatarScreen() {
 
     setIsLoading(true);
     try {
-      // Get the current user data to preserve the username
       const currentUserQuery = getUserData;
       const currentUsername =
         currentUserQuery?.name || user.firstName || "User";
 
-      // Update user with selected avatar, preserving the username
       await updateUser({
         clerkId: user.id,
-        name: currentUsername, // Use the existing username instead of user.firstName
+        name: currentUsername,
         profileImage: `avatar_${selectedAvatar}`,
       });
 
-      // Navigate directly - onboarding completion is now handled server-side
       router.dismissAll();
       router.replace("/(auth)/(tabs)/home");
     } catch (error) {
@@ -139,171 +170,311 @@ export default function AvatarScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <StatusBar style="dark" />
+    <View style={{ flex: 1, backgroundColor: theme.colors.background[0] }}>
+      <StatusBar style={isDarkMode ? "light" : "dark"} />
 
-      {/* Header */}
-      <View className="flex-row items-center justify-between px-6 py-4">
-        <TouchableOpacity
-          onPress={() => router.back()}
-          className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
+      {/* Background Gradient */}
+      <View className="absolute inset-0" />
+
+      <SafeAreaView className="flex-1">
+        {/* Header */}
+        <Animated.View
+          style={{
+            transform: [{ translateY: headerAnim }],
+          }}
+          className="flex-row items-center justify-between px-6 py-4 mb-2"
         >
-          <Ionicons name="arrow-back" size={20} color="#374151" />
-        </TouchableOpacity>
-        <Text className="text-sm text-gray-500 font-medium font-mainRegular">
-          Step 2 of 2
-        </Text>
-      </View>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="w-12 h-12 items-center justify-center rounded-2xl"
+            style={{ backgroundColor: theme.colors.cardBackground }}
+          >
+            <BlurView
+              intensity={20}
+              tint={isDarkMode ? "dark" : "light"}
+              className="absolute inset-0 rounded-2xl"
+            />
+            <Ionicons
+              name="arrow-back"
+              size={22}
+              color={theme.colors.text.primary}
+            />
+          </TouchableOpacity>
 
-      {/* Progress Bar */}
-      <View className="px-6 mb-8">
-        <View className="w-full h-2 bg-gray-200 rounded-full">
-          <View className="w-full h-2 bg-primary rounded-full" />
-        </View>
-      </View>
-
-      <Animated.View
-        style={{
-          opacity: fadeAnim,
-          transform: [{ translateY: slideAnim }],
-        }}
-        className="flex-1 px-6"
-      >
-        {/* Title Section */}
-        <View className="mb-8">
-          <Text className="text-3xl font-bold text-gray-900 mb-3 font-mainRegular">
-            Pick Your Avatar
-          </Text>
-          <Text className="text-lg text-gray-600 leading-6 font-mainRegular">
-            Choose an avatar that represents you. This will be visible to your
-            learning partners.
-          </Text>
-        </View>
-
-        {/* Selected Avatar Preview */}
-        {selectedAvatar && (
-          <View className="items-center mb-8">
-            <View className="w-24 h-24 rounded-full border-4 border-primary p-1 mb-3">
-              <Image
-                source={
-                  avatarOptions.find((a) => a.id === selectedAvatar)?.source
-                }
-                className="w-full h-full rounded-full"
-                resizeMode="cover"
-              />
-            </View>
-            <Text className="text-lg font-semibold text-gray-800 font-mainRegular">
-              {avatarOptions.find((a) => a.id === selectedAvatar)?.name} Avatar
+          <BlurView
+            intensity={20}
+            tint={isDarkMode ? "dark" : "light"}
+            style={{
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              borderRadius: 20,
+              backgroundColor: theme.colors.glass,
+            }}
+          >
+            <Text
+              style={{ color: theme.colors.text.secondary }}
+              className="text-sm font-medium font-mainRegular"
+            >
+              Step 1 of 2
             </Text>
-          </View>
-        )}
+          </BlurView>
+        </Animated.View>
 
-        {/* Avatar Grid */}
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 120 }}
-          className="px-5 pt-10"
+        {/* Progress Bar with Glass Effect */}
+        <View className="px-6 mb-8">
+          <View
+            className="w-full h-3 rounded-full overflow-hidden"
+            style={{ backgroundColor: theme.colors.cardBorder }}
+          >
+            <Animated.View
+              className="h-full rounded-full"
+              style={{
+                backgroundColor: theme.colors.primary,
+                width: progressAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ["0%", "100%"],
+                }),
+              }}
+            />
+          </View>
+        </View>
+
+        <Animated.View
+          style={{
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          }}
+          className="flex-1 px-6"
         >
-          <View className="flex-row flex-wrap justify-between">
-            {avatarOptions.map((avatar, index) => (
-              <Animated.View
-                key={avatar.id}
-                style={{
-                  transform: [{ scale: scaleAnims[index] }],
-                }}
-                className="mb-4"
+          {/* Title Section with Glass Card */}
+          <View
+            className="mb-8 p-6 rounded-3xl"
+            style={{ backgroundColor: theme.colors.cardBackground }}
+          >
+            <BlurView
+              intensity={20}
+              tint={isDarkMode ? "dark" : "light"}
+              className="absolute inset-0 rounded-3xl"
+            />
+            <View className="flex-row items-center gap-3 mb-4">
+              <View
+                className="w-12 h-12 rounded-2xl items-center justify-center"
+                style={{ backgroundColor: `${theme.colors.primary}20` }}
               >
-                <TouchableOpacity
-                  onPress={() => handleAvatarSelect(avatar.id)}
-                  style={[
-                    {
-                      borderRadius: 16,
-                      overflow: "hidden",
-                      width: avatarSize,
-                      height: avatarSize,
-                    },
-                    selectedAvatar === avatar.id
-                      ? {
-                          borderWidth: 2,
-                          borderColor: "#57b686",
-                        }
-                      : {
-                          borderWidth: 2,
-                          borderColor: "#e5e7eb",
-                        },
-                  ]}
-                  activeOpacity={0.8}
+                <Ionicons
+                  name="person-circle"
+                  size={24}
+                  color={theme.colors.primary}
+                />
+              </View>
+              <View className="flex-1">
+                <Text
+                  className="text-2xl font-bold mb-1"
+                  style={{ color: theme.colors.text.primary }}
+                >
+                  Pick Your Avatar
+                </Text>
+                <Text
+                  className="text-base leading-5"
+                  style={{ color: theme.colors.text.secondary }}
+                >
+                  Choose one that represents you in your habit journey
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Selected Avatar Preview */}
+          {selectedAvatar && (
+            <Animated.View
+              className="items-center mb-8"
+              style={{
+                opacity: fadeAnim,
+                transform: [{ scale: fadeAnim }],
+              }}
+            >
+              <View
+                className="p-1 rounded-3xl mb-4"
+                style={{ backgroundColor: theme.colors.primary }}
+              >
+                <View
+                  className="w-20 h-20 overflow-hidden"
+                  style={{ borderRadius: 18 }}
                 >
                   <Image
-                    source={avatar.source}
-                    style={{ width: "100%", height: "100%" }}
+                    source={
+                      avatarOptions.find((a) => a.id === selectedAvatar)?.source
+                    }
+                    className="w-full h-full"
                     resizeMode="cover"
                   />
-
-                  {/* Selection Indicator */}
-                  {selectedAvatar === avatar.id && (
-                    <View
-                      style={{
-                        position: "absolute",
-                        top: 8,
-                        right: 8,
-                        width: 24,
-                        height: 24,
-                        backgroundColor: "#57b686",
-                        borderRadius: 12,
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Ionicons name="checkmark" size={16} color="white" />
-                    </View>
-                  )}
-                </TouchableOpacity>
-
-                {/* Avatar Name */}
-                <Text className="text-center text-sm text-gray-600 mt-2 font-mainRegular">
-                  {avatar.name}
+                </View>
+              </View>
+              <View
+                className="px-4 py-2 rounded-full"
+                style={{ backgroundColor: theme.colors.cardBackground }}
+              >
+                <BlurView
+                  intensity={15}
+                  tint={isDarkMode ? "dark" : "light"}
+                  className="absolute inset-0 rounded-full"
+                />
+                <Text
+                  className="text-sm font-semibold"
+                  style={{ color: theme.colors.text.primary }}
+                >
+                  {avatarOptions.find((a) => a.id === selectedAvatar)?.name}
                 </Text>
-              </Animated.View>
-            ))}
-          </View>
-        </ScrollView>
+              </View>
+            </Animated.View>
+          )}
 
-        {/* Finish Button */}
-        <View className="absolute bottom-6 left-6 right-6">
+          {/* Avatar Grid */}
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 140 }}
+            className="flex-1"
+          >
+            <View className="flex-row flex-wrap justify-between gap-2">
+              {avatarOptions.map((avatar, index) => (
+                <Animated.View
+                  key={avatar.id}
+                  style={{
+                    transform: [{ scale: scaleAnims[index] }],
+                    width: avatarSize,
+                    padding: 4,
+                  }}
+                  className=""
+                >
+                  <TouchableOpacity
+                    onPress={() => handleAvatarSelect(avatar.id)}
+                    className="rounded-3xl overflow-hidden"
+                    style={{
+                      height: avatarSize - 8,
+                      backgroundColor: theme.colors.cardBackground,
+                      borderWidth: selectedAvatar === avatar.id ? 2 : 1,
+                      borderColor:
+                        selectedAvatar === avatar.id
+                          ? theme.colors.primary
+                          : theme.colors.cardBorder,
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <BlurView
+                      intensity={10}
+                      tint={isDarkMode ? "dark" : "light"}
+                      className="absolute inset-0"
+                    />
+
+                    <View className="p-2 flex-1">
+                      <View className="flex-1 rounded-2xl overflow-hidden">
+                        <Image
+                          source={avatar.source}
+                          className="w-full h-full"
+                          resizeMode="cover"
+                        />
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+
+                  {/* Avatar Name */}
+                  <Text
+                    className="text-center text-xs mt-2 font-medium"
+                    style={{ color: theme.colors.text.tertiary }}
+                  >
+                    {avatar.name}
+                  </Text>
+                </Animated.View>
+              ))}
+            </View>
+          </ScrollView>
+        </Animated.View>
+
+        {/* Finish Button with Glassmorphism */}
+        <View className="px-6 pb-6">
           <TouchableOpacity
+            className="rounded-2xl overflow-hidden"
             style={{
-              paddingVertical: 16,
-              paddingHorizontal: 32,
-              alignItems: "center",
-              borderRadius: 16,
-              backgroundColor: "#57b686",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 8,
-              elevation: 5,
+              backgroundColor:
+                selectedAvatar && !isLoading
+                  ? theme.colors.primary
+                  : theme.colors.cardBackground,
+              opacity: selectedAvatar && !isLoading ? 1 : 0.6,
             }}
             activeOpacity={0.8}
             onPress={handleFinish}
             disabled={!selectedAvatar || isLoading}
           >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text
-                style={{ fontWeight: "600", fontSize: 18, color: "white" }}
-                className="font-mainRegular"
-              >
-                {isLoading ? "Setting up..." : "Complete Setup"}
-              </Text>
-              {!isLoading && selectedAvatar && (
-                <View style={{ marginLeft: 8 }}>
-                  <Ionicons name="checkmark-circle" size={20} color="white" />
+            {(!selectedAvatar || isLoading) && (
+              <BlurView
+                intensity={20}
+                tint={isDarkMode ? "dark" : "light"}
+                className="absolute inset-0"
+              />
+            )}
+
+            <View className="flex-row items-center justify-center py-4 px-6">
+              {isLoading ? (
+                <View className="flex-row items-center gap-3">
+                  <Animated.View
+                    style={{
+                      transform: [
+                        {
+                          rotate: fadeAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: ["0deg", "360deg"],
+                          }),
+                        },
+                      ],
+                    }}
+                  >
+                    <Ionicons
+                      name="sync"
+                      size={20}
+                      color={theme.colors.text.primary}
+                    />
+                  </Animated.View>
+                  <Text
+                    className="text-lg font-semibold"
+                    style={{ color: theme.colors.text.primary }}
+                  >
+                    Setting up your profile...
+                  </Text>
+                </View>
+              ) : (
+                <View className="flex-row items-center gap-3">
+                  <Text
+                    className="text-lg font-semibold"
+                    style={{
+                      color: selectedAvatar
+                        ? "white"
+                        : theme.colors.text.primary,
+                    }}
+                  >
+                    Complete Setup
+                  </Text>
+                  {selectedAvatar && (
+                    <Ionicons
+                      name="arrow-forward-circle"
+                      size={22}
+                      color="white"
+                    />
+                  )}
                 </View>
               )}
             </View>
           </TouchableOpacity>
+
+          {/* Motivational Text */}
+          <Text
+            className="text-center text-sm mt-4 leading-5"
+            style={{ color: theme.colors.text.tertiary }}
+          >
+            Your avatar will represent you in team challenges and habit tracking
+          </Text>
         </View>
-      </Animated.View>
+      </SafeAreaView>
+
       <AlertModal
         visible={alertModal.visible}
         title={alertModal.title}
@@ -313,6 +484,6 @@ export default function AvatarScreen() {
         iconColor={alertModal.iconColor}
         onClose={() => setAlertModal((prev) => ({ ...prev, visible: false }))}
       />
-    </SafeAreaView>
+    </View>
   );
 }
