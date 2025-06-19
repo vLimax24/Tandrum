@@ -170,11 +170,6 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       return treeImages[item.imageAsset];
     }
 
-    // Legacy mapping for backwards compatibility
-    if (item.imageAsset === "orange.png") return treeImages.orange;
-    if (item.imageAsset === "hemp-leaf.png") return treeImages.leaf;
-    if (item.imageAsset === "golden-leaf.png") return treeImages.goldenLeaf;
-
     // Category-based fallback
     if (item.category === "fruit") return treeImages.orange;
     if (item.category === "leaf") return treeImages.leaf;
