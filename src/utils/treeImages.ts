@@ -56,10 +56,6 @@ export const treeImages: Record<string, any> = {
   timeWarpLeaf: require("@/assets/leaves/timewarp_leaf.png"),
   quantumLeaf: require("@/assets/leaves/quantum_leaf.png"),
 
-  // other
-  leaf: require("@/assets/hemp-leaf.png"),
-  calendar: require("@/assets/calendar.png"),
-
   // trees
 
   "tree-1": require("@/assets/tree-1.png"),
