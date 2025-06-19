@@ -146,10 +146,6 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   const updateTreeDecorations = useMutation(api.trees.updateTreeDecorations);
   const removeTreeDecoration = useMutation(api.trees.removeTreeDecoration);
 
-  const screenWidth = Dimensions.get('window').width;
-  const treeSize = 180;
-  const treeCenter = screenWidth / 2;
-
   // Helper function to get item count from dynamic inventory
   const getItemCount = (itemId: string): number => {
     return treeData.inventory[itemId] || 0;
@@ -179,38 +175,139 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
 
   // Returns all possible slot positions for the current stage
   const getSlotPositions = (): SlotPosition[] => {
-    const baseX = treeCenter - treeSize / 2;
-    const baseY = 20;
+    // Fixed positioning relative to a standard tree container
+    const treeContainerWidth = 200; // Fixed container width
+    const treeContainerHeight = 300; // Fixed container height
+    const baseX = 0; // Start from 0, will be centered by parent container
+    const baseY = 0; // Start from 0
 
     if (treeData.stage === 'tree-2') {
       return [
-        { x: baseX + 40, y: baseY + 60, id: 'slot1' },
-        { x: baseX + 120, y: baseY + 80, id: 'slot2' },
+        { x: baseX + 90, y: baseY + 70, id: 'slot1' },
+        { x: baseX + 150, y: baseY + 130, id: 'slot2' },
       ];
     }
 
     if (treeData.stage === 'tree-3') {
       return [
-        { x: baseX + 50, y: baseY + 180, id: 'slot1' },
-        { x: baseX + 90, y: baseY + 220, id: 'slot2' },
-        { x: baseX + 90, y: baseY + 185, id: 'slot3' },
-        { x: baseX + 50, y: baseY + 250, id: 'slot4' },
+        { x: baseX + 60, y: baseY + 90, id: 'slot1' },
+        { x: baseX + 170, y: baseY + 150, id: 'slot2' },
+        { x: baseX + 140, y: baseY + 75, id: 'slot3' },
+        { x: baseX + 40, y: baseY + 170, id: 'slot4' },
       ];
     }
 
     if (treeData.stage === 'tree-4') {
       return [
-        { x: baseX + 20, y: baseY + 70, id: 'slot1' },
-        { x: baseX + 170, y: baseY + 110, id: 'slot2' },
-        { x: baseX + 110, y: baseY + 75, id: 'slot3' },
-        { x: baseX - 40, y: baseY + 140, id: 'slot4' },
-        { x: baseX + 190, y: baseY + 190, id: 'slot5' },
-        { x: baseX - 50, y: baseY + 210, id: 'slot6' },
+        { x: baseX, y: baseY + 90, id: 'slot1' },
+        { x: baseX + 190, y: baseY + 100, id: 'slot2' },
+        { x: baseX + 130, y: baseY + 60, id: 'slot3' },
+        { x: baseX + 70, y: baseY + 70, id: 'slot4' },
+        { x: baseX + 210, y: baseY + 190, id: 'slot5' },
+        { x: baseX, y: baseY + 190, id: 'slot6' },
       ];
     }
 
     return [];
   };
+
+  // Add this mutation for updating decoration positions without inventory checks
+  const updateDecorationPosition = useMutation(
+    api.trees.updateDecorationPosition,
+  );
+
+  React.useEffect(() => {
+    const updateDecorationPositions = async () => {
+      if (!treeData.decorations || treeData.decorations.length === 0) return;
+
+      // Check if any decorations need position updates based on current stage
+      const needsUpdate = treeData.decorations.some((decoration) => {
+        const currentSlots = getSlotPositions();
+        const isNearValidSlot = currentSlots.some(
+          (slot) =>
+            Math.abs(slot.x - decoration.position.x) < 30 &&
+            Math.abs(slot.y - decoration.position.y) < 30,
+        );
+        return !isNearValidSlot;
+      });
+
+      if (needsUpdate) {
+        // Create updated decorations with new positions
+        const updatedDecorations = treeData.decorations.map(
+          (decoration, index) => {
+            const currentSlots = getSlotPositions();
+
+            // Check if current position is still valid
+            const isNearValidSlot = currentSlots.some(
+              (slot) =>
+                Math.abs(slot.x - decoration.position.x) < 30 &&
+                Math.abs(slot.y - decoration.position.y) < 30,
+            );
+
+            if (isNearValidSlot) {
+              return decoration; // Position is still valid
+            }
+
+            // Find the best new position
+            // Try to use the same index if available, otherwise find first available slot
+            const targetSlot =
+              currentSlots[index] ||
+              currentSlots.find((slot) => {
+                // Check if this slot is already occupied by other decorations
+                const isOccupied = treeData.decorations.some(
+                  (otherDec, otherIndex) => {
+                    if (otherIndex === index) return false; // Don't check against self
+                    return (
+                      Math.abs(otherDec.position.x - slot.x) < 30 &&
+                      Math.abs(otherDec.position.y - slot.y) < 30
+                    );
+                  },
+                );
+                return !isOccupied;
+              });
+
+            if (targetSlot) {
+              return {
+                ...decoration,
+                position: { x: targetSlot.x, y: targetSlot.y },
+              };
+            }
+
+            return decoration; // Fallback to original position
+          },
+        );
+
+        // Update all decorations with new positions
+        try {
+          // Use a single call to update all decoration positions at once
+          await updateDecorationPosition({
+            duoId: treeData.duoId,
+            decorationsWithNewPositions: updatedDecorations
+              .map((decoration, index) => ({
+                index,
+                newPosition: decoration.position,
+                itemId: decoration.itemId,
+              }))
+              .filter((_, index) => {
+                // Only include decorations that actually changed position
+                const original = treeData.decorations[index];
+                const updated = updatedDecorations[index];
+                return (
+                  original.position.x !== updated.position.x ||
+                  original.position.y !== updated.position.y
+                );
+              }),
+          });
+
+          onInventoryUpdate?.();
+        } catch (error) {
+          console.error('Error updating decoration positions:', error);
+        }
+      }
+    };
+
+    updateDecorationPositions();
+  }, [treeData.stage, treeData.decorations?.length]);
 
   const canShowInventory =
     treeData.stage === 'tree-2' ||
@@ -342,25 +439,27 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
 
     const slotPositions = getSlotPositions();
     return (
-      <View className="absolute top-0 left-0 right-0 bottom-0">
-        {slotPositions.map((slot) => (
-          <TouchableOpacity
-            key={slot.id}
-            onPress={() => handleSlotSelect(slot.id)}
-            className="w-10 h-10 rounded-full justify-center items-center border-2"
-            style={{
-              backgroundColor: `${theme.colors.primary}CC`,
-              borderColor: theme.colors.primary,
-              position: 'absolute',
-              left: slot.x - 20,
-              top: slot.y - 20,
-            }}
-          >
-            <Text className="text-white text-xl font-bold font-mainRegular">
-              +
-            </Text>
-          </TouchableOpacity>
-        ))}
+      <View className="absolute top-0 left-0 right-0 bottom-0 items-center">
+        <View style={{ width: 200, height: 300, position: 'relative' }}>
+          {slotPositions.map((slot) => (
+            <TouchableOpacity
+              key={slot.id}
+              onPress={() => handleSlotSelect(slot.id)}
+              className="w-10 h-10 rounded-full justify-center items-center border-2"
+              style={{
+                backgroundColor: `${theme.colors.primary}CC`,
+                borderColor: theme.colors.primary,
+                position: 'absolute',
+                left: slot.x - 20,
+                top: slot.y - 20,
+              }}
+            >
+              <Text className="text-white text-xl font-bold font-mainRegular">
+                +
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
     );
   };
@@ -369,37 +468,39 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     if (!treeData.decorations) return null;
 
     return (
-      <View className="absolute top-0 left-0 right-0 bottom-0">
-        {treeData.decorations.map((decoration, index) => {
-          const item = itemsById[decoration.itemId];
-          if (!item) return null;
+      <View className="absolute top-0 left-0 right-0 bottom-0 items-center">
+        <View style={{ width: 200, height: 300, position: 'relative' }}>
+          {treeData.decorations.map((decoration, index) => {
+            const item = itemsById[decoration.itemId];
+            if (!item) return null;
 
-          return (
-            <TouchableOpacity
-              key={index}
-              onPress={() => handleDecorationPress(index)}
-              style={{
-                position: 'absolute',
-                left: decoration.position.x - 25,
-                top: decoration.position.y - 25,
-              }}
-            >
-              <BlurView
-                intensity={80}
-                tint={isDarkMode ? 'dark' : 'light'}
-                className="w-16 h-16 rounded-full border-2 justify-center items-center overflow-hidden"
+            return (
+              <TouchableOpacity
+                key={index}
+                onPress={() => handleDecorationPress(index)}
                 style={{
-                  borderColor: item.color,
+                  position: 'absolute',
+                  left: decoration.position.x - 25,
+                  top: decoration.position.y - 25,
                 }}
               >
-                <Image
-                  source={getImageSource(decoration.itemId)}
-                  className="w-12 h-12"
-                />
-              </BlurView>
-            </TouchableOpacity>
-          );
-        })}
+                <BlurView
+                  intensity={80}
+                  tint={isDarkMode ? 'dark' : 'light'}
+                  className="w-16 h-16 rounded-full border-2 justify-center items-center overflow-hidden"
+                  style={{
+                    borderColor: item.color,
+                  }}
+                >
+                  <Image
+                    source={getImageSource(decoration.itemId)}
+                    className="w-12 h-12"
+                  />
+                </BlurView>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
     );
   };
@@ -634,7 +735,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             setShowSlots(false);
             setSelectedItemId(null);
           }}
-          className="rounded-2xl p-4 mb-4 overflow-hidden w-full"
+          className="rounded-2xl p-4 mb-4 overflow-hidden w-full mt-2"
           style={{ backgroundColor: '#ef4444' }}
         >
           <Text className="text-white text-base font-semibold text-center font-mainRegular">

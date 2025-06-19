@@ -1,19 +1,19 @@
 // convex/trees.ts
-import { query, mutation } from "./_generated/server";
-import { v } from "convex/values";
-import { getLevelData, getTreeStageForLevel } from "../src/utils/level";
+import { query, mutation } from './_generated/server';
+import { v } from 'convex/values';
+import { getLevelData, getTreeStageForLevel } from '../src/utils/level';
 
-type Stage = "tree-1" | "tree-1.5" | "tree-2" | "tree-3" | "tree-4";
+type Stage = 'tree-1' | 'tree-1.5' | 'tree-2' | 'tree-3' | 'tree-4';
 /**
  * Helper: Return max number of decorations allowed given the stage.
  */
 function maxDecorationsForStage(stage: Stage): number {
   switch (stage) {
-    case "tree-2":
+    case 'tree-2':
       return 2;
-    case "tree-3":
+    case 'tree-3':
       return 4;
-    case "tree-4":
+    case 'tree-4':
       return 6;
     default:
       return 0; // sprout & smallTree cannot place decorations
@@ -21,22 +21,22 @@ function maxDecorationsForStage(stage: Stage): number {
 }
 
 export const getTreeForDuo = query({
-  args: { duoId: v.id("duoConnections") },
+  args: { duoId: v.id('duoConnections') },
   handler: async (ctx, { duoId }) => {
     return await ctx.db
-      .query("trees")
-      .withIndex("by_duoId", (q) => q.eq("duoId", duoId))
+      .query('trees')
+      .withIndex('by_duoId', (q) => q.eq('duoId', duoId))
       .first();
   },
 });
 
 // NEW: Get tree with enriched decoration data
 export const getEnrichedTreeForDuo = query({
-  args: { duoId: v.id("duoConnections") },
+  args: { duoId: v.id('duoConnections') },
   handler: async (ctx, { duoId }) => {
     const tree = await ctx.db
-      .query("trees")
-      .withIndex("by_duoId", (q) => q.eq("duoId", duoId))
+      .query('trees')
+      .withIndex('by_duoId', (q) => q.eq('duoId', duoId))
       .first();
 
     if (!tree) return null;
@@ -45,15 +45,15 @@ export const getEnrichedTreeForDuo = query({
     const enrichedDecorations = await Promise.all(
       (tree.decorations || []).map(async (decoration) => {
         const itemData = await ctx.db
-          .query("treeItems")
-          .withIndex("by_itemId", (q) => q.eq("itemId", decoration.itemId))
+          .query('treeItems')
+          .withIndex('by_itemId', (q) => q.eq('itemId', decoration.itemId))
           .first();
 
         return {
           ...decoration,
           itemData,
         };
-      })
+      }),
     );
 
     return {
@@ -63,30 +63,37 @@ export const getEnrichedTreeForDuo = query({
   },
 });
 
+const treeLabels = {
+  'tree-1': 'Sprout',
+  'tree-2': 'Small Tree',
+  'tree-3': 'Medium Tree',
+  'tree-4': 'Grown Tree',
+};
+
 export const updateTreeStage = mutation({
   args: {
-    duoId: v.id("duoConnections"),
+    duoId: v.id('duoConnections'),
   },
   handler: async (ctx, { duoId }) => {
     const connection = await ctx.db.get(duoId);
-    if (!connection) throw new Error("Connection not found");
+    if (!connection) throw new Error('Connection not found');
 
     const currentTrust = connection.trust_score ?? 0;
-    const currentStage = connection.treeState ?? "sprout";
+    const currentStage = connection.treeState ?? 'sprout';
     const { level } = getLevelData(currentTrust);
     const expectedStage = getTreeStageForLevel(level);
 
     if (expectedStage !== currentStage) {
       const tree = await ctx.db
-        .query("trees")
-        .withIndex("by_duoId", (q) => q.eq("duoId", duoId))
+        .query('trees')
+        .withIndex('by_duoId', (q) => q.eq('duoId', duoId))
         .first();
-      if (!tree) throw new Error("Tree not found");
+      if (!tree) throw new Error('Tree not found');
 
-      const today = new Date().toISOString().split("T")[0];
+      const today = new Date().toISOString().split('T')[0];
       const newLog = {
         [today]: {
-          change: `Tree evolved to ${expectedStage} 🌳`,
+          change: `Tree evolved to ${treeLabels[expectedStage as keyof typeof treeLabels]} 🌳`,
         },
       };
 
@@ -105,9 +112,47 @@ export const updateTreeStage = mutation({
   },
 });
 
+export const updateDecorationPosition = mutation({
+  args: {
+    duoId: v.id('duoConnections'),
+    decorationsWithNewPositions: v.array(
+      v.object({
+        index: v.number(),
+        newPosition: v.object({ x: v.number(), y: v.number() }),
+        itemId: v.string(),
+      }),
+    ),
+  },
+  handler: async (ctx, { duoId, decorationsWithNewPositions }) => {
+    const tree = await ctx.db
+      .query('trees')
+      .withIndex('by_duoId', (q) => q.eq('duoId', duoId))
+      .first();
+
+    if (!tree) {
+      throw new Error('Tree not found');
+    }
+
+    const decorations = tree.decorations || [];
+
+    // Update positions for specified decorations
+    decorationsWithNewPositions.forEach(({ index, newPosition }) => {
+      if (decorations[index]) {
+        decorations[index].position = newPosition;
+      }
+    });
+
+    await ctx.db.patch(tree._id, {
+      decorations: decorations,
+    });
+
+    return { success: true };
+  },
+});
+
 export const updateTreeDecorations = mutation({
   args: {
-    duoId: v.id("duoConnections"),
+    duoId: v.id('duoConnections'),
     decoration: v.object({
       itemId: v.string(),
       position: v.object({
@@ -119,20 +164,20 @@ export const updateTreeDecorations = mutation({
   handler: async (ctx, { duoId, decoration }) => {
     // Find the tree for this duo
     const tree = await ctx.db
-      .query("trees")
-      .withIndex("by_duoId", (q) => q.eq("duoId", duoId))
+      .query('trees')
+      .withIndex('by_duoId', (q) => q.eq('duoId', duoId))
       .first();
     if (!tree) {
-      throw new Error("Tree not found for this duo");
+      throw new Error('Tree not found for this duo');
     }
 
     // Verify the item exists and is active
     const itemData = await ctx.db
-      .query("treeItems")
-      .withIndex("by_itemId", (q) => q.eq("itemId", decoration.itemId))
+      .query('treeItems')
+      .withIndex('by_itemId', (q) => q.eq('itemId', decoration.itemId))
       .first();
     if (!itemData || !itemData.isActive) {
-      throw new Error("Invalid or inactive tree item");
+      throw new Error('Invalid or inactive tree item');
     }
 
     // Check stage-based max
@@ -141,7 +186,7 @@ export const updateTreeDecorations = mutation({
     const maxAllowed = maxDecorationsForStage(stage);
     if (existingDecorations.length >= maxAllowed) {
       throw new Error(
-        `You cannot place more than ${maxAllowed} decorations on a ${stage}`
+        `You cannot place more than ${maxAllowed} decorations on a ${stage}`,
       );
     }
 
@@ -156,10 +201,10 @@ export const updateTreeDecorations = mutation({
     const isOccupied = existingDecorations.some(
       (dec) =>
         Math.abs(dec.position.x - decoration.position.x) < 20 &&
-        Math.abs(dec.position.y - decoration.position.y) < 20
+        Math.abs(dec.position.y - decoration.position.y) < 20,
     );
     if (isOccupied) {
-      throw new Error("This position is already occupied!");
+      throw new Error('This position is already occupied!');
     }
 
     // Create the new decoration
@@ -186,26 +231,26 @@ export const updateTreeDecorations = mutation({
 
 export const removeTreeDecoration = mutation({
   args: {
-    duoId: v.id("duoConnections"),
+    duoId: v.id('duoConnections'),
     decorationIndex: v.number(),
   },
   handler: async (ctx, { duoId, decorationIndex }) => {
     const tree = await ctx.db
-      .query("trees")
-      .withIndex("by_duoId", (q) => q.eq("duoId", duoId))
+      .query('trees')
+      .withIndex('by_duoId', (q) => q.eq('duoId', duoId))
       .first();
     if (!tree) {
-      throw new Error("Tree not found for this duo");
+      throw new Error('Tree not found for this duo');
     }
 
     const decorations = tree.decorations || [];
     if (decorationIndex < 0 || decorationIndex >= decorations.length) {
-      throw new Error("Invalid decoration index");
+      throw new Error('Invalid decoration index');
     }
 
     const removedDecoration = decorations[decorationIndex];
     const updatedDecorations = decorations.filter(
-      (_, idx) => idx !== decorationIndex
+      (_, idx) => idx !== decorationIndex,
     );
 
     // Return the item to inventory
@@ -228,26 +273,26 @@ export const removeTreeDecoration = mutation({
 // NEW: Add item to tree inventory
 export const addItemToInventory = mutation({
   args: {
-    duoId: v.id("duoConnections"),
+    duoId: v.id('duoConnections'),
     itemId: v.string(),
     quantity: v.number(),
   },
   handler: async (ctx, { duoId, itemId, quantity }) => {
     const tree = await ctx.db
-      .query("trees")
-      .withIndex("by_duoId", (q) => q.eq("duoId", duoId))
+      .query('trees')
+      .withIndex('by_duoId', (q) => q.eq('duoId', duoId))
       .first();
     if (!tree) {
-      throw new Error("Tree not found for this duo");
+      throw new Error('Tree not found for this duo');
     }
 
     // Verify the item exists
     const itemData = await ctx.db
-      .query("treeItems")
-      .withIndex("by_itemId", (q) => q.eq("itemId", itemId))
+      .query('treeItems')
+      .withIndex('by_itemId', (q) => q.eq('itemId', itemId))
       .first();
     if (!itemData || !itemData.isActive) {
-      throw new Error("Invalid or inactive tree item");
+      throw new Error('Invalid or inactive tree item');
     }
 
     const inventory = tree.inventory || {};
@@ -264,7 +309,7 @@ export const addItemToInventory = mutation({
     });
 
     // Log the change
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString().split('T')[0];
     const change =
       quantity > 0
         ? `Gained ${quantity}x ${itemData.name} 🎁`
@@ -284,11 +329,11 @@ export const addItemToInventory = mutation({
 
 // NEW: Calculate active buffs from equipped decorations
 export const getActiveBuffs = query({
-  args: { duoId: v.id("duoConnections") },
+  args: { duoId: v.id('duoConnections') },
   handler: async (ctx, { duoId }) => {
     const tree = await ctx.db
-      .query("trees")
-      .withIndex("by_duoId", (q) => q.eq("duoId", duoId))
+      .query('trees')
+      .withIndex('by_duoId', (q) => q.eq('duoId', duoId))
       .first();
 
     if (!tree || !tree.decorations) {
@@ -309,8 +354,8 @@ export const getActiveBuffs = query({
 
     for (const decoration of tree.decorations) {
       const itemData = await ctx.db
-        .query("treeItems")
-        .withIndex("by_itemId", (q) => q.eq("itemId", decoration.itemId))
+        .query('treeItems')
+        .withIndex('by_itemId', (q) => q.eq('itemId', decoration.itemId))
         .first();
 
       if (itemData && itemData.isActive) {
@@ -356,11 +401,11 @@ export const getActiveBuffs = query({
 });
 
 export const getXpMultiplier = query({
-  args: { duoId: v.id("duoConnections") },
+  args: { duoId: v.id('duoConnections') },
   handler: async (ctx, { duoId }) => {
     const tree = await ctx.db
-      .query("trees")
-      .withIndex("by_duoId", (q) => q.eq("duoId", duoId))
+      .query('trees')
+      .withIndex('by_duoId', (q) => q.eq('duoId', duoId))
       .first();
 
     if (!tree || !tree.decorations || tree.decorations.length === 0) {
@@ -372,8 +417,8 @@ export const getXpMultiplier = query({
     // Calculate total XP multiplier from all equipped items (additive, not multiplicative)
     for (const decoration of tree.decorations) {
       const treeItem = await ctx.db
-        .query("treeItems")
-        .withIndex("by_itemId", (q) => q.eq("itemId", decoration.itemId))
+        .query('treeItems')
+        .withIndex('by_itemId', (q) => q.eq('itemId', decoration.itemId))
         .first();
 
       if (treeItem && treeItem.buffs && treeItem.buffs.xpMultiplier) {
