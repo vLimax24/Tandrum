@@ -22,6 +22,7 @@ import { BlurView } from 'expo-blur';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
 import { AlertModal } from '@/components/AlertModal';
+import { images } from '@/utils/images';
 
 const { width, height } = Dimensions.get('window');
 
@@ -40,7 +41,7 @@ const tutorialPages: TutorialPage[] = [
     title: 'Build Habits Together',
     description:
       'Join a community where accountability meets motivation. Transform your daily routines with the power of shared commitment.',
-    image: require('../../../assets/tree-1.png'),
+    image: require('../../../assets/trees/tree-1.png'),
     iconName: 'people-circle',
     gradientColors: ['#009966', '#00cc88'] as const,
   },
@@ -49,7 +50,7 @@ const tutorialPages: TutorialPage[] = [
     title: 'Track Your Growth',
     description:
       'Visualize your progress with beautiful insights and celebrate every milestone with your accountability partners.',
-    image: require('../../../assets/tree-3.png'),
+    image: require('../../../assets/trees/tree-3.png'),
     iconName: 'analytics',
     gradientColors: ['#009966', '#00cc88'] as const,
   },
@@ -58,7 +59,7 @@ const tutorialPages: TutorialPage[] = [
     title: 'Stay Motivated Daily',
     description:
       'Turn habit-building into an engaging journey with gamified progress and meaningful connections that keep you going.',
-    image: require('../../../assets/tree-4.png'),
+    image: require('../../../assets/trees/tree-4.png'),
     iconName: 'trophy',
     gradientColors: ['#009966', '#00cc88'] as const,
   },

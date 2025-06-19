@@ -6,6 +6,7 @@ import { useQuery } from 'convex/react';
 import { api } from 'convex/_generated/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AlertModal } from '@/components/AlertModal';
+import { images } from '@/utils/images';
 
 export default function AuthPage() {
   const { startSSOFlow } = useSSO();
@@ -98,7 +99,7 @@ export default function AuthPage() {
       <View className="flex-1 justify-center items-center px-6">
         <View className="items-center mb-12">
           <Image
-            source={require('../../assets/tree-2.png')}
+            source={require('../../assets/trees/tree-2.png')}
             style={{ width: 350, height: 350, resizeMode: 'contain' }}
           />
           <Text className="text-3xl font-bold text-gray-800 text-center mb-4 font-mainRegular">
