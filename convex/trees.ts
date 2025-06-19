@@ -65,6 +65,7 @@ export const getEnrichedTreeForDuo = query({
 
 const treeLabels = {
   'tree-1': 'Sprout',
+  'tree-1.5': 'Very Small Tree',
   'tree-2': 'Small Tree',
   'tree-3': 'Medium Tree',
   'tree-4': 'Grown Tree',
