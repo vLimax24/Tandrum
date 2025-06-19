@@ -78,13 +78,10 @@ export const NoDuoScreen: React.FC<NoDuoScreenProps> = ({
                       : 'rgba(0, 153, 102, 0.15)',
                   }}
                 >
-                  <Image
-                    source={images.leaf}
-                    className="w-8 h-8"
-                    style={{
-                      tintColor: theme.colors.primary,
-                    }}
-                    resizeMode="contain"
+                  <Ionicons
+                    size={30}
+                    name="leaf"
+                    color={theme.colors.primaryLight}
                   />
                 </View>
               </BlurView>
