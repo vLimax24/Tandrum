@@ -11,7 +11,7 @@ import {
 } from "@gorhom/bottom-sheet";
 import { BlurView } from "expo-blur";
 import { getRarityColors } from "@/utils/rarities";
-import { treeImages } from "@/utils/treeImages";
+import { treeImages } from "@/utils/images";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
 import { AlertModal } from "@/components/AlertModal";

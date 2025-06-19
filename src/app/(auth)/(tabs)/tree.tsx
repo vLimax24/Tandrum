@@ -12,7 +12,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { NoDuoScreen } from "@/components/NoDuoScreen";
 import { ItemType } from "@/components/TreeInventory";
-import { treeImages } from "@/utils/treeImages";
+import { treeImages } from "@/utils/images";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";

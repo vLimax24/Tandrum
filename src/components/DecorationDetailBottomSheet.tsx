@@ -9,7 +9,7 @@ import {
 import { BlurView } from "expo-blur";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
-import { treeImages } from "@/utils/treeImages";
+import { treeImages } from "@/utils/images";
 
 interface DecorationDetailBottomSheetProps {
   onClose: () => void;

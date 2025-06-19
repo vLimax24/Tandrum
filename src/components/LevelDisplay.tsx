@@ -6,7 +6,7 @@ import { getLevelData } from "@/utils/level";
 import { Doc } from "convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
-import { treeImages } from "@/utils/treeImages";
+import { treeImages } from "@/utils/images";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";

@@ -6,7 +6,7 @@ import { NewDuoModal } from "@/components/NewDuoModal";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
-import { treeImages } from "@/utils/treeImages";
+import { treeImages } from "@/utils/images";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";

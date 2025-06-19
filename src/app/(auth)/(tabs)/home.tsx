@@ -19,7 +19,7 @@ import { useDuo } from "@/hooks/useDuo";
 import { NewDuoModal } from "@/components/NewDuoModal";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import { treeImages } from "@/utils/treeImages";
+import { treeImages } from "@/utils/images";
 import { createTheme } from "@/utils/theme";
 import { useTheme } from "@/contexts/themeContext";
 import LoadingState from "@/components/LoadingState";
