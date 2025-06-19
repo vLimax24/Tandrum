@@ -1,15 +1,15 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
-import { NewDuoModal } from "@/components/NewDuoModal";
-import { useQuery } from "convex/react";
-import { api } from "convex/_generated/api";
-import { useUser } from "@clerk/clerk-expo";
-import { images } from "@/utils/images";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { Ionicons } from "@expo/vector-icons";
+import React from 'react';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { NewDuoModal } from '@/components/NewDuoModal';
+import { useQuery } from 'convex/react';
+import { api } from 'convex/_generated/api';
+import { useUser } from '@clerk/clerk-expo';
+import { images } from '@/utils/images';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { Ionicons } from '@expo/vector-icons';
 
 interface NoDuoScreenProps {
   modalVisible: boolean;
@@ -27,7 +27,7 @@ export const NoDuoScreen: React.FC<NoDuoScreenProps> = ({
   const clerkId = user?.id;
   const convexUser = useQuery(
     api.users.getUserByClerkId,
-    clerkId ? { clerkId } : "skip"
+    clerkId ? { clerkId } : 'skip',
   );
 
   const handleStartPartnership = () => {
@@ -49,7 +49,7 @@ export const NoDuoScreen: React.FC<NoDuoScreenProps> = ({
         {/* Floating glass card container */}
         <BlurView
           intensity={isDarkMode ? 60 : 80}
-          tint={isDarkMode ? "dark" : "light"}
+          tint={isDarkMode ? 'dark' : 'light'}
           className="rounded-3xl overflow-hidden w-full max-w-sm"
           style={{
             backgroundColor: theme.colors.glass,
@@ -62,20 +62,20 @@ export const NoDuoScreen: React.FC<NoDuoScreenProps> = ({
             <View className="relative mb-8">
               <BlurView
                 intensity={40}
-                tint={isDarkMode ? "dark" : "light"}
+                tint={isDarkMode ? 'dark' : 'light'}
                 className="w-24 h-24 rounded-full items-center justify-center"
                 style={{
                   backgroundColor: isDarkMode
-                    ? "rgba(0, 153, 102, 0.15)"
-                    : "rgba(0, 153, 102, 0.1)",
+                    ? 'rgba(0, 153, 102, 0.15)'
+                    : 'rgba(0, 153, 102, 0.1)',
                 }}
               >
                 <View
                   className="w-16 h-16 rounded-full items-center justify-center"
                   style={{
                     backgroundColor: isDarkMode
-                      ? "rgba(0, 153, 102, 0.25)"
-                      : "rgba(0, 153, 102, 0.15)",
+                      ? 'rgba(0, 153, 102, 0.25)'
+                      : 'rgba(0, 153, 102, 0.15)',
                   }}
                 >
                   <Image
@@ -135,7 +135,7 @@ export const NoDuoScreen: React.FC<NoDuoScreenProps> = ({
                 <Text
                   className="text-white text-lg font-bold"
                   style={{
-                    fontFamily: "font-mainRegular",
+                    fontFamily: 'font-mainRegular',
                   }}
                 >
                   Start New Partnership
@@ -155,7 +155,7 @@ export const NoDuoScreen: React.FC<NoDuoScreenProps> = ({
         <View className="mt-8 px-4">
           <BlurView
             intensity={40}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             className="rounded-2xl px-6 py-4"
             style={{
               backgroundColor: theme.colors.glass,

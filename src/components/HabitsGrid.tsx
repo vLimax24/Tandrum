@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { View, Text } from "react-native";
-import { BlurView } from "expo-blur";
-import { HabitItem } from "./HabitItem";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { Ionicons } from "@expo/vector-icons";
+import React, { useState } from 'react';
+import { View, Text } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { HabitItem } from './HabitItem';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { Ionicons } from '@expo/vector-icons';
 
 interface HabitsGridProps {
   habits: any[];
@@ -13,7 +13,7 @@ interface HabitsGridProps {
   now: number;
   checkInHabit: (
     habitId: string,
-    userIsA: boolean
+    userIsA: boolean,
   ) => Promise<
     { checkedIn: boolean; rewards: any; bothCompleted: boolean } | undefined
   >;
@@ -29,10 +29,10 @@ interface HabitsGridProps {
     buttons: Array<{
       text: string;
       onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
+      style?: 'default' | 'cancel' | 'destructive';
     }>,
-    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
-    iconColor?: string
+    icon?: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap,
+    iconColor?: string,
   ) => void;
 }
 
@@ -69,8 +69,8 @@ export const HabitsGrid: React.FC<HabitsGridProps> = ({
             className="w-16 h-16 rounded-full items-center justify-center mb-4"
             style={{
               backgroundColor: isDarkMode
-                ? "rgba(0, 153, 102, 0.15)"
-                : "rgba(0, 153, 102, 0.1)",
+                ? 'rgba(0, 153, 102, 0.15)'
+                : 'rgba(0, 153, 102, 0.1)',
             }}
           >
             <Ionicons
@@ -95,7 +95,7 @@ export const HabitsGrid: React.FC<HabitsGridProps> = ({
       {habits.map((h) => {
         const lastA = h.last_checkin_at_userA ?? 0;
         const lastB = h.last_checkin_at_userB ?? 0;
-        const isDaily = h.frequency === "daily";
+        const isDaily = h.frequency === 'daily';
         const doneA =
           lastA > 0 &&
           (isDaily ? isSameDay(lastA, now) : isSameWeek(lastA, now));
@@ -113,14 +113,14 @@ export const HabitsGrid: React.FC<HabitsGridProps> = ({
                 try {
                   const result = await checkInHabit(h._id, amI_A);
                 } catch (error) {
-                  console.error("Check-in error:", error);
+                  console.error('Check-in error:', error);
                   setTimeout(() => {
                     onShowAlert(
-                      "Error",
-                      "Failed to update habit. Please try again.",
-                      [{ text: "OK", style: "default" }],
-                      "alert-circle",
-                      "#ef4444"
+                      'Error',
+                      'Failed to update habit. Please try again.',
+                      [{ text: 'OK', style: 'default' }],
+                      'alert-circle',
+                      '#ef4444',
                     );
                   }, 100);
                 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Modal,
   View,
@@ -6,16 +6,16 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Animated,
-} from "react-native";
-import { BlurView } from "expo-blur";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
+} from 'react-native';
+import { BlurView } from 'expo-blur';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
 
 interface AlertButton {
   text: string;
   onPress?: () => void;
-  style?: "default" | "cancel" | "destructive";
+  style?: 'default' | 'cancel' | 'destructive';
 }
 
 interface CustomAlertModalProps {
@@ -70,14 +70,14 @@ export const AlertModal: React.FC<CustomAlertModalProps> = ({
     onClose();
   };
 
-  const getButtonStyle = (buttonStyle: AlertButton["style"]) => {
+  const getButtonStyle = (buttonStyle: AlertButton['style']) => {
     switch (buttonStyle) {
-      case "destructive":
+      case 'destructive':
         return {
-          backgroundColor: "#ef4444",
-          textColor: "#ffffff",
+          backgroundColor: '#ef4444',
+          textColor: '#ffffff',
         };
-      case "cancel":
+      case 'cancel':
         return {
           backgroundColor: theme.colors.glass,
           textColor: theme.colors.text.secondary,
@@ -85,7 +85,7 @@ export const AlertModal: React.FC<CustomAlertModalProps> = ({
       default:
         return {
           backgroundColor: theme.colors.primary,
-          textColor: "#ffffff",
+          textColor: '#ffffff',
         };
     }
   };
@@ -103,7 +103,7 @@ export const AlertModal: React.FC<CustomAlertModalProps> = ({
           {/* Backdrop */}
           <View
             className="absolute inset-0"
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
           />
 
           {/* Modal Content */}
@@ -116,7 +116,7 @@ export const AlertModal: React.FC<CustomAlertModalProps> = ({
             >
               <BlurView
                 intensity={80}
-                tint={isDarkMode ? "dark" : "light"}
+                tint={isDarkMode ? 'dark' : 'light'}
                 className="rounded-3xl overflow-hidden"
                 style={{
                   backgroundColor: theme.colors.background[1],

@@ -1,42 +1,42 @@
-import React, { useRef, useEffect } from "react";
-import { View, Text, Animated, Easing } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
+import React, { useRef, useEffect } from 'react';
+import { View, Text, Animated, Easing } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
 
 interface LoadingScreenProps {
-  screen?: "home" | "tree" | "habits" | "default";
+  screen?: 'home' | 'tree' | 'habits' | 'default';
 }
 
-const LoadingState: React.FC<LoadingScreenProps> = ({ screen = "default" }) => {
+const LoadingState: React.FC<LoadingScreenProps> = ({ screen = 'default' }) => {
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
 
   const getLoadingText = () => {
     switch (screen) {
-      case "home":
-        return "Loading your Dashboard...";
-      case "tree":
-        return "Growing your Tree...";
-      case "habits":
-        return "Training your Habits...";
+      case 'home':
+        return 'Loading your Dashboard...';
+      case 'tree':
+        return 'Growing your Tree...';
+      case 'habits':
+        return 'Training your Habits...';
       default:
-        return "Loading...";
+        return 'Loading...';
     }
   };
 
   const getLoadingIconName = () => {
     switch (screen) {
-      case "home":
-        return "home";
-      case "tree":
-        return "leaf";
-      case "habits":
-        return "barbell";
+      case 'home':
+        return 'home';
+      case 'tree':
+        return 'leaf';
+      case 'habits':
+        return 'barbell';
       default:
-        return "flash";
+        return 'flash';
     }
   };
 
@@ -50,7 +50,7 @@ const LoadingState: React.FC<LoadingScreenProps> = ({ screen = "default" }) => {
         duration: 1500,
         easing: Easing.linear,
         useNativeDriver: false,
-      })
+      }),
     ).start();
   }, []);
 
@@ -59,7 +59,7 @@ const LoadingState: React.FC<LoadingScreenProps> = ({ screen = "default" }) => {
     return animation.interpolate({
       inputRange: [offset - 0.2, offset, offset + 0.2],
       outputRange: [0.3, 1, 0.3],
-      extrapolate: "clamp",
+      extrapolate: 'clamp',
     });
   };
 
@@ -73,7 +73,7 @@ const LoadingState: React.FC<LoadingScreenProps> = ({ screen = "default" }) => {
       <View className="flex-1 justify-center items-center px-8">
         <BlurView
           intensity={60}
-          tint={isDarkMode ? "dark" : "light"}
+          tint={isDarkMode ? 'dark' : 'light'}
           className="p-8 items-center rounded-3xl overflow-hidden"
           style={{
             borderWidth: 1,
@@ -92,7 +92,7 @@ const LoadingState: React.FC<LoadingScreenProps> = ({ screen = "default" }) => {
                 <View
                   className="w-12 h-12 rounded-full border-4 border-white/30"
                   style={{
-                    borderTopColor: "white",
+                    borderTopColor: 'white',
                   }}
                 />
                 <View className="absolute inset-0 items-center justify-center">
@@ -111,7 +111,7 @@ const LoadingState: React.FC<LoadingScreenProps> = ({ screen = "default" }) => {
             className="text-xl font-semibold text-center mb-2"
             style={{
               color: theme.colors.text.primary,
-              fontFamily: "font-mainRegular",
+              fontFamily: 'font-mainRegular',
             }}
           >
             {getLoadingText()}
@@ -120,7 +120,7 @@ const LoadingState: React.FC<LoadingScreenProps> = ({ screen = "default" }) => {
             className="text-sm text-center opacity-75"
             style={{
               color: theme.colors.text.secondary,
-              fontFamily: "font-mainRegular",
+              fontFamily: 'font-mainRegular',
             }}
           >
             Building habits together

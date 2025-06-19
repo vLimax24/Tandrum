@@ -1,25 +1,25 @@
-import React, { useState, useCallback, useMemo, useRef } from "react";
-import { View, Text, TouchableOpacity, Image, Dimensions } from "react-native";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { Id } from "convex/_generated/dataModel";
-import DecorationDetailBottomSheet from "./DecorationDetailBottomSheet";
+import React, { useState, useCallback, useMemo, useRef } from 'react';
+import { View, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+import { Id } from 'convex/_generated/dataModel';
+import DecorationDetailBottomSheet from './DecorationDetailBottomSheet';
 import {
   BottomSheetModal,
   BottomSheetBackdrop,
   BottomSheetFlatList,
-} from "@gorhom/bottom-sheet";
-import { BlurView } from "expo-blur";
-import { getRarityColors } from "@/utils/rarities";
-import { images } from "@/utils/images";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { AlertModal } from "@/components/AlertModal";
+} from '@gorhom/bottom-sheet';
+import { BlurView } from 'expo-blur';
+import { getRarityColors } from '@/utils/rarities';
+import { images } from '@/utils/images';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { AlertModal } from '@/components/AlertModal';
 
 interface TreeInventoryProps {
   treeData: {
-    duoId: Id<"duoConnections">;
-    stage: "tree-1" | "tree-1.5" | "tree-2" | "tree-3" | "tree-4";
+    duoId: Id<'duoConnections'>;
+    stage: 'tree-1' | 'tree-1.5' | 'tree-2' | 'tree-3' | 'tree-4';
     leaves: number;
     fruits: number;
     inventory: Record<string, number>;
@@ -44,8 +44,8 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
 
-  const [activeTab, setActiveTab] = useState<"inventory" | "equipped">(
-    "inventory"
+  const [activeTab, setActiveTab] = useState<'inventory' | 'equipped'>(
+    'inventory',
   );
   const [showSlots, setShowSlots] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -63,10 +63,10 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   const allTreeItems = useQuery(api.treeItems.getAllTreeItems);
 
   const treeLabels = {
-    "tree-1": "Sprout",
-    "tree-2": "Small Tree",
-    "tree-3": "Medium Tree",
-    "tree-4": "Grown Tree",
+    'tree-1': 'Sprout',
+    'tree-2': 'Small Tree',
+    'tree-3': 'Medium Tree',
+    'tree-4': 'Grown Tree',
   };
 
   const [alertModal, setAlertModal] = useState<{
@@ -78,8 +78,8 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     iconColor?: string;
   }>({
     visible: false,
-    title: "",
-    message: "",
+    title: '',
+    message: '',
     buttons: [],
   });
 
@@ -91,14 +91,14 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         acc[item.itemId] = item;
         return acc;
       },
-      {} as Record<string, any>
+      {} as Record<string, any>,
     );
   }, [allTreeItems]);
 
   // Bottom Sheet Modal refs and configuration
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   // Set to single snap point at 90% for maximum height
-  const snapPoints = useMemo(() => ["90%"], []);
+  const snapPoints = useMemo(() => ['90%'], []);
 
   const handleOpenBottomSheet = useCallback(() => {
     bottomSheetModalRef.current?.present();
@@ -114,10 +114,10 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     buttons: Array<{
       text: string;
       onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
+      style?: 'default' | 'cancel' | 'destructive';
     }>,
-    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
-    iconColor?: string
+    icon?: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap,
+    iconColor?: string,
   ) => {
     setAlertModal({
       visible: true,
@@ -137,16 +137,16 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         disappearsOnIndex={-1}
         appearsOnIndex={0}
         opacity={0.6}
-        style={{ backgroundColor: isDarkMode ? "#000000" : "#64748b" }}
+        style={{ backgroundColor: isDarkMode ? '#000000' : '#64748b' }}
       />
     ),
-    [isDarkMode]
+    [isDarkMode],
   );
 
   const updateTreeDecorations = useMutation(api.trees.updateTreeDecorations);
   const removeTreeDecoration = useMutation(api.trees.removeTreeDecoration);
 
-  const screenWidth = Dimensions.get("window").width;
+  const screenWidth = Dimensions.get('window').width;
   const treeSize = 180;
   const treeCenter = screenWidth / 2;
 
@@ -171,8 +171,8 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     }
 
     // Category-based fallback
-    if (item.category === "fruit") return images.orange;
-    if (item.category === "leaf") return images.leaf;
+    if (item.category === 'fruit') return images.orange;
+    if (item.category === 'leaf') return images.leaf;
 
     return images.leaf; // final fallback
   };
@@ -182,30 +182,30 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
     const baseX = treeCenter - treeSize / 2;
     const baseY = 20;
 
-    if (treeData.stage === "tree-2") {
+    if (treeData.stage === 'tree-2') {
       return [
-        { x: baseX + 40, y: baseY + 60, id: "slot1" },
-        { x: baseX + 120, y: baseY + 80, id: "slot2" },
+        { x: baseX + 40, y: baseY + 60, id: 'slot1' },
+        { x: baseX + 120, y: baseY + 80, id: 'slot2' },
       ];
     }
 
-    if (treeData.stage === "tree-3") {
+    if (treeData.stage === 'tree-3') {
       return [
-        { x: baseX + 50, y: baseY + 180, id: "slot1" },
-        { x: baseX + 90, y: baseY + 220, id: "slot2" },
-        { x: baseX + 90, y: baseY + 185, id: "slot3" },
-        { x: baseX + 50, y: baseY + 250, id: "slot4" },
+        { x: baseX + 50, y: baseY + 180, id: 'slot1' },
+        { x: baseX + 90, y: baseY + 220, id: 'slot2' },
+        { x: baseX + 90, y: baseY + 185, id: 'slot3' },
+        { x: baseX + 50, y: baseY + 250, id: 'slot4' },
       ];
     }
 
-    if (treeData.stage === "tree-4") {
+    if (treeData.stage === 'tree-4') {
       return [
-        { x: baseX + 20, y: baseY + 70, id: "slot1" },
-        { x: baseX + 170, y: baseY + 110, id: "slot2" },
-        { x: baseX + 110, y: baseY + 75, id: "slot3" },
-        { x: baseX - 40, y: baseY + 140, id: "slot4" },
-        { x: baseX + 190, y: baseY + 190, id: "slot5" },
-        { x: baseX - 50, y: baseY + 210, id: "slot6" },
+        { x: baseX + 20, y: baseY + 70, id: 'slot1' },
+        { x: baseX + 170, y: baseY + 110, id: 'slot2' },
+        { x: baseX + 110, y: baseY + 75, id: 'slot3' },
+        { x: baseX - 40, y: baseY + 140, id: 'slot4' },
+        { x: baseX + 190, y: baseY + 190, id: 'slot5' },
+        { x: baseX - 50, y: baseY + 210, id: 'slot6' },
       ];
     }
 
@@ -213,15 +213,15 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   };
 
   const canShowInventory =
-    treeData.stage === "tree-2" ||
-    treeData.stage === "tree-3" ||
-    treeData.stage === "tree-4";
+    treeData.stage === 'tree-2' ||
+    treeData.stage === 'tree-3' ||
+    treeData.stage === 'tree-4';
   const maxAllowed =
-    treeData.stage === "tree-2"
+    treeData.stage === 'tree-2'
       ? 2
-      : treeData.stage === "tree-3"
+      : treeData.stage === 'tree-3'
         ? 4
-        : treeData.stage === "tree-4"
+        : treeData.stage === 'tree-4'
           ? 6
           : 0;
   const currentDecorations = treeData.decorations?.length ?? 0;
@@ -247,26 +247,26 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       const overlap = existing.some(
         (dec) =>
           Math.abs(dec.position.x - chosenSlot.x) < 20 &&
-          Math.abs(dec.position.y - chosenSlot.y) < 20
+          Math.abs(dec.position.y - chosenSlot.y) < 20,
       );
       if (overlap) {
         showAlert(
-          "Slot Occupied",
-          "This position is already taken!",
-          [{ text: "OK", style: "default" }],
-          "warning",
-          "#f59e0b"
+          'Slot Occupied',
+          'This position is already taken!',
+          [{ text: 'OK', style: 'default' }],
+          'warning',
+          '#f59e0b',
         );
         return;
       }
 
       if (currentDecorations >= maxAllowed) {
         showAlert(
-          "Maximum Reached",
+          'Maximum Reached',
           `You can only place ${maxAllowed} decorations on this tree stage.`,
-          [{ text: "OK", style: "default" }],
-          "information-circle",
-          "#3b82f6"
+          [{ text: 'OK', style: 'default' }],
+          'information-circle',
+          '#3b82f6',
         );
         return;
       }
@@ -286,11 +286,11 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       onInventoryUpdate?.();
     } catch (err: any) {
       showAlert(
-        "Placement Error",
+        'Placement Error',
         err.message,
-        [{ text: "OK", style: "default" }],
-        "alert-circle",
-        "#ef4444"
+        [{ text: 'OK', style: 'default' }],
+        'alert-circle',
+        '#ef4444',
       );
     }
   };
@@ -323,11 +323,11 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       onInventoryUpdate?.();
     } catch (err: any) {
       showAlert(
-        "Removal Error",
+        'Removal Error',
         err.message,
-        [{ text: "OK", style: "default" }],
-        "alert-circle",
-        "#ef4444"
+        [{ text: 'OK', style: 'default' }],
+        'alert-circle',
+        '#ef4444',
       );
     }
   };
@@ -351,7 +351,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             style={{
               backgroundColor: `${theme.colors.primary}CC`,
               borderColor: theme.colors.primary,
-              position: "absolute",
+              position: 'absolute',
               left: slot.x - 20,
               top: slot.y - 20,
             }}
@@ -379,14 +379,14 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
               key={index}
               onPress={() => handleDecorationPress(index)}
               style={{
-                position: "absolute",
+                position: 'absolute',
                 left: decoration.position.x - 25,
                 top: decoration.position.y - 25,
               }}
             >
               <BlurView
                 intensity={80}
-                tint={isDarkMode ? "dark" : "light"}
+                tint={isDarkMode ? 'dark' : 'light'}
                 className="w-16 h-16 rounded-full border-2 justify-center items-center overflow-hidden"
                 style={{
                   borderColor: item.color,
@@ -484,7 +484,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         </View>
         <BlurView
           intensity={40}
-          tint={isDarkMode ? "dark" : "light"}
+          tint={isDarkMode ? 'dark' : 'light'}
           className="rounded-xl p-3 border-l-4 overflow-hidden"
           style={{ borderLeftColor: item.color }}
         >
@@ -506,7 +506,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   };
 
   const renderFlatListItem = ({ item }: { item: any }) => {
-    if (item.type === "section_header") {
+    if (item.type === 'section_header') {
       return (
         <View className="mb-4 mt-2">
           <View className="flex-row items-center gap-3 mb-4">
@@ -518,7 +518,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             </Text>
             <BlurView
               intensity={60}
-              tint={isDarkMode ? "dark" : "light"}
+              tint={isDarkMode ? 'dark' : 'light'}
               className="px-3 py-1 rounded-full overflow-hidden"
             >
               <Text
@@ -533,7 +533,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       );
     }
 
-    if (item.type === "item") {
+    if (item.type === 'item') {
       return <View className="mb-3">{renderInventoryItem(item.itemId)}</View>;
     }
 
@@ -545,44 +545,44 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
 
     // Filter items to only show those that exist in the user's inventory (unlocked items)
     const unlockedItems = allTreeItems.filter((item) =>
-      treeData.inventory.hasOwnProperty(item.itemId)
+      treeData.inventory.hasOwnProperty(item.itemId),
     );
 
-    const leafItems = unlockedItems.filter((item) => item.category === "leaf");
+    const leafItems = unlockedItems.filter((item) => item.category === 'leaf');
     const fruitItems = unlockedItems.filter(
-      (item) => item.category === "fruit"
+      (item) => item.category === 'fruit',
     );
 
     const totalLeaves = leafItems.reduce(
       (sum, item) => sum + getItemCount(item.itemId),
-      0
+      0,
     );
     const totalFruits = fruitItems.reduce(
       (sum, item) => sum + getItemCount(item.itemId),
-      0
+      0,
     );
 
     // Create flat data structure for FlatList
     const inventoryData = [
       {
-        type: "section_header",
-        title: "🍊 Fruits",
+        type: 'section_header',
+        title: '🍊 Fruits',
         count: totalFruits,
-        id: "fruits_header",
+        id: 'fruits_header',
       },
       ...fruitItems.map((item) => ({
-        type: "item",
+        type: 'item',
         itemId: item.itemId,
         id: `fruit_${item.itemId}`,
       })),
       {
-        type: "section_header",
-        title: "🍃 Leaves",
+        type: 'section_header',
+        title: '🍃 Leaves',
         count: totalLeaves,
-        id: "leaves_header",
+        id: 'leaves_header',
       },
       ...leafItems.map((item) => ({
-        type: "item",
+        type: 'item',
         itemId: item.itemId,
         id: `leaf_${item.itemId}`,
       })),
@@ -603,7 +603,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       >
         <BlurView
           intensity={80}
-          tint={isDarkMode ? "dark" : "light"}
+          tint={isDarkMode ? 'dark' : 'light'}
           className="absolute inset-0"
         />
         <Text className="text-lg mr-3 font-mainRegular">🎒</Text>
@@ -635,7 +635,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             setSelectedItemId(null);
           }}
           className="rounded-2xl p-4 mb-4 overflow-hidden w-full"
-          style={{ backgroundColor: "#ef4444" }}
+          style={{ backgroundColor: '#ef4444' }}
         >
           <Text className="text-white text-base font-semibold text-center font-mainRegular">
             ✕ Cancel Placement
@@ -674,7 +674,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
               className="text-sm mt-1 font-mainRegular"
               style={{ color: theme.colors.text.secondary }}
             >
-              {treeLabels[treeData.stage]} • {currentDecorations}/{maxAllowed}{" "}
+              {treeLabels[treeData.stage]} • {currentDecorations}/{maxAllowed}{' '}
               slots used
             </Text>
           </View>
@@ -699,25 +699,25 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         >
           <BlurView
             intensity={60}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             className="absolute inset-0"
           />
           <TouchableOpacity
-            onPress={() => setActiveTab("inventory")}
+            onPress={() => setActiveTab('inventory')}
             className="flex-1 py-3 px-4 rounded-xl overflow-hidden"
             style={{
               backgroundColor:
-                activeTab === "inventory"
+                activeTab === 'inventory'
                   ? theme.colors.primary
-                  : "transparent",
+                  : 'transparent',
             }}
           >
             <Text
               className="text-center text-base font-semibold font-mainRegular"
               style={{
                 color:
-                  activeTab === "inventory"
-                    ? "#ffffff"
+                  activeTab === 'inventory'
+                    ? '#ffffff'
                     : theme.colors.text.secondary,
               }}
             >
@@ -725,19 +725,19 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => setActiveTab("equipped")}
+            onPress={() => setActiveTab('equipped')}
             className="flex-1 py-3 px-4 rounded-xl overflow-hidden"
             style={{
               backgroundColor:
-                activeTab === "equipped" ? theme.colors.primary : "transparent",
+                activeTab === 'equipped' ? theme.colors.primary : 'transparent',
             }}
           >
             <Text
               className="text-center text-base font-semibold font-mainRegular"
               style={{
                 color:
-                  activeTab === "equipped"
-                    ? "#ffffff"
+                  activeTab === 'equipped'
+                    ? '#ffffff'
                     : theme.colors.text.secondary,
               }}
             >
@@ -747,7 +747,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         </View>
 
         {/* Scrollable Content */}
-        {activeTab === "inventory" ? (
+        {activeTab === 'inventory' ? (
           <BottomSheetFlatList
             data={renderInventorySection()}
             renderItem={renderFlatListItem}
@@ -817,7 +817,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                   </View>
                   <BlurView
                     intensity={40}
-                    tint={isDarkMode ? "dark" : "light"}
+                    tint={isDarkMode ? 'dark' : 'light'}
                     className="rounded-xl p-3 border-l-4 overflow-hidden"
                     style={{ borderLeftColor: itemData.color }}
                   >
@@ -839,11 +839,11 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                           className="text-xs font-semibold font-mainRegular"
                           style={{ color: theme.colors.primary }}
                         >
-                          ⚡ Buffs: {itemData.buffs.xpMultiplier}x Multiplier{" "}
+                          ⚡ Buffs: {itemData.buffs.xpMultiplier}x Multiplier{' '}
                           {itemData.buffs.dailyBonus && [
-                            ", +",
+                            ', +',
                             itemData.buffs.dailyBonus,
-                            "Bonus Daily XP",
+                            'Bonus Daily XP',
                           ]}
                         </Text>
                       </View>
@@ -887,7 +887,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
         {/* Footer - Fixed at bottom */}
         <BlurView
           intensity={80}
-          tint={isDarkMode ? "dark" : "light"}
+          tint={isDarkMode ? 'dark' : 'light'}
           className="px-6 py-4 border-t"
           style={{ borderTopColor: theme.colors.cardBorder }}
         >
@@ -895,9 +895,9 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             className="text-xs text-center font-mainRegular"
             style={{ color: theme.colors.text.tertiary }}
           >
-            {activeTab === "inventory"
-              ? "💡 Tap an item to equip it on your tree and boost your growth"
-              : "🔧 Tap equipped items to view details or remove them"}
+            {activeTab === 'inventory'
+              ? '💡 Tap an item to equip it on your tree and boost your growth'
+              : '🔧 Tap equipped items to view details or remove them'}
           </Text>
         </BlurView>
       </BottomSheetModal>

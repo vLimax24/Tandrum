@@ -1,15 +1,15 @@
 // DecorationDetailBottomSheet.tsx
-import React, { forwardRef, useMemo } from "react";
-import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
+import React, { forwardRef, useMemo } from 'react';
+import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetView,
   BottomSheetBackdrop,
-} from "@gorhom/bottom-sheet";
-import { BlurView } from "expo-blur";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { images } from "@/utils/images";
+} from '@gorhom/bottom-sheet';
+import { BlurView } from 'expo-blur';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { images } from '@/utils/images';
 
 interface DecorationDetailBottomSheetProps {
   onClose: () => void;
@@ -38,7 +38,7 @@ const DecorationDetailBottomSheet = forwardRef<
   BottomSheetModal,
   DecorationDetailBottomSheetProps
 >(({ onClose, onRemove, decoration, itemDefinition, slotIndex }, ref) => {
-  const snapPoints = useMemo(() => ["50%"], []);
+  const snapPoints = useMemo(() => ['50%'], []);
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
 
@@ -51,7 +51,7 @@ const DecorationDetailBottomSheet = forwardRef<
         opacity={0.4}
       />
     ),
-    []
+    [],
   );
 
   if (!decoration || !itemDefinition) return null;
@@ -59,52 +59,52 @@ const DecorationDetailBottomSheet = forwardRef<
   const getRarityConfig = (rarity: string) => {
     const baseConfig = {
       rare: {
-        primary: "#f59e0b",
-        secondary: "#fbbf24",
+        primary: '#f59e0b',
+        secondary: '#fbbf24',
         background: isDarkMode
-          ? "rgba(251, 191, 36, 0.1)"
-          : "rgba(254, 243, 199, 0.8)",
+          ? 'rgba(251, 191, 36, 0.1)'
+          : 'rgba(254, 243, 199, 0.8)',
         border: isDarkMode
-          ? "rgba(251, 191, 36, 0.3)"
-          : "rgba(251, 191, 36, 0.2)",
-        text: isDarkMode ? "#fbbf24" : "#92400e",
-        badge: isDarkMode ? "rgba(251, 191, 36, 0.2)" : "#f59e0b",
+          ? 'rgba(251, 191, 36, 0.3)'
+          : 'rgba(251, 191, 36, 0.2)',
+        text: isDarkMode ? '#fbbf24' : '#92400e',
+        badge: isDarkMode ? 'rgba(251, 191, 36, 0.2)' : '#f59e0b',
       },
       epic: {
-        primary: "#8b5cf6",
-        secondary: "#a78bfa",
+        primary: '#8b5cf6',
+        secondary: '#a78bfa',
         background: isDarkMode
-          ? "rgba(167, 139, 250, 0.1)"
-          : "rgba(245, 243, 255, 0.8)",
+          ? 'rgba(167, 139, 250, 0.1)'
+          : 'rgba(245, 243, 255, 0.8)',
         border: isDarkMode
-          ? "rgba(167, 139, 250, 0.3)"
-          : "rgba(139, 92, 246, 0.2)",
-        text: isDarkMode ? "#a78bfa" : "#6b21a8",
-        badge: isDarkMode ? "rgba(167, 139, 250, 0.2)" : "#8b5cf6",
+          ? 'rgba(167, 139, 250, 0.3)'
+          : 'rgba(139, 92, 246, 0.2)',
+        text: isDarkMode ? '#a78bfa' : '#6b21a8',
+        badge: isDarkMode ? 'rgba(167, 139, 250, 0.2)' : '#8b5cf6',
       },
       legendary: {
-        primary: "#ef4444",
-        secondary: "#f87171",
+        primary: '#ef4444',
+        secondary: '#f87171',
         background: isDarkMode
-          ? "rgba(248, 113, 113, 0.1)"
-          : "rgba(254, 226, 226, 0.8)",
+          ? 'rgba(248, 113, 113, 0.1)'
+          : 'rgba(254, 226, 226, 0.8)',
         border: isDarkMode
-          ? "rgba(248, 113, 113, 0.3)"
-          : "rgba(239, 68, 68, 0.2)",
-        text: isDarkMode ? "#f87171" : "#991b1b",
-        badge: isDarkMode ? "rgba(248, 113, 113, 0.2)" : "#ef4444",
+          ? 'rgba(248, 113, 113, 0.3)'
+          : 'rgba(239, 68, 68, 0.2)',
+        text: isDarkMode ? '#f87171' : '#991b1b',
+        badge: isDarkMode ? 'rgba(248, 113, 113, 0.2)' : '#ef4444',
       },
       common: {
         primary: theme.colors.primary,
         secondary: theme.colors.primaryLight,
         background: isDarkMode
-          ? "rgba(0, 204, 136, 0.1)"
-          : "rgba(220, 252, 231, 0.8)",
+          ? 'rgba(0, 204, 136, 0.1)'
+          : 'rgba(220, 252, 231, 0.8)',
         border: isDarkMode
-          ? "rgba(0, 204, 136, 0.3)"
-          : "rgba(0, 153, 102, 0.2)",
-        text: isDarkMode ? theme.colors.primaryLight : "#065f46",
-        badge: isDarkMode ? "rgba(0, 204, 136, 0.2)" : theme.colors.primary,
+          ? 'rgba(0, 204, 136, 0.3)'
+          : 'rgba(0, 153, 102, 0.2)',
+        text: isDarkMode ? theme.colors.primaryLight : '#065f46',
+        badge: isDarkMode ? 'rgba(0, 204, 136, 0.2)' : theme.colors.primary,
       },
     };
 
@@ -132,7 +132,7 @@ const DecorationDetailBottomSheet = forwardRef<
     >
       <BlurView
         intensity={isDarkMode ? 60 : 80}
-        tint={isDarkMode ? "dark" : "light"}
+        tint={isDarkMode ? 'dark' : 'light'}
         className="flex-1 rounded-t-3xl overflow-hidden"
       >
         <BottomSheetView className="flex-1">
@@ -141,7 +141,7 @@ const DecorationDetailBottomSheet = forwardRef<
             <View className="relative overflow-hidden mb-5">
               <BlurView
                 intensity={20}
-                tint={isDarkMode ? "dark" : "light"}
+                tint={isDarkMode ? 'dark' : 'light'}
                 className="px-6 pt-8 pb-6"
                 style={{ backgroundColor: rarityConfig.background }}
               >
@@ -168,7 +168,7 @@ const DecorationDetailBottomSheet = forwardRef<
                 >
                   <BlurView
                     intensity={40}
-                    tint={isDarkMode ? "dark" : "light"}
+                    tint={isDarkMode ? 'dark' : 'light'}
                     className="w-10 h-10 rounded-2xl justify-center items-center overflow-hidden"
                     style={{ backgroundColor: theme.colors.glass }}
                   >
@@ -186,7 +186,7 @@ const DecorationDetailBottomSheet = forwardRef<
                   <View className="relative mb-6">
                     <BlurView
                       intensity={30}
-                      tint={isDarkMode ? "dark" : "light"}
+                      tint={isDarkMode ? 'dark' : 'light'}
                       className="w-24 h-24 rounded-3xl justify-center items-center"
                       style={{
                         backgroundColor: theme.colors.cardBackground,
@@ -221,14 +221,14 @@ const DecorationDetailBottomSheet = forwardRef<
 
                     <BlurView
                       intensity={20}
-                      tint={isDarkMode ? "dark" : "light"}
+                      tint={isDarkMode ? 'dark' : 'light'}
                       className="px-4 py-2 rounded-2xl"
                       style={{ backgroundColor: rarityConfig.badge }}
                     >
                       <Text
                         className="text-sm font-bold uppercase tracking-wider font-mainRegular"
                         style={{
-                          color: isDarkMode ? rarityConfig.text : "white",
+                          color: isDarkMode ? rarityConfig.text : 'white',
                         }}
                       >
                         {itemDefinition.rarity}
@@ -244,7 +244,7 @@ const DecorationDetailBottomSheet = forwardRef<
               {/* Active Ability Card */}
               <BlurView
                 intensity={30}
-                tint={isDarkMode ? "dark" : "light"}
+                tint={isDarkMode ? 'dark' : 'light'}
                 className="rounded-3xl p-5 overflow-hidden"
                 style={{
                   backgroundColor: theme.colors.cardBackground,
@@ -297,7 +297,7 @@ const DecorationDetailBottomSheet = forwardRef<
                 {decoration.buff && (
                   <BlurView
                     intensity={20}
-                    tint={isDarkMode ? "dark" : "light"}
+                    tint={isDarkMode ? 'dark' : 'light'}
                     className="mt-4 rounded-2xl p-4"
                     style={{ backgroundColor: `${theme.colors.primary}10` }}
                   >
@@ -330,7 +330,7 @@ const DecorationDetailBottomSheet = forwardRef<
               {/* Equipment Details */}
               <BlurView
                 intensity={30}
-                tint={isDarkMode ? "dark" : "light"}
+                tint={isDarkMode ? 'dark' : 'light'}
                 className="rounded-3xl p-5 overflow-hidden"
                 style={{
                   backgroundColor: theme.colors.cardBackground,
@@ -408,7 +408,7 @@ const DecorationDetailBottomSheet = forwardRef<
                 <TouchableOpacity onPress={onClose} className="flex-1">
                   <BlurView
                     intensity={30}
-                    tint={isDarkMode ? "dark" : "light"}
+                    tint={isDarkMode ? 'dark' : 'light'}
                     className="rounded-2xl py-4 px-6"
                     style={{
                       backgroundColor: theme.colors.cardBackground,
@@ -428,7 +428,7 @@ const DecorationDetailBottomSheet = forwardRef<
                 <TouchableOpacity onPress={onRemove} className="flex-1">
                   <View
                     className="rounded-2xl py-4 px-6"
-                    style={{ backgroundColor: "#ef4444" }}
+                    style={{ backgroundColor: '#ef4444' }}
                   >
                     <Text className="text-white text-base font-semibold text-center font-mainRegular">
                       Remove Item
@@ -451,6 +451,6 @@ const DecorationDetailBottomSheet = forwardRef<
   );
 });
 
-DecorationDetailBottomSheet.displayName = "DecorationDetailBottomSheet";
+DecorationDetailBottomSheet.displayName = 'DecorationDetailBottomSheet';
 
 export default DecorationDetailBottomSheet;

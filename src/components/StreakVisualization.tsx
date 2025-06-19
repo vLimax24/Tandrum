@@ -1,33 +1,33 @@
-import React from "react";
-import { View, Text, Dimensions } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { Doc } from "../../convex/_generated/dataModel";
+import React from 'react';
+import { View, Text, Dimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { Doc } from '../../convex/_generated/dataModel';
 
 // Enhanced Streak Display with Enterprise Glass Design
 const getStreakColors = (streak, isDarkMode) => {
   const baseColors = {
     30: {
-      primary: "#8B5CF6", // Purple for 30+ days
-      secondary: "#A78BFA",
-      light: "#C4B5FD",
+      primary: '#8B5CF6', // Purple for 30+ days
+      secondary: '#A78BFA',
+      light: '#C4B5FD',
     },
     14: {
-      primary: "#F59E0B", // Amber for 14+ days
-      secondary: "#FBBF24",
-      light: "#FDE68A",
+      primary: '#F59E0B', // Amber for 14+ days
+      secondary: '#FBBF24',
+      light: '#FDE68A',
     },
     7: {
-      primary: "#06B6D4", // Cyan for 7+ days
-      secondary: "#22D3EE",
-      light: "#A5F3FC",
+      primary: '#06B6D4', // Cyan for 7+ days
+      secondary: '#22D3EE',
+      light: '#A5F3FC',
     },
     default: {
-      primary: "#009966", // Using your primary color
-      secondary: "#00cc88",
-      light: "#34D399",
+      primary: '#009966', // Using your primary color
+      secondary: '#00cc88',
+      light: '#34D399',
     },
   };
 
@@ -51,15 +51,15 @@ export const StreakVisualization = ({ duo }) => {
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
   const streakColors = getStreakColors(duo.streak || 0, isDarkMode);
-  const { width: screenWidth } = Dimensions.get("window");
+  const { width: screenWidth } = Dimensions.get('window');
 
   const calculateStreakDisplay = () => {
     const currentDate = new Date();
     const totalStreak = duo.streak || 0;
 
     const streakDisplay = [];
-    const daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"];
-    const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const daysOfWeek = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
     // Calculate circle size based on screen width with more spacing
     const circleSize = Math.min((screenWidth - 120) / 7 - 8, 40);
@@ -68,7 +68,7 @@ export const StreakVisualization = ({ duo }) => {
     const currentDay = currentDate.getDay();
     const monday = new Date(currentDate);
     monday.setDate(
-      currentDate.getDate() - (currentDay === 0 ? 6 : currentDay - 1)
+      currentDate.getDate() - (currentDay === 0 ? 6 : currentDay - 1),
     );
 
     for (let i = 0; i < 7; i++) {
@@ -80,7 +80,7 @@ export const StreakVisualization = ({ duo }) => {
         totalStreak > 0 &&
         (() => {
           const daysDiff = Math.floor(
-            (dayDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+            (dayDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24),
           );
           return daysDiff <= 0 && daysDiff > -totalStreak;
         })();
@@ -99,24 +99,24 @@ export const StreakVisualization = ({ duo }) => {
                 : isToday
                   ? isDarkMode
                     ? theme.colors.glass
-                    : "#f0fdf4"
+                    : '#f0fdf4'
                   : isDarkMode
-                    ? "rgba(148, 163, 184, 0.1)"
-                    : "#f9fafb",
+                    ? 'rgba(148, 163, 184, 0.1)'
+                    : '#f9fafb',
               borderColor: isStreakDay
                 ? streakColors.primary
                 : isToday
                   ? `${streakColors.primary}66`
                   : isDarkMode
                     ? theme.colors.cardBorder
-                    : "#e5e7eb",
+                    : '#e5e7eb',
             }}
           >
             <Text
               className="text-xs font-bold"
               style={{
                 color: isStreakDay
-                  ? "white"
+                  ? 'white'
                   : isToday
                     ? streakColors.primary
                     : theme.colors.text.tertiary,
@@ -137,7 +137,7 @@ export const StreakVisualization = ({ duo }) => {
           >
             {dayLabels[i]}
           </Text>
-        </View>
+        </View>,
       );
     }
 
@@ -145,10 +145,10 @@ export const StreakVisualization = ({ duo }) => {
   };
 
   const getMilestoneText = (streak) => {
-    if (streak >= 30) return "🏆 LEGEND";
-    if (streak >= 14) return "🔥 ON FIRE";
-    if (streak >= 7) return "⚡ UNSTOPPABLE";
-    return "🌱 GROWING";
+    if (streak >= 30) return '🏆 LEGEND';
+    if (streak >= 14) return '🔥 ON FIRE';
+    if (streak >= 7) return '⚡ UNSTOPPABLE';
+    return '🌱 GROWING';
   };
 
   const getNextMilestone = (streak) => {
@@ -162,7 +162,7 @@ export const StreakVisualization = ({ duo }) => {
       {/* Main glass container */}
       <BlurView
         intensity={isDarkMode ? 80 : 100}
-        tint={isDarkMode ? "dark" : "light"}
+        tint={isDarkMode ? 'dark' : 'light'}
         className="rounded-3xl overflow-hidden"
         style={{
           backgroundColor: theme.colors.cardBackground,
@@ -175,8 +175,8 @@ export const StreakVisualization = ({ duo }) => {
           colors={[
             isDarkMode ? streakColors.border : streakColors.border,
             isDarkMode
-              ? "rgba(255, 255, 255, 0.05)"
-              : "rgba(255, 255, 255, 0.8)",
+              ? 'rgba(255, 255, 255, 0.05)'
+              : 'rgba(255, 255, 255, 0.8)',
           ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -187,8 +187,8 @@ export const StreakVisualization = ({ duo }) => {
             className="rounded-3xl p-6 relative overflow-hidden"
             style={{
               backgroundColor: isDarkMode
-                ? "rgba(15, 23, 42, 0.6)"
-                : "rgba(248, 250, 252, 0.8)",
+                ? 'rgba(15, 23, 42, 0.6)'
+                : 'rgba(248, 250, 252, 0.8)',
             }}
           >
             {/* Animated background orbs */}
@@ -248,12 +248,12 @@ export const StreakVisualization = ({ duo }) => {
                   <View className="flex-row">
                     <BlurView
                       intensity={60}
-                      tint={isDarkMode ? "dark" : "light"}
+                      tint={isDarkMode ? 'dark' : 'light'}
                       className="px-4 py-2 rounded-full overflow-hidden"
                       style={{
                         backgroundColor: isDarkMode
-                          ? "rgba(139, 92, 246, 0.15)"
-                          : "rgba(139, 92, 246, 0.1)",
+                          ? 'rgba(139, 92, 246, 0.15)'
+                          : 'rgba(139, 92, 246, 0.1)',
                         borderWidth: 1,
                         borderColor: streakColors.border,
                         minWidth: 90,
@@ -301,7 +301,7 @@ export const StreakVisualization = ({ duo }) => {
                     {duo.streak || 0}
                   </Text>
                   <Text className="text-white text-xs font-semibold opacity-90 mt-1">
-                    {duo.streak > 1 ? "DAYS" : "DAY"}
+                    {duo.streak > 1 ? 'DAYS' : 'DAY'}
                   </Text>
                 </LinearGradient>
               </View>
@@ -333,16 +333,16 @@ export const StreakVisualization = ({ duo }) => {
               {/* Week progress container with glass effect */}
               <BlurView
                 intensity={40}
-                tint={isDarkMode ? "dark" : "light"}
+                tint={isDarkMode ? 'dark' : 'light'}
                 className="rounded-2xl p-4 overflow-hidden"
                 style={{
                   backgroundColor: isDarkMode
-                    ? "rgba(30, 41, 59, 0.4)"
-                    : "rgba(255, 255, 255, 0.6)",
+                    ? 'rgba(30, 41, 59, 0.4)'
+                    : 'rgba(255, 255, 255, 0.6)',
                   borderWidth: 1,
                   borderColor: isDarkMode
-                    ? "rgba(148, 163, 184, 0.2)"
-                    : "rgba(148, 163, 184, 0.3)",
+                    ? 'rgba(148, 163, 184, 0.2)'
+                    : 'rgba(148, 163, 184, 0.3)',
                 }}
               >
                 <View className="flex-row justify-between items-center">
@@ -355,23 +355,23 @@ export const StreakVisualization = ({ duo }) => {
                 <View className="flex-row items-center justify-center">
                   <BlurView
                     intensity={50}
-                    tint={isDarkMode ? "dark" : "light"}
+                    tint={isDarkMode ? 'dark' : 'light'}
                     className="flex-row items-center px-4 py-2 rounded-full overflow-hidden"
                     style={{
                       backgroundColor: isDarkMode
-                        ? "rgba(30, 41, 59, 0.5)"
-                        : "rgba(255, 255, 255, 0.7)",
+                        ? 'rgba(30, 41, 59, 0.5)'
+                        : 'rgba(255, 255, 255, 0.7)',
                       borderWidth: 1,
                       borderColor: isDarkMode
-                        ? "rgba(148, 163, 184, 0.2)"
-                        : "rgba(148, 163, 184, 0.3)",
+                        ? 'rgba(148, 163, 184, 0.2)'
+                        : 'rgba(148, 163, 184, 0.3)',
                     }}
                   >
                     <Text
                       className="text-xs font-medium"
                       style={{ color: theme.colors.text.secondary }}
                     >
-                      Next milestone:{" "}
+                      Next milestone:{' '}
                     </Text>
                     <Text
                       className="text-xs font-bold"

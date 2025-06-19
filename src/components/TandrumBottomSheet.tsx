@@ -1,15 +1,15 @@
-import React, { useCallback, useMemo, ReactNode } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import React, { useCallback, useMemo, ReactNode } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetView,
   BottomSheetBackdrop,
-} from "@gorhom/bottom-sheet";
-import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
+} from '@gorhom/bottom-sheet';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
 
 interface TandrumBottomSheetProps {
   children: ReactNode;
@@ -31,11 +31,11 @@ const TandrumBottomSheet = React.forwardRef<
       title,
       subtitle,
       icon,
-      snapPoints = ["75%"],
+      snapPoints = ['75%'],
       onClose,
       onDismiss,
     },
-    ref
+    ref,
   ) => {
     const { isDarkMode } = useTheme();
     const theme = createTheme(isDarkMode);
@@ -43,7 +43,7 @@ const TandrumBottomSheet = React.forwardRef<
     const memoizedSnapPoints = useMemo(() => snapPoints, [snapPoints]);
 
     const handleClose = useCallback(() => {
-      if (ref && "current" in ref && ref.current) {
+      if (ref && 'current' in ref && ref.current) {
         ref.current.dismiss();
       }
       onClose?.();
@@ -60,13 +60,13 @@ const TandrumBottomSheet = React.forwardRef<
             props.style,
             {
               backgroundColor: isDarkMode
-                ? "rgba(15, 23, 42, 0.9)"
-                : "rgba(0, 0, 0, 0.6)",
+                ? 'rgba(15, 23, 42, 0.9)'
+                : 'rgba(0, 0, 0, 0.6)',
             },
           ]}
         />
       ),
-      [isDarkMode]
+      [isDarkMode],
     );
 
     const handleDismiss = useCallback(() => {
@@ -89,7 +89,7 @@ const TandrumBottomSheet = React.forwardRef<
         backgroundComponent={() => (
           <BlurView
             intensity={95}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             className="flex-1 rounded-t-3xl overflow-hidden"
             style={{
               backgroundColor: theme.colors.cardBackground,
@@ -113,7 +113,7 @@ const TandrumBottomSheet = React.forwardRef<
               {/* Glassmorphic overlay */}
               <View
                 className="absolute inset-0"
-                style={{ backgroundColor: "rgba(255, 255, 255, 0.12)" }}
+                style={{ backgroundColor: 'rgba(255, 255, 255, 0.12)' }}
               />
 
               <View className="flex-row items-center justify-between relative z-10">
@@ -123,7 +123,7 @@ const TandrumBottomSheet = React.forwardRef<
                     style={{
                       width: 56,
                       height: 56,
-                      backgroundColor: "rgba(255, 255, 255, 0.25)",
+                      backgroundColor: 'rgba(255, 255, 255, 0.25)',
                     }}
                   >
                     <Ionicons name={icon} size={28} color="white" />
@@ -145,7 +145,7 @@ const TandrumBottomSheet = React.forwardRef<
                   style={{
                     width: 44,
                     height: 44,
-                    backgroundColor: "rgba(255, 255, 255, 0.2)",
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
                   }}
                 >
                   <Ionicons name="close" size={24} color="white" />
@@ -164,9 +164,9 @@ const TandrumBottomSheet = React.forwardRef<
         </BottomSheetView>
       </BottomSheetModal>
     );
-  }
+  },
 );
 
-TandrumBottomSheet.displayName = "TandrumBottomSheet";
+TandrumBottomSheet.displayName = 'TandrumBottomSheet';
 
 export { TandrumBottomSheet };

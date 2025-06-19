@@ -1,12 +1,12 @@
 // src/components/LoadingScreen.tsx
-import React from "react";
-import { View, Text, ActivityIndicator } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
-import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
+import React from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
 
 export default function LoadingScreen() {
   const { isDarkMode } = useTheme();
@@ -51,7 +51,7 @@ export default function LoadingScreen() {
               width: 120,
               height: 120,
               backgroundColor: theme.colors.primary,
-              top: "40%",
+              top: '40%',
               left: -60,
             }}
           />
@@ -61,10 +61,10 @@ export default function LoadingScreen() {
           {/* Main Content Card */}
           <BlurView
             intensity={isDarkMode ? 20 : 30}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             style={{
               borderRadius: 32,
-              overflow: "hidden",
+              overflow: 'hidden',
               backgroundColor: theme.colors.glass,
               borderWidth: 1,
               borderColor: theme.colors.cardBorder,
@@ -85,12 +85,12 @@ export default function LoadingScreen() {
                       width: 100,
                       height: 100,
                       backgroundColor: isDarkMode
-                        ? "rgba(0, 153, 102, 0.15)"
-                        : "rgba(0, 153, 102, 0.1)",
+                        ? 'rgba(0, 153, 102, 0.15)'
+                        : 'rgba(0, 153, 102, 0.1)',
                       borderWidth: 1,
                       borderColor: isDarkMode
-                        ? "rgba(0, 153, 102, 0.3)"
-                        : "rgba(0, 153, 102, 0.2)",
+                        ? 'rgba(0, 153, 102, 0.3)'
+                        : 'rgba(0, 153, 102, 0.2)',
                     }}
                   />
 
@@ -103,8 +103,8 @@ export default function LoadingScreen() {
                       width: 64,
                       height: 64,
                       borderRadius: 32,
-                      alignItems: "center",
-                      justifyContent: "center",
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                   >
                     <Ionicons name="people" size={28} color="white" />

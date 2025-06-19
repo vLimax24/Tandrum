@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,15 +8,15 @@ import {
   Animated,
   Keyboard,
   TouchableWithoutFeedback,
-} from "react-native";
-import { BottomSheetModal, BottomSheetTextInput } from "@gorhom/bottom-sheet";
+} from 'react-native';
+import { BottomSheetModal, BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { TandrumBottomSheet } from "./TandrumBottomSheet";
-import { AlertModal } from "./AlertModal";
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { TandrumBottomSheet } from './TandrumBottomSheet';
+import { AlertModal } from './AlertModal';
 
 interface CreateHabitBottomSheetProps {
   onCreate: any;
@@ -31,10 +31,10 @@ const CreateHabitBottomSheet = React.forwardRef<
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
 
-  const [newTitle, setNewTitle] = useState("");
-  const [newFreq, setNewFreq] = useState<"daily" | "weekly">("daily");
+  const [newTitle, setNewTitle] = useState('');
+  const [newFreq, setNewFreq] = useState<'daily' | 'weekly'>('daily');
   const [isCreating, setIsCreating] = useState(false);
-  const [validationError, setValidationError] = useState("");
+  const [validationError, setValidationError] = useState('');
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -49,8 +49,8 @@ const CreateHabitBottomSheet = React.forwardRef<
     iconColor?: string;
   }>({
     visible: false,
-    title: "",
-    message: "",
+    title: '',
+    message: '',
     buttons: [],
   });
 
@@ -75,10 +75,10 @@ const CreateHabitBottomSheet = React.forwardRef<
     buttons: Array<{
       text: string;
       onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
+      style?: 'default' | 'cancel' | 'destructive';
     }>,
-    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
-    iconColor?: string
+    icon?: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap,
+    iconColor?: string,
   ) => {
     setAlertModal({
       visible: true,
@@ -97,22 +97,22 @@ const CreateHabitBottomSheet = React.forwardRef<
   const validateHabitTitle = (title: string): string => {
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
-      return "Habit title is required";
+      return 'Habit title is required';
     }
     if (trimmedTitle.length < 3) {
-      return "Habit title must be at least 3 characters long";
+      return 'Habit title must be at least 3 characters long';
     }
     if (trimmedTitle.length > 50) {
-      return "Habit title must be less than 50 characters";
+      return 'Habit title must be less than 50 characters';
     }
     if (
       existingHabits?.some(
-        (h) => h.title.toLowerCase() === trimmedTitle.toLowerCase()
+        (h) => h.title.toLowerCase() === trimmedTitle.toLowerCase(),
       )
     ) {
-      return "A habit with this title already exists";
+      return 'A habit with this title already exists';
     }
-    return "";
+    return '';
   };
 
   const handleTitleChange = (text: string) => {
@@ -132,11 +132,11 @@ const CreateHabitBottomSheet = React.forwardRef<
 
     if (!duo) {
       showAlert(
-        "Error",
-        "No duo selected. Please try again.",
-        [{ text: "OK", style: "default" }],
-        "alert-circle",
-        "#ef4444"
+        'Error',
+        'No duo selected. Please try again.',
+        [{ text: 'OK', style: 'default' }],
+        'alert-circle',
+        '#ef4444',
       );
       return;
     }
@@ -151,11 +151,11 @@ const CreateHabitBottomSheet = React.forwardRef<
       handleClose();
     } catch (error) {
       showAlert(
-        "Error",
-        "Failed to create habit. Please try again.",
-        [{ text: "OK", style: "default" }],
-        "alert-circle",
-        "#ef4444"
+        'Error',
+        'Failed to create habit. Please try again.',
+        [{ text: 'OK', style: 'default' }],
+        'alert-circle',
+        '#ef4444',
       );
     } finally {
       setIsCreating(false);
@@ -163,19 +163,19 @@ const CreateHabitBottomSheet = React.forwardRef<
   };
 
   const handleClose = useCallback(() => {
-    if (ref && "current" in ref && ref.current) {
+    if (ref && 'current' in ref && ref.current) {
       ref.current.dismiss();
     }
     setTimeout(() => {
-      setNewTitle("");
-      setNewFreq("daily");
-      setValidationError("");
+      setNewTitle('');
+      setNewFreq('daily');
+      setValidationError('');
       setIsCreating(false);
     }, 300);
   }, [ref]);
 
   const handleDismiss = useCallback(() => {
-    setValidationError("");
+    setValidationError('');
     Animated.timing(fadeAnim, {
       toValue: 0,
       duration: 200,
@@ -192,7 +192,7 @@ const CreateHabitBottomSheet = React.forwardRef<
         icon="people"
         onClose={handleClose}
         onDismiss={handleDismiss}
-        snapPoints={["83%"]}
+        snapPoints={['83%']}
       >
         <Animated.View
           style={{
@@ -213,7 +213,7 @@ const CreateHabitBottomSheet = React.forwardRef<
                     style={{
                       width: 40,
                       height: 40,
-                      backgroundColor: theme.colors.primary + "15",
+                      backgroundColor: theme.colors.primary + '15',
                     }}
                   >
                     <Ionicons
@@ -237,7 +237,7 @@ const CreateHabitBottomSheet = React.forwardRef<
                       backgroundColor: theme.colors.cardBackground,
                       borderWidth: 2,
                       borderColor: validationError
-                        ? "#ef4444"
+                        ? '#ef4444'
                         : newTitle.trim() && !validationError
                           ? theme.colors.primary
                           : theme.colors.cardBorder,
@@ -252,7 +252,7 @@ const CreateHabitBottomSheet = React.forwardRef<
                       multiline={false}
                       textAlignVertical="center"
                       style={{
-                        fontWeight: "500",
+                        fontWeight: '500',
                         color: theme.colors.text.primary,
                         fontSize: 16,
                         paddingLeft: 20,
@@ -329,7 +329,7 @@ const CreateHabitBottomSheet = React.forwardRef<
                     style={{
                       width: 40,
                       height: 40,
-                      backgroundColor: theme.colors.primary + "15",
+                      backgroundColor: theme.colors.primary + '15',
                     }}
                   >
                     <Ionicons
@@ -349,16 +349,16 @@ const CreateHabitBottomSheet = React.forwardRef<
                 {/* Frequency Selection Buttons */}
                 <View className="flex-row gap-3">
                   <TouchableOpacity
-                    onPress={() => setNewFreq("daily")}
+                    onPress={() => setNewFreq('daily')}
                     className="flex-1 p-4 rounded-2xl"
                     style={{
                       backgroundColor:
-                        newFreq === "daily"
-                          ? theme.colors.primary + "15"
+                        newFreq === 'daily'
+                          ? theme.colors.primary + '15'
                           : theme.colors.cardBackground,
                       borderWidth: 2,
                       borderColor:
-                        newFreq === "daily"
+                        newFreq === 'daily'
                           ? theme.colors.primary
                           : theme.colors.cardBorder,
                     }}
@@ -368,7 +368,7 @@ const CreateHabitBottomSheet = React.forwardRef<
                         name="sunny"
                         size={18}
                         color={
-                          newFreq === "daily"
+                          newFreq === 'daily'
                             ? theme.colors.primary
                             : theme.colors.text.tertiary
                         }
@@ -377,14 +377,14 @@ const CreateHabitBottomSheet = React.forwardRef<
                         className="font-semibold text-base"
                         style={{
                           color:
-                            newFreq === "daily"
+                            newFreq === 'daily'
                               ? theme.colors.primary
                               : theme.colors.text.secondary,
                         }}
                       >
                         Daily
                       </Text>
-                      {newFreq === "daily" && (
+                      {newFreq === 'daily' && (
                         <View className="ml-auto">
                           <Ionicons
                             name="checkmark-circle"
@@ -403,16 +403,16 @@ const CreateHabitBottomSheet = React.forwardRef<
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    onPress={() => setNewFreq("weekly")}
+                    onPress={() => setNewFreq('weekly')}
                     className="flex-1 p-4 rounded-2xl"
                     style={{
                       backgroundColor:
-                        newFreq === "weekly"
-                          ? theme.colors.primary + "15"
+                        newFreq === 'weekly'
+                          ? theme.colors.primary + '15'
                           : theme.colors.cardBackground,
                       borderWidth: 2,
                       borderColor:
-                        newFreq === "weekly"
+                        newFreq === 'weekly'
                           ? theme.colors.primary
                           : theme.colors.cardBorder,
                     }}
@@ -422,7 +422,7 @@ const CreateHabitBottomSheet = React.forwardRef<
                         name="calendar-outline"
                         size={18}
                         color={
-                          newFreq === "weekly"
+                          newFreq === 'weekly'
                             ? theme.colors.primary
                             : theme.colors.text.tertiary
                         }
@@ -431,14 +431,14 @@ const CreateHabitBottomSheet = React.forwardRef<
                         className="font-semibold text-base"
                         style={{
                           color:
-                            newFreq === "weekly"
+                            newFreq === 'weekly'
                               ? theme.colors.primary
                               : theme.colors.text.secondary,
                         }}
                       >
                         Weekly
                       </Text>
-                      {newFreq === "weekly" && (
+                      {newFreq === 'weekly' && (
                         <View className="ml-auto">
                           <Ionicons
                             name="checkmark-circle"
@@ -528,7 +528,7 @@ const CreateHabitBottomSheet = React.forwardRef<
                         color={
                           !!validationError || !newTitle.trim()
                             ? theme.colors.text.tertiary
-                            : "white"
+                            : 'white'
                         }
                       />
                       <Text
@@ -537,7 +537,7 @@ const CreateHabitBottomSheet = React.forwardRef<
                           color:
                             !!validationError || !newTitle.trim()
                               ? theme.colors.text.tertiary
-                              : "white",
+                              : 'white',
                         }}
                       >
                         Start Building
@@ -563,6 +563,6 @@ const CreateHabitBottomSheet = React.forwardRef<
   );
 });
 
-CreateHabitBottomSheet.displayName = "CreateHabitBottomSheet";
+CreateHabitBottomSheet.displayName = 'CreateHabitBottomSheet';
 
 export { CreateHabitBottomSheet };

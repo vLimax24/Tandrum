@@ -1,8 +1,8 @@
-import React, { useRef } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { BlurView } from "expo-blur";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
+import React, { useRef } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
 
 interface HabitItemProps {
   habit: any;
@@ -39,25 +39,25 @@ export const HabitItem: React.FC<HabitItemProps> = ({
   };
 
   const getFrequencyBadgeColors = () => {
-    if (habit.frequency === "daily") {
+    if (habit.frequency === 'daily') {
       return {
         background: isDarkMode
-          ? "rgba(34, 197, 94, 0.15)"
-          : "rgba(34, 197, 94, 0.1)",
+          ? 'rgba(34, 197, 94, 0.15)'
+          : 'rgba(34, 197, 94, 0.1)',
         border: isDarkMode
-          ? "rgba(34, 197, 94, 0.3)"
-          : "rgba(34, 197, 94, 0.2)",
-        text: isDarkMode ? "#4ade80" : "#16a34a",
+          ? 'rgba(34, 197, 94, 0.3)'
+          : 'rgba(34, 197, 94, 0.2)',
+        text: isDarkMode ? '#4ade80' : '#16a34a',
       };
     }
     return {
       background: isDarkMode
-        ? "rgba(168, 85, 247, 0.15)"
-        : "rgba(168, 85, 247, 0.1)",
+        ? 'rgba(168, 85, 247, 0.15)'
+        : 'rgba(168, 85, 247, 0.1)',
       border: isDarkMode
-        ? "rgba(168, 85, 247, 0.3)"
-        : "rgba(168, 85, 247, 0.2)",
-      text: isDarkMode ? "#c084fc" : "#9333ea",
+        ? 'rgba(168, 85, 247, 0.3)'
+        : 'rgba(168, 85, 247, 0.2)',
+      text: isDarkMode ? '#c084fc' : '#9333ea',
     };
   };
 
@@ -69,7 +69,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({
       {/* Glass morphism card */}
       <BlurView
         intensity={isDarkMode ? 40 : 20}
-        tint={isDarkMode ? "dark" : "light"}
+        tint={isDarkMode ? 'dark' : 'light'}
         className="rounded-3xl overflow-hidden"
       >
         <View
@@ -112,8 +112,8 @@ export const HabitItem: React.FC<HabitItemProps> = ({
               onPress={(event) => onMenuPress(event, habit)}
               style={{
                 backgroundColor: isDarkMode
-                  ? "rgba(148, 163, 184, 0.1)"
-                  : "rgba(148, 163, 184, 0.08)",
+                  ? 'rgba(148, 163, 184, 0.1)'
+                  : 'rgba(148, 163, 184, 0.08)',
               }}
             >
               <View className="flex-col items-center gap-1">
@@ -132,8 +132,8 @@ export const HabitItem: React.FC<HabitItemProps> = ({
             className="rounded-2xl p-6"
             style={{
               backgroundColor: isDarkMode
-                ? "rgba(15, 23, 42, 0.4)"
-                : "rgba(248, 250, 252, 0.8)",
+                ? 'rgba(15, 23, 42, 0.4)'
+                : 'rgba(248, 250, 252, 0.8)',
               borderWidth: 1,
               borderColor: theme.colors.cardBorder,
             }}
@@ -147,12 +147,12 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                   className="rounded-full px-4 py-2"
                   style={{
                     backgroundColor: isDarkMode
-                      ? "rgba(0, 153, 102, 0.2)"
-                      : "rgba(0, 153, 102, 0.1)",
+                      ? 'rgba(0, 153, 102, 0.2)'
+                      : 'rgba(0, 153, 102, 0.1)',
                     borderWidth: 1,
                     borderColor: isDarkMode
-                      ? "rgba(0, 153, 102, 0.4)"
-                      : "rgba(0, 153, 102, 0.2)",
+                      ? 'rgba(0, 153, 102, 0.4)'
+                      : 'rgba(0, 153, 102, 0.2)',
                   }}
                 >
                   <Text
@@ -174,7 +174,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                       : theme.colors.cardBorder,
                     backgroundColor: isDoneByMe
                       ? theme.colors.primary
-                      : "transparent",
+                      : 'transparent',
                   }}
                   onPress={handleCheck}
                   disabled={isDoneByMe}
@@ -214,18 +214,18 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                   className="rounded-full px-3 py-2"
                   style={{
                     backgroundColor: isDarkMode
-                      ? "rgba(59, 130, 246, 0.2)"
-                      : "rgba(59, 130, 246, 0.1)",
+                      ? 'rgba(59, 130, 246, 0.2)'
+                      : 'rgba(59, 130, 246, 0.1)',
                     borderWidth: 1,
                     borderColor: isDarkMode
-                      ? "rgba(59, 130, 246, 0.4)"
-                      : "rgba(59, 130, 246, 0.2)",
+                      ? 'rgba(59, 130, 246, 0.4)'
+                      : 'rgba(59, 130, 246, 0.2)',
                   }}
                 >
                   <Text
                     className="text-xs font-bold tracking-wide"
                     style={{
-                      color: isDarkMode ? "#60a5fa" : "#2563eb",
+                      color: isDarkMode ? '#60a5fa' : '#2563eb',
                     }}
                   >
                     PARTNER
@@ -240,14 +240,14 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                     borderWidth: 3,
                     borderColor: isDoneByPartner
                       ? isDarkMode
-                        ? "#60a5fa"
-                        : "#2563eb"
+                        ? '#60a5fa'
+                        : '#2563eb'
                       : theme.colors.cardBorder,
                     backgroundColor: isDoneByPartner
                       ? isDarkMode
-                        ? "#60a5fa"
-                        : "#2563eb"
-                      : "transparent",
+                        ? '#60a5fa'
+                        : '#2563eb'
+                      : 'transparent',
                   }}
                 >
                   {isDoneByPartner ? (
@@ -277,39 +277,39 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                     style={{
                       backgroundColor: bothCompleted
                         ? isDarkMode
-                          ? "rgba(34, 197, 94, 0.2)"
-                          : "rgba(34, 197, 94, 0.1)"
+                          ? 'rgba(34, 197, 94, 0.2)'
+                          : 'rgba(34, 197, 94, 0.1)'
                         : isDarkMode
-                          ? "rgba(251, 191, 36, 0.2)"
-                          : "rgba(251, 191, 36, 0.1)",
+                          ? 'rgba(251, 191, 36, 0.2)'
+                          : 'rgba(251, 191, 36, 0.1)',
                       borderWidth: 1,
                       borderColor: bothCompleted
                         ? isDarkMode
-                          ? "rgba(34, 197, 94, 0.4)"
-                          : "rgba(34, 197, 94, 0.2)"
+                          ? 'rgba(34, 197, 94, 0.4)'
+                          : 'rgba(34, 197, 94, 0.2)'
                         : isDarkMode
-                          ? "rgba(251, 191, 36, 0.4)"
-                          : "rgba(251, 191, 36, 0.2)",
+                          ? 'rgba(251, 191, 36, 0.4)'
+                          : 'rgba(251, 191, 36, 0.2)',
                     }}
                   >
                     <Text className="text-base">
-                      {bothCompleted ? "🎉" : "⏳"}
+                      {bothCompleted ? '🎉' : '⏳'}
                     </Text>
                     <Text
                       className="text-sm font-semibold"
                       style={{
                         color: bothCompleted
                           ? isDarkMode
-                            ? "#4ade80"
-                            : "#16a34a"
+                            ? '#4ade80'
+                            : '#16a34a'
                           : isDarkMode
-                            ? "#fbbf24"
-                            : "#d97706",
+                            ? '#fbbf24'
+                            : '#d97706',
                       }}
                     >
                       {bothCompleted
-                        ? "Both completed!"
-                        : "Waiting for partner..."}
+                        ? 'Both completed!'
+                        : 'Waiting for partner...'}
                     </Text>
                   </View>
                 </View>

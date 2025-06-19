@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { View, Text, Modal, TouchableOpacity, Pressable } from "react-native";
-import { BlurView } from "expo-blur";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
+import React, { useState } from 'react';
+import { View, Text, Modal, TouchableOpacity, Pressable } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
 
 interface DuoSelectorModalProps {
   visible: boolean;
@@ -39,13 +39,13 @@ export function DuoSelectorModal({
     >
       <Pressable
         className="flex-1 justify-center items-center w-full px-6"
-        style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
         onPress={onClose}
       >
         <Pressable onPress={(e) => e.stopPropagation()} className="w-full">
           <BlurView
             intensity={20}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             className="rounded-3xl overflow-hidden w-full"
             style={{
               backgroundColor: theme.colors.cardBackground,
@@ -113,7 +113,7 @@ export function DuoSelectorModal({
                           style={{
                             backgroundColor:
                               selectedIndex === index
-                                ? "rgba(255, 255, 255, 0.2)"
+                                ? 'rgba(255, 255, 255, 0.2)'
                                 : `${theme.colors.primary}33`,
                           }}
                         >
@@ -122,7 +122,7 @@ export function DuoSelectorModal({
                             name="person"
                             color={
                               selectedIndex === index
-                                ? "#ffffff"
+                                ? '#ffffff'
                                 : theme.colors.primary
                             }
                           />
@@ -133,7 +133,7 @@ export function DuoSelectorModal({
                             style={{
                               color:
                                 selectedIndex === index
-                                  ? "#ffffff"
+                                  ? '#ffffff'
                                   : theme.colors.text.primary,
                             }}
                           >
@@ -144,7 +144,7 @@ export function DuoSelectorModal({
                             style={{
                               color:
                                 selectedIndex === index
-                                  ? "rgba(255, 255, 255, 0.8)"
+                                  ? 'rgba(255, 255, 255, 0.8)'
                                   : theme.colors.text.secondary,
                             }}
                           >
@@ -184,7 +184,7 @@ export function DuoSelector({ connections, selectedIndex, setSelectedIndex }) {
     <>
       <BlurView
         intensity={20}
-        tint={isDarkMode ? "dark" : "light"}
+        tint={isDarkMode ? 'dark' : 'light'}
         className="rounded-3xl mb-8 overflow-hidden w-full"
         style={{
           backgroundColor: theme.colors.cardBackground,
@@ -227,7 +227,7 @@ export function DuoSelector({ connections, selectedIndex, setSelectedIndex }) {
                 </View>
                 <Text
                   className="font-semibold text-base"
-                  style={{ color: "#ffffff" }}
+                  style={{ color: '#ffffff' }}
                 >
                   Duo with {connections[selectedIndex]?.partnerName}
                 </Text>

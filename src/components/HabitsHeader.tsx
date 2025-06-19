@@ -1,10 +1,10 @@
-import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { BlurView } from "expo-blur";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import React from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 
 interface HabitsHeaderProps {
   daily?: any[];
@@ -35,7 +35,7 @@ export function HabitsHeader({
     const todayStart = new Date(
       today.getFullYear(),
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     ).getTime();
     const todayEnd = todayStart + 24 * 60 * 60 * 1000 - 1; // End of day
 
@@ -60,8 +60,8 @@ export function HabitsHeader({
       <LinearGradient
         colors={
           isDarkMode
-            ? ["#0f172a", "#1e293b", "#0f172a"]
-            : ["#f8fafc", "#ffffff", "#f1f5f9"]
+            ? ['#0f172a', '#1e293b', '#0f172a']
+            : ['#f8fafc', '#ffffff', '#f1f5f9']
         }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -73,7 +73,7 @@ export function HabitsHeader({
         colors={[
           `${theme.colors.primary}15`,
           `${theme.colors.primaryLight}08`,
-          "transparent",
+          'transparent',
         ]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -83,7 +83,7 @@ export function HabitsHeader({
       {/* Glassmorphic content container */}
       <BlurView
         intensity={isDarkMode ? 20 : 30}
-        tint={isDarkMode ? "dark" : "light"}
+        tint={isDarkMode ? 'dark' : 'light'}
         className="px-6 pt-16 pb-8"
         style={{
           backgroundColor: theme.colors.glass,
@@ -123,13 +123,13 @@ export function HabitsHeader({
             >
               <BlurView
                 intensity={20}
-                tint={isDarkMode ? "dark" : "light"}
+                tint={isDarkMode ? 'dark' : 'light'}
                 className="absolute inset-0 rounded-2xl"
               />
               <Ionicons
-                name={isDarkMode ? "sunny" : "moon"}
+                name={isDarkMode ? 'sunny' : 'moon'}
                 size={20}
-                color={isDarkMode ? "#fbbf24" : theme.colors.text.secondary}
+                color={isDarkMode ? '#fbbf24' : theme.colors.text.secondary}
               />
             </TouchableOpacity>
           </View>
@@ -151,7 +151,7 @@ export function HabitsHeader({
                   width:
                     daily.length > 0
                       ? `${(getTodayCompletedCount() / daily.length) * 100}%`
-                      : "0%",
+                      : '0%',
                 }}
               />
             </View>
@@ -190,7 +190,7 @@ export function HabitsHeader({
                 }}
               >
                 <Text className="text-white text-xs font-bold">
-                  {duo?.user1Name?.charAt(0).toUpperCase() || "A"}
+                  {duo?.user1Name?.charAt(0).toUpperCase() || 'A'}
                 </Text>
               </View>
               <View
@@ -201,7 +201,7 @@ export function HabitsHeader({
                 }}
               >
                 <Text className="text-white text-xs font-bold">
-                  {duo?.user2Name?.charAt(0).toUpperCase() || "B"}
+                  {duo?.user2Name?.charAt(0).toUpperCase() || 'B'}
                 </Text>
               </View>
             </View>

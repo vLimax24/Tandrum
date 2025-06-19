@@ -4,7 +4,7 @@ import React, {
   useMemo,
   useCallback,
   useEffect,
-} from "react";
+} from 'react';
 import {
   View,
   Text,
@@ -15,23 +15,23 @@ import {
   Platform,
   FlatList,
   Keyboard,
-} from "react-native";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { Id } from "convex/_generated/dataModel";
-import { TandrumBottomSheet } from "@/components/TandrumBottomSheet";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { AlertModal } from "@/components/AlertModal";
+} from 'react-native';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { useMutation, useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+import { Id } from 'convex/_generated/dataModel';
+import { TandrumBottomSheet } from '@/components/TandrumBottomSheet';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { AlertModal } from '@/components/AlertModal';
 
 interface NewDuoModalProps {
   visible: boolean;
   onClose: () => void;
-  userId: Id<"users">;
+  userId: Id<'users'>;
 }
 
 export const NewDuoModal: React.FC<NewDuoModalProps> = ({
@@ -45,7 +45,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
 
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [searchUsername, setSearchUsername] = useState("");
+  const [searchUsername, setSearchUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [alertModal, setAlertModal] = useState<{
     visible: boolean;
@@ -56,35 +56,35 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
     iconColor?: string;
   }>({
     visible: false,
-    title: "",
-    message: "",
+    title: '',
+    message: '',
     buttons: [],
   });
 
   // Adjust snap points based on keyboard visibility
   const snapPoints = useMemo(() => {
     if (isKeyboardVisible && keyboardHeight > 0) {
-      return ["85%"];
+      return ['85%'];
     }
-    return ["76%"];
+    return ['76%'];
   }, [isKeyboardVisible, keyboardHeight]);
 
   // Keyboard event listeners
   useEffect(() => {
     const keyboardWillShow = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
       (event) => {
         setKeyboardHeight(event.endCoordinates.height);
         setIsKeyboardVisible(true);
-      }
+      },
     );
 
     const keyboardWillHide = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
       () => {
         setKeyboardHeight(0);
         setIsKeyboardVisible(false);
-      }
+      },
     );
 
     return () => {
@@ -99,10 +99,10 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
     buttons: Array<{
       text: string;
       onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
+      style?: 'default' | 'cancel' | 'destructive';
     }>,
-    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
-    iconColor?: string
+    icon?: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap,
+    iconColor?: string,
   ) => {
     setAlertModal({
       visible: true,
@@ -130,23 +130,23 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
     api.users.getUserByUsername,
     searchUsername.trim().length >= 2
       ? { username: searchUsername.trim() }
-      : "skip"
+      : 'skip',
   );
 
   const sendInvite = useMutation(api.duoInvites.sendInvite);
 
   const handleSendInvite = async (
-    partnerId: Id<"users">,
-    partnerName: string
+    partnerId: Id<'users'>,
+    partnerName: string,
   ) => {
     // Prevent self-invite
     if (partnerId === userId) {
       showAlert(
-        "Oops! 😅",
+        'Oops! 😅',
         "You can't invite yourself! Find a friend to be your accountability partner instead.",
-        [{ text: "OK", style: "default" }],
-        "person",
-        "#f59e0b"
+        [{ text: 'OK', style: 'default' }],
+        'person',
+        '#f59e0b',
       );
       return;
     }
@@ -159,30 +159,30 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
       });
 
       showAlert(
-        "Invite Sent! 🚀",
+        'Invite Sent! 🚀',
         `Your invite has been sent to ${partnerName}. Once they accept, you can start building habits together!`,
         [
           {
-            text: "Great!",
-            style: "default",
+            text: 'Great!',
+            style: 'default',
             onPress: () => {
-              setSearchUsername("");
+              setSearchUsername('');
               Keyboard.dismiss();
               onClose();
             },
           },
         ],
-        "checkmark-circle",
-        "#10b981"
+        'checkmark-circle',
+        '#10b981',
       );
     } catch (error) {
-      console.error("NewDuoModal: Error sending invite:", error);
+      console.error('NewDuoModal: Error sending invite:', error);
       showAlert(
-        "Oops! 😅",
-        "Something went wrong while sending the invite. Please try again.",
-        [{ text: "OK", style: "default" }],
-        "alert-circle",
-        "#ef4444"
+        'Oops! 😅',
+        'Something went wrong while sending the invite. Please try again.',
+        [{ text: 'OK', style: 'default' }],
+        'alert-circle',
+        '#ef4444',
       );
     } finally {
       setIsLoading(false);
@@ -191,7 +191,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
 
   const handleClose = useCallback(() => {
     Keyboard.dismiss();
-    setSearchUsername("");
+    setSearchUsername('');
     onClose();
   }, [onClose]);
 
@@ -204,14 +204,14 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
         <View className="rounded-3xl overflow-hidden mt-4">
           <BlurView
             intensity={20}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             className="p-6"
             style={{ backgroundColor: theme.colors.glass }}
           >
             <View className="flex-row items-center gap-3">
               <View
                 className="w-10 h-10 rounded-2xl items-center justify-center"
-                style={{ backgroundColor: theme.colors.primary + "20" }}
+                style={{ backgroundColor: theme.colors.primary + '20' }}
               >
                 <Ionicons
                   name="search"
@@ -236,14 +236,14 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
         <View className="rounded-3xl overflow-hidden mt-4">
           <BlurView
             intensity={20}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             className="p-6"
             style={{ backgroundColor: theme.colors.glass }}
           >
             <View className="flex-row items-center gap-3">
               <View
                 className="w-10 h-10 rounded-2xl items-center justify-center"
-                style={{ backgroundColor: theme.colors.text.tertiary + "20" }}
+                style={{ backgroundColor: theme.colors.text.tertiary + '20' }}
               >
                 <Ionicons
                   name="person-remove"
@@ -273,19 +273,19 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
         <View className="rounded-3xl overflow-hidden">
           <BlurView
             intensity={30}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             style={{ backgroundColor: theme.colors.cardBackground }}
           >
             <LinearGradient
               colors={
                 isSearchResultCurrentUser
                   ? [
-                      theme.colors.text.tertiary + "10",
-                      theme.colors.text.tertiary + "05",
+                      theme.colors.text.tertiary + '10',
+                      theme.colors.text.tertiary + '05',
                     ]
                   : [
-                      theme.colors.primary + "10",
-                      theme.colors.primaryLight + "05",
+                      theme.colors.primary + '10',
+                      theme.colors.primaryLight + '05',
                     ]
               }
               start={{ x: 0, y: 0 }}
@@ -297,8 +297,8 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                   className="w-14 h-14 rounded-3xl items-center justify-center"
                   style={{
                     backgroundColor: isSearchResultCurrentUser
-                      ? theme.colors.text.tertiary + "20"
-                      : theme.colors.primary + "20",
+                      ? theme.colors.text.tertiary + '20'
+                      : theme.colors.primary + '20',
                   }}
                 >
                   <Text
@@ -319,7 +319,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                     style={{ color: theme.colors.text.primary }}
                   >
                     {searchResult.name}
-                    {isSearchResultCurrentUser && " (You)"}
+                    {isSearchResultCurrentUser && ' (You)'}
                   </Text>
                   <Text
                     className="text-sm"
@@ -327,7 +327,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                   >
                     {isSearchResultCurrentUser
                       ? "You can't invite yourself"
-                      : "Tap to send partnership invite"}
+                      : 'Tap to send partnership invite'}
                   </Text>
                 </View>
 
@@ -335,8 +335,8 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                   className="px-4 py-2 rounded-2xl"
                   style={{
                     backgroundColor: isSearchResultCurrentUser
-                      ? theme.colors.text.tertiary + "20"
-                      : theme.colors.primary + "20",
+                      ? theme.colors.text.tertiary + '20'
+                      : theme.colors.primary + '20',
                     opacity: isLoading ? 0.6 : 1,
                   }}
                 >
@@ -353,7 +353,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                     <View className="flex-row items-center gap-2">
                       <Ionicons
                         name={
-                          isSearchResultCurrentUser ? "person" : "paper-plane"
+                          isSearchResultCurrentUser ? 'person' : 'paper-plane'
                         }
                         size={16}
                         color={
@@ -370,7 +370,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                             : theme.colors.primary,
                         }}
                       >
-                        {isSearchResultCurrentUser ? "You" : "Invite"}
+                        {isSearchResultCurrentUser ? 'You' : 'Invite'}
                       </Text>
                     </View>
                   )}
@@ -395,9 +395,9 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
         onDismiss={handleClose}
       >
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
           style={{
             backgroundColor: theme.colors.background[1],
             paddingBottom: 100,
@@ -422,13 +422,13 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
               <View className="rounded-3xl overflow-hidden">
                 <BlurView
                   intensity={30}
-                  tint={isDarkMode ? "dark" : "light"}
+                  tint={isDarkMode ? 'dark' : 'light'}
                   style={{ backgroundColor: theme.colors.cardBackground }}
                 >
                   <View className="flex-row items-center p-4 gap-3">
                     <View
                       className="w-10 h-10 rounded-2xl items-center justify-center"
-                      style={{ backgroundColor: theme.colors.primary + "20" }}
+                      style={{ backgroundColor: theme.colors.primary + '20' }}
                     >
                       <Ionicons
                         name="search"
@@ -451,10 +451,10 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
                     />
                     {searchUsername.length > 0 && (
                       <TouchableOpacity
-                        onPress={() => setSearchUsername("")}
+                        onPress={() => setSearchUsername('')}
                         className="w-8 h-8 rounded-full items-center justify-center"
                         style={{
-                          backgroundColor: theme.colors.text.tertiary + "20",
+                          backgroundColor: theme.colors.text.tertiary + '20',
                         }}
                       >
                         <Ionicons
@@ -477,7 +477,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
               <View className="rounded-3xl overflow-hidden mb-6">
                 <BlurView
                   intensity={20}
-                  tint={isDarkMode ? "dark" : "light"}
+                  tint={isDarkMode ? 'dark' : 'light'}
                   className="p-6"
                   style={{ backgroundColor: theme.colors.glass }}
                 >
@@ -519,7 +519,7 @@ export const NewDuoModal: React.FC<NewDuoModalProps> = ({
               >
                 <BlurView
                   intensity={30}
-                  tint={isDarkMode ? "dark" : "light"}
+                  tint={isDarkMode ? 'dark' : 'light'}
                   className="p-4"
                   style={{ backgroundColor: theme.colors.cardBackground }}
                 >

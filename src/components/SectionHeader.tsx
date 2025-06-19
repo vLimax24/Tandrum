@@ -1,8 +1,8 @@
-import React from "react";
-import { View, Text } from "react-native";
-import { BlurView } from "expo-blur";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
+import React from 'react';
+import { View, Text } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
 
 interface SectionHeaderProps {
   title: string;
@@ -43,7 +43,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
         {/* User Pill */}
         <BlurView
           intensity={20}
-          tint={isDarkMode ? "dark" : "light"}
+          tint={isDarkMode ? 'dark' : 'light'}
           className="rounded-2xl overflow-hidden"
         >
           <View
@@ -69,7 +69,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
         {/* Partner Pill */}
         <BlurView
           intensity={20}
-          tint={isDarkMode ? "dark" : "light"}
+          tint={isDarkMode ? 'dark' : 'light'}
           className="rounded-2xl overflow-hidden"
         >
           <View
@@ -82,13 +82,13 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
             <View
               className="w-2 h-2 rounded-full"
               style={{
-                backgroundColor: isDarkMode ? "#60a5fa" : "#3b82f6",
+                backgroundColor: isDarkMode ? '#60a5fa' : '#3b82f6',
               }}
             />
             <Text
               className="text-xs font-bold font-mainRegular tracking-wide"
               style={{
-                color: isDarkMode ? "#60a5fa" : "#3b82f6",
+                color: isDarkMode ? '#60a5fa' : '#3b82f6',
               }}
             >
               PARTNER

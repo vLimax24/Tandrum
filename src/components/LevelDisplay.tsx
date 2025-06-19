@@ -1,18 +1,18 @@
-import { View, Text, Animated, Image } from "react-native";
-import React, { useEffect, useRef } from "react";
-import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
-import { getLevelData } from "@/utils/level";
-import { Doc } from "convex/_generated/dataModel";
-import { useQuery } from "convex/react";
-import { api } from "convex/_generated/api";
-import { images } from "@/utils/images";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, Animated, Image } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { getLevelData } from '@/utils/level';
+import { Doc } from 'convex/_generated/dataModel';
+import { useQuery } from 'convex/react';
+import { api } from 'convex/_generated/api';
+import { images } from '@/utils/images';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { Ionicons } from '@expo/vector-icons';
 
 interface LevelDisplayProps {
-  duo: Doc<"duoConnections">;
+  duo: Doc<'duoConnections'>;
   showDetailedStats?: boolean;
   compact?: boolean;
 }
@@ -61,7 +61,7 @@ export const LevelDisplay = ({
           duration: 2000,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
 
     // Enhanced pulse for near completion with native driver
@@ -78,7 +78,7 @@ export const LevelDisplay = ({
             duration: 1200,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       ).start();
     } else {
       // Reset scale when not near completion
@@ -93,11 +93,11 @@ export const LevelDisplay = ({
   });
 
   const effectiveBaseXpReward = Math.round(
-    baseXpReward * (decorationMultiplier || 1)
+    baseXpReward * (decorationMultiplier || 1),
   );
 
   const estimatedCompletionsNeeded = Math.ceil(
-    (xpNeeded - xpIntoLevel) / effectiveBaseXpReward
+    (xpNeeded - xpIntoLevel) / effectiveBaseXpReward,
   );
 
   if (compact) {
@@ -111,7 +111,7 @@ export const LevelDisplay = ({
       >
         <BlurView
           intensity={isDarkMode ? 20 : 15}
-          tint={isDarkMode ? "dark" : "light"}
+          tint={isDarkMode ? 'dark' : 'light'}
           style={{ borderRadius: 16 }}
         >
           <View
@@ -176,8 +176,8 @@ export const LevelDisplay = ({
               <View
                 style={{
                   backgroundColor: isDarkMode
-                    ? "rgba(71, 85, 105, 0.3)"
-                    : "rgba(241, 245, 249, 0.8)",
+                    ? 'rgba(71, 85, 105, 0.3)'
+                    : 'rgba(241, 245, 249, 0.8)',
                   height: 10,
                 }}
                 className="rounded-full overflow-hidden"
@@ -211,10 +211,10 @@ export const LevelDisplay = ({
                   <View
                     style={{
                       backgroundColor: isDarkMode
-                        ? "rgba(251, 146, 60, 0.15)"
-                        : "rgba(251, 146, 60, 0.1)",
+                        ? 'rgba(251, 146, 60, 0.15)'
+                        : 'rgba(251, 146, 60, 0.1)',
                       borderWidth: 1,
-                      borderColor: "rgba(251, 146, 60, 0.3)",
+                      borderColor: 'rgba(251, 146, 60, 0.3)',
                     }}
                     className="flex-row items-center px-3 py-2 rounded-xl gap-2"
                   >
@@ -222,7 +222,7 @@ export const LevelDisplay = ({
                       🔥
                     </Text>
                     <Text
-                      style={{ color: isDarkMode ? "#fb923c" : "#ea580c" }}
+                      style={{ color: isDarkMode ? '#fb923c' : '#ea580c' }}
                       className="text-sm font-semibold font-mainRegular"
                     >
                       {currentStreak} day streak
@@ -233,10 +233,10 @@ export const LevelDisplay = ({
                   <View
                     style={{
                       backgroundColor: isDarkMode
-                        ? "rgba(168, 85, 247, 0.15)"
-                        : "rgba(168, 85, 247, 0.1)",
+                        ? 'rgba(168, 85, 247, 0.15)'
+                        : 'rgba(168, 85, 247, 0.1)',
                       borderWidth: 1,
-                      borderColor: "rgba(168, 85, 247, 0.3)",
+                      borderColor: 'rgba(168, 85, 247, 0.3)',
                     }}
                     className="flex-row items-center px-3 py-2 rounded-xl gap-2"
                   >
@@ -244,7 +244,7 @@ export const LevelDisplay = ({
                       🎄
                     </Text>
                     <Text
-                      style={{ color: isDarkMode ? "#a855f7" : "#7c3aed" }}
+                      style={{ color: isDarkMode ? '#a855f7' : '#7c3aed' }}
                       className="text-sm font-semibold font-mainRegular"
                     >
                       {Math.floor(decorationMultiplier)}x XP
@@ -269,7 +269,7 @@ export const LevelDisplay = ({
     >
       <BlurView
         intensity={isDarkMode ? 25 : 20}
-        tint={isDarkMode ? "dark" : "light"}
+        tint={isDarkMode ? 'dark' : 'light'}
         style={{ borderRadius: 24 }}
       >
         <View
@@ -366,8 +366,8 @@ export const LevelDisplay = ({
             <View
               style={{
                 backgroundColor: isDarkMode
-                  ? "rgba(71, 85, 105, 0.3)"
-                  : "rgba(241, 245, 249, 0.8)",
+                  ? 'rgba(71, 85, 105, 0.3)'
+                  : 'rgba(241, 245, 249, 0.8)',
                 height: 12,
               }}
               className="rounded-full overflow-hidden mb-4"
@@ -433,13 +433,13 @@ export const LevelDisplay = ({
                       backgroundColor: theme.colors.glass,
                       borderWidth: 1,
                       borderColor: theme.colors.cardBorder,
-                      width: "48%",
+                      width: '48%',
                     }}
                     className="rounded-xl p-3"
                   >
                     <View className="flex-row items-center mb-2 gap-2">
                       <Image
-                        source={images["leaf"]}
+                        source={images['leaf']}
                         style={{ width: 16, height: 16 }}
                       />
                       <Text
@@ -469,13 +469,13 @@ export const LevelDisplay = ({
                       backgroundColor: theme.colors.glass,
                       borderWidth: 1,
                       borderColor: theme.colors.cardBorder,
-                      width: "48%",
+                      width: '48%',
                     }}
                     className="rounded-xl p-3"
                   >
                     <View className="flex-row items-center mb-2 gap-2">
                       <Image
-                        source={images["orange"]}
+                        source={images['orange']}
                         style={{ width: 16, height: 16 }}
                       />
                       <Text
@@ -503,7 +503,7 @@ export const LevelDisplay = ({
                           🎄
                         </Text>
                         <Text
-                          style={{ color: isDarkMode ? "#a855f7" : "#7c3aed" }}
+                          style={{ color: isDarkMode ? '#a855f7' : '#7c3aed' }}
                           className="text-xs font-semibold font-mainRegular"
                         >
                           {Math.floor(decorationMultiplier)}x multiplier
@@ -519,10 +519,10 @@ export const LevelDisplay = ({
                 <View
                   style={{
                     backgroundColor: isDarkMode
-                      ? "rgba(168, 85, 247, 0.1)"
-                      : "rgba(243, 232, 255, 0.8)",
+                      ? 'rgba(168, 85, 247, 0.1)'
+                      : 'rgba(243, 232, 255, 0.8)',
                     borderWidth: 1,
-                    borderColor: "rgba(168, 85, 247, 0.3)",
+                    borderColor: 'rgba(168, 85, 247, 0.3)',
                   }}
                   className="rounded-xl p-4 mb-4"
                 >
@@ -533,14 +533,14 @@ export const LevelDisplay = ({
                           🎄
                         </Text>
                         <Text
-                          style={{ color: isDarkMode ? "#a855f7" : "#7c3aed" }}
+                          style={{ color: isDarkMode ? '#a855f7' : '#7c3aed' }}
                           className="font-bold text-base font-mainRegular"
                         >
                           Tree Decorations
                         </Text>
                       </View>
                       <Text
-                        style={{ color: isDarkMode ? "#c4b5fd" : "#8b5cf6" }}
+                        style={{ color: isDarkMode ? '#c4b5fd' : '#8b5cf6' }}
                         className="text-sm font-mainRegular"
                       >
                         XP Multiplier: {Math.floor(decorationMultiplier)}x
@@ -549,15 +549,15 @@ export const LevelDisplay = ({
                     <View
                       style={{
                         backgroundColor: isDarkMode
-                          ? "rgba(168, 85, 247, 0.2)"
-                          : "rgba(196, 181, 253, 0.8)",
+                          ? 'rgba(168, 85, 247, 0.2)'
+                          : 'rgba(196, 181, 253, 0.8)',
                         borderWidth: 1,
-                        borderColor: "rgba(168, 85, 247, 0.4)",
+                        borderColor: 'rgba(168, 85, 247, 0.4)',
                       }}
                       className="rounded-lg px-3 py-2"
                     >
                       <Text
-                        style={{ color: isDarkMode ? "#a855f7" : "#7c3aed" }}
+                        style={{ color: isDarkMode ? '#a855f7' : '#7c3aed' }}
                         className="font-bold text-base font-mainRegular"
                       >
                         +{Math.round((decorationMultiplier - 1) * 100)}% XP
@@ -616,10 +616,10 @@ export const LevelDisplay = ({
             <View
               style={{
                 backgroundColor: isDarkMode
-                  ? "rgba(34, 197, 94, 0.1)"
-                  : "rgba(236, 253, 245, 0.9)",
+                  ? 'rgba(34, 197, 94, 0.1)'
+                  : 'rgba(236, 253, 245, 0.9)',
                 borderTopWidth: 1,
-                borderTopColor: "rgba(34, 197, 94, 0.3)",
+                borderTopColor: 'rgba(34, 197, 94, 0.3)',
               }}
               className="px-5 py-4"
             >
@@ -627,10 +627,10 @@ export const LevelDisplay = ({
                 <Animated.View
                   style={{
                     backgroundColor: isDarkMode
-                      ? "rgba(34, 197, 94, 0.2)"
-                      : "rgba(209, 250, 229, 0.8)",
+                      ? 'rgba(34, 197, 94, 0.2)'
+                      : 'rgba(209, 250, 229, 0.8)',
                     borderWidth: 1,
-                    borderColor: "rgba(34, 197, 94, 0.4)",
+                    borderColor: 'rgba(34, 197, 94, 0.4)',
                     transform: [
                       {
                         scale: glowAnimation.interpolate({
@@ -650,13 +650,13 @@ export const LevelDisplay = ({
                 </Animated.View>
                 <View className="flex-1">
                   <Text
-                    style={{ color: isDarkMode ? "#22c55e" : "#15803d" }}
+                    style={{ color: isDarkMode ? '#22c55e' : '#15803d' }}
                     className="font-bold text-base font-mainRegular"
                   >
                     Almost there! Level {level + 1} awaits
                   </Text>
                   <Text
-                    style={{ color: isDarkMode ? "#4ade80" : "#16a34a" }}
+                    style={{ color: isDarkMode ? '#4ade80' : '#16a34a' }}
                     className="text-sm font-mainRegular mt-1"
                   >
                     Just {(xpNeeded - xpIntoLevel).toLocaleString()} more XP to

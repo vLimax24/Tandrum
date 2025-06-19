@@ -1,9 +1,9 @@
-import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import { createTheme } from "@/utils/theme";
-import { useTheme } from "@/contexts/themeContext";
+import React from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { createTheme } from '@/utils/theme';
+import { useTheme } from '@/contexts/themeContext';
 
 interface CreateHabitButtonProps {
   onPress: () => void;
@@ -19,12 +19,12 @@ export function CreateHabitButton({ onPress }: CreateHabitButtonProps) {
       style={{
         borderRadius: 16,
         marginBottom: 32,
-        shadowColor: "#10b981",
+        shadowColor: '#10b981',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
         elevation: 8,
-        overflow: "hidden",
+        overflow: 'hidden',
       }}
       activeOpacity={0.85}
     >
@@ -40,7 +40,7 @@ export function CreateHabitButton({ onPress }: CreateHabitButtonProps) {
         <Text
           className="text-white text-lg font-bold"
           style={{
-            fontFamily: "font-mainRegular",
+            fontFamily: 'font-mainRegular',
           }}
         >
           Create new Habit

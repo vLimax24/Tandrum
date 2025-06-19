@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, Pressable } from "react-native";
+import React from 'react';
+import { View, Text, Pressable } from 'react-native';
 
 interface HabitCardProps {
   habit: any;
@@ -21,9 +21,9 @@ export const HabitCard: React.FC<HabitCardProps> = ({
   myName,
 }) => {
   const getBorderColor = () => {
-    if (isDoneByMe && isDoneByPartner) return "border-green-200 bg-green-50";
-    if (isDoneByMe || isDoneByPartner) return "border-yellow-200 bg-yellow-50";
-    return "border-gray-200 bg-white";
+    if (isDoneByMe && isDoneByPartner) return 'border-green-200 bg-green-50';
+    if (isDoneByMe || isDoneByPartner) return 'border-yellow-200 bg-yellow-50';
+    return 'border-gray-200 bg-white';
   };
 
   return (
@@ -38,17 +38,17 @@ export const HabitCard: React.FC<HabitCardProps> = ({
           <View className="flex-row items-center">
             <View
               className={`px-2 py-1 rounded-full ${
-                habit.frequency === "daily" ? "bg-blue-100" : "bg-purple-100"
+                habit.frequency === 'daily' ? 'bg-blue-100' : 'bg-purple-100'
               }`}
             >
               <Text
                 className={`text-xs font-mainRegular font-medium ${
-                  habit.frequency === "daily"
-                    ? "text-blue-800"
-                    : "text-purple-800"
+                  habit.frequency === 'daily'
+                    ? 'text-blue-800'
+                    : 'text-purple-800'
                 }`}
               >
-                {habit.frequency === "daily" ? "Daily" : "Weekly"}
+                {habit.frequency === 'daily' ? 'Daily' : 'Weekly'}
               </Text>
             </View>
             {isDoneByMe && isDoneByPartner && (
@@ -78,14 +78,14 @@ export const HabitCard: React.FC<HabitCardProps> = ({
           <Pressable
             className={`flex-row items-center px-3 py-2 rounded-lg border-2 ${
               isDoneByMe
-                ? "bg-accent border-accent"
-                : "border-gray-300 hover:border-accent bg-white"
+                ? 'bg-accent border-accent'
+                : 'border-gray-300 hover:border-accent bg-white'
             }`}
             onPress={!isDoneByMe ? onCheck : undefined}
           >
             <View
               className={`w-5 h-5 rounded-full border-2 mr-2 ${
-                isDoneByMe ? "bg-white border-white" : "border-gray-400"
+                isDoneByMe ? 'bg-white border-white' : 'border-gray-400'
               } flex items-center justify-center`}
             >
               {isDoneByMe && (
@@ -96,10 +96,10 @@ export const HabitCard: React.FC<HabitCardProps> = ({
             </View>
             <Text
               className={`text-sm font-mainRegular font-medium ${
-                isDoneByMe ? "text-white" : "text-gray-600"
+                isDoneByMe ? 'text-white' : 'text-gray-600'
               }`}
             >
-              {myName || "You"}
+              {myName || 'You'}
             </Text>
           </Pressable>
 
@@ -107,13 +107,13 @@ export const HabitCard: React.FC<HabitCardProps> = ({
           <View
             className={`flex-row items-center px-3 py-2 rounded-lg border-2 ${
               isDoneByPartner
-                ? "bg-green-500 border-green-500"
-                : "border-gray-300 bg-gray-100"
+                ? 'bg-green-500 border-green-500'
+                : 'border-gray-300 bg-gray-100'
             }`}
           >
             <View
               className={`w-5 h-5 rounded-full border-2 mr-2 ${
-                isDoneByPartner ? "bg-white border-white" : "border-gray-400"
+                isDoneByPartner ? 'bg-white border-white' : 'border-gray-400'
               } flex items-center justify-center`}
             >
               {isDoneByPartner && (
@@ -124,10 +124,10 @@ export const HabitCard: React.FC<HabitCardProps> = ({
             </View>
             <Text
               className={`text-sm font-medium font-mainRegular ${
-                isDoneByPartner ? "text-white" : "text-gray-500"
+                isDoneByPartner ? 'text-white' : 'text-gray-500'
               }`}
             >
-              {partnerName?.split(" ")[0] || "Partner"}
+              {partnerName?.split(' ')[0] || 'Partner'}
             </Text>
           </View>
         </View>

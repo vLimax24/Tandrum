@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { View } from "react-native";
-import { SectionHeader } from "@/components/SectionHeader";
-import { HabitsGrid } from "@/components/HabitsGrid";
-import { AlertModal } from "./AlertModal";
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import { SectionHeader } from '@/components/SectionHeader';
+import { HabitsGrid } from '@/components/HabitsGrid';
+import { AlertModal } from './AlertModal';
 
 interface HabitsContainerProps {
   daily: any[];
@@ -38,8 +38,8 @@ export function HabitsContainer({
     iconColor?: string;
   }>({
     visible: false,
-    title: "",
-    message: "",
+    title: '',
+    message: '',
     buttons: [],
   });
   const isSameDay = (timestamp1: number, timestamp2: number) => {
@@ -73,10 +73,10 @@ export function HabitsContainer({
     buttons: Array<{
       text: string;
       onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
+      style?: 'default' | 'cancel' | 'destructive';
     }>,
-    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
-    iconColor?: string
+    icon?: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap,
+    iconColor?: string,
   ) => {
     setAlertModal({
       visible: true,

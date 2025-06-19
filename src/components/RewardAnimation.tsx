@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,13 +7,13 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Image,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
-import { getRarityColors } from "@/utils/rarities";
-import { images } from "@/utils/images";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { getRarityColors } from '@/utils/rarities';
+import { images } from '@/utils/images';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
 
 interface RewardAnimationProps {
   visible: boolean;
@@ -32,7 +32,7 @@ interface RewardAnimationProps {
   onComplete: () => void;
 }
 
-const { width, height } = Dimensions.get("window");
+const { width, height } = Dimensions.get('window');
 
 export const RewardAnimation: React.FC<RewardAnimationProps> = ({
   visible,
@@ -72,7 +72,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
       // Use easing function for smooth animation
       const easedProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
       const currentXP = Math.round(
-        startValue + (targetXP - startValue) * easedProgress
+        startValue + (targetXP - startValue) * easedProgress,
       );
 
       setDisplayXP(currentXP);
@@ -174,7 +174,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                       useNativeDriver: true,
                     }),
                   ]),
-                  { iterations: 2 }
+                  { iterations: 2 },
                 ),
               ]),
             ]
@@ -259,7 +259,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
     <TouchableWithoutFeedback onPress={onComplete}>
       <Animated.View
         style={{
-          position: "absolute",
+          position: 'absolute',
           top: 0,
           left: 0,
           right: 0,
@@ -270,12 +270,12 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
       >
         <BlurView
           intensity={isDarkMode ? 40 : 60}
-          tint={isDarkMode ? "dark" : "light"}
+          tint={isDarkMode ? 'dark' : 'light'}
           style={{
             flex: 1,
             backgroundColor: isDarkMode
-              ? "rgba(15, 23, 42, 0.4)"
-              : "rgba(248, 250, 252, 0.6)",
+              ? 'rgba(15, 23, 42, 0.4)'
+              : 'rgba(248, 250, 252, 0.6)',
           }}
         />
       </Animated.View>
@@ -285,7 +285,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
   return (
     <View
       style={{
-        position: "absolute",
+        position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
@@ -293,7 +293,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
         zIndex: 100000,
         elevation: 100000,
       }}
-      pointerEvents={visible ? "auto" : "none"}
+      pointerEvents={visible ? 'auto' : 'none'}
     >
       <Backdrop />
 
@@ -313,13 +313,13 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
           {/* Main Glass Card Container */}
           <BlurView
             intensity={20}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             style={{
               backgroundColor: theme.colors.cardBackground,
               borderColor: theme.colors.cardBorder,
               borderWidth: 1,
               borderRadius: 24, // Reduced from 32
-              overflow: "hidden",
+              overflow: 'hidden',
             }}
           >
             <View className="p-5">
@@ -389,7 +389,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
               </View>
               {/* Enhanced XP Reward Section */}
               <View
-                className={`items-center ${rewards.item ? "mb-5" : "mb-0"}`} // Reduced from mb-8
+                className={`items-center ${rewards.item ? 'mb-5' : 'mb-0'}`} // Reduced from mb-8
               >
                 <View className="w-full">
                   {/* XP Header */}
@@ -413,23 +413,23 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                   {/* XP Display Card */}
                   <BlurView
                     intensity={15}
-                    tint={isDarkMode ? "dark" : "light"}
+                    tint={isDarkMode ? 'dark' : 'light'}
                     style={{
                       backgroundColor: isDarkMode
-                        ? "rgba(14, 165, 233, 0.08)"
-                        : "rgba(240, 249, 255, 0.7)",
+                        ? 'rgba(14, 165, 233, 0.08)'
+                        : 'rgba(240, 249, 255, 0.7)',
                       borderColor: isDarkMode
-                        ? "rgba(14, 165, 233, 0.25)"
-                        : "rgba(186, 230, 253, 0.6)",
+                        ? 'rgba(14, 165, 233, 0.25)'
+                        : 'rgba(186, 230, 253, 0.6)',
                       borderWidth: 1,
                       borderRadius: 20, // Reduced from 24
-                      overflow: "hidden",
+                      overflow: 'hidden',
                     }}
                   >
                     <View className="p-4">
                       {/* Reduced from p-6 */}
                       <LinearGradient
-                        colors={["#0ea5e9", "#0284c7", "#0369a1"]}
+                        colors={['#0ea5e9', '#0284c7', '#0369a1']}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
                         className="rounded-xl px-6 py-4 flex-row items-center justify-center" // Reduced padding
@@ -439,7 +439,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                         <View className="bg-white w-6 h-6 rounded-full items-center justify-center mr-3">
                           {/* Reduced from w-8 h-8, mr-4 */}
                           <Text
-                            style={{ color: "#0ea5e9" }}
+                            style={{ color: '#0ea5e9' }}
                             className="text-base font-bold" // Reduced from text-lg
                           >
                             +
@@ -456,7 +456,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                         <View className="bg-white rounded-lg px-3 py-1">
                           {/* Increased px from 2 to 3 */}
                           <Text
-                            style={{ color: "#0ea5e9" }}
+                            style={{ color: '#0ea5e9' }}
                             className="text-xs font-bold tracking-wide" // Added tracking-wide for better spacing
                           >
                             XP
@@ -490,13 +490,13 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
 
                   <BlurView
                     intensity={10}
-                    tint={isDarkMode ? "dark" : "light"}
+                    tint={isDarkMode ? 'dark' : 'light'}
                     style={{
                       backgroundColor: theme.colors.cardBackground,
                       borderColor: rarityColors.border,
                       borderWidth: 2,
                       borderRadius: 20, // Reduced from 24
-                      overflow: "hidden",
+                      overflow: 'hidden',
                     }}
                   >
                     <View className="p-4">
@@ -511,14 +511,14 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                         {/* Item icon container */}
                         <View
                           style={{
-                            backgroundColor: "rgba(255, 255, 255, 0.95)",
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
                           }}
                           className="w-14 h-14 rounded-full items-center justify-center mb-3" // Reduced from w-20 h-20, mb-5
                         >
                           <Image
                             source={images[rewards.item.itemId]}
                             className="w-8 h-8" // Reduced from w-12 h-12
-                            style={{ resizeMode: "contain" }}
+                            style={{ resizeMode: 'contain' }}
                           />
                         </View>
 

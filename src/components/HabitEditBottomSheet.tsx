@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useMemo,
   useRef,
-} from "react";
+} from 'react';
 import {
   View,
   Text,
@@ -13,22 +13,22 @@ import {
   ActivityIndicator,
   Animated,
   Platform,
-} from "react-native";
-import { BottomSheetModal, BottomSheetTextInput } from "@gorhom/bottom-sheet";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { TandrumBottomSheet } from "./TandrumBottomSheet";
+} from 'react-native';
+import { BottomSheetModal, BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { TandrumBottomSheet } from './TandrumBottomSheet';
 
 interface HabitEditBottomSheetProps {
   onSave: (data: {
     title: string;
-    frequency: "daily" | "weekly";
+    frequency: 'daily' | 'weekly';
   }) => Promise<void>;
   habit: {
     _id: string;
     title: string;
-    frequency: "daily" | "weekly";
+    frequency: 'daily' | 'weekly';
   } | null;
   existingHabits: Array<{ _id: string; title: string }>;
 }
@@ -39,20 +39,20 @@ const HabitEditBottomSheet = forwardRef<
 >(({ onSave, habit, existingHabits }, ref) => {
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
-  const [title, setTitle] = useState("");
-  const [frequency, setFrequency] = useState<"daily" | "weekly">("daily");
+  const [title, setTitle] = useState('');
+  const [frequency, setFrequency] = useState<'daily' | 'weekly'>('daily');
   const [isSaving, setIsSaving] = useState(false);
-  const [validationError, setValidationError] = useState("");
+  const [validationError, setValidationError] = useState('');
   const [fadeAnim] = useState(new Animated.Value(0));
 
   // Add this ref to track previous frequency
-  const previousFrequencyRef = useRef<"daily" | "weekly" | null>(null);
+  const previousFrequencyRef = useRef<'daily' | 'weekly' | null>(null);
 
   useEffect(() => {
     if (habit) {
       setTitle(habit.title);
       setFrequency(habit.frequency);
-      setValidationError("");
+      setValidationError('');
       previousFrequencyRef.current = habit.frequency; // Store initial frequency
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -64,7 +64,7 @@ const HabitEditBottomSheet = forwardRef<
 
   const snapPoints = useMemo(() => {
     const hasFrequencyChanged = habit && frequency !== habit.frequency;
-    return hasFrequencyChanged ? ["85%", "97%"] : ["85%"];
+    return hasFrequencyChanged ? ['85%', '97%'] : ['85%'];
   }, [habit, frequency]);
 
   // Update the useEffect to handle frequency changes and auto-expand/collapse
@@ -94,25 +94,25 @@ const HabitEditBottomSheet = forwardRef<
     (inputTitle: string): string => {
       const trimmedTitle = inputTitle.trim();
       if (!trimmedTitle) {
-        return "Habit title is required";
+        return 'Habit title is required';
       }
       if (trimmedTitle.length < 3) {
-        return "Habit title must be at least 3 characters long";
+        return 'Habit title must be at least 3 characters long';
       }
       if (trimmedTitle.length > 50) {
-        return "Habit title must be less than 50 characters";
+        return 'Habit title must be less than 50 characters';
       }
       const duplicateExists = existingHabits.some(
         (h) =>
           h._id !== habit?._id &&
-          h.title.toLowerCase() === trimmedTitle.toLowerCase()
+          h.title.toLowerCase() === trimmedTitle.toLowerCase(),
       );
       if (duplicateExists) {
-        return "A habit with this title already exists";
+        return 'A habit with this title already exists';
       }
-      return "";
+      return '';
     },
-    [existingHabits, habit]
+    [existingHabits, habit],
   );
 
   const handleTitleChange = useCallback(
@@ -123,7 +123,7 @@ const HabitEditBottomSheet = forwardRef<
         setValidationError(error);
       }
     },
-    [validationError, validateHabitTitle]
+    [validationError, validateHabitTitle],
   );
 
   const handleSave = useCallback(async () => {
@@ -140,14 +140,14 @@ const HabitEditBottomSheet = forwardRef<
       });
       (ref as any)?.current?.dismiss();
     } catch (error) {
-      console.error("Failed to update habit:", error);
+      console.error('Failed to update habit:', error);
     } finally {
       setIsSaving(false);
     }
   }, [title, frequency, validateHabitTitle, onSave, ref]);
 
   const handleDismiss = useCallback(() => {
-    setValidationError("");
+    setValidationError('');
     Animated.timing(fadeAnim, {
       toValue: 0,
       duration: 200,
@@ -190,7 +190,7 @@ const HabitEditBottomSheet = forwardRef<
                 style={{
                   width: 40,
                   height: 40,
-                  backgroundColor: theme.colors.primary + "15",
+                  backgroundColor: theme.colors.primary + '15',
                 }}
               >
                 <Ionicons
@@ -211,7 +211,7 @@ const HabitEditBottomSheet = forwardRef<
               style={{
                 backgroundColor: theme.colors.cardBackground,
                 borderColor: validationError
-                  ? "rgba(239, 68, 68, 0.4)"
+                  ? 'rgba(239, 68, 68, 0.4)'
                   : theme.colors.cardBorder,
               }}
             >
@@ -234,8 +234,8 @@ const HabitEditBottomSheet = forwardRef<
               <View
                 className="flex-row items-center gap-2 px-3 py-2 rounded-xl border"
                 style={{
-                  backgroundColor: "rgba(239, 68, 68, 0.05)",
-                  borderColor: "rgba(239, 68, 68, 0.2)",
+                  backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                  borderColor: 'rgba(239, 68, 68, 0.2)',
                 }}
               >
                 <Ionicons name="alert-circle" size={16} color="#ef4444" />
@@ -278,7 +278,7 @@ const HabitEditBottomSheet = forwardRef<
                 style={{
                   width: 40,
                   height: 40,
-                  backgroundColor: theme.colors.primary + "15",
+                  backgroundColor: theme.colors.primary + '15',
                 }}
               >
                 <Ionicons
@@ -298,16 +298,16 @@ const HabitEditBottomSheet = forwardRef<
             {/* Frequency Selection Buttons */}
             <View className="flex-row gap-3">
               <TouchableOpacity
-                onPress={() => setFrequency("daily")}
+                onPress={() => setFrequency('daily')}
                 className="flex-1 p-4 rounded-2xl"
                 style={{
                   backgroundColor:
-                    frequency === "daily"
-                      ? theme.colors.primary + "15"
+                    frequency === 'daily'
+                      ? theme.colors.primary + '15'
                       : theme.colors.cardBackground,
                   borderWidth: 2,
                   borderColor:
-                    frequency === "daily"
+                    frequency === 'daily'
                       ? theme.colors.primary
                       : theme.colors.cardBorder,
                 }}
@@ -317,7 +317,7 @@ const HabitEditBottomSheet = forwardRef<
                     name="sunny"
                     size={18}
                     color={
-                      frequency === "daily"
+                      frequency === 'daily'
                         ? theme.colors.primary
                         : theme.colors.text.tertiary
                     }
@@ -326,14 +326,14 @@ const HabitEditBottomSheet = forwardRef<
                     className="font-semibold text-base"
                     style={{
                       color:
-                        frequency === "daily"
+                        frequency === 'daily'
                           ? theme.colors.primary
                           : theme.colors.text.secondary,
                     }}
                   >
                     Daily
                   </Text>
-                  {frequency === "daily" && (
+                  {frequency === 'daily' && (
                     <View className="ml-auto">
                       <Ionicons
                         name="checkmark-circle"
@@ -352,16 +352,16 @@ const HabitEditBottomSheet = forwardRef<
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => setFrequency("weekly")}
+                onPress={() => setFrequency('weekly')}
                 className="flex-1 p-4 rounded-2xl"
                 style={{
                   backgroundColor:
-                    frequency === "weekly"
-                      ? theme.colors.primary + "15"
+                    frequency === 'weekly'
+                      ? theme.colors.primary + '15'
                       : theme.colors.cardBackground,
                   borderWidth: 2,
                   borderColor:
-                    frequency === "weekly"
+                    frequency === 'weekly'
                       ? theme.colors.primary
                       : theme.colors.cardBorder,
                 }}
@@ -371,7 +371,7 @@ const HabitEditBottomSheet = forwardRef<
                     name="calendar-outline"
                     size={18}
                     color={
-                      frequency === "weekly"
+                      frequency === 'weekly'
                         ? theme.colors.primary
                         : theme.colors.text.tertiary
                     }
@@ -380,14 +380,14 @@ const HabitEditBottomSheet = forwardRef<
                     className="font-semibold text-base"
                     style={{
                       color:
-                        frequency === "weekly"
+                        frequency === 'weekly'
                           ? theme.colors.primary
                           : theme.colors.text.secondary,
                     }}
                   >
                     Weekly
                   </Text>
-                  {frequency === "weekly" && (
+                  {frequency === 'weekly' && (
                     <View className="ml-auto">
                       <Ionicons
                         name="checkmark-circle"
@@ -412,8 +412,8 @@ const HabitEditBottomSheet = forwardRef<
             <View
               className="flex-row gap-3 p-4 rounded-2xl border mt-2"
               style={{
-                backgroundColor: "rgba(245, 158, 11, 0.05)",
-                borderColor: "rgba(245, 158, 11, 0.2)",
+                backgroundColor: 'rgba(245, 158, 11, 0.05)',
+                borderColor: 'rgba(245, 158, 11, 0.2)',
               }}
             >
               <Ionicons name="warning" size={20} color="#f59e0b" />
@@ -435,7 +435,7 @@ const HabitEditBottomSheet = forwardRef<
         <View
           className="px-6 pb-8 pt-4"
           style={{
-            paddingBottom: Platform.OS === "ios" ? 34 : 24,
+            paddingBottom: Platform.OS === 'ios' ? 34 : 24,
             borderTopWidth: 1,
             borderTopColor: theme.colors.cardBorder,
             backgroundColor: theme.colors.background[1],
@@ -497,5 +497,5 @@ const HabitEditBottomSheet = forwardRef<
   );
 });
 
-HabitEditBottomSheet.displayName = "HabitEditBottomSheet";
+HabitEditBottomSheet.displayName = 'HabitEditBottomSheet';
 export default HabitEditBottomSheet;

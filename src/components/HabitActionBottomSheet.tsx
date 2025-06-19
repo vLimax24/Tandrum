@@ -1,17 +1,17 @@
 // HabitActionBottomSheet.tsx
-import React, { forwardRef, useMemo } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import React, { forwardRef, useMemo } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetView,
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
-} from "@gorhom/bottom-sheet";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
+} from '@gorhom/bottom-sheet';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
 
 interface HabitActionBottomSheetProps {
   onEdit: () => void;
@@ -24,7 +24,7 @@ const HabitActionBottomSheet = forwardRef<
 >(({ onEdit, onDelete }, ref) => {
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
-  const snapPoints = useMemo(() => ["65%"], []);
+  const snapPoints = useMemo(() => ['65%'], []);
 
   // Custom backdrop component with glassmorphism
   const renderBackdrop = React.useCallback(
@@ -36,7 +36,7 @@ const HabitActionBottomSheet = forwardRef<
         opacity={isDarkMode ? 0.4 : 0.2}
       />
     ),
-    [isDarkMode]
+    [isDarkMode],
   );
 
   const handleEdit = () => {
@@ -76,7 +76,7 @@ const HabitActionBottomSheet = forwardRef<
     >
       <BlurView
         intensity={isDarkMode ? 25 : 15}
-        tint={isDarkMode ? "dark" : "light"}
+        tint={isDarkMode ? 'dark' : 'light'}
         className="flex-1 overflow-hidden"
         style={{
           backgroundColor: theme.colors.cardBackground,
@@ -140,7 +140,7 @@ const HabitActionBottomSheet = forwardRef<
               >
                 <BlurView
                   intensity={isDarkMode ? 15 : 10}
-                  tint={isDarkMode ? "dark" : "light"}
+                  tint={isDarkMode ? 'dark' : 'light'}
                   className="absolute inset-0"
                 />
                 <LinearGradient
@@ -203,11 +203,11 @@ const HabitActionBottomSheet = forwardRef<
               >
                 <BlurView
                   intensity={isDarkMode ? 15 : 10}
-                  tint={isDarkMode ? "dark" : "light"}
+                  tint={isDarkMode ? 'dark' : 'light'}
                   className="absolute inset-0"
                 />
                 <LinearGradient
-                  colors={["#dc262615", "#ef444410"]}
+                  colors={['#dc262615', '#ef444410']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   className="p-5"
@@ -215,7 +215,7 @@ const HabitActionBottomSheet = forwardRef<
                   <View className="flex-row items-center">
                     <View
                       className="w-12 h-12 rounded-xl items-center justify-center mr-4"
-                      style={{ backgroundColor: "#dc2626" }}
+                      style={{ backgroundColor: '#dc2626' }}
                     >
                       <Ionicons name="trash-outline" size={24} color="white" />
                     </View>
@@ -257,6 +257,6 @@ const HabitActionBottomSheet = forwardRef<
   );
 });
 
-HabitActionBottomSheet.displayName = "HabitActionBottomSheet";
+HabitActionBottomSheet.displayName = 'HabitActionBottomSheet';
 
 export default HabitActionBottomSheet;
