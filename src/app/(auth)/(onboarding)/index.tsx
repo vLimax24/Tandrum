@@ -1,5 +1,5 @@
 // src/app/(auth)/(onboarding)/index.tsx
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,18 +7,18 @@ import {
   Dimensions,
   Animated,
   ScrollView,
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { useRouter } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BlurView } from "expo-blur";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
+} from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BlurView } from 'expo-blur';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
 
-const { width, height } = Dimensions.get("window");
+const { width, height } = Dimensions.get('window');
 
 interface FeatureItemProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -119,22 +119,22 @@ export default function OnboardingWelcome() {
 
   const features = [
     {
-      icon: "people" as keyof typeof Ionicons.glyphMap,
-      title: "Build Together",
+      icon: 'people' as keyof typeof Ionicons.glyphMap,
+      title: 'Build Together',
       description:
-        "Join friends and stay accountable as you develop life-changing habits together.",
+        'Join friends and stay accountable as you develop life-changing habits together.',
     },
     {
-      icon: "trending-up" as keyof typeof Ionicons.glyphMap,
-      title: "Track Progress",
+      icon: 'trending-up' as keyof typeof Ionicons.glyphMap,
+      title: 'Track Progress',
       description:
-        "Visualize your growth with beautiful charts and celebrate every milestone achieved.",
+        'Visualize your growth with beautiful charts and celebrate every milestone achieved.',
     },
     {
-      icon: "trophy" as keyof typeof Ionicons.glyphMap,
-      title: "Gamified Experience",
+      icon: 'trophy' as keyof typeof Ionicons.glyphMap,
+      title: 'Gamified Experience',
       description:
-        "Earn rewards, unlock achievements, and make habit-building an exciting journey.",
+        'Earn rewards, unlock achievements, and make habit-building an exciting journey.',
     },
   ];
 
@@ -166,7 +166,7 @@ export default function OnboardingWelcome() {
   }, []);
 
   const handleGetStarted = () => {
-    router.push("/(auth)/(onboarding)/username");
+    router.push('/(auth)/(onboarding)/username');
   };
 
   return (
@@ -174,7 +174,7 @@ export default function OnboardingWelcome() {
       className="flex-1"
       style={{ backgroundColor: theme.colors.background[0] }}
     >
-      <StatusBar style={isDarkMode ? "light" : "dark"} translucent />
+      <StatusBar style={isDarkMode ? 'light' : 'dark'} translucent />
 
       {/* Animated Background Elements */}
       <Animated.View
@@ -185,10 +185,10 @@ export default function OnboardingWelcome() {
           colors={[
             `${theme.colors.primary}08`,
             `${theme.colors.primary}03`,
-            "transparent",
+            'transparent',
           ]}
           style={{
-            position: "absolute",
+            position: 'absolute',
             width: width * 1.5,
             height: height * 0.6,
             borderRadius: width * 0.75,
@@ -198,12 +198,12 @@ export default function OnboardingWelcome() {
         />
         <LinearGradient
           colors={[
-            "transparent",
+            'transparent',
             `${theme.colors.primaryLight}05`,
             `${theme.colors.primary}08`,
           ]}
           style={{
-            position: "absolute",
+            position: 'absolute',
             width: width * 1.2,
             height: height * 0.5,
             borderRadius: width * 0.6,
@@ -256,8 +256,8 @@ export default function OnboardingWelcome() {
                       width: 100,
                       height: 100,
                       borderRadius: 50,
-                      alignItems: "center",
-                      justifyContent: "center",
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                   >
                     <Ionicons name="people" size={44} color="white" />
@@ -270,7 +270,7 @@ export default function OnboardingWelcome() {
                     className="text-4xl font-bold text-center mb-4 leading-tight font-mainRegular"
                     style={{ color: theme.colors.text.primary }}
                   >
-                    Welcome to{"\n"}
+                    Welcome to{'\n'}
                     <Text style={{ color: theme.colors.primary }}>Tandrum</Text>
                   </Text>
                   <Text
@@ -319,7 +319,7 @@ export default function OnboardingWelcome() {
                     style={{
                       paddingVertical: 18,
                       paddingHorizontal: 32,
-                      alignItems: "center",
+                      alignItems: 'center',
                     }}
                   >
                     <View className="flex-row items-center gap-2">

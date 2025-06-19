@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,24 +7,24 @@ import {
   Switch,
   Share,
   Linking,
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
-import { useUser } from "@clerk/clerk-expo";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "convex/_generated/api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAuth } from "@clerk/clerk-expo";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { useNavigation } from "@react-navigation/native";
-import type { NavigationProp } from "@react-navigation/native";
-import type { RootStackParamList } from "@/types/navigation";
-import { AlertModal } from "@/components/AlertModal";
+} from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { useUser } from '@clerk/clerk-expo';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from 'convex/_generated/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '@clerk/clerk-expo';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
+import type { RootStackParamList } from '@/types/navigation';
+import { AlertModal } from '@/components/AlertModal';
 
 export default function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -55,8 +55,8 @@ export default function SettingsScreen() {
     iconColor?: string;
   }>({
     visible: false,
-    title: "",
-    message: "",
+    title: '',
+    message: '',
     buttons: [],
   });
 
@@ -71,10 +71,10 @@ export default function SettingsScreen() {
     buttons: Array<{
       text: string;
       onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
+      style?: 'default' | 'cancel' | 'destructive';
     }>,
-    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
-    iconColor?: string
+    icon?: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap,
+    iconColor?: string,
   ) => {
     setAlertModal({
       visible: true,
@@ -93,45 +93,45 @@ export default function SettingsScreen() {
   const loadSettings = async () => {
     try {
       const settings = await AsyncStorage.multiGet([
-        "notifications",
-        "darkMode",
-        "sound",
-        "vibration",
-        "dailyReminders",
-        "weeklyReports",
-        "partnerUpdates",
+        'notifications',
+        'darkMode',
+        'sound',
+        'vibration',
+        'dailyReminders',
+        'weeklyReports',
+        'partnerUpdates',
       ]);
 
       settings.forEach(([key, value]) => {
         if (value !== null) {
-          const boolValue = value === "true";
+          const boolValue = value === 'true';
           switch (key) {
-            case "notifications":
+            case 'notifications':
               setNotificationsEnabled(boolValue);
               break;
-            case "darkMode":
+            case 'darkMode':
               setDarkModeEnabled(boolValue);
               break;
-            case "sound":
+            case 'sound':
               setSoundEnabled(boolValue);
               break;
-            case "vibration":
+            case 'vibration':
               setVibrationEnabled(boolValue);
               break;
-            case "dailyReminders":
+            case 'dailyReminders':
               setDailyReminders(boolValue);
               break;
-            case "weeklyReports":
+            case 'weeklyReports':
               setWeeklyReports(boolValue);
               break;
-            case "partnerUpdates":
+            case 'partnerUpdates':
               setPartnerUpdates(boolValue);
               break;
           }
         }
       });
     } catch (error) {
-      console.error("Error loading settings:", error);
+      console.error('Error loading settings:', error);
     }
   };
 
@@ -139,162 +139,162 @@ export default function SettingsScreen() {
     try {
       await AsyncStorage.setItem(key, value.toString());
     } catch (error) {
-      console.error("Error saving setting:", error);
+      console.error('Error saving setting:', error);
     }
   };
 
   const handleNotificationToggle = (value: boolean) => {
     setNotificationsEnabled(value);
-    saveSetting("notifications", value);
+    saveSetting('notifications', value);
   };
 
   const handleDarkModeToggle = (value: boolean) => {
     setDarkModeEnabled(value);
-    saveSetting("darkMode", value);
+    saveSetting('darkMode', value);
     toggleTheme();
   };
 
   const handleSoundToggle = (value: boolean) => {
     setSoundEnabled(value);
-    saveSetting("sound", value);
+    saveSetting('sound', value);
   };
 
   const handleVibrationToggle = (value: boolean) => {
     setVibrationEnabled(value);
-    saveSetting("vibration", value);
+    saveSetting('vibration', value);
   };
 
   const handleDailyRemindersToggle = (value: boolean) => {
     setDailyReminders(value);
-    saveSetting("dailyReminders", value);
+    saveSetting('dailyReminders', value);
   };
 
   const handleWeeklyReportsToggle = (value: boolean) => {
     setWeeklyReports(value);
-    saveSetting("weeklyReports", value);
+    saveSetting('weeklyReports', value);
   };
 
   const handlePartnerUpdatesToggle = (value: boolean) => {
     setPartnerUpdates(value);
-    saveSetting("partnerUpdates", value);
+    saveSetting('partnerUpdates', value);
   };
 
   const handleShareApp = async () => {
     try {
       await Share.share({
         message: "Join me on Tandrum! Let's build amazing habits together 🌱✨",
-        url: "https://tandrum.app",
+        url: 'https://tandrum.app',
       });
     } catch (error) {
-      console.error("Error sharing:", error);
+      console.error('Error sharing:', error);
     }
   };
 
   const handleRateApp = () => {
     showAlert(
-      "Love Tandrum? 💚",
-      "Your review helps us grow our community of habit builders!",
+      'Love Tandrum? 💚',
+      'Your review helps us grow our community of habit builders!',
       [
-        { text: "Maybe Later", style: "cancel" },
+        { text: 'Maybe Later', style: 'cancel' },
         {
-          text: "Rate Now ⭐",
+          text: 'Rate Now ⭐',
           onPress: () => {
-            Linking.openURL("https://apps.apple.com/app/tandrum");
+            Linking.openURL('https://apps.apple.com/app/tandrum');
           },
         },
       ],
-      "star",
-      "#F59E0B"
+      'star',
+      '#F59E0B',
     );
   };
 
   const handleContactSupport = () => {
     showAlert(
       "We're Here to Help! 🤝",
-      "How would you like to reach our support team?",
+      'How would you like to reach our support team?',
       [
-        { text: "Cancel", style: "cancel" },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: "Email Support 📧",
-          onPress: () => Linking.openURL("mailto:support@tandrum.app"),
+          text: 'Email Support 📧',
+          onPress: () => Linking.openURL('mailto:support@tandrum.app'),
         },
         {
-          text: "Live Chat 💬",
+          text: 'Live Chat 💬',
           onPress: () =>
             showAlert(
-              "Coming Soon!",
-              "Live chat will be available in the next update! 🚀",
-              [{ text: "OK", style: "default" }],
-              "chatbubble-ellipses",
-              "#10B981"
+              'Coming Soon!',
+              'Live chat will be available in the next update! 🚀',
+              [{ text: 'OK', style: 'default' }],
+              'chatbubble-ellipses',
+              '#10B981',
             ),
         },
       ],
-      "help-circle",
-      "#10B981"
+      'help-circle',
+      '#10B981',
     );
   };
 
   const handlePrivacyPolicy = () => {
-    Linking.openURL("https://tandrum.app/privacy");
+    Linking.openURL('https://tandrum.app/privacy');
   };
 
   const handleTermsOfService = () => {
-    Linking.openURL("https://tandrum.app/terms");
+    Linking.openURL('https://tandrum.app/terms');
   };
 
   const handleDataExport = () => {
     showAlert(
-      "Export Your Journey 📊",
+      'Export Your Journey 📊',
       "We'll prepare your habit data and progress history. You'll receive it within 24 hours!",
       [
-        { text: "Cancel", style: "cancel" },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: "Request Export 📤",
+          text: 'Request Export 📤',
           onPress: () =>
             showAlert(
-              "Export Requested! ✅",
-              "Your data export is being prepared. Check your email within 24 hours.",
-              [{ text: "OK", style: "default" }],
-              "checkmark-circle",
-              "#10B981"
+              'Export Requested! ✅',
+              'Your data export is being prepared. Check your email within 24 hours.',
+              [{ text: 'OK', style: 'default' }],
+              'checkmark-circle',
+              '#10B981',
             ),
         },
       ],
-      "download",
-      "#059669"
+      'download',
+      '#059669',
     );
   };
 
   const handleDeleteAccount = () => {
     showAlert(
-      "Delete Account? 😢",
+      'Delete Account? 😢',
       "We're sorry to see you go! This will permanently remove your account and all progress data. This action cannot be undone.",
       [
-        { text: "Keep My Account", style: "cancel" },
+        { text: 'Keep My Account', style: 'cancel' },
         {
-          text: "Delete Forever",
-          style: "destructive",
+          text: 'Delete Forever',
+          style: 'destructive',
           onPress: () => {
             showAlert(
-              "Final Confirmation ⚠️",
-              "This will permanently delete your account, habits, and all progress data. Are you absolutely sure?",
+              'Final Confirmation ⚠️',
+              'This will permanently delete your account, habits, and all progress data. Are you absolutely sure?',
               [
-                { text: "Cancel", style: "cancel" },
+                { text: 'Cancel', style: 'cancel' },
                 {
-                  text: "I Understand, Delete Account",
-                  style: "destructive",
+                  text: 'I Understand, Delete Account',
+                  style: 'destructive',
                   onPress: confirmDeleteAccount,
                 },
               ],
-              "warning",
-              "#EF4444"
+              'warning',
+              '#EF4444',
             );
           },
         },
       ],
-      "trash",
-      "#EF4444"
+      'trash',
+      '#EF4444',
     );
   };
 
@@ -303,48 +303,48 @@ export default function SettingsScreen() {
 
     try {
       showAlert(
-        "Deleting Account...",
-        "Please wait while we process your request...",
+        'Deleting Account...',
+        'Please wait while we process your request...',
         [],
-        "hourglass",
-        "#6B7280"
+        'hourglass',
+        '#6B7280',
       );
 
       await AsyncStorage.multiRemove([
-        "isFirstTime",
-        "tutorialCompleted",
-        "onboardingCompleted",
-        "convexUser",
+        'isFirstTime',
+        'tutorialCompleted',
+        'onboardingCompleted',
+        'convexUser',
       ]);
 
       await deleteAccountMutation({ clerkId: user.id });
       await user.delete();
       await signOut();
-      await AsyncStorage.setItem("isFirstTime", "true");
-      await AsyncStorage.setItem("tutorialCompleted", "false");
+      await AsyncStorage.setItem('isFirstTime', 'true');
+      await AsyncStorage.setItem('tutorialCompleted', 'false');
 
       showAlert(
-        "Account Deleted ✅",
-        "Your account has been successfully deleted. Thank you for being part of our community.",
+        'Account Deleted ✅',
+        'Your account has been successfully deleted. Thank you for being part of our community.',
         [
           {
-            text: "OK",
+            text: 'OK',
             onPress: () => {
-              router.replace("/(auth)/(tutorial)/");
+              router.replace('/(auth)/(tutorial)/');
             },
           },
         ],
-        "checkmark-circle",
-        "#10B981"
+        'checkmark-circle',
+        '#10B981',
       );
     } catch (error) {
-      console.error("Error deleting account:", error);
+      console.error('Error deleting account:', error);
       showAlert(
-        "Oops! Something went wrong 😕",
+        'Oops! Something went wrong 😕',
         "We couldn't delete your account right now. Please try again or contact our support team.",
-        [{ text: "OK" }],
-        "alert-circle",
-        "#EF4444"
+        [{ text: 'OK' }],
+        'alert-circle',
+        '#EF4444',
       );
     }
   };
@@ -373,7 +373,7 @@ export default function SettingsScreen() {
         className="flex-row items-center py-5 px-6"
         activeOpacity={onPress ? 0.7 : 1}
         style={{
-          backgroundColor: "transparent",
+          backgroundColor: 'transparent',
         }}
       >
         <View
@@ -430,7 +430,7 @@ export default function SettingsScreen() {
     <View className="mx-5 mb-2 mt-6">
       <BlurView
         intensity={20}
-        tint={isDarkMode ? "dark" : "light"}
+        tint={isDarkMode ? 'dark' : 'light'}
         className="rounded-2xl overflow-hidden border"
         style={{ borderColor: theme.colors.cardBorder }}
       >
@@ -438,7 +438,7 @@ export default function SettingsScreen() {
           <View className="flex-row items-center gap-3">
             <View
               className="w-8 h-8 rounded-xl justify-center items-center"
-              style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
             >
               <Ionicons name={icon as any} size={18} color={textColor} />
             </View>
@@ -458,7 +458,7 @@ export default function SettingsScreen() {
     <View className="mx-5 mb-4">
       <BlurView
         intensity={20}
-        tint={isDarkMode ? "dark" : "light"}
+        tint={isDarkMode ? 'dark' : 'light'}
         className="rounded-3xl overflow-hidden border"
         style={{
           borderColor: theme.colors.cardBorder,
@@ -475,21 +475,21 @@ export default function SettingsScreen() {
       className="flex-1"
       style={{ backgroundColor: theme.colors.background[0] }}
     >
-      <StatusBar style={isDarkMode ? "light" : "dark"} />
+      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
 
       <LinearGradient colors={theme.colors.background} className="flex-1">
         <SafeAreaView className="flex-1">
           {/* Header with Glassmorphism */}
           <BlurView
             intensity={30}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             className="border-b border-opacity-20"
             style={{ borderBottomColor: theme.colors.cardBorder }}
           >
             <View className="flex-row items-center px-6 py-4 gap-4">
               <TouchableOpacity
                 onPress={() =>
-                  navigation.navigate("Tabs", { screen: "profile" })
+                  navigation.navigate('Tabs', { screen: 'profile' })
                 }
                 className="w-11 h-11 items-center justify-center rounded-2xl"
                 style={{ backgroundColor: theme.colors.glass }}
@@ -526,7 +526,7 @@ export default function SettingsScreen() {
             <SectionHeader
               title="Notifications & Reminders"
               icon="notifications-outline"
-              gradientColors={["#3B82F6", "#1D4ED8"]}
+              gradientColors={['#3B82F6', '#1D4ED8']}
               textColor="#FFFFFF"
             />
             <SettingCard>
@@ -543,7 +543,7 @@ export default function SettingsScreen() {
                       false: theme.colors.text.tertiary,
                       true: theme.colors.primary,
                     }}
-                    thumbColor={notificationsEnabled ? "#FFFFFF" : "#9CA3AF"}
+                    thumbColor={notificationsEnabled ? '#FFFFFF' : '#9CA3AF'}
                   />
                 }
               />
@@ -558,9 +558,9 @@ export default function SettingsScreen() {
                     onValueChange={handleDailyRemindersToggle}
                     trackColor={{
                       false: theme.colors.text.tertiary,
-                      true: "#10B981",
+                      true: '#10B981',
                     }}
-                    thumbColor={dailyReminders ? "#FFFFFF" : "#9CA3AF"}
+                    thumbColor={dailyReminders ? '#FFFFFF' : '#9CA3AF'}
                   />
                 }
               />
@@ -575,9 +575,9 @@ export default function SettingsScreen() {
                     onValueChange={handleWeeklyReportsToggle}
                     trackColor={{
                       false: theme.colors.text.tertiary,
-                      true: "#8B5CF6",
+                      true: '#8B5CF6',
                     }}
-                    thumbColor={weeklyReports ? "#FFFFFF" : "#9CA3AF"}
+                    thumbColor={weeklyReports ? '#FFFFFF' : '#9CA3AF'}
                   />
                 }
               />
@@ -592,9 +592,9 @@ export default function SettingsScreen() {
                     onValueChange={handlePartnerUpdatesToggle}
                     trackColor={{
                       false: theme.colors.text.tertiary,
-                      true: "#F59E0B",
+                      true: '#F59E0B',
                     }}
-                    thumbColor={partnerUpdates ? "#FFFFFF" : "#9CA3AF"}
+                    thumbColor={partnerUpdates ? '#FFFFFF' : '#9CA3AF'}
                   />
                 }
                 isLast
@@ -620,9 +620,9 @@ export default function SettingsScreen() {
                     onValueChange={handleDarkModeToggle}
                     trackColor={{
                       false: theme.colors.text.tertiary,
-                      true: "#6B7280",
+                      true: '#6B7280',
                     }}
-                    thumbColor={isDarkMode ? "#FFFFFF" : "#9CA3AF"}
+                    thumbColor={isDarkMode ? '#FFFFFF' : '#9CA3AF'}
                   />
                 }
               />
@@ -637,9 +637,9 @@ export default function SettingsScreen() {
                     onValueChange={handleSoundToggle}
                     trackColor={{
                       false: theme.colors.text.tertiary,
-                      true: "#EF4444",
+                      true: '#EF4444',
                     }}
-                    thumbColor={soundEnabled ? "#FFFFFF" : "#9CA3AF"}
+                    thumbColor={soundEnabled ? '#FFFFFF' : '#9CA3AF'}
                   />
                 }
               />
@@ -654,9 +654,9 @@ export default function SettingsScreen() {
                     onValueChange={handleVibrationToggle}
                     trackColor={{
                       false: theme.colors.text.tertiary,
-                      true: "#06B6D4",
+                      true: '#06B6D4',
                     }}
-                    thumbColor={vibrationEnabled ? "#FFFFFF" : "#9CA3AF"}
+                    thumbColor={vibrationEnabled ? '#FFFFFF' : '#9CA3AF'}
                   />
                 }
                 isLast
@@ -667,7 +667,7 @@ export default function SettingsScreen() {
             <SectionHeader
               title="Community & Support"
               icon="heart-outline"
-              gradientColors={["#8B5CF6", "#7C3AED"]}
+              gradientColors={['#8B5CF6', '#7C3AED']}
               textColor="#FFFFFF"
             />
             <SettingCard>
@@ -699,7 +699,7 @@ export default function SettingsScreen() {
             <SectionHeader
               title="Privacy & Legal"
               icon="shield-checkmark-outline"
-              gradientColors={["#059669", "#047857"]}
+              gradientColors={['#059669', '#047857']}
               textColor="#FFFFFF"
             />
             <SettingCard>
@@ -731,7 +731,7 @@ export default function SettingsScreen() {
             <SectionHeader
               title="Account Management"
               icon="person-outline"
-              gradientColors={["#EF4444", "#DC2626"]}
+              gradientColors={['#EF4444', '#DC2626']}
               textColor="#FFFFFF"
             />
             <SettingCard>

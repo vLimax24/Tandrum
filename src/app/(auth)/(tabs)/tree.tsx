@@ -1,23 +1,22 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
-import { useUser } from "@clerk/clerk-expo";
-import { Id } from "convex/_generated/dataModel";
-import { getTreeStageForLevel, getLevelData } from "@/utils/level";
-import { LevelDisplay } from "@/components/LevelDisplay";
-import { useDuo } from "@/hooks/useDuo";
-import TreeInventory from "@/components/TreeInventory";
-import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
-import { NoDuoScreen } from "@/components/NoDuoScreen";
-import { ItemType } from "@/components/TreeInventory";
-import { images } from "@/utils/images";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { Ionicons } from "@expo/vector-icons";
-import { DuoSelector } from "@/components/DuoSelector";
-import LoadingState from "@/components/LoadingState";
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
+import { useUser } from '@clerk/clerk-expo';
+import { Id } from 'convex/_generated/dataModel';
+import { getTreeStageForLevel, getLevelData } from '@/utils/level';
+import { LevelDisplay } from '@/components/LevelDisplay';
+import { useDuo } from '@/hooks/useDuo';
+import TreeInventory from '@/components/TreeInventory';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { NoDuoScreen } from '@/components/NoDuoScreen';
+import { images } from '@/utils/images';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { Ionicons } from '@expo/vector-icons';
+import { DuoSelector } from '@/components/DuoSelector';
+import LoadingState from '@/components/LoadingState';
 
 export default function TreeSection() {
   const { user } = useUser();
@@ -32,12 +31,12 @@ export default function TreeSection() {
   const clerkId = user?.id;
   const convexUser = useQuery(
     api.users.getUserByClerkId,
-    clerkId ? { clerkId } : undefined
+    clerkId ? { clerkId } : undefined,
   );
   const userId = convexUser?._id;
   const connections = useQuery(
     api.duoConnections.getConnectionsForUser,
-    userId ? { userId } : undefined
+    userId ? { userId } : undefined,
   );
   const { selectedIndex, setSelectedIndex } = useDuo();
 
@@ -51,8 +50,8 @@ export default function TreeSection() {
   const treeData = useQuery(
     api.trees.getTreeForDuo,
     selectedConnection
-      ? { duoId: selectedConnection._id as Id<"duoConnections"> }
-      : "skip"
+      ? { duoId: selectedConnection._id as Id<'duoConnections'> }
+      : 'skip',
   );
 
   useEffect(() => {
@@ -69,7 +68,7 @@ export default function TreeSection() {
     const grouped: Record<string, { idx: number; change: string }[]> = {};
     treeData?.growth_log.forEach((entry, i) => {
       const [date, { change }] = Object.entries(entry)[0];
-      const dateStr = new Date(date).toLocaleDateString("de-DE");
+      const dateStr = new Date(date).toLocaleDateString('de-DE');
       if (!grouped[dateStr]) grouped[dateStr] = [];
       grouped[dateStr].push({ idx: i, change });
     });
@@ -77,14 +76,14 @@ export default function TreeSection() {
   }, [treeData]);
 
   const [collapsedDates, setCollapsedDates] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
 
   useEffect(() => {
     if (!treeData || treeData.growth_log.length === 0) return;
     const dates = treeData.growth_log.map((entry) => {
       const [date] = Object.entries(entry)[0];
-      return new Date(date).toLocaleDateString("de-DE");
+      return new Date(date).toLocaleDateString('de-DE');
     });
     const uniqueDates = Array.from(new Set(dates));
     const latestDate = uniqueDates[uniqueDates.length - 1];
@@ -119,7 +118,7 @@ export default function TreeSection() {
       >
         <BlurView
           intensity={20}
-          tint={isDarkMode ? "dark" : "light"}
+          tint={isDarkMode ? 'dark' : 'light'}
           className="rounded-3xl px-8 py-12 items-center"
           style={{
             backgroundColor: theme.colors.glass,
@@ -150,7 +149,7 @@ export default function TreeSection() {
       >
         <BlurView
           intensity={20}
-          tint={isDarkMode ? "dark" : "light"}
+          tint={isDarkMode ? 'dark' : 'light'}
           className="rounded-3xl px-8 py-12 items-center"
           style={{
             backgroundColor: theme.colors.glass,
@@ -223,7 +222,7 @@ export default function TreeSection() {
         {/* Tree Display Section */}
         <BlurView
           intensity={20}
-          tint={isDarkMode ? "dark" : "light"}
+          tint={isDarkMode ? 'dark' : 'light'}
           className="rounded-3xl mb-8 overflow-hidden"
           style={{
             backgroundColor: theme.colors.cardBackground,
@@ -243,14 +242,14 @@ export default function TreeSection() {
             {/* Tree Inventory Component */}
             <TreeInventory
               treeData={{
-                duoId: selectedConnection._id as Id<"duoConnections">,
+                duoId: selectedConnection._id as Id<'duoConnections'>,
                 stage: treeData.stage,
                 leaves: treeData.leaves,
                 fruits: treeData.fruits,
                 inventory: treeData.inventory || {},
                 decorations: (treeData.decorations || []).map((decoration) => ({
                   ...decoration,
-                  itemId: decoration.itemId as ItemType,
+                  itemId: decoration.itemId,
                 })),
               }}
               onInventoryUpdate={handleInventoryUpdate}
@@ -262,7 +261,7 @@ export default function TreeSection() {
         <View className="flex-row gap-4 mb-8">
           <BlurView
             intensity={20}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             className="flex-1 rounded-2xl overflow-hidden"
             style={{
               backgroundColor: theme.colors.cardBackground,
@@ -302,7 +301,7 @@ export default function TreeSection() {
 
           <BlurView
             intensity={20}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             className="flex-1 rounded-2xl overflow-hidden"
             style={{
               backgroundColor: theme.colors.cardBackground,
@@ -375,7 +374,7 @@ export default function TreeSection() {
           {treeData.growth_log.length > 0 ? (
             <BlurView
               intensity={20}
-              tint={isDarkMode ? "dark" : "light"}
+              tint={isDarkMode ? 'dark' : 'light'}
               className="rounded-3xl overflow-hidden"
               style={{
                 backgroundColor: theme.colors.cardBackground,
@@ -393,7 +392,7 @@ export default function TreeSection() {
                       activeOpacity={0.7}
                       style={{
                         backgroundColor:
-                          index === 0 ? theme.colors.glass : "transparent",
+                          index === 0 ? theme.colors.glass : 'transparent',
                         borderBottomWidth: 1,
                         borderBottomColor: theme.colors.cardBorder,
                       }}
@@ -411,8 +410,8 @@ export default function TreeSection() {
                             className="text-sm"
                             style={{ color: theme.colors.text.tertiary }}
                           >
-                            {logs.length}{" "}
-                            {logs.length === 1 ? "activity" : "activities"}
+                            {logs.length}{' '}
+                            {logs.length === 1 ? 'activity' : 'activities'}
                           </Text>
                         </View>
                       </View>
@@ -426,8 +425,8 @@ export default function TreeSection() {
                           transform: [
                             {
                               rotate: collapsedDates[dateStr]
-                                ? "0deg"
-                                : "180deg",
+                                ? '0deg'
+                                : '180deg',
                             },
                           ],
                         }}
@@ -457,11 +456,11 @@ export default function TreeSection() {
                             {/* Timeline Indicator */}
                             <View className="w-10 h-10 rounded-2xl bg-green-100 items-center justify-center">
                               <Image
-                                source={images["leaf"]}
+                                source={images['leaf']}
                                 style={{
                                   width: 16,
                                   height: 16,
-                                  tintColor: "#22c55e",
+                                  tintColor: '#22c55e',
                                 }}
                               />
                             </View>
@@ -485,7 +484,7 @@ export default function TreeSection() {
                             {/* Status Badge */}
                             <View
                               className="px-3 py-1 rounded-full"
-                              style={{ backgroundColor: "#dcfce7" }}
+                              style={{ backgroundColor: '#dcfce7' }}
                             >
                               <Text className="text-xs font-semibold text-green-700">
                                 ✓ Complete
@@ -496,14 +495,14 @@ export default function TreeSection() {
                       </View>
                     )}
                   </View>
-                )
+                ),
               )}
             </BlurView>
           ) : (
             // Empty State
             <BlurView
               intensity={20}
-              tint={isDarkMode ? "dark" : "light"}
+              tint={isDarkMode ? 'dark' : 'light'}
               className="rounded-3xl overflow-hidden"
               style={{
                 backgroundColor: theme.colors.cardBackground,

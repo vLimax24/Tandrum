@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,26 +7,26 @@ import {
   TouchableOpacity,
   StatusBar,
   SafeAreaView,
-} from "react-native";
-import { useQuery, useMutation } from "convex/react";
-import { useUser } from "@clerk/clerk-expo";
-import { api } from "../../../../convex/_generated/api";
-import { getLevelData } from "@/utils/level";
-import { LinearGradient } from "expo-linear-gradient";
-import LevelDisplay from "@/components/LevelDisplay";
-import { router } from "expo-router";
-import { useDuo } from "@/hooks/useDuo";
-import { NewDuoModal } from "@/components/NewDuoModal";
-import { Ionicons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
-import { images } from "@/utils/images";
-import { createTheme } from "@/utils/theme";
-import { useTheme } from "@/contexts/themeContext";
-import LoadingState from "@/components/LoadingState";
-import { useNavigation } from "@react-navigation/native";
-import type { TabParamList } from "@/types/navigation";
-import type { NavigationProp } from "@react-navigation/native";
-import { AlertModal } from "@/components/AlertModal";
+} from 'react-native';
+import { useQuery, useMutation } from 'convex/react';
+import { useUser } from '@clerk/clerk-expo';
+import { api } from '../../../../convex/_generated/api';
+import { getLevelData } from '@/utils/level';
+import { LinearGradient } from 'expo-linear-gradient';
+import LevelDisplay from '@/components/LevelDisplay';
+import { router } from 'expo-router';
+import { useDuo } from '@/hooks/useDuo';
+import { NewDuoModal } from '@/components/NewDuoModal';
+import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { images } from '@/utils/images';
+import { createTheme } from '@/utils/theme';
+import { useTheme } from '@/contexts/themeContext';
+import LoadingState from '@/components/LoadingState';
+import { useNavigation } from '@react-navigation/native';
+import type { TabParamList } from '@/types/navigation';
+import type { NavigationProp } from '@react-navigation/native';
+import { AlertModal } from '@/components/AlertModal';
 
 const Page = () => {
   const { user } = useUser();
@@ -36,23 +36,23 @@ const Page = () => {
 
   const convexUser = useQuery(
     api.users.getUserByClerkId,
-    clerkId ? { clerkId } : "skip"
+    clerkId ? { clerkId } : 'skip',
   );
   const isUserInConnection = useQuery(
     api.duoConnections.isUserInConnection,
-    convexUser ? { userId: convexUser._id } : "skip"
+    convexUser ? { userId: convexUser._id } : 'skip',
   );
 
   const userConnections = useQuery(
     api.duoConnections.getConnectionsForUser,
-    convexUser ? { userId: convexUser._id } : "skip"
+    convexUser ? { userId: convexUser._id } : 'skip',
   );
 
   const [modalVisible, setModalVisible] = useState(false);
 
   const incomingInvite = useQuery(
     api.duoInvites.getIncomingInvite,
-    convexUser ? { userId: convexUser._id } : "skip"
+    convexUser ? { userId: convexUser._id } : 'skip',
   );
 
   const acceptInvite = useMutation(api.duoInvites.respondToInvite);
@@ -72,8 +72,8 @@ const Page = () => {
     iconColor?: string;
   }>({
     visible: false,
-    title: "",
-    message: "",
+    title: '',
+    message: '',
     buttons: [],
   });
 
@@ -83,10 +83,10 @@ const Page = () => {
     buttons: Array<{
       text: string;
       onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
+      style?: 'default' | 'cancel' | 'destructive';
     }>,
     icon?: keyof typeof Ionicons.glyphMap,
-    iconColor?: string
+    iconColor?: string,
   ) => {
     setAlertModal({
       visible: true,
@@ -105,32 +105,32 @@ const Page = () => {
   useEffect(() => {
     if (incomingInvite) {
       showAlert(
-        "Duo Invite 📬",
-        "Someone wants to team up with you!",
+        'Duo Invite 📬',
+        'Someone wants to team up with you!',
         [
           {
-            text: "Reject",
-            style: "destructive",
+            text: 'Reject',
+            style: 'destructive',
             onPress: () =>
               acceptInvite({ inviteId: incomingInvite._id, accept: false }),
           },
           {
-            text: "Accept",
+            text: 'Accept',
             onPress: () =>
               acceptInvite({ inviteId: incomingInvite._id, accept: true }),
           },
         ],
-        "mail",
-        theme.colors.primary
+        'mail',
+        theme.colors.primary,
       );
     }
   }, [incomingInvite]);
 
   const treeLabels = {
-    "tree-1": "Sprout",
-    "tree-2": "Small Tree",
-    "tree-3": "Medium Tree",
-    "tree-4": "Grown Tree",
+    'tree-1': 'Sprout',
+    'tree-2': 'Small Tree',
+    'tree-3': 'Medium Tree',
+    'tree-4': 'Grown Tree',
   };
 
   if (!convexUser || isUserInConnection === undefined) {
@@ -147,8 +147,8 @@ const Page = () => {
     ? Math.floor(
         userConnections.reduce(
           (sum, conn) => sum + getLevelData(conn.trust_score).level,
-          0
-        ) / userConnections.length
+          0,
+        ) / userConnections.length,
       )
     : 0;
   const activeDuos = userConnections?.length || 0;
@@ -174,7 +174,7 @@ const Page = () => {
   }) => (
     <BlurView
       intensity={35}
-      tint={isDarkMode ? "dark" : "light"}
+      tint={isDarkMode ? 'dark' : 'light'}
       className="flex-1 min-w-[45%] aspect-square rounded-3xl overflow-hidden"
     >
       <TouchableOpacity
@@ -206,7 +206,7 @@ const Page = () => {
               className="text-xs font-bold tracking-wider"
               style={{
                 color: iconColor,
-                fontFamily: "font-mainRegular",
+                fontFamily: 'font-mainRegular',
               }}
             >
               {chipname}
@@ -217,7 +217,7 @@ const Page = () => {
           className="text-3xl font-bold mb-1"
           style={{
             color: theme.colors.text.primary,
-            fontFamily: "font-mainRegular",
+            fontFamily: 'font-mainRegular',
           }}
         >
           {value}
@@ -226,7 +226,7 @@ const Page = () => {
           className="text-sm font-semibold"
           style={{
             color: theme.colors.text.secondary,
-            fontFamily: "font-mainRegular",
+            fontFamily: 'font-mainRegular',
           }}
         >
           {label}
@@ -244,7 +244,7 @@ const Page = () => {
     >
       <SafeAreaView className="flex-1">
         <StatusBar
-          barStyle={isDarkMode ? "light-content" : "dark-content"}
+          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
           translucent
           backgroundColor="transparent"
         />
@@ -262,7 +262,7 @@ const Page = () => {
                   className="text-base font-medium"
                   style={{
                     color: theme.colors.text.secondary,
-                    fontFamily: "font-mainRegular",
+                    fontFamily: 'font-mainRegular',
                   }}
                 >
                   Welcome back,
@@ -271,10 +271,10 @@ const Page = () => {
                   className="text-3xl font-bold"
                   style={{
                     color: theme.colors.text.primary,
-                    fontFamily: "font-mainRegular",
+                    fontFamily: 'font-mainRegular',
                   }}
                 >
-                  {convexUser.name || "Partner"}
+                  {convexUser.name || 'Partner'}
                 </Text>
               </View>
 
@@ -291,13 +291,13 @@ const Page = () => {
                 >
                   <BlurView
                     intensity={20}
-                    tint={isDarkMode ? "dark" : "light"}
+                    tint={isDarkMode ? 'dark' : 'light'}
                     className="absolute inset-0 rounded-2xl"
                   />
                   <Ionicons
-                    name={isDarkMode ? "sunny" : "moon"}
+                    name={isDarkMode ? 'sunny' : 'moon'}
                     size={20}
-                    color={isDarkMode ? "#fbbf24" : theme.colors.text.secondary}
+                    color={isDarkMode ? '#fbbf24' : theme.colors.text.secondary}
                   />
                 </TouchableOpacity>
 
@@ -327,7 +327,7 @@ const Page = () => {
                 bgColor="rgba(59, 130, 246, 0.15)"
                 iconColor="#3B82F6"
                 iconName="people"
-                chipname={"ACTIVE"}
+                chipname={'ACTIVE'}
               />
 
               {/* Total Trust Score */}
@@ -339,7 +339,7 @@ const Page = () => {
                 bgColor={`${theme.colors.primary}26`}
                 iconColor={theme.colors.primary}
                 iconName="trending-up"
-                chipname={"TRUST"}
+                chipname={'TRUST'}
               />
 
               {/* Combined Streak */}
@@ -351,7 +351,7 @@ const Page = () => {
                 bgColor="rgba(249, 115, 22, 0.15)"
                 iconColor="#F97316"
                 iconName="flame"
-                chipname={"STREAK"}
+                chipname={'STREAK'}
               />
 
               {/* Average Level */}
@@ -363,7 +363,7 @@ const Page = () => {
                 bgColor="rgba(139, 92, 246, 0.15)"
                 iconColor="#8B5CF6"
                 iconName="star"
-                chipname={"LEVEL"}
+                chipname={'LEVEL'}
               />
             </View>
           </View>
@@ -375,7 +375,7 @@ const Page = () => {
                 className="text-xl font-bold"
                 style={{
                   color: theme.colors.text.primary,
-                  fontFamily: "font-mainRegular",
+                  fontFamily: 'font-mainRegular',
                 }}
               >
                 Active Partnerships
@@ -385,15 +385,15 @@ const Page = () => {
                   className="px-3 py-1 rounded-full"
                   style={{
                     backgroundColor: isDarkMode
-                      ? "rgba(16, 185, 129, 0.2)"
-                      : "#d1fae5",
+                      ? 'rgba(16, 185, 129, 0.2)'
+                      : '#d1fae5',
                   }}
                 >
                   <Text
                     className="text-sm font-semibold"
                     style={{
-                      color: isDarkMode ? "#34d399" : "#059669",
-                      fontFamily: "font-mainRegular",
+                      color: isDarkMode ? '#34d399' : '#059669',
+                      fontFamily: 'font-mainRegular',
                     }}
                   >
                     {userConnections.length} Active
@@ -416,12 +416,12 @@ const Page = () => {
                       }}
                       onPress={() => {
                         setSelectedIndex(index);
-                        navigation.navigate("tree");
+                        navigation.navigate('tree');
                       }}
                     >
                       <BlurView
                         intensity={20}
-                        tint={isDarkMode ? "dark" : "light"}
+                        tint={isDarkMode ? 'dark' : 'light'}
                         className="absolute inset-0 rounded-3xl"
                       />
                       {/* Header Gradient */}
@@ -440,17 +440,17 @@ const Page = () => {
                               <Text
                                 className="text-lg font-bold text-white"
                                 style={{
-                                  fontFamily: "font-mainRegular",
+                                  fontFamily: 'font-mainRegular',
                                 }}
                               >
-                                {conn.partnerName?.charAt(0) || "?"}
+                                {conn.partnerName?.charAt(0) || '?'}
                               </Text>
                             </View>
                             <View className="flex-1">
                               <Text
                                 className="text-lg font-bold text-white"
                                 style={{
-                                  fontFamily: "font-mainRegular",
+                                  fontFamily: 'font-mainRegular',
                                 }}
                               >
                                 {conn.partnerName}
@@ -458,7 +458,7 @@ const Page = () => {
                               <Text
                                 className="text-sm font-medium text-white/80"
                                 style={{
-                                  fontFamily: "font-mainRegular",
+                                  fontFamily: 'font-mainRegular',
                                 }}
                               >
                                 Partnership #{index + 1}
@@ -499,7 +499,7 @@ const Page = () => {
                               <View
                                 className="w-14 h-14 rounded-full items-center justify-center mb-4"
                                 style={{
-                                  backgroundColor: theme.colors.primary + "15",
+                                  backgroundColor: theme.colors.primary + '15',
                                 }}
                               >
                                 <Ionicons
@@ -512,7 +512,7 @@ const Page = () => {
                                 className="font-bold text-3xl mb-2"
                                 style={{
                                   color: theme.colors.text.primary,
-                                  fontFamily: "font-mainRegular",
+                                  fontFamily: 'font-mainRegular',
                                 }}
                               >
                                 {conn.streak || 0}
@@ -521,7 +521,7 @@ const Page = () => {
                                 className="text-sm font-medium text-center"
                                 style={{
                                   color: theme.colors.text.tertiary,
-                                  fontFamily: "font-mainRegular",
+                                  fontFamily: 'font-mainRegular',
                                 }}
                               >
                                 Day Streak
@@ -539,7 +539,7 @@ const Page = () => {
                               <View
                                 className="w-14 h-14 rounded-full items-center justify-center mb-4"
                                 style={{
-                                  backgroundColor: theme.colors.primary + "15",
+                                  backgroundColor: theme.colors.primary + '15',
                                 }}
                               >
                                 <Ionicons
@@ -552,7 +552,7 @@ const Page = () => {
                                 className="font-bold text-3xl mb-2"
                                 style={{
                                   color: theme.colors.text.primary,
-                                  fontFamily: "font-mainRegular",
+                                  fontFamily: 'font-mainRegular',
                                 }}
                               >
                                 {(() => {
@@ -560,14 +560,14 @@ const Page = () => {
                                   if (score >= 100000) {
                                     return `${Math.round(score / 1000)}k`;
                                   }
-                                  return score.toLocaleString("de-DE");
+                                  return score.toLocaleString('de-DE');
                                 })()}
                               </Text>
                               <Text
                                 className="text-sm font-medium text-center"
                                 style={{
                                   color: theme.colors.text.tertiary,
-                                  fontFamily: "font-mainRegular",
+                                  fontFamily: 'font-mainRegular',
                                 }}
                               >
                                 Experience
@@ -586,7 +586,7 @@ const Page = () => {
                             <View
                               className="w-16 h-16 rounded-full items-center justify-center mr-5"
                               style={{
-                                backgroundColor: theme.colors.primary + "15",
+                                backgroundColor: theme.colors.primary + '15',
                               }}
                             >
                               <Image
@@ -600,7 +600,7 @@ const Page = () => {
                                 className="text-sm font-medium mb-1"
                                 style={{
                                   color: theme.colors.text.tertiary,
-                                  fontFamily: "font-mainRegular",
+                                  fontFamily: 'font-mainRegular',
                                 }}
                               >
                                 Tree Stage
@@ -609,7 +609,7 @@ const Page = () => {
                                 className="font-bold text-2xl"
                                 style={{
                                   color: theme.colors.text.primary,
-                                  fontFamily: "font-mainRegular",
+                                  fontFamily: 'font-mainRegular',
                                 }}
                                 numberOfLines={1}
                                 adjustsFontSizeToFit={true}
@@ -617,7 +617,7 @@ const Page = () => {
                               >
                                 {treeLabels[conn.treeState] ??
                                   conn.treeState ??
-                                  "Seed"}
+                                  'Seed'}
                               </Text>
                             </View>
                           </View>
@@ -637,15 +637,15 @@ const Page = () => {
               >
                 <BlurView
                   intensity={20}
-                  tint={isDarkMode ? "dark" : "light"}
+                  tint={isDarkMode ? 'dark' : 'light'}
                   className="absolute inset-0 rounded-3xl"
                 />
                 <View
                   className="w-20 h-20 rounded-full items-center justify-center mb-4"
                   style={{
                     backgroundColor: isDarkMode
-                      ? "rgba(100, 116, 139, 0.2)"
-                      : "#f1f5f9",
+                      ? 'rgba(100, 116, 139, 0.2)'
+                      : '#f1f5f9',
                   }}
                 >
                   <Text className="text-3xl">🌱</Text>
@@ -654,7 +654,7 @@ const Page = () => {
                   className="text-xl font-bold text-center mb-2"
                   style={{
                     color: theme.colors.text.primary,
-                    fontFamily: "font-mainRegular",
+                    fontFamily: 'font-mainRegular',
                   }}
                 >
                   No Active Partnerships
@@ -663,7 +663,7 @@ const Page = () => {
                   className="text-center text-base leading-6"
                   style={{
                     color: theme.colors.text.secondary,
-                    fontFamily: "font-mainRegular",
+                    fontFamily: 'font-mainRegular',
                   }}
                 >
                   Start your first duo partnership to begin building habits
@@ -692,7 +692,7 @@ const Page = () => {
                 <Text
                   className="text-white text-lg font-bold"
                   style={{
-                    fontFamily: "font-mainRegular",
+                    fontFamily: 'font-mainRegular',
                   }}
                 >
                   Start New Partnership
@@ -715,11 +715,11 @@ const Page = () => {
                   backgroundColor: theme.colors.cardBackground,
                   borderColor: theme.colors.cardBorder,
                 }}
-                onPress={() => navigation.navigate("tree")}
+                onPress={() => navigation.navigate('tree')}
               >
                 <BlurView
                   intensity={20}
-                  tint={isDarkMode ? "dark" : "light"}
+                  tint={isDarkMode ? 'dark' : 'light'}
                   className="absolute inset-0 rounded-2xl"
                 />
                 <Ionicons
@@ -732,7 +732,7 @@ const Page = () => {
                   className="font-semibold text-base"
                   style={{
                     color: theme.colors.text.primary,
-                    fontFamily: "font-mainRegular",
+                    fontFamily: 'font-mainRegular',
                   }}
                 >
                   View Trees
@@ -746,11 +746,11 @@ const Page = () => {
                   backgroundColor: theme.colors.cardBackground,
                   borderColor: theme.colors.cardBorder,
                 }}
-                onPress={() => navigation.navigate("habits")}
+                onPress={() => navigation.navigate('habits')}
               >
                 <BlurView
                   intensity={20}
-                  tint={isDarkMode ? "dark" : "light"}
+                  tint={isDarkMode ? 'dark' : 'light'}
                   className="absolute inset-0 rounded-2xl"
                 />
                 <Ionicons
@@ -763,7 +763,7 @@ const Page = () => {
                   className="font-semibold text-base"
                   style={{
                     color: theme.colors.text.primary,
-                    fontFamily: "font-mainRegular",
+                    fontFamily: 'font-mainRegular',
                   }}
                 >
                   My Habits

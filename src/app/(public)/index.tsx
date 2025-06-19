@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Text, View, Image, TouchableOpacity, Alert } from "react-native";
-import { useSSO, useUser } from "@clerk/clerk-expo";
-import { StatusBar } from "expo-status-bar";
-import { useQuery } from "convex/react";
-import { api } from "convex/_generated/api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AlertModal } from "@/components/AlertModal";
+import React, { useEffect, useState } from 'react';
+import { Text, View, Image, TouchableOpacity, Alert } from 'react-native';
+import { useSSO, useUser } from '@clerk/clerk-expo';
+import { StatusBar } from 'expo-status-bar';
+import { useQuery } from 'convex/react';
+import { api } from 'convex/_generated/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AlertModal } from '@/components/AlertModal';
 
 export default function AuthPage() {
   const { startSSOFlow } = useSSO();
@@ -14,7 +14,7 @@ export default function AuthPage() {
 
   const convexUser = useQuery(
     api.users.getUserByClerkId,
-    clerkId ? { clerkId } : "skip"
+    clerkId ? { clerkId } : 'skip',
   );
 
   const [alertModal, setAlertModal] = useState<{
@@ -26,8 +26,8 @@ export default function AuthPage() {
     iconColor?: string;
   }>({
     visible: false,
-    title: "",
-    message: "",
+    title: '',
+    message: '',
     buttons: [],
   });
 
@@ -38,10 +38,10 @@ export default function AuthPage() {
     buttons: Array<{
       text: string;
       onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
-    }> = [{ text: "OK", style: "default" }],
-    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
-    iconColor?: string
+      style?: 'default' | 'cancel' | 'destructive';
+    }> = [{ text: 'OK', style: 'default' }],
+    icon?: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap,
+    iconColor?: string,
   ) => {
     setAlertModal({
       visible: true,
@@ -61,9 +61,9 @@ export default function AuthPage() {
     const storeConvexUser = async () => {
       if (convexUser) {
         try {
-          await AsyncStorage.setItem("convexUser", JSON.stringify(convexUser));
+          await AsyncStorage.setItem('convexUser', JSON.stringify(convexUser));
         } catch (e) {
-          console.error("Failed to save Convex user to AsyncStorage", e);
+          console.error('Failed to save Convex user to AsyncStorage', e);
         }
       }
     };
@@ -73,21 +73,21 @@ export default function AuthPage() {
   const handleGoogleLogin = async () => {
     try {
       const { createdSessionId, setActive } = await startSSOFlow({
-        strategy: "oauth_google",
+        strategy: 'oauth_google',
       });
       if (createdSessionId) {
         setActive!({ session: createdSessionId });
         // Set tutorial completion flags to ensure proper flow
-        await AsyncStorage.setItem("isFirstTime", "false");
-        await AsyncStorage.setItem("tutorialCompleted", "true");
+        await AsyncStorage.setItem('isFirstTime', 'false');
+        await AsyncStorage.setItem('tutorialCompleted', 'true');
       }
     } catch (error) {
       showAlert(
-        "Login failed",
-        error.message || "An error occurred during login",
-        [{ text: "OK", style: "default" }],
-        "alert-circle",
-        "#ef4444"
+        'Login failed',
+        error.message || 'An error occurred during login',
+        [{ text: 'OK', style: 'default' }],
+        'alert-circle',
+        '#ef4444',
       );
     }
   };
@@ -98,8 +98,8 @@ export default function AuthPage() {
       <View className="flex-1 justify-center items-center px-6">
         <View className="items-center mb-12">
           <Image
-            source={require("../../assets/tree-2.png")}
-            style={{ width: 350, height: 350, resizeMode: "contain" }}
+            source={require('../../assets/tree-2.png')}
+            style={{ width: 350, height: 350, resizeMode: 'contain' }}
           />
           <Text className="text-3xl font-bold text-gray-800 text-center mb-4 font-mainRegular">
             Welcome Back!

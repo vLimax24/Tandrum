@@ -1,32 +1,32 @@
-import React, { useEffect, useState, useRef } from "react";
-import { View, ScrollView } from "react-native";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
-import { useUser } from "@clerk/clerk-expo";
-import { useLiveTimers } from "@/hooks/useLiveTimer";
-import { LevelDisplay } from "@/components/LevelDisplay";
-import { useDuo } from "@/hooks/useDuo";
-import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
-import { StreakVisualization } from "@/components/StreakVisualization";
-import HabitActionBottomSheet from "@/components/HabitActionBottomSheet";
-import HabitEditBottomSheet from "@/components/HabitEditBottomSheet";
-import { DuoSelector } from "@/components/DuoSelector";
-import { CreateHabitBottomSheet } from "@/components/CreateHabitBottomSheet";
-import { HabitsHeader } from "@/components/HabitsHeader";
-import LoadingState from "@/components/LoadingState";
-import { CreateHabitButton } from "@/components/CreateHabitButton";
-import { HabitsContainer } from "@/components/HabitsContainer";
-import { RewardAnimation } from "@/components/RewardAnimation";
-import { AlertModal } from "@/components/AlertModal";
-import { Id } from "../../../../convex/_generated/dataModel";
-import { NoDuoScreen } from "@/components/NoDuoScreen";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
+import React, { useEffect, useState, useRef } from 'react';
+import { View, ScrollView } from 'react-native';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
+import { useUser } from '@clerk/clerk-expo';
+import { useLiveTimers } from '@/hooks/useLiveTimer';
+import { LevelDisplay } from '@/components/LevelDisplay';
+import { useDuo } from '@/hooks/useDuo';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { StreakVisualization } from '@/components/StreakVisualization';
+import HabitActionBottomSheet from '@/components/HabitActionBottomSheet';
+import HabitEditBottomSheet from '@/components/HabitEditBottomSheet';
+import { DuoSelector } from '@/components/DuoSelector';
+import { CreateHabitBottomSheet } from '@/components/CreateHabitBottomSheet';
+import { HabitsHeader } from '@/components/HabitsHeader';
+import LoadingState from '@/components/LoadingState';
+import { CreateHabitButton } from '@/components/CreateHabitButton';
+import { HabitsContainer } from '@/components/HabitsContainer';
+import { RewardAnimation } from '@/components/RewardAnimation';
+import { AlertModal } from '@/components/AlertModal';
+import { Id } from '../../../../convex/_generated/dataModel';
+import { NoDuoScreen } from '@/components/NoDuoScreen';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
-} from "@gorhom/bottom-sheet";
+} from '@gorhom/bottom-sheet';
 
 export default function HabitsSection() {
   const { user } = useUser();
@@ -37,7 +37,7 @@ export default function HabitsSection() {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [activeMenuHabitId, setActiveMenuHabitId] = useState<string | null>(
-    null
+    null,
   );
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [now, setNow] = useState(Date.now());
@@ -55,8 +55,8 @@ export default function HabitsSection() {
     iconColor?: string;
   }>({
     visible: false,
-    title: "",
-    message: "",
+    title: '',
+    message: '',
     buttons: [],
   });
 
@@ -78,17 +78,17 @@ export default function HabitsSection() {
   const clerkId = user?.id;
   const convexUser = useQuery(
     api.users.getUserByClerkId,
-    clerkId ? { clerkId } : "skip"
+    clerkId ? { clerkId } : 'skip',
   );
   const connections = useQuery(
     api.duoConnections.getConnectionsForUser,
-    convexUser ? { userId: convexUser._id } : "skip"
+    convexUser ? { userId: convexUser._id } : 'skip',
   );
   const habits = useQuery(
     api.duoHabits.getHabitsForDuo,
     connections && connections[selectedIndex]
       ? { duoId: connections[selectedIndex]._id }
-      : "skip"
+      : 'skip',
   );
   const checkInHabit = useMutation(api.duoHabits.checkInHabit);
   const deleteHabit = useMutation(api.duoHabits.deleteHabit);
@@ -112,10 +112,10 @@ export default function HabitsSection() {
     buttons: Array<{
       text: string;
       onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
+      style?: 'default' | 'cancel' | 'destructive';
     }>,
-    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
-    iconColor?: string
+    icon?: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap,
+    iconColor?: string,
   ) => {
     setAlertModal({
       visible: true,
@@ -141,41 +141,41 @@ export default function HabitsSection() {
     createHabitBottomSheetRef.current?.present();
   };
 
-  const handleDeleteHabit = (habitId: Id<"duoHabits">, habitTitle: string) => {
+  const handleDeleteHabit = (habitId: Id<'duoHabits'>, habitTitle: string) => {
     showAlert(
-      "Delete Habit",
+      'Delete Habit',
       `Are you sure you want to delete "${habitTitle}"? This action cannot be undone.`,
       [
         {
-          text: "Cancel",
-          style: "cancel",
+          text: 'Cancel',
+          style: 'cancel',
         },
         {
-          text: "Delete",
-          style: "destructive",
+          text: 'Delete',
+          style: 'destructive',
           onPress: async () => {
             try {
               await deleteHabit({ habitId });
             } catch (error) {
               showAlert(
-                "Error",
-                "Failed to delete habit. Please try again.",
-                [{ text: "OK", style: "default" }],
-                "alert-circle",
-                "#ef4444"
+                'Error',
+                'Failed to delete habit. Please try again.',
+                [{ text: 'OK', style: 'default' }],
+                'alert-circle',
+                '#ef4444',
               );
             }
           },
         },
       ],
-      "trash",
-      "#ef4444"
+      'trash',
+      '#ef4444',
     );
   };
 
   const handleBottomSheetEdit = () => {
     if (!activeMenuHabitId || !habits) {
-      console.log("Missing activeMenuHabitId or habits");
+      console.log('Missing activeMenuHabitId or habits');
       return;
     }
 
@@ -187,7 +187,7 @@ export default function HabitsSection() {
         editBottomSheetRef.current?.present();
       }, 100);
     } else {
-      console.log("Habit not found with id:", activeMenuHabitId);
+      console.log('Habit not found with id:', activeMenuHabitId);
     }
   };
 
@@ -204,7 +204,7 @@ export default function HabitsSection() {
 
   const handleSaveEdit = async (data: {
     title: string;
-    frequency: "daily" | "weekly";
+    frequency: 'daily' | 'weekly';
   }) => {
     if (!editingHabit) return;
     try {
@@ -216,13 +216,13 @@ export default function HabitsSection() {
       editBottomSheetRef.current?.dismiss();
       setEditingHabit(null);
     } catch (error) {
-      console.error("Failed to update habit:", error);
+      console.error('Failed to update habit:', error);
     }
   };
 
   const handleHabitCheckIn = async (
-    habitId: Id<"duoHabits">,
-    userIsA: boolean
+    habitId: Id<'duoHabits'>,
+    userIsA: boolean,
   ) => {
     try {
       const result = await checkInHabit({
@@ -237,14 +237,14 @@ export default function HabitsSection() {
 
       return result;
     } catch (error) {
-      console.error("Check-in error:", error);
+      console.error('Check-in error:', error);
       setTimeout(() => {
         showAlert(
-          "Error",
-          "Failed to update habit. Please try again.",
-          [{ text: "OK", style: "default" }],
-          "alert-circle",
-          "#ef4444"
+          'Error',
+          'Failed to update habit. Please try again.',
+          [{ text: 'OK', style: 'default' }],
+          'alert-circle',
+          '#ef4444',
         );
       }, 100);
     }
@@ -276,8 +276,8 @@ export default function HabitsSection() {
   }
 
   const duo = connections[selectedIndex];
-  const daily = habits.filter((h) => h.frequency === "daily");
-  const weekly = habits.filter((h) => h.frequency === "weekly");
+  const daily = habits.filter((h) => h.frequency === 'daily');
+  const weekly = habits.filter((h) => h.frequency === 'weekly');
   const amI_A = convexUser._id === duo.user1;
 
   return (

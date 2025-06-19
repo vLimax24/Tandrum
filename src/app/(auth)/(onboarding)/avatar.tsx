@@ -1,5 +1,5 @@
 // src/app/(auth)/(onboarding)/avatar.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,21 +9,21 @@ import {
   Alert,
   Animated,
   Dimensions,
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { BlurView } from "expo-blur";
-import { api } from "convex/_generated/api";
-import { useUser } from "@clerk/clerk-expo";
-import { useMutation, useQuery } from "convex/react";
-import { avatarOptions } from "@/utils/avatarImages";
-import { AlertModal } from "@/components/AlertModal";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
+} from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { BlurView } from 'expo-blur';
+import { api } from 'convex/_generated/api';
+import { useUser } from '@clerk/clerk-expo';
+import { useMutation, useQuery } from 'convex/react';
+import { avatarOptions } from '@/utils/avatarImages';
+import { AlertModal } from '@/components/AlertModal';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
 
-const { width, height } = Dimensions.get("window");
+const { width, height } = Dimensions.get('window');
 const avatarSize = (width - 80) / 3 - 12; // 3 columns with better spacing
 
 export default function AvatarScreen() {
@@ -39,13 +39,13 @@ export default function AvatarScreen() {
   const headerAnim = React.useRef(new Animated.Value(-50)).current;
   const progressAnim = React.useRef(new Animated.Value(0)).current;
   const scaleAnims = React.useRef(
-    avatarOptions.map(() => new Animated.Value(0.8))
+    avatarOptions.map(() => new Animated.Value(0.8)),
   ).current;
 
   const updateUser = useMutation(api.users.completeOnboarding);
   const getUserData = useQuery(
     api.users.getUserByClerkId,
-    user ? { clerkId: user.id } : "skip"
+    user ? { clerkId: user.id } : 'skip',
   );
 
   const [alertModal, setAlertModal] = useState<{
@@ -57,8 +57,8 @@ export default function AvatarScreen() {
     iconColor?: string;
   }>({
     visible: false,
-    title: "",
-    message: "",
+    title: '',
+    message: '',
     buttons: [],
   });
 
@@ -97,8 +97,8 @@ export default function AvatarScreen() {
             useNativeDriver: true,
             tension: 120,
             friction: 8,
-          })
-        )
+          }),
+        ),
       ),
     ]).start();
   }, []);
@@ -109,10 +109,10 @@ export default function AvatarScreen() {
     buttons: Array<{
       text: string;
       onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
+      style?: 'default' | 'cancel' | 'destructive';
     }>,
-    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
-    iconColor?: string
+    icon?: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap,
+    iconColor?: string,
   ) => {
     setAlertModal({
       visible: true,
@@ -145,7 +145,7 @@ export default function AvatarScreen() {
     try {
       const currentUserQuery = getUserData;
       const currentUsername =
-        currentUserQuery?.name || user.firstName || "User";
+        currentUserQuery?.name || user.firstName || 'User';
 
       await updateUser({
         clerkId: user.id,
@@ -154,16 +154,16 @@ export default function AvatarScreen() {
       });
 
       router.dismissAll();
-      router.replace("/(auth)/(tabs)/home");
+      router.replace('/(auth)/(tabs)/home');
     } catch (error) {
       showAlert(
-        "Error",
-        "Failed to save avatar. Please try again.",
-        [{ text: "OK", style: "default" }],
-        "alert-circle",
-        "#ef4444"
+        'Error',
+        'Failed to save avatar. Please try again.',
+        [{ text: 'OK', style: 'default' }],
+        'alert-circle',
+        '#ef4444',
       );
-      console.error("Avatar update error:", error);
+      console.error('Avatar update error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -171,7 +171,7 @@ export default function AvatarScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background[0] }}>
-      <StatusBar style={isDarkMode ? "light" : "dark"} />
+      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
 
       {/* Background Gradient */}
       <View className="absolute inset-0" />
@@ -191,7 +191,7 @@ export default function AvatarScreen() {
           >
             <BlurView
               intensity={20}
-              tint={isDarkMode ? "dark" : "light"}
+              tint={isDarkMode ? 'dark' : 'light'}
               className="absolute inset-0 rounded-2xl"
             />
             <Ionicons
@@ -203,7 +203,7 @@ export default function AvatarScreen() {
 
           <BlurView
             intensity={20}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             style={{
               paddingHorizontal: 16,
               paddingVertical: 8,
@@ -232,7 +232,7 @@ export default function AvatarScreen() {
                 backgroundColor: theme.colors.primary,
                 width: progressAnim.interpolate({
                   inputRange: [0, 1],
-                  outputRange: ["0%", "100%"],
+                  outputRange: ['0%', '100%'],
                 }),
               }}
             />
@@ -253,7 +253,7 @@ export default function AvatarScreen() {
           >
             <BlurView
               intensity={20}
-              tint={isDarkMode ? "dark" : "light"}
+              tint={isDarkMode ? 'dark' : 'light'}
               className="absolute inset-0 rounded-3xl"
             />
             <View className="flex-row items-center gap-3 mb-4">
@@ -316,7 +316,7 @@ export default function AvatarScreen() {
               >
                 <BlurView
                   intensity={15}
-                  tint={isDarkMode ? "dark" : "light"}
+                  tint={isDarkMode ? 'dark' : 'light'}
                   className="absolute inset-0 rounded-full"
                 />
                 <Text
@@ -362,7 +362,7 @@ export default function AvatarScreen() {
                   >
                     <BlurView
                       intensity={10}
-                      tint={isDarkMode ? "dark" : "light"}
+                      tint={isDarkMode ? 'dark' : 'light'}
                       className="absolute inset-0"
                     />
 
@@ -408,7 +408,7 @@ export default function AvatarScreen() {
             {(!selectedAvatar || isLoading) && (
               <BlurView
                 intensity={20}
-                tint={isDarkMode ? "dark" : "light"}
+                tint={isDarkMode ? 'dark' : 'light'}
                 className="absolute inset-0"
               />
             )}
@@ -422,7 +422,7 @@ export default function AvatarScreen() {
                         {
                           rotate: fadeAnim.interpolate({
                             inputRange: [0, 1],
-                            outputRange: ["0deg", "360deg"],
+                            outputRange: ['0deg', '360deg'],
                           }),
                         },
                       ],
@@ -447,7 +447,7 @@ export default function AvatarScreen() {
                     className="text-lg font-semibold"
                     style={{
                       color: selectedAvatar
-                        ? "white"
+                        ? 'white'
                         : theme.colors.text.primary,
                     }}
                   >

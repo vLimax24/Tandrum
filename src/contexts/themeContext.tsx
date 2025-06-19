@@ -4,8 +4,8 @@ import React, {
   useEffect,
   useState,
   ReactNode,
-} from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface ThemeContextType {
   isDarkMode: boolean;
@@ -18,7 +18,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
 };
@@ -33,12 +33,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   useEffect(() => {
     const loadDarkModePreference = async () => {
       try {
-        const savedDarkMode = await AsyncStorage.getItem("darkMode");
+        const savedDarkMode = await AsyncStorage.getItem('darkMode');
         if (savedDarkMode !== null) {
           setIsDarkMode(JSON.parse(savedDarkMode));
         }
       } catch (error) {
-        console.log("Error loading dark mode preference:", error);
+        console.log('Error loading dark mode preference:', error);
       }
     };
     loadDarkModePreference();
@@ -47,9 +47,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const setDarkMode = async (value: boolean) => {
     try {
       setIsDarkMode(value);
-      await AsyncStorage.setItem("darkMode", JSON.stringify(value));
+      await AsyncStorage.setItem('darkMode', JSON.stringify(value));
     } catch (error) {
-      console.log("Error saving dark mode preference:", error);
+      console.log('Error saving dark mode preference:', error);
     }
   };
 

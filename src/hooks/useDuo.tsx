@@ -1,5 +1,5 @@
 // context/DuoContext.tsx
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState } from 'react';
 
 type DuoContextType = {
   selectedIndex: number;
@@ -20,6 +20,6 @@ export const DuoProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useDuo = () => {
   const context = useContext(DuoContext);
-  if (!context) throw new Error("useDuo must be used within DuoProvider");
+  if (!context) throw new Error('useDuo must be used within DuoProvider');
   return context;
 };

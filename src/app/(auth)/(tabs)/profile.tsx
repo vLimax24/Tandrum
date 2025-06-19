@@ -1,21 +1,21 @@
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
-import { useUser, useAuth } from "@clerk/clerk-expo";
-import { useQuery } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
-import { useRouter } from "expo-router";
-import { useCallback, useState } from "react";
-import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
-import { useFocusEffect } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { avatarOptions } from "@/utils/avatarImages";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import type { NavigationProp } from "@react-navigation/native";
-import type { RootStackParamList } from "@/types/navigation";
-import { AlertModal } from "@/components/AlertModal";
+import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { useUser, useAuth } from '@clerk/clerk-expo';
+import { useQuery } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
+import { useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { avatarOptions } from '@/utils/avatarImages';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
+import type { RootStackParamList } from '@/types/navigation';
+import { AlertModal } from '@/components/AlertModal';
 
 const Profile = () => {
   const { user, isLoaded } = useUser();
@@ -36,15 +36,15 @@ const Profile = () => {
     iconColor?: string;
   }>({
     visible: false,
-    title: "",
-    message: "",
+    title: '',
+    message: '',
     buttons: [],
   });
 
   // Only run the query if user exists and has an id
   const convexUser = useQuery(
     api.users.getUserByClerkId,
-    user?.id ? { clerkId: user.id } : "skip"
+    user?.id ? { clerkId: user.id } : 'skip',
   );
 
   // Use useFocusEffect to check auth state when screen comes into focus
@@ -54,7 +54,7 @@ const Profile = () => {
       const checkAuth = () => {
         if (isLoaded && (!user || !isSignedIn)) {
           try {
-            router.replace("/(public)/login");
+            router.replace('/(public)/login');
           } catch (error) {
             // Retry after a short delay
             setTimeout(checkAuth, 100);
@@ -63,7 +63,7 @@ const Profile = () => {
       };
 
       checkAuth();
-    }, [user, isSignedIn, isLoaded, router])
+    }, [user, isSignedIn, isLoaded, router]),
   );
 
   const showAlert = (
@@ -72,10 +72,10 @@ const Profile = () => {
     buttons: Array<{
       text: string;
       onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
+      style?: 'default' | 'cancel' | 'destructive';
     }>,
-    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
-    iconColor?: string
+    icon?: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap,
+    iconColor?: string,
   ) => {
     setAlertModal({
       visible: true,
@@ -108,24 +108,24 @@ const Profile = () => {
 
   const handleSignOut = async () => {
     showAlert(
-      "Sign Out",
-      "Are you sure you want to sign out of your account?",
+      'Sign Out',
+      'Are you sure you want to sign out of your account?',
       [
         {
-          text: "Cancel",
-          style: "cancel",
+          text: 'Cancel',
+          style: 'cancel',
         },
         {
-          text: "Sign Out",
-          style: "destructive",
+          text: 'Sign Out',
+          style: 'destructive',
           onPress: async () => {
             try {
               // Clear all AsyncStorage data first
               await AsyncStorage.multiRemove([
-                "isFirstTime",
-                "tutorialCompleted",
-                "onboardingCompleted",
-                "convexUser",
+                'isFirstTime',
+                'tutorialCompleted',
+                'onboardingCompleted',
+                'convexUser',
               ]);
 
               // Sign out from Clerk
@@ -134,29 +134,29 @@ const Profile = () => {
               // The useFocusEffect will handle navigation when auth state changes
               // This prevents navigation timing issues
             } catch (error) {
-              console.error("Sign out error:", error);
+              console.error('Sign out error:', error);
               showAlert(
-                "Error",
-                "Failed to sign out. Please try again.",
-                [{ text: "OK", style: "default" }],
-                "alert-circle",
-                "#ef4444"
+                'Error',
+                'Failed to sign out. Please try again.',
+                [{ text: 'OK', style: 'default' }],
+                'alert-circle',
+                '#ef4444',
               );
             }
           },
         },
       ],
-      "log-out",
-      "#ef4444"
+      'log-out',
+      '#ef4444',
     );
   };
 
   const handleEditProfile = () => {
-    navigation.navigate("EditProfile");
+    navigation.navigate('EditProfile');
   };
 
   const handleSettings = () => {
-    navigation.navigate("Settings");
+    navigation.navigate('Settings');
   };
 
   const formatJoinDate = (date) => {
@@ -165,31 +165,31 @@ const Profile = () => {
 
     // Check if the date is valid
     if (isNaN(joinDate.getTime())) {
-      return "Recently joined";
+      return 'Recently joined';
     }
 
     const diffTime = Math.abs(now.getTime() - joinDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) {
-      return "Today";
+      return 'Today';
     } else if (diffDays === 1) {
-      return "1 day ago";
+      return '1 day ago';
     } else if (diffDays < 30) {
       return `${diffDays} days ago`;
     } else if (diffDays < 365) {
       const months = Math.floor(diffDays / 30);
-      return `${months} month${months > 1 ? "s" : ""} ago`;
+      return `${months} month${months > 1 ? 's' : ''} ago`;
     } else {
       const years = Math.floor(diffDays / 365);
-      return `${years} year${years > 1 ? "s" : ""} ago`;
+      return `${years} year${years > 1 ? 's' : ''} ago`;
     }
   };
 
-  const GlassCard = ({ children, className = "" }) => (
+  const GlassCard = ({ children, className = '' }) => (
     <BlurView
       intensity={20}
-      tint={isDarkMode ? "dark" : "light"}
+      tint={isDarkMode ? 'dark' : 'light'}
       className={`rounded-3xl border overflow-hidden ${className}`}
       style={{
         backgroundColor: theme.colors.cardBackground,
@@ -246,7 +246,7 @@ const Profile = () => {
           >
             <BlurView
               intensity={15}
-              tint={isDarkMode ? "dark" : "light"}
+              tint={isDarkMode ? 'dark' : 'light'}
               className="w-full h-full rounded-2xl justify-center items-center border"
               style={{
                 backgroundColor: theme.colors.glass,
@@ -282,7 +282,7 @@ const Profile = () => {
               className="text-3xl font-bold mb-2 font-mainRegular text-center"
               style={{ color: theme.colors.text.primary }}
             >
-              {convexUser?.name || "Loading..."}
+              {convexUser?.name || 'Loading...'}
             </Text>
             <Text
               className="text-base font-mainRegular text-center"
@@ -345,12 +345,12 @@ const Profile = () => {
                       style={{ color: theme.colors.text.primary }}
                     >
                       {new Date(convexUser.joined_at).toLocaleDateString(
-                        "en-US",
+                        'en-US',
                         {
-                          month: "long",
-                          day: "numeric",
-                          year: "numeric",
-                        }
+                          month: 'long',
+                          day: 'numeric',
+                          year: 'numeric',
+                        },
                       )}
                     </Text>
                     <Text
@@ -549,8 +549,8 @@ const Profile = () => {
                   onPress={handleSettings}
                   className="flex-1 rounded-2xl py-4 px-4 items-center border"
                   style={{
-                    backgroundColor: "#8b5cf615",
-                    borderColor: "#8b5cf630",
+                    backgroundColor: '#8b5cf615',
+                    borderColor: '#8b5cf630',
                   }}
                 >
                   <Ionicons
@@ -561,7 +561,7 @@ const Profile = () => {
                   />
                   <Text
                     className="text-base font-semibold mb-1 font-mainRegular"
-                    style={{ color: "#8b5cf6" }}
+                    style={{ color: '#8b5cf6' }}
                   >
                     Settings
                   </Text>
@@ -582,7 +582,7 @@ const Profile = () => {
               <TouchableOpacity
                 onPress={handleSignOut}
                 className="rounded-2xl py-4 px-6 flex-row items-center justify-center"
-                style={{ backgroundColor: "#ef4444" }}
+                style={{ backgroundColor: '#ef4444' }}
               >
                 <Ionicons
                   name="log-out-outline"

@@ -1,5 +1,5 @@
 // src/app/(auth)/(onboarding)/username.tsx
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,25 +9,25 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Animated,
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "convex/_generated/api";
-import { useUser } from "@clerk/clerk-expo";
-import { AlertModal } from "@/components/AlertModal";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { BlurView } from "expo-blur";
+} from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from 'convex/_generated/api';
+import { useUser } from '@clerk/clerk-expo';
+import { AlertModal } from '@/components/AlertModal';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { BlurView } from 'expo-blur';
 
 export default function UsernameScreen() {
-  const [username, setUsername] = useState("");
-  const [debouncedUsername, setDebouncedUsername] = useState("");
+  const [username, setUsername] = useState('');
+  const [debouncedUsername, setDebouncedUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isValid, setIsValid] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const router = useRouter();
   const { user } = useUser();
@@ -45,8 +45,8 @@ export default function UsernameScreen() {
     iconColor?: string;
   }>({
     visible: false,
-    title: "",
-    message: "",
+    title: '',
+    message: '',
     buttons: [],
   });
 
@@ -60,7 +60,7 @@ export default function UsernameScreen() {
 
   const existingUser = useQuery(
     api.users.getUserByUsername,
-    shouldCheckUsername ? { username: debouncedUsername } : "skip"
+    shouldCheckUsername ? { username: debouncedUsername } : 'skip',
   );
 
   const showAlert = (
@@ -69,10 +69,10 @@ export default function UsernameScreen() {
     buttons: Array<{
       text: string;
       onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
+      style?: 'default' | 'cancel' | 'destructive';
     }>,
-    icon?: keyof typeof import("@expo/vector-icons").Ionicons.glyphMap,
-    iconColor?: string
+    icon?: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap,
+    iconColor?: string,
   ) => {
     setAlertModal({
       visible: true,
@@ -129,7 +129,7 @@ export default function UsernameScreen() {
 
   const validateUsername = useCallback(() => {
     const trimmedUsername = username.trim();
-    setErrorMessage("");
+    setErrorMessage('');
 
     if (trimmedUsername.length === 0) {
       setIsValid(false);
@@ -138,13 +138,13 @@ export default function UsernameScreen() {
 
     if (trimmedUsername.length < 3) {
       setIsValid(false);
-      setErrorMessage("Username must be at least 3 characters");
+      setErrorMessage('Username must be at least 3 characters');
       return;
     }
 
     if (trimmedUsername.length > 20) {
       setIsValid(false);
-      setErrorMessage("Username must be less than 20 characters");
+      setErrorMessage('Username must be less than 20 characters');
       return;
     }
 
@@ -152,7 +152,7 @@ export default function UsernameScreen() {
     if (!validPattern.test(trimmedUsername)) {
       setIsValid(false);
       setErrorMessage(
-        "Username can only contain letters, numbers, and underscores"
+        'Username can only contain letters, numbers, and underscores',
       );
       return;
     }
@@ -169,7 +169,7 @@ export default function UsernameScreen() {
     // Check if username is taken (only if we have query results)
     if (shouldCheckUsername && existingUser && existingUser.id !== user?.id) {
       setIsValid(false);
-      setErrorMessage("This username is already taken");
+      setErrorMessage('This username is already taken');
       return;
     }
 
@@ -192,28 +192,28 @@ export default function UsernameScreen() {
       await updateUser({
         clerkId: user.id,
         name: username.trim(),
-        profileImage: user.imageUrl || "",
+        profileImage: user.imageUrl || '',
       });
 
-      router.push("/(auth)/(onboarding)/avatar");
+      router.push('/(auth)/(onboarding)/avatar');
     } catch (error) {
       showAlert(
-        "Error",
-        "Failed to update username. Please try again.",
-        [{ text: "OK", style: "default" }],
-        "alert-circle",
-        "#ef4444"
+        'Error',
+        'Failed to update username. Please try again.',
+        [{ text: 'OK', style: 'default' }],
+        'alert-circle',
+        '#ef4444',
       );
-      console.error("Username update error:", error);
+      console.error('Username update error:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const generateSuggestions = useCallback(() => {
-    const baseNames = ["learner", "student", "explorer", "scholar", "genius"];
+    const baseNames = ['learner', 'student', 'explorer', 'scholar', 'genius'];
     const suggestions = baseNames.map(
-      (base) => `${base}${Math.floor(Math.random() * 1000) + 1}`
+      (base) => `${base}${Math.floor(Math.random() * 1000) + 1}`,
     );
     return suggestions.slice(0, 3); // Return only 3 suggestions
   }, []);
@@ -222,31 +222,31 @@ export default function UsernameScreen() {
     setUsername(suggestion);
     // Reset states when suggestion is selected
     setIsCheckingUsername(false);
-    setErrorMessage("");
+    setErrorMessage('');
   }, []);
 
   const handleBackPress = useCallback(() => {
-    router.replace("/(auth)/(onboarding)/");
+    router.replace('/(auth)/(onboarding)/');
   }, [router]);
 
   const suggestions = generateSuggestions();
 
   const getInputStatus = () => {
-    if (username.trim().length === 0) return "default";
-    if (isCheckingUsername) return "checking";
-    if (isValid) return "valid";
-    return "invalid";
+    if (username.trim().length === 0) return 'default';
+    if (isCheckingUsername) return 'checking';
+    if (isValid) return 'valid';
+    return 'invalid';
   };
 
   const getStatusIcon = () => {
     const status = getInputStatus();
     switch (status) {
-      case "checking":
-        return "time-outline";
-      case "valid":
-        return "checkmark-circle";
-      case "invalid":
-        return "close-circle";
+      case 'checking':
+        return 'time-outline';
+      case 'valid':
+        return 'checkmark-circle';
+      case 'invalid':
+        return 'close-circle';
       default:
         return null;
     }
@@ -255,12 +255,12 @@ export default function UsernameScreen() {
   const getStatusColor = () => {
     const status = getInputStatus();
     switch (status) {
-      case "checking":
-        return "#f59e0b";
-      case "valid":
+      case 'checking':
+        return '#f59e0b';
+      case 'valid':
         return theme.colors.primary;
-      case "invalid":
-        return "#ef4444";
+      case 'invalid':
+        return '#ef4444';
       default:
         return theme.colors.text.tertiary;
     }
@@ -269,12 +269,12 @@ export default function UsernameScreen() {
   const getInputBorderColor = () => {
     const status = getInputStatus();
     switch (status) {
-      case "checking":
-        return "rgba(245, 158, 11, 0.4)";
-      case "valid":
-        return "rgba(0, 153, 102, 0.4)";
-      case "invalid":
-        return "rgba(239, 68, 68, 0.4)";
+      case 'checking':
+        return 'rgba(245, 158, 11, 0.4)';
+      case 'valid':
+        return 'rgba(0, 153, 102, 0.4)';
+      case 'invalid':
+        return 'rgba(239, 68, 68, 0.4)';
       default:
         return theme.colors.cardBorder;
     }
@@ -283,16 +283,16 @@ export default function UsernameScreen() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={{ flex: 1, backgroundColor: theme.colors.background[0] }}>
-        <StatusBar style={isDarkMode ? "light" : "dark"} />
+        <StatusBar style={isDarkMode ? 'light' : 'dark'} />
 
         {/* Background Gradient Overlay */}
         <View
           style={{
-            position: "absolute",
+            position: 'absolute',
             top: 0,
             left: 0,
             right: 0,
-            height: "50%",
+            height: '50%',
           }}
           className="absolute top-0 left-0 right-0 h-1/2"
         />
@@ -318,7 +318,7 @@ export default function UsernameScreen() {
 
             <BlurView
               intensity={20}
-              tint={isDarkMode ? "dark" : "light"}
+              tint={isDarkMode ? 'dark' : 'light'}
               style={{
                 paddingHorizontal: 16,
                 paddingVertical: 8,
@@ -378,14 +378,14 @@ export default function UsernameScreen() {
             {/* Input Card */}
             <BlurView
               intensity={20}
-              tint={isDarkMode ? "dark" : "light"}
+              tint={isDarkMode ? 'dark' : 'light'}
               style={{
                 backgroundColor: theme.colors.cardBackground,
                 borderColor: getInputBorderColor(),
                 borderWidth: 1,
                 borderRadius: 24,
                 marginBottom: 24,
-                overflow: "hidden",
+                overflow: 'hidden',
               }}
             >
               <View className="p-6">
@@ -403,8 +403,8 @@ export default function UsernameScreen() {
                       paddingRight: username.trim().length > 0 ? 60 : 20,
                       borderRadius: 16,
                       backgroundColor: isDarkMode
-                        ? "rgba(0, 0, 0, 0.2)"
-                        : "rgba(255, 255, 255, 0.5)",
+                        ? 'rgba(0, 0, 0, 0.2)'
+                        : 'rgba(255, 255, 255, 0.5)',
                       borderWidth: 1,
                       borderColor: theme.colors.cardBorder,
                     }}
@@ -430,7 +430,7 @@ export default function UsernameScreen() {
                     <View className="flex-row items-center gap-2">
                       <Ionicons name="refresh" size={16} color="#f59e0b" />
                       <Text
-                        style={{ color: "#f59e0b" }}
+                        style={{ color: '#f59e0b' }}
                         className="text-sm font-mainRegular"
                       >
                         Checking availability...
@@ -440,7 +440,7 @@ export default function UsernameScreen() {
                     <View className="flex-row items-center gap-2">
                       <Ionicons name="alert-circle" size={16} color="#ef4444" />
                       <Text
-                        style={{ color: "#ef4444" }}
+                        style={{ color: '#ef4444' }}
                         className="text-sm font-mainRegular"
                       >
                         {errorMessage}
@@ -475,7 +475,7 @@ export default function UsernameScreen() {
                     <View className="flex-row items-center gap-1">
                       <Ionicons name="warning" size={14} color="#f59e0b" />
                       <Text
-                        style={{ color: "#f59e0b" }}
+                        style={{ color: '#f59e0b' }}
                         className="text-xs font-mainRegular"
                       >
                         Almost at limit
@@ -490,14 +490,14 @@ export default function UsernameScreen() {
             {username.trim().length === 0 && (
               <BlurView
                 intensity={15}
-                tint={isDarkMode ? "dark" : "light"}
+                tint={isDarkMode ? 'dark' : 'light'}
                 style={{
                   backgroundColor: theme.colors.cardBackground,
                   borderColor: theme.colors.cardBorder,
                   borderWidth: 1,
                   borderRadius: 20,
                   marginBottom: 32,
-                  overflow: "hidden",
+                  overflow: 'hidden',
                 }}
               >
                 <View className="p-6">
@@ -521,9 +521,9 @@ export default function UsernameScreen() {
                         onPress={() => handleSuggestionPress(suggestion)}
                         style={{
                           backgroundColor: isDarkMode
-                            ? "rgba(0, 153, 102, 0.1)"
-                            : "rgba(0, 153, 102, 0.05)",
-                          borderColor: theme.colors.primary + "40",
+                            ? 'rgba(0, 153, 102, 0.1)'
+                            : 'rgba(0, 153, 102, 0.05)',
+                          borderColor: theme.colors.primary + '40',
                           borderWidth: 1,
                         }}
                         className="px-4 py-3 rounded-full"
@@ -547,7 +547,7 @@ export default function UsernameScreen() {
                 style={{
                   paddingVertical: 18,
                   paddingHorizontal: 32,
-                  alignItems: "center",
+                  alignItems: 'center',
                   borderRadius: 20,
                   backgroundColor:
                     isValid && !isLoading && !isCheckingUsername
@@ -557,7 +557,7 @@ export default function UsernameScreen() {
                     !isLoading &&
                     !isCheckingUsername && {
                       borderWidth: 1,
-                      borderColor: theme.colors.primary + "40",
+                      borderColor: theme.colors.primary + '40',
                     }),
                 }}
                 activeOpacity={0.8}
@@ -565,30 +565,30 @@ export default function UsernameScreen() {
                 disabled={!isValid || isLoading || isCheckingUsername}
               >
                 <View
-                  style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
                 >
                   <Text
                     style={{
-                      fontWeight: "600",
+                      fontWeight: '600',
                       fontSize: 18,
                       color:
                         isValid && !isLoading && !isCheckingUsername
-                          ? "white"
+                          ? 'white'
                           : theme.colors.text.tertiary,
                     }}
                     className="font-mainRegular"
                   >
                     {isLoading
-                      ? "Saving..."
+                      ? 'Saving...'
                       : isCheckingUsername
-                        ? "Checking..."
-                        : "Continue Your Journey"}
+                        ? 'Checking...'
+                        : 'Continue Your Journey'}
                   </Text>
                   {!isLoading && !isCheckingUsername && (
                     <Ionicons
                       name="arrow-forward"
                       size={20}
-                      color={isValid ? "white" : theme.colors.text.tertiary}
+                      color={isValid ? 'white' : theme.colors.text.tertiary}
                     />
                   )}
                 </View>

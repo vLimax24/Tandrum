@@ -66,11 +66,11 @@ export function getLevelData(totalXp: number) {
 
 // Tree stages with more granular progression
 export function getTreeStageForLevel(level: number): string {
-  if (level < 4) return "tree-1";
-  if (level < 8) return "tree-1.5";
-  if (level < 16) return "tree-2";
-  if (level < 24) return "tree-3";
-  return "tree-4";
+  if (level < 4) return 'tree-1';
+  if (level < 8) return 'tree-1.5';
+  if (level < 16) return 'tree-2';
+  if (level < 24) return 'tree-3';
+  return 'tree-4';
 }
 
 // Utility function to get leveling preview

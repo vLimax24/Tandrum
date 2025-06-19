@@ -1,5 +1,5 @@
 // src/app/(auth)/(tabs)/edit-profile.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,25 +10,25 @@ import {
   Dimensions,
   TextInput,
   ActivityIndicator,
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { BlurView } from "expo-blur";
-import { api } from "convex/_generated/api";
-import { useUser } from "@clerk/clerk-expo";
-import { useMutation, useQuery } from "convex/react";
-import { LinearGradient } from "expo-linear-gradient";
-import { avatarOptions } from "@/utils/avatarImages";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { useNavigation } from "@react-navigation/native";
-import type { NavigationProp } from "@react-navigation/native";
-import type { RootStackParamList } from "@/types/navigation";
-import { AlertModal } from "@/components/AlertModal";
+} from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { BlurView } from 'expo-blur';
+import { api } from 'convex/_generated/api';
+import { useUser } from '@clerk/clerk-expo';
+import { useMutation, useQuery } from 'convex/react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { avatarOptions } from '@/utils/avatarImages';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
+import type { RootStackParamList } from '@/types/navigation';
+import { AlertModal } from '@/components/AlertModal';
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window');
 const avatarSize = (width - 80) / 3 - 12;
 
 export default function EditProfileScreen() {
@@ -38,11 +38,11 @@ export default function EditProfileScreen() {
 
   // Updated state and tracking for changes
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
-  const [username, setUsername] = useState("");
-  const [bio, setBio] = useState("");
+  const [username, setUsername] = useState('');
+  const [bio, setBio] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
-  const [usernameError, setUsernameError] = useState("");
+  const [usernameError, setUsernameError] = useState('');
   const [isUsernameValid, setIsUsernameValid] = useState(true);
   const [alertConfig, setAlertConfig] = useState<{
     visible: boolean;
@@ -53,14 +53,14 @@ export default function EditProfileScreen() {
     iconColor?: string;
   }>({
     visible: false,
-    title: "",
-    message: "",
+    title: '',
+    message: '',
     buttons: [],
   });
 
   // Track original values to detect changes
-  const [originalUsername, setOriginalUsername] = useState("");
-  const [originalBio, setOriginalBio] = useState("");
+  const [originalUsername, setOriginalUsername] = useState('');
+  const [originalBio, setOriginalBio] = useState('');
   const [originalAvatar, setOriginalAvatar] = useState<number | null>(null);
 
   const router = useRouter();
@@ -69,20 +69,20 @@ export default function EditProfileScreen() {
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(30)).current;
   const scaleAnims = React.useRef(
-    avatarOptions.map(() => new Animated.Value(1))
+    avatarOptions.map(() => new Animated.Value(1)),
   ).current;
 
   const updateUser = useMutation(api.users.updateUserInfo);
   const checkUsername = useQuery(
     api.users.checkUsernameAvailability,
-    username.length >= 3 ? { username, excludeClerkId: user?.id } : "skip"
+    username.length >= 3 ? { username, excludeClerkId: user?.id } : 'skip',
   );
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const convexUser = useQuery(
     api.users.getUserByClerkId,
-    user ? { clerkId: user.id } : "skip"
+    user ? { clerkId: user.id } : 'skip',
   );
 
   useEffect(() => {
@@ -103,8 +103,8 @@ export default function EditProfileScreen() {
   // Initialize form with current user data
   useEffect(() => {
     if (convexUser) {
-      const currentUsername = convexUser.name || "";
-      const currentBio = convexUser.bio || "";
+      const currentUsername = convexUser.name || '';
+      const currentBio = convexUser.bio || '';
 
       setUsername(currentUsername);
       setBio(currentBio);
@@ -114,7 +114,7 @@ export default function EditProfileScreen() {
       // Find current avatar
       const currentAvatarKey = convexUser.avatar;
       const currentAvatar = avatarOptions.find(
-        (a) => a.key === currentAvatarKey
+        (a) => a.key === currentAvatarKey,
       );
       if (currentAvatar) {
         setSelectedAvatar(currentAvatar.id);
@@ -126,26 +126,26 @@ export default function EditProfileScreen() {
   // Username validation
   useEffect(() => {
     if (username.length === 0) {
-      setUsernameError("");
+      setUsernameError('');
       setIsUsernameValid(true);
       return;
     }
 
     if (username.length < 3) {
-      setUsernameError("Username must be at least 3 characters");
+      setUsernameError('Username must be at least 3 characters');
       setIsUsernameValid(false);
       return;
     }
 
     if (username.length > 20) {
-      setUsernameError("Username must be less than 20 characters");
+      setUsernameError('Username must be less than 20 characters');
       setIsUsernameValid(false);
       return;
     }
 
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
       setUsernameError(
-        "Username can only contain letters, numbers, and underscores"
+        'Username can only contain letters, numbers, and underscores',
       );
       setIsUsernameValid(false);
       return;
@@ -153,10 +153,10 @@ export default function EditProfileScreen() {
 
     if (checkUsername !== undefined) {
       if (!checkUsername.available) {
-        setUsernameError("Username is already taken");
+        setUsernameError('Username is already taken');
         setIsUsernameValid(false);
       } else {
-        setUsernameError("");
+        setUsernameError('');
         setIsUsernameValid(true);
       }
     }
@@ -187,8 +187,8 @@ export default function EditProfileScreen() {
     setIsLoading(true);
     try {
       const selectedAvatarKey = selectedAvatar
-        ? avatarOptions.find((a) => a.id === selectedAvatar)?.key || "avatar_1"
-        : convexUser?.avatar || "avatar_1";
+        ? avatarOptions.find((a) => a.id === selectedAvatar)?.key || 'avatar_1'
+        : convexUser?.avatar || 'avatar_1';
 
       await updateUser({
         clerkId: user.id,
@@ -199,15 +199,15 @@ export default function EditProfileScreen() {
 
       setAlertConfig({
         visible: true,
-        title: "Success",
-        message: "Your profile has been updated successfully!",
-        icon: "checkmark-circle",
+        title: 'Success',
+        message: 'Your profile has been updated successfully!',
+        icon: 'checkmark-circle',
         iconColor: theme.colors.primary,
         buttons: [
           {
-            text: "OK",
-            onPress: () => navigation.navigate("Tabs", { screen: "profile" }),
-            style: "default",
+            text: 'OK',
+            onPress: () => navigation.navigate('Tabs', { screen: 'profile' }),
+            style: 'default',
           },
         ],
       });
@@ -215,18 +215,18 @@ export default function EditProfileScreen() {
       // Updated to use custom AlertModal instead of native Alert
       setAlertConfig({
         visible: true,
-        title: "Error",
-        message: "Failed to update profile. Please try again.",
-        icon: "alert-circle",
-        iconColor: "#ef4444",
+        title: 'Error',
+        message: 'Failed to update profile. Please try again.',
+        icon: 'alert-circle',
+        iconColor: '#ef4444',
         buttons: [
           {
-            text: "OK",
-            style: "default",
+            text: 'OK',
+            style: 'default',
           },
         ],
       });
-      console.error("Profile update error:", error);
+      console.error('Profile update error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -240,21 +240,21 @@ export default function EditProfileScreen() {
       className="flex-1"
       style={{ backgroundColor: theme.colors.background[0] }}
     >
-      <StatusBar style={isDarkMode ? "light" : "dark"} />
+      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
 
       <LinearGradient colors={theme.colors.background} className="flex-1">
         {/* Enhanced Header with Glassmorphism */}
         <SafeAreaView className="relative">
           <BlurView
             intensity={30}
-            tint={isDarkMode ? "dark" : "light"}
+            tint={isDarkMode ? 'dark' : 'light'}
             className="border-b border-opacity-20"
             style={{ borderBottomColor: theme.colors.cardBorder }}
           >
             <View className="flex-row items-center justify-between px-6 py-4">
               <TouchableOpacity
                 onPress={() =>
-                  navigation.navigate("Tabs", { screen: "profile" })
+                  navigation.navigate('Tabs', { screen: 'profile' })
                 }
                 className="w-11 h-11 items-center justify-center rounded-2xl"
                 style={{ backgroundColor: theme.colors.glass }}
@@ -296,12 +296,12 @@ export default function EditProfileScreen() {
                       <Ionicons
                         name="checkmark-circle"
                         size={18}
-                        color={canSave ? "white" : theme.colors.text.tertiary}
+                        color={canSave ? 'white' : theme.colors.text.tertiary}
                       />
                       <Text
                         className="font-semibold font-mainRegular"
                         style={{
-                          color: canSave ? "white" : theme.colors.text.tertiary,
+                          color: canSave ? 'white' : theme.colors.text.tertiary,
                         }}
                       >
                         Save
@@ -327,7 +327,7 @@ export default function EditProfileScreen() {
           <View className="mx-6 mt-6">
             <BlurView
               intensity={60}
-              tint={isDarkMode ? "dark" : "light"}
+              tint={isDarkMode ? 'dark' : 'light'}
               className="rounded-3xl overflow-hidden"
               style={{
                 backgroundColor: theme.colors.cardBackground,
@@ -382,7 +382,7 @@ export default function EditProfileScreen() {
                       className="text-base font-semibold font-mainRegular"
                       style={{ color: theme.colors.text.primary }}
                     >
-                      {avatarOptions.find((a) => a.id === selectedAvatar)?.name}{" "}
+                      {avatarOptions.find((a) => a.id === selectedAvatar)?.name}{' '}
                       Avatar
                     </Text>
                   </View>
@@ -414,7 +414,7 @@ export default function EditProfileScreen() {
                       >
                         <Image
                           source={avatar.source}
-                          style={{ width: "100%", height: "100%" }}
+                          style={{ width: '100%', height: '100%' }}
                           resizeMode="cover"
                         />
 
@@ -443,7 +443,7 @@ export default function EditProfileScreen() {
           <View className="mx-6 mt-4">
             <BlurView
               intensity={60}
-              tint={isDarkMode ? "dark" : "light"}
+              tint={isDarkMode ? 'dark' : 'light'}
               className="rounded-3xl overflow-hidden"
               style={{
                 backgroundColor: theme.colors.cardBackground,
@@ -488,7 +488,7 @@ export default function EditProfileScreen() {
                     backgroundColor: theme.colors.glass,
                     borderWidth: 2,
                     borderColor: usernameError
-                      ? "#ef4444"
+                      ? '#ef4444'
                       : isUsernameValid && username.length > 0
                         ? theme.colors.primary
                         : theme.colors.cardBorder,
@@ -535,7 +535,7 @@ export default function EditProfileScreen() {
           <View className="mx-6 mt-4">
             <BlurView
               intensity={60}
-              tint={isDarkMode ? "dark" : "light"}
+              tint={isDarkMode ? 'dark' : 'light'}
               className="rounded-3xl overflow-hidden"
               style={{
                 backgroundColor: theme.colors.cardBackground,
@@ -548,7 +548,7 @@ export default function EditProfileScreen() {
                 <View className="flex-row items-center gap-3">
                   <View
                     className="w-10 h-10 rounded-2xl justify-center items-center"
-                    style={{ backgroundColor: "#8b5cf6" }}
+                    style={{ backgroundColor: '#8b5cf6' }}
                   >
                     <Ionicons
                       name="chatbubble-ellipses"
@@ -597,7 +597,7 @@ export default function EditProfileScreen() {
                     borderColor: theme.colors.cardBorder,
                     color: theme.colors.text.primary,
                     minHeight: 100,
-                    textAlignVertical: "top",
+                    textAlignVertical: 'top',
                   }}
                   multiline
                   numberOfLines={4}
@@ -627,7 +627,7 @@ export default function EditProfileScreen() {
           <View className="mx-6 mt-4">
             <BlurView
               intensity={60}
-              tint={isDarkMode ? "dark" : "light"}
+              tint={isDarkMode ? 'dark' : 'light'}
               className="rounded-3xl overflow-hidden"
               style={{
                 backgroundColor: theme.colors.cardBackground,
@@ -640,7 +640,7 @@ export default function EditProfileScreen() {
                 <View className="flex-row items-center gap-3">
                   <View
                     className="w-10 h-10 rounded-2xl justify-center items-center"
-                    style={{ backgroundColor: "#64748b" }}
+                    style={{ backgroundColor: '#64748b' }}
                   >
                     <Ionicons name="shield-checkmark" size={20} color="white" />
                   </View>
@@ -710,7 +710,7 @@ export default function EditProfileScreen() {
                   >
                     {convexUser
                       ? new Date(convexUser.joined_at).toLocaleDateString()
-                      : "—"}
+                      : '—'}
                   </Text>
                 </View>
               </View>

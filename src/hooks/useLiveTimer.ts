@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 function getTimeUntilEndOfDay(): string {
   const now = new Date();
@@ -12,9 +12,9 @@ function getTimeUntilEndOfDay(): string {
 
   return diff >= 86400000
     ? `${Math.ceil(diff / 86400000)} days`
-    : `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(
-        seconds
-      ).padStart(2, "0")}`;
+    : `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(
+        seconds,
+      ).padStart(2, '0')}`;
 }
 
 function getTimeUntilEndOfWeek(): string {
@@ -33,9 +33,9 @@ function getTimeUntilEndOfWeek(): string {
 
   return diff >= 86400000
     ? `${Math.ceil(diff / 86400000)} days`
-    : `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(
-        seconds
-      ).padStart(2, "0")}`;
+    : `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(
+        seconds,
+      ).padStart(2, '0')}`;
 }
 
 export const useLiveTimers = () => {

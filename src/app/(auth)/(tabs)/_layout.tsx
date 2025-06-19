@@ -1,14 +1,14 @@
-import React from "react";
-import TabNavigator from "@/components/TabNavigator";
-import SettingsScreen from "@/app/(auth)/(tabs)/settings";
-import EditProfileScreen from "@/app/(auth)/(tabs)/edit-profile";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { NavigationContainer } from "@react-navigation/native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { useTheme } from "@/contexts/themeContext";
-import { createTheme } from "@/utils/theme";
-import { View } from "react-native";
-import type { RootStackParamList } from "@/types/navigation";
+import React from 'react';
+import TabNavigator from '@/components/TabNavigator';
+import SettingsScreen from '@/app/(auth)/(tabs)/settings';
+import EditProfileScreen from '@/app/(auth)/(tabs)/edit-profile';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useTheme } from '@/contexts/themeContext';
+import { createTheme } from '@/utils/theme';
+import { View } from 'react-native';
+import type { RootStackParamList } from '@/types/navigation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
