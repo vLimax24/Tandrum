@@ -12,7 +12,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { NoDuoScreen } from "@/components/NoDuoScreen";
 import { ItemType } from "@/components/TreeInventory";
-import { treeImages } from "@/utils/images";
+import { images } from "@/utils/images";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -234,7 +234,7 @@ export default function TreeSection() {
           <View className="p-4 items-center">
             <View className="w-80 h-80 rounded-3xl bg-gradient-to-br from-green-50 to-blue-50 items-center justify-center mb-6 overflow-hidden">
               <Image
-                source={treeImages[treeData.stage]}
+                source={images[treeData.stage]}
                 style={{ width: 280, height: 280 }}
                 resizeMode="contain"
               />
@@ -457,7 +457,7 @@ export default function TreeSection() {
                             {/* Timeline Indicator */}
                             <View className="w-10 h-10 rounded-2xl bg-green-100 items-center justify-center">
                               <Image
-                                source={treeImages["leaf"]}
+                                source={images["leaf"]}
                                 style={{
                                   width: 16,
                                   height: 16,

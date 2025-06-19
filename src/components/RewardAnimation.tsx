@@ -11,7 +11,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { getRarityColors } from "@/utils/rarities";
-import { treeImages } from "@/utils/images";
+import { images } from "@/utils/images";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
 
@@ -516,7 +516,7 @@ export const RewardAnimation: React.FC<RewardAnimationProps> = ({
                           className="w-14 h-14 rounded-full items-center justify-center mb-3" // Reduced from w-20 h-20, mb-5
                         >
                           <Image
-                            source={treeImages[rewards.item.itemId]}
+                            source={images[rewards.item.itemId]}
                             className="w-8 h-8" // Reduced from w-12 h-12
                             style={{ resizeMode: "contain" }}
                           />

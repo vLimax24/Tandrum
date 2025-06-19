@@ -11,7 +11,7 @@ import {
 } from "@gorhom/bottom-sheet";
 import { BlurView } from "expo-blur";
 import { getRarityColors } from "@/utils/rarities";
-import { treeImages } from "@/utils/images";
+import { images } from "@/utils/images";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
 import { AlertModal } from "@/components/AlertModal";
@@ -158,23 +158,23 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   // Helper function to get appropriate image source
   const getImageSource = (itemId: string) => {
     const item = itemsById[itemId];
-    if (!item) return treeImages.leaf; // fallback
+    if (!item) return images.leaf; // fallback
 
     // First try to map by itemId directly
-    if (treeImages[itemId]) {
-      return treeImages[itemId];
+    if (images[itemId]) {
+      return images[itemId];
     }
 
     // Then try to map by imageAsset filename
-    if (item.imageAsset && treeImages[item.imageAsset]) {
-      return treeImages[item.imageAsset];
+    if (item.imageAsset && images[item.imageAsset]) {
+      return images[item.imageAsset];
     }
 
     // Category-based fallback
-    if (item.category === "fruit") return treeImages.orange;
-    if (item.category === "leaf") return treeImages.leaf;
+    if (item.category === "fruit") return images.orange;
+    if (item.category === "leaf") return images.leaf;
 
-    return treeImages.leaf; // final fallback
+    return images.leaf; // final fallback
   };
 
   // Returns all possible slot positions for the current stage

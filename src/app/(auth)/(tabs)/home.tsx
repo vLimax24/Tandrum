@@ -19,7 +19,7 @@ import { useDuo } from "@/hooks/useDuo";
 import { NewDuoModal } from "@/components/NewDuoModal";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import { treeImages } from "@/utils/images";
+import { images } from "@/utils/images";
 import { createTheme } from "@/utils/theme";
 import { useTheme } from "@/contexts/themeContext";
 import LoadingState from "@/components/LoadingState";
@@ -467,7 +467,7 @@ const Page = () => {
                           </View>
                           <View className="w-14 h-14 rounded-2xl items-center justify-center bg-white/10">
                             <Image
-                              source={treeImages[conn.treeState]}
+                              source={images[conn.treeState]}
                               className="w-8 h-8"
                               resizeMode="contain"
                             />
@@ -590,7 +590,7 @@ const Page = () => {
                               }}
                             >
                               <Image
-                                source={treeImages[conn.treeState]}
+                                source={images[conn.treeState]}
                                 className="w-8 h-8"
                                 resizeMode="contain"
                               />

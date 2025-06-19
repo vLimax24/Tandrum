@@ -6,7 +6,7 @@ import { getLevelData } from "@/utils/level";
 import { Doc } from "convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
-import { treeImages } from "@/utils/images";
+import { images } from "@/utils/images";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -439,7 +439,7 @@ export const LevelDisplay = ({
                   >
                     <View className="flex-row items-center mb-2 gap-2">
                       <Image
-                        source={treeImages["leaf"]}
+                        source={images["leaf"]}
                         style={{ width: 16, height: 16 }}
                       />
                       <Text
@@ -475,7 +475,7 @@ export const LevelDisplay = ({
                   >
                     <View className="flex-row items-center mb-2 gap-2">
                       <Image
-                        source={treeImages["orange"]}
+                        source={images["orange"]}
                         style={{ width: 16, height: 16 }}
                       />
                       <Text

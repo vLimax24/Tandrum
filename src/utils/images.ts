@@ -1,4 +1,4 @@
-export const treeImages: Record<string, any> = {
+export const images: Record<string, any> = {
   // Common Leaves
   forestLeaf: require("@/assets/leaves/forest_leaf.png"),
   autumnLeaf: require("@/assets/leaves/autumn_leaf.png"),

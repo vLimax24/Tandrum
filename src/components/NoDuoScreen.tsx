@@ -6,7 +6,7 @@ import { NewDuoModal } from "@/components/NewDuoModal";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
-import { treeImages } from "@/utils/images";
+import { images } from "@/utils/images";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -79,7 +79,7 @@ export const NoDuoScreen: React.FC<NoDuoScreenProps> = ({
                   }}
                 >
                   <Image
-                    source={treeImages.leaf}
+                    source={images.leaf}
                     className="w-8 h-8"
                     style={{
                       tintColor: theme.colors.primary,

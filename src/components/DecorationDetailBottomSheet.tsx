@@ -9,7 +9,7 @@ import {
 import { BlurView } from "expo-blur";
 import { useTheme } from "@/contexts/themeContext";
 import { createTheme } from "@/utils/theme";
-import { treeImages } from "@/utils/images";
+import { images } from "@/utils/images";
 
 interface DecorationDetailBottomSheetProps {
   onClose: () => void;
@@ -195,7 +195,7 @@ const DecorationDetailBottomSheet = forwardRef<
                       }}
                     >
                       <Image
-                        source={treeImages[decoration.type]}
+                        source={images[decoration.type]}
                         className="w-14 h-14"
                         resizeMode="contain"
                       />
