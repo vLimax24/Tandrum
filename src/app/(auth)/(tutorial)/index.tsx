@@ -6,15 +6,10 @@ import {
   TouchableOpacity,
   Dimensions,
   ScrollView,
-  Alert,
   Animated,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSSO, useUser } from '@clerk/clerk-expo';
-import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useQuery } from 'convex/react';
-import { api } from 'convex/_generated/api';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,7 +17,7 @@ import { BlurView } from 'expo-blur';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
 import { AlertModal } from '@/components/AlertModal';
-import { images } from '@/utils/images';
+import { useNavigationStore } from '@/stores/NavigationStore';
 
 const { width, height } = Dimensions.get('window');
 
@@ -69,12 +64,13 @@ export default function TutorialScreen() {
   const [currentPage, setCurrentPage] = useState(0);
   const [showAuth, setShowAuth] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
-  const router = useRouter();
   const { startSSOFlow } = useSSO();
   const { user } = useUser();
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
-  const clerkId = user?.id;
+
+  // Use Zustand store instead of AsyncStorage
+  const { completeTutorial } = useNavigationStore();
 
   const [alertModal, setAlertModal] = useState<{
     visible: boolean;
@@ -111,10 +107,6 @@ export default function TutorialScreen() {
     });
   };
 
-  const closeAlert = () => {
-    setAlertModal((prev) => ({ ...prev, visible: false }));
-  };
-
   // Animation refs - using single scroll position for smooth dot animations
   const scrollX = useRef(new Animated.Value(0)).current;
   const fadeAnims = useRef(
@@ -128,11 +120,6 @@ export default function TutorialScreen() {
   ).current;
   const authFadeAnim = useRef(new Animated.Value(0)).current;
   const authSlideAnim = useRef(new Animated.Value(50)).current;
-
-  const convexUser = useQuery(
-    api.users.getUserByClerkId,
-    clerkId ? { clerkId } : 'skip',
-  );
 
   // Initial animation
   useEffect(() => {
@@ -156,20 +143,6 @@ export default function TutorialScreen() {
       }),
     ]).start();
   }, []);
-
-  // Store convex user when available
-  useEffect(() => {
-    const storeConvexUser = async () => {
-      if (convexUser) {
-        try {
-          await AsyncStorage.setItem('convexUser', JSON.stringify(convexUser));
-        } catch (e) {
-          console.error('Failed to save Convex user to AsyncStorage', e);
-        }
-      }
-    };
-    storeConvexUser();
-  }, [convexUser]);
 
   // Auth screen animation
   useEffect(() => {
@@ -243,21 +216,19 @@ export default function TutorialScreen() {
 
   const handleGoogleLogin = async () => {
     try {
-      // Set flags immediately to trigger loading screen
-      await AsyncStorage.setItem('isFirstTime', 'false');
-      await AsyncStorage.setItem('tutorialCompleted', 'true');
+      // Mark tutorial as completed in Zustand store
+      completeTutorial();
 
+      // Start SSO flow
       const { createdSessionId, setActive } = await startSSOFlow({
         strategy: 'oauth_google',
       });
 
       if (createdSessionId) {
         setActive!({ session: createdSessionId });
+        // Navigation will be handled automatically by the layout
       }
     } catch (error: any) {
-      // Reset flags on error
-      await AsyncStorage.removeItem('isFirstTime');
-      await AsyncStorage.removeItem('tutorialCompleted');
       console.error('Login error:', error);
 
       showAlert(

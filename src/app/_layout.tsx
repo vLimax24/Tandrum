@@ -1,5 +1,5 @@
 import '../global.css';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { SplashScreen, useSegments, useRouter } from 'expo-router';
 import { Slot } from 'expo-router';
 import LoadingScreen from '@/components/LoadingScreen';
@@ -22,10 +22,10 @@ import {
   Poppins_800ExtraBold,
 } from '@expo-google-fonts/poppins';
 import { DuoProvider } from '@/hooks/useDuo';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery } from 'convex/react';
 import { api } from 'convex/_generated/api';
 import { ThemeProvider } from '@/contexts/themeContext';
+import { useNavigationStore } from '@/stores/NavigationStore';
 
 const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
@@ -44,109 +44,60 @@ const InitialLayout = () => {
     Poppins_600SemiBold,
     Poppins_800ExtraBold,
   });
+
   const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
   const segments = useSegments();
   const router = useRouter();
-  const { user } = useUser();
-  const [isFirstTime, setIsFirstTime] = useState<boolean | null>(null);
-  const [hasCompletedTutorial, setHasCompletedTutorial] = useState<
-    boolean | null
-  >(null);
-  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
 
-  // Get onboarding status from server
+  const { hasCompletedTutorial, isInitialized, initialize } =
+    useNavigationStore();
+
+  // Get onboarding status from server only when user is signed in
   const onboardingStatus = useQuery(
     api.users.getOnboardingStatus,
     isSignedIn && user?.id ? { clerkId: user.id } : 'skip',
   );
 
-  // Function to check AsyncStorage values (only for tutorial)
-  const checkStorageValues = async () => {
-    try {
-      const firstTimeValue = await AsyncStorage.getItem('isFirstTime');
-      const tutorialCompleted = await AsyncStorage.getItem('tutorialCompleted');
-
-      setIsFirstTime(
-        firstTimeValue === null ? true : firstTimeValue === 'true',
-      );
-      setHasCompletedTutorial(tutorialCompleted === 'true');
-    } catch (error) {
-      console.error('Error checking storage:', error);
-      setIsFirstTime(true);
-      setHasCompletedTutorial(false);
-    }
-  };
-
-  // Check storage values on initial mount
+  // Initialize the store on first load
   useEffect(() => {
-    checkStorageValues();
-  }, []);
-
-  // Show loading screen immediately when user signs in
-  useEffect(() => {
-    if (isSignedIn && hasCompletedTutorial && !showLoadingScreen) {
-      setShowLoadingScreen(true);
+    if (!isInitialized) {
+      initialize();
     }
-  }, [isSignedIn, hasCompletedTutorial]);
-
-  // Re-check storage when authentication state changes
-  useEffect(() => {
-    if (isSignedIn) {
-      checkStorageValues();
-    }
-  }, [isSignedIn]);
+  }, [isInitialized, initialize]);
 
   // Main navigation logic
   useEffect(() => {
-    if (!isLoaded || isFirstTime === null || hasCompletedTutorial === null) {
+    // Wait for all necessary data to be loaded
+    if (!isLoaded || !fontsLoaded || !isInitialized) {
       return;
     }
 
     const segment0 = segments[0];
     const segment1 = segments.at(1) ?? '';
-    const currentPath = segments.join('/');
-
     const inAuthGroup = segment0 === '(auth)';
-    const inPublicGroup = segment0 === '(public)';
 
-    // If it's the first time (tutorial not completed)
-    if (isFirstTime || !hasCompletedTutorial) {
+    // 1. Tutorial flow - if tutorial not completed, show tutorial
+    if (!hasCompletedTutorial) {
       if (!inAuthGroup || segment1 !== '(tutorial)') {
         router.replace('/(auth)/(tutorial)/');
       }
       return;
     }
 
-    // If tutorial is finished but user is not signed in
-    if (hasCompletedTutorial && !isSignedIn) {
-      if (!inPublicGroup) {
+    // 2. Not signed in but tutorial completed - stay on tutorial (auth screen)
+    if (!isSignedIn) {
+      if (!inAuthGroup || segment1 !== '(tutorial)') {
         router.replace('/(auth)/(tutorial)/');
       }
       return;
     }
 
-    // If user is signed in, check onboarding status
+    // 3. Signed in - check onboarding status
     if (isSignedIn && onboardingStatus !== undefined) {
-      // Hide loading screen once we have onboarding status
-      if (showLoadingScreen) {
-        setShowLoadingScreen(false);
-      }
-
-      // If user exists and has completed onboarding (or is a returning user without onboarding data)
+      // New user or user who hasn't completed onboarding
       if (
-        onboardingStatus.exists &&
-        (onboardingStatus.onboardingCompleted ||
-          onboardingStatus.onboardingCompleted === undefined)
-      ) {
-        if (!inAuthGroup || segment1 !== '(tabs)') {
-          router.replace('/(auth)/(tabs)/home');
-        }
-        return;
-      }
-
-      // If user exists but hasn't completed onboarding
-      if (
-        onboardingStatus.exists &&
+        !onboardingStatus.exists ||
         onboardingStatus.onboardingCompleted === false
       ) {
         if (!inAuthGroup || segment1 !== '(onboarding)') {
@@ -155,44 +106,45 @@ const InitialLayout = () => {
         return;
       }
 
-      // If user doesn't exist in database yet, go to onboarding
-      if (!onboardingStatus.exists) {
-        if (!inAuthGroup || segment1 !== '(onboarding)') {
-          router.replace('/(auth)/(onboarding)');
+      // Existing user who completed onboarding
+      if (
+        onboardingStatus.exists &&
+        (onboardingStatus.onboardingCompleted === true ||
+          onboardingStatus.onboardingCompleted === undefined)
+      ) {
+        if (!inAuthGroup || segment1 !== '(tabs)') {
+          router.replace('/(auth)/(tabs)/home');
         }
         return;
       }
     }
   }, [
     isLoaded,
-    isFirstTime,
+    fontsLoaded,
+    isInitialized,
     hasCompletedTutorial,
-    onboardingStatus,
     isSignedIn,
+    onboardingStatus,
     segments,
-    showLoadingScreen,
+    router,
   ]);
 
+  // Hide splash screen when everything is ready
   useEffect(() => {
-    if (
+    const shouldHideSplash =
       fontsLoaded &&
-      isFirstTime !== null &&
-      hasCompletedTutorial !== null &&
-      (isSignedIn ? onboardingStatus !== undefined : true) &&
-      !showLoadingScreen
-    ) {
+      isLoaded &&
+      isInitialized &&
+      (isSignedIn ? onboardingStatus !== undefined : true);
+
+    if (shouldHideSplash) {
       SplashScreen.hideAsync();
     }
-  }, [
-    fontsLoaded,
-    isFirstTime,
-    hasCompletedTutorial,
-    onboardingStatus,
-    isSignedIn,
-    showLoadingScreen,
-  ]);
+  }, [fontsLoaded, isLoaded, isInitialized, isSignedIn, onboardingStatus]);
 
-  // Show loading screen if needed
+  // Show loading screen only during SSO flow
+  const showLoadingScreen = isSignedIn && onboardingStatus === undefined;
+
   if (showLoadingScreen) {
     return <LoadingScreen />;
   }

@@ -215,7 +215,7 @@ export default function AvatarScreen() {
               style={{ color: theme.colors.text.secondary }}
               className="text-sm font-medium font-mainRegular"
             >
-              Step 1 of 2
+              Step 2 of 2
             </Text>
           </BlurView>
         </Animated.View>
