@@ -71,19 +71,17 @@ export const StreakVisualization = ({ duo }) => {
       currentDate.getDate() - (currentDay === 0 ? 6 : currentDay - 1),
     );
 
+    // Calculate the streak start date (assuming streak includes today if active)
+    const streakStartDate = new Date(currentDate);
+    streakStartDate.setDate(currentDate.getDate() - totalStreak + 1);
+
     for (let i = 0; i < 7; i++) {
       const dayDate = new Date(monday);
       dayDate.setDate(monday.getDate() + i);
 
       // Fixed logic: Check if this day is within the streak period
       const isStreakDay =
-        totalStreak > 0 &&
-        (() => {
-          const daysDiff = Math.floor(
-            (dayDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24),
-          );
-          return daysDiff <= 0 && daysDiff > -totalStreak;
-        })();
+        totalStreak > 0 && dayDate >= streakStartDate && dayDate <= currentDate;
 
       const isToday = dayDate.toDateString() === currentDate.toDateString();
 
@@ -143,7 +141,6 @@ export const StreakVisualization = ({ duo }) => {
 
     return streakDisplay;
   };
-
   const getMilestoneText = (streak) => {
     if (streak >= 30) return '🏆 LEGEND';
     if (streak >= 14) return '🔥 ON FIRE';
@@ -180,15 +177,16 @@ export const StreakVisualization = ({ duo }) => {
           ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          className="p-0.5 rounded-3xl"
+          className="p-0.5"
         >
           {/* Main content container */}
           <View
-            className="rounded-3xl p-6 relative overflow-hidden"
+            className="p-6 relative overflow-hidden"
             style={{
               backgroundColor: isDarkMode
                 ? 'rgba(15, 23, 42, 0.6)'
                 : 'rgba(248, 250, 252, 0.8)',
+              borderRadius: 19,
             }}
           >
             {/* Animated background orbs */}
