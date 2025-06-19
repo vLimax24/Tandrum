@@ -1,20 +1,11 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  Dimensions,
-  Alert,
-  ScrollView,
-} from "react-native";
+import { View, Text, TouchableOpacity, Image, Dimensions } from "react-native";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "convex/_generated/dataModel";
 import DecorationDetailBottomSheet from "./DecorationDetailBottomSheet";
 import {
   BottomSheetModal,
-  BottomSheetView,
   BottomSheetBackdrop,
   BottomSheetFlatList,
 } from "@gorhom/bottom-sheet";
@@ -31,9 +22,9 @@ interface TreeInventoryProps {
     stage: "tree-1" | "tree-1.5" | "tree-2" | "tree-3" | "tree-4";
     leaves: number;
     fruits: number;
-    inventory: Record<string, number>; // Dynamic inventory
+    inventory: Record<string, number>;
     decorations?: Array<{
-      itemId: ItemType; // Changed from string to ItemType
+      itemId: string;
       position: { x: number; y: number };
       equipped_at: number;
     }>;
@@ -45,14 +36,6 @@ interface SlotPosition {
   y: number;
   id: string;
 }
-
-export type ItemType =
-  | "leaf"
-  | "fruit"
-  | "silverLeaf"
-  | "goldenLeaf"
-  | "apple"
-  | "cherry";
 
 const TreeInventory: React.FC<TreeInventoryProps> = ({
   treeData,
@@ -68,7 +51,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedDecoration, setSelectedDecoration] = useState<{
     decoration: {
-      itemId: ItemType;
+      itemId: string;
       position: { x: number; y: number };
       equipped_at: number;
     };
@@ -294,7 +277,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
       }
 
       const decorationPayload = {
-        itemId: selectedItemId as ItemType,
+        itemId: selectedItemId,
         position: { x: chosenSlot.x, y: chosenSlot.y },
       };
 
@@ -743,7 +726,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                     : theme.colors.text.secondary,
               }}
             >
-              📦 Inventory
+              Inventory
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -763,7 +746,7 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
                     : theme.colors.text.secondary,
               }}
             >
-              ⚡ Equipped
+              Equipped
             </Text>
           </TouchableOpacity>
         </View>
@@ -934,7 +917,6 @@ const TreeInventory: React.FC<TreeInventoryProps> = ({
             ? {
                 type: selectedDecoration.decoration.itemId,
                 position: selectedDecoration.decoration.position,
-                // Show buff if the item has buffs defined, regardless of item type
                 buff: itemsById[selectedDecoration.decoration.itemId]?.buffs
                   ? {
                       xpMultiplier:
