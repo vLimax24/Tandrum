@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
+import { useI18n } from '@/contexts/i18nContext';
 
 interface HabitItemProps {
   habit: any;
@@ -22,6 +23,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
   const isProcessingRef = useRef(false);
+  const { t } = useI18n();
 
   const handleCheck = () => {
     // Prevent multiple rapid clicks
@@ -308,8 +310,8 @@ export const HabitItem: React.FC<HabitItemProps> = ({
                       }}
                     >
                       {bothCompleted
-                        ? 'Both completed!'
-                        : 'Waiting for partner...'}
+                        ? t('habitCard.bothCompleted')
+                        : t('habitCard.waitingForPartner')}
                     </Text>
                   </View>
                 </View>

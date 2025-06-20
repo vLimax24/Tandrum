@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { SectionHeader } from '@/components/SectionHeader';
 import { HabitsGrid } from '@/components/Habits/HabitsGrid';
-import { AlertModal } from '../Modals/AlertModal';
+import { useI18n } from '@/contexts/i18nContext';
 
 interface HabitsContainerProps {
   daily: any[];
@@ -42,6 +42,9 @@ export function HabitsContainer({
     message: '',
     buttons: [],
   });
+
+  const { t } = useI18n();
+
   const isSameDay = (timestamp1: number, timestamp2: number) => {
     const date1 = new Date(timestamp1);
     const date2 = new Date(timestamp2);
@@ -93,7 +96,7 @@ export function HabitsContainer({
       {/* Daily Habits Section */}
       <View>
         <SectionHeader
-          title="Daily Habits"
+          title={t('habits.sections.daily')}
           resetTime={timeToday}
           isDaily={true}
         />
@@ -108,7 +111,7 @@ export function HabitsContainer({
           isSameWeek={isSameWeek}
           onMenuPress={onMenuPress}
           emptyStateIcon="calendar-number"
-          emptyStateMessage="No daily habits yet. Create one to get started!"
+          emptyStateMessage={t('habits.emptyState.daily')}
           onShowAlert={showAlert}
         />
       </View>
@@ -116,7 +119,7 @@ export function HabitsContainer({
       {/* Weekly Habits Section */}
       <View className="mb-6">
         <SectionHeader
-          title="Weekly Habits"
+          title={t('habits.sections.weekly')}
           resetTime={timeWeek}
           isDaily={false}
         />
@@ -131,7 +134,7 @@ export function HabitsContainer({
           isSameWeek={isSameWeek}
           onMenuPress={onMenuPress}
           emptyStateIcon="calendar-number"
-          emptyStateMessage="No weekly habits yet. Create one to get started!"
+          emptyStateMessage={t('habits.emptyState.weekly')}
           onShowAlert={showAlert}
         />
       </View>

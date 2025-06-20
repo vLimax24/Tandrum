@@ -17,12 +17,14 @@ import { createTheme } from '@/utils/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { DuoSelector } from '@/components/Modals/DuoSelector';
 import LoadingState from '@/components/LoadingState';
+import { useI18n, SupportedLanguage } from '@/contexts/i18nContext';
 
 export default function TreeSection() {
   const { user } = useUser();
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
   const updateTreeStage = useMutation(api.trees.updateTreeStage);
+  const { language, setLanguage, t } = useI18n();
 
   // Add refresh trigger for inventory updates
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -133,7 +135,7 @@ export default function TreeSection() {
             className="text-lg font-semibold text-center"
             style={{ color: theme.colors.text.primary }}
           >
-            Loading your profile...
+            {t('tree.loading.profile')}
           </Text>
         </BlurView>
       </LinearGradient>
@@ -164,7 +166,7 @@ export default function TreeSection() {
             className="text-lg font-semibold text-center"
             style={{ color: theme.colors.text.primary }}
           >
-            Loading connections...
+            {t('tree.loading.connections')}
           </Text>
         </BlurView>
       </LinearGradient>
@@ -200,15 +202,14 @@ export default function TreeSection() {
               className="text-3xl font-bold"
               style={{ color: theme.colors.text.primary }}
             >
-              Growth Tree
+              {t('tree.title')}
             </Text>
           </View>
           <Text
             className="text-base leading-6"
             style={{ color: theme.colors.text.secondary }}
           >
-            Watch your duo's trust grow into a beautiful tree through daily
-            habits and accountability
+            {t('tree.subtitle')}
           </Text>
         </View>
 
@@ -294,7 +295,7 @@ export default function TreeSection() {
                 className="text-sm font-medium"
                 style={{ color: theme.colors.text.secondary }}
               >
-                Leaves
+                {t('tree.stats.leaves')}
               </Text>
             </View>
           </BlurView>
@@ -334,7 +335,7 @@ export default function TreeSection() {
                 className="text-sm font-medium"
                 style={{ color: theme.colors.text.secondary }}
               >
-                Fruits
+                {t('tree.stats.fruits')}
               </Text>
             </View>
           </BlurView>
@@ -360,14 +361,14 @@ export default function TreeSection() {
                 className="text-2xl font-bold"
                 style={{ color: theme.colors.text.primary }}
               >
-                Growth Activity
+                {t('tree.growthActivity.title')}
               </Text>
             </View>
             <Text
               className="text-base"
               style={{ color: theme.colors.text.secondary }}
             >
-              Track your duo's progress and celebrate milestones together
+              {t('tree.growthActivity.subtitle')}
             </Text>
           </View>
 
@@ -410,8 +411,9 @@ export default function TreeSection() {
                             className="text-sm"
                             style={{ color: theme.colors.text.tertiary }}
                           >
-                            {logs.length}{' '}
-                            {logs.length === 1 ? 'activity' : 'activities'}
+                            {t('tree.growthActivity.activityCount', {
+                              count: logs.length,
+                            })}
                           </Text>
                         </View>
                       </View>
@@ -477,7 +479,9 @@ export default function TreeSection() {
                                 className="text-sm"
                                 style={{ color: theme.colors.text.tertiary }}
                               >
-                                Activity #{idx + 1}
+                                {t('tree.growthActivity.activityNumber', {
+                                  number: idx + 1,
+                                })}
                               </Text>
                             </View>
 
@@ -487,7 +491,7 @@ export default function TreeSection() {
                               style={{ backgroundColor: '#dcfce7' }}
                             >
                               <Text className="text-xs font-semibold text-green-700">
-                                ✓ Complete
+                                {t('tree.growthActivity.complete')}
                               </Text>
                             </View>
                           </View>
@@ -522,14 +526,13 @@ export default function TreeSection() {
                   className="text-xl font-bold mb-3 text-center"
                   style={{ color: theme.colors.text.primary }}
                 >
-                  Your Growth Journey Starts Here
+                  {t('tree.emptyState.title')}
                 </Text>
                 <Text
                   className="text-base text-center leading-6 max-w-sm mb-6"
                   style={{ color: theme.colors.text.secondary }}
                 >
-                  Begin building habits together with your duo partner. Every
-                  small step counts toward growing your trust tree.
+                  {t('tree.emptyState.subtitle')}
                 </Text>
                 <View
                   className="px-6 py-3 rounded-full"
@@ -539,7 +542,7 @@ export default function TreeSection() {
                     className="text-sm font-semibold"
                     style={{ color: theme.colors.text.primary }}
                   >
-                    🚀 Start your first habit today!
+                    {t('tree.emptyState.cta')}
                   </Text>
                 </View>
               </View>

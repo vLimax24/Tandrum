@@ -655,7 +655,7 @@ export default function SettingsScreen() {
             {/* Notifications Section */}
             <SectionHeader
               title={t('settings.notifications.section')}
-              icon="notifications-outline"
+              icon="notifications"
               gradientColors={['#3B82F6', '#1D4ED8']}
               textColor="#FFFFFF"
             />
@@ -735,7 +735,7 @@ export default function SettingsScreen() {
 
             <SectionHeader
               title={t('settings.language.section')}
-              icon="globe-outline"
+              icon="globe"
               gradientColors={['#8B5CF6', '#7C3AED']}
               textColor="#FFFFFF"
             />
@@ -753,7 +753,7 @@ export default function SettingsScreen() {
             {/* Experience Section */}
             <SectionHeader
               title={t('settings.experience.section')}
-              icon="color-palette-outline"
+              icon="color-palette"
               gradientColors={[theme.colors.primary, theme.colors.primaryLight]}
               textColor="#FFFFFF"
             />
@@ -815,7 +815,7 @@ export default function SettingsScreen() {
             {/* Community & Support Section */}
             <SectionHeader
               title={t('settings.community.section')}
-              icon="heart-outline"
+              icon="heart"
               gradientColors={['#8B5CF6', '#7C3AED']}
               textColor="#FFFFFF"
             />
@@ -847,7 +847,7 @@ export default function SettingsScreen() {
             {/* Legal & Privacy Section */}
             <SectionHeader
               title={t('settings.privacy.section')}
-              icon="shield-checkmark-outline"
+              icon="shield-checkmark"
               gradientColors={['#059669', '#047857']}
               textColor="#FFFFFF"
             />
@@ -879,7 +879,7 @@ export default function SettingsScreen() {
             {/* Account Section */}
             <SectionHeader
               title={t('settings.account.section')}
-              icon="person-outline"
+              icon="person"
               gradientColors={['#EF4444', '#DC2626']}
               textColor="#FFFFFF"
             />

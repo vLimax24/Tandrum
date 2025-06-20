@@ -161,5 +161,286 @@
       "languageChanged": "Language changed!",
       "languageChangeError": "Failed to change language"
     }
+  },
+  "tree": {
+    "title": "Growth Tree",
+    "subtitle": "Watch your duo's trust grow into a beautiful tree through daily habits and accountability",
+    "stats": {
+      "leaves": "Leaves",
+      "fruits": "Fruits"
+    },
+    "growthActivity": {
+      "title": "Growth Activity",
+      "subtitle": "Track your duo's progress and celebrate milestones together",
+      "activityCount": "{{count}} activities",
+      "activityCount_one": "{{count}} activity",
+      "activityNumber": "Activity #{{number}}",
+      "complete": "✓ Complete"
+    },
+    "emptyState": {
+      "title": "Your Growth Journey Starts Here",
+      "subtitle": "Begin building habits together with your duo partner. Every small step counts toward growing your trust tree.",
+      "cta": "🚀 Start your first habit today!"
+    },
+    "loading": {
+      "profile": "Loading your profile...",
+      "connections": "Loading connections..."
+    }
+  },
+  "profile": {
+    "accountInfo": {
+      "title": "Account Information",
+      "subtitle": "Your profile details",
+      "verified": "VERIFIED",
+      "memberSince": "Member Since",
+      "accountStatus": "Account Status",
+      "active": "Active",
+      "recentlyJoined": "Recently joined",
+      "today": "Today",
+      "oneDayAgo": "1 day ago",
+      "daysAgo": "{{count}} days ago",
+      "monthsAgo": "{{count}} month ago",
+      "monthsAgo_other": "{{count}} months ago",
+      "yearsAgo": "{{count}} year ago",
+      "yearsAgo_other": "{{count}} years ago"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "subtitle": "Your app settings",
+      "timezone": "Timezone",
+      "language": "Language"
+    },
+    "bio": {
+      "title": "About Me",
+      "subtitle": "Your personal bio"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "subtitle": "Manage your profile",
+      "editProfile": "Edit Profile",
+      "editProfileSubtitle": "Update your information",
+      "settings": "Settings",
+      "settingsSubtitle": "Manage preferences"
+    },
+    "signOut": {
+      "button": "Sign Out",
+      "subtitle": "You can always sign back in with your credentials",
+      "alertTitle": "Sign Out",
+      "alertMessage": "Are you sure you want to sign out of your account?",
+      "errorMessage": "Failed to sign out. Please try again."
+    }
+  },
+  "home": {
+    "header": {
+      "welcomeBack": "Welcome back,",
+      "defaultName": "Partner"
+    },
+    "stats": {
+      "activeDuos": "Active Duos",
+      "totalXP": "Total XP",
+      "combinedDays": "Combined Days",
+      "avgLevel": "Avg Level",
+      "chips": {
+        "active": "ACTIVE",
+        "trust": "TRUST",
+        "streak": "STREAK",
+        "level": "LEVEL"
+      }
+    },
+    "partnerships": {
+      "title": "Active Partnerships",
+      "activeCount": "{{count}} Active",
+      "partnershipNumber": "Partnership #{{number}}",
+      "dayStreak": "Day Streak",
+      "experience": "Experience",
+      "treeStage": "Tree Stage",
+      "treeLabels": {
+        "tree-1": "Sprout",
+        "tree-2": "Small Tree",
+        "tree-3": "Medium Tree",
+        "tree-4": "Grown Tree",
+        "seed": "Seed"
+      },
+      "emptyState": {
+        "title": "No Active Partnerships",
+        "subtitle": "Start your first duo partnership to begin building habits together and growing your shared tree!"
+      }
+    },
+    "actions": {
+      "startNewPartnership": "Start New Partnership",
+      "viewTrees": "View Trees",
+      "myHabits": "My Habits"
+    },
+    "invites": {
+      "title": "Duo Invite 📬",
+      "message": "Someone wants to team up with you!",
+      "reject": "Reject",
+      "accept": "Accept"
+    }
+  },
+  "habits": {
+    "title": "Habits",
+    "subtitle": "Build together, grow together",
+    "progress": {
+      "today": "{{completed}}/{{total}} today"
+    },
+    "streak": "Streak: {{days}} days",
+    "sections": {
+      "daily": "Daily Habits",
+      "weekly": "Weekly Habits"
+    },
+    "emptyState": {
+      "daily": "No daily habits yet. Create one to get started!",
+      "weekly": "No weekly habits yet. Create one to get started!"
+    },
+    "deleteHabit": {
+      "title": "Delete Habit",
+      "message": "Are you sure you want to delete \"{{habitTitle}}\"? This action cannot be undone.",
+      "error": "Failed to delete habit. Please try again."
+    },
+    "checkIn": {
+      "error": "Failed to update habit. Please try again."
+    }
+  },
+  "habitCard": {
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "bothCompleted": "Both completed! 🎉",
+    "waitingForPartner": "Waiting for partner...",
+    "you": "You",
+    "partner": "Partner"
+  },
+  "editProfile": {
+    "title": "Edit Profile",
+    "avatar": {
+      "section": "Avatar Selection",
+      "subtitle": "Choose your visual identity",
+      "avatarLabel": "Avatar"
+    },
+    "username": {
+      "section": "Username",
+      "subtitle": "Your unique tandrum identity",
+      "placeholder": "Enter your username",
+      "validation": {
+        "tooShort": "Username must be at least 3 characters",
+        "tooLong": "Username must be less than 20 characters",
+        "invalidChars": "Username can only contain letters, numbers, and underscores",
+        "taken": "Username is already taken",
+        "available": "Username is available"
+      },
+      "hint": "3-20 characters, letters, numbers and underscores only"
+    },
+    "bio": {
+      "section": "Bio",
+      "subtitle": "Share your story with the community",
+      "placeholder": "Tell others about yourself, your goals, or what motivates you...",
+      "optional": "Optional",
+      "hint": "Help others connect with you through shared interests and goals",
+      "characterCount": "{{count}}/200"
+    },
+    "accountInfo": {
+      "section": "Account Information",
+      "subtitle": "Your tandrum journey details",
+      "email": "Email",
+      "memberSince": "Member Since"
+    },
+    "footer": {
+      "title": "Building Habits Together",
+      "description": "Your profile helps connect you with like-minded habit builders. Share your journey and inspire others in the tandrum community! 🚀"
+    },
+    "alerts": {
+      "success": {
+        "title": "Success",
+        "message": "Your profile has been updated successfully!"
+      },
+      "error": {
+        "title": "Error",
+        "message": "Failed to update profile. Please try again."
+      }
+    }
+  },
+  "tutorial": {
+    "skip": "Skip",
+    "continue": "Continue",
+    "getStarted": "Get Started",
+    "pages": {
+      "buildHabits": {
+        "title": "Build Habits Together",
+        "description": "Join a community where accountability meets motivation. Transform your daily routines with the power of shared commitment."
+      },
+      "trackGrowth": {
+        "title": "Track Your Growth",
+        "description": "Visualize your progress with beautiful insights and celebrate every milestone with your accountability partners."
+      },
+      "stayMotivated": {
+        "title": "Stay Motivated Daily",
+        "description": "Turn habit-building into an engaging journey with gamified progress and meaningful connections that keep you going."
+      }
+    },
+    "auth": {
+      "welcome": {
+        "title": "Welcome to",
+        "appName": "Tandrum",
+        "subtitle": "Start building lasting habits with the support of an amazing community. Your transformation begins here."
+      },
+      "continueWithGoogle": "Continue with Google",
+      "disclaimer": "By continuing, you agree to build better habits together with our supportive community",
+      "loginError": {
+        "title": "Login Failed",
+        "message": "An error occurred during login. Please try again."
+      }
+    }
+  },
+  "avatar": {
+    "title": "Pick Your Avatar",
+    "subtitle": "Choose one that represents you in your habit journey",
+    "stepLabel": "Step 2 of 2",
+    "completeSetup": "Complete Setup",
+    "settingUpProfile": "Setting up your profile...",
+    "motivationalText": "Your avatar will represent you in team challenges and habit tracking",
+    "errorSaving": "Failed to save avatar. Please try again."
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to",
+      "appName": "Tandrum",
+      "subtitle": "Transform your life through the power of community. Build lasting habits together."
+    },
+    "features": {
+      "buildTogether": {
+        "title": "Build Together",
+        "description": "Join friends and stay accountable as you develop life-changing habits together."
+      },
+      "trackProgress": {
+        "title": "Track Progress",
+        "description": "Visualize your growth with beautiful charts and celebrate every milestone achieved."
+      },
+      "gamifiedExperience": {
+        "title": "Gamified Experience",
+        "description": "Earn rewards, unlock achievements, and make habit-building an exciting journey."
+      }
+    },
+    "cta": {
+      "startJourney": "Start Your Journey"
+    },
+    "username": {
+      "stepLabel": "Step 1 of 2",
+      "title": "Choose Your Username",
+      "placeholder": "Enter your username",
+      "checking": "Checking availability...",
+      "available": "Perfect! This username is available",
+      "characterCount": "{{current}}/{{max}} characters",
+      "almostLimit": "Almost at limit",
+      "needInspiration": "Need inspiration?",
+      "saving": "Saving...",
+      "continueJourney": "Continue Your Journey",
+      "updateError": "Failed to update username. Please try again.",
+      "validation": {
+        "tooShort": "Username must be at least 3 characters",
+        "tooLong": "Username must be less than 20 characters",
+        "invalidChars": "Username can only contain letters, numbers, and underscores",
+        "taken": "This username is already taken"
+      }
+    }
   }
 }

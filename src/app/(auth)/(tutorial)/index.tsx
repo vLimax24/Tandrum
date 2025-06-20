@@ -18,47 +18,9 @@ import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
 import { AlertModal } from '@/components/Modals/AlertModal';
 import { useNavigationStore } from '@/stores/navigationStore';
+import { useI18n } from '@/contexts/i18nContext';
 
 const { width, height } = Dimensions.get('window');
-
-interface TutorialPage {
-  id: number;
-  title: string;
-  description: string;
-  image: any;
-  iconName: keyof typeof Ionicons.glyphMap;
-  gradientColors: readonly [string, string];
-}
-
-const tutorialPages: TutorialPage[] = [
-  {
-    id: 1,
-    title: 'Build Habits Together',
-    description:
-      'Join a community where accountability meets motivation. Transform your daily routines with the power of shared commitment.',
-    image: require('../../../assets/trees/tree-1.png'),
-    iconName: 'people-circle',
-    gradientColors: ['#009966', '#00cc88'] as const,
-  },
-  {
-    id: 2,
-    title: 'Track Your Growth',
-    description:
-      'Visualize your progress with beautiful insights and celebrate every milestone with your accountability partners.',
-    image: require('../../../assets/trees/tree-3.png'),
-    iconName: 'analytics',
-    gradientColors: ['#009966', '#00cc88'] as const,
-  },
-  {
-    id: 3,
-    title: 'Stay Motivated Daily',
-    description:
-      'Turn habit-building into an engaging journey with gamified progress and meaningful connections that keep you going.',
-    image: require('../../../assets/trees/tree-4.png'),
-    iconName: 'trophy',
-    gradientColors: ['#009966', '#00cc88'] as const,
-  },
-];
 
 export default function TutorialScreen() {
   const [currentPage, setCurrentPage] = useState(0);
@@ -68,6 +30,43 @@ export default function TutorialScreen() {
   const { user } = useUser();
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
+  const { t } = useI18n();
+
+  interface TutorialPage {
+    id: number;
+    title: string;
+    description: string;
+    image: any;
+    iconName: keyof typeof Ionicons.glyphMap;
+    gradientColors: readonly [string, string];
+  }
+
+  const tutorialPages: TutorialPage[] = [
+    {
+      id: 1,
+      title: t('tutorial.pages.buildHabits.title'),
+      description: t('tutorial.pages.buildHabits.description'),
+      image: require('../../../assets/trees/tree-1.png'),
+      iconName: 'people-circle',
+      gradientColors: ['#009966', '#00cc88'] as const,
+    },
+    {
+      id: 2,
+      title: t('tutorial.pages.trackGrowth.title'),
+      description: t('tutorial.pages.trackGrowth.description'),
+      image: require('../../../assets/trees/tree-3.png'),
+      iconName: 'analytics',
+      gradientColors: ['#009966', '#00cc88'] as const,
+    },
+    {
+      id: 3,
+      title: t('tutorial.pages.stayMotivated.title'),
+      description: t('tutorial.pages.stayMotivated.description'),
+      image: require('../../../assets/trees/tree-4.png'),
+      iconName: 'trophy',
+      gradientColors: ['#009966', '#00cc88'] as const,
+    },
+  ];
 
   // Use Zustand store instead of AsyncStorage
   const { completeTutorial } = useNavigationStore();
@@ -232,9 +231,9 @@ export default function TutorialScreen() {
       console.error('Login error:', error);
 
       showAlert(
-        'Login Failed',
-        error.message || 'An error occurred during login. Please try again.',
-        [{ text: 'OK', style: 'default' }],
+        t('tutorial.auth.loginError.title'),
+        error.message || t('tutorial.auth.loginError.message'),
+        [{ text: t('common.ok'), style: 'default' }],
         'alert-circle',
         '#ef4444',
       );
@@ -414,16 +413,18 @@ export default function TutorialScreen() {
                   className="text-4xl font-bold text-center mb-6 leading-tight tracking-tight"
                   style={{ color: theme.colors.text.primary }}
                 >
-                  Welcome to{'\n'}
-                  <Text style={{ color: theme.colors.primary }}>Tandrum</Text>
+                  {t('tutorial.auth.welcome.title')}
+                  {'\n'}
+                  <Text style={{ color: theme.colors.primary }}>
+                    {t('tutorial.auth.welcome.appName')}
+                  </Text>
                 </Text>
 
                 <Text
                   className="text-lg text-center leading-7 max-w-md px-4"
                   style={{ color: theme.colors.text.secondary }}
                 >
-                  Start building lasting habits with the support of an amazing
-                  community. Your transformation begins here.
+                  {t('tutorial.auth.welcome.subtitle')}
                 </Text>
               </View>
 
@@ -454,7 +455,7 @@ export default function TutorialScreen() {
                       <View className="flex-row items-center justify-center gap-3">
                         <Ionicons name="logo-google" size={24} color="white" />
                         <Text className="text-white font-bold text-lg">
-                          Continue with Google
+                          {t('tutorial.auth.continueWithGoogle')}
                         </Text>
                       </View>
                     </LinearGradient>
@@ -465,8 +466,7 @@ export default function TutorialScreen() {
                   className="text-sm text-center px-6 leading-5"
                   style={{ color: theme.colors.text.tertiary }}
                 >
-                  By continuing, you agree to build better habits together with
-                  our supportive community
+                  {t('tutorial.auth.disclaimer')}
                 </Text>
               </View>
             </View>
@@ -546,7 +546,7 @@ export default function TutorialScreen() {
                 className="text-base font-semibold"
                 style={{ color: theme.colors.text.secondary }}
               >
-                Skip
+                {t('tutorial.skip')}
               </Text>
             </BlurView>
           </TouchableOpacity>
@@ -707,8 +707,8 @@ export default function TutorialScreen() {
                 <View className="flex-row items-center justify-center gap-3">
                   <Text className="text-white font-bold text-lg">
                     {currentPage === tutorialPages.length - 1
-                      ? 'Get Started'
-                      : 'Continue'}
+                      ? t('tutorial.getStarted')
+                      : t('tutorial.continue')}
                   </Text>
                   <Ionicons
                     name={

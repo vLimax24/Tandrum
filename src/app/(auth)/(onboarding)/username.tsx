@@ -21,6 +21,7 @@ import { AlertModal } from '@/components/Modals/AlertModal';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
 import { BlurView } from 'expo-blur';
+import { useI18n } from '@/contexts/i18nContext';
 
 export default function UsernameScreen() {
   const [username, setUsername] = useState('');
@@ -33,6 +34,7 @@ export default function UsernameScreen() {
   const { user } = useUser();
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
+  const { t } = useI18n();
 
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(30)).current;
@@ -138,22 +140,20 @@ export default function UsernameScreen() {
 
     if (trimmedUsername.length < 3) {
       setIsValid(false);
-      setErrorMessage('Username must be at least 3 characters');
+      setErrorMessage(t('onboarding.username.validation.tooShort'));
       return;
     }
 
     if (trimmedUsername.length > 20) {
       setIsValid(false);
-      setErrorMessage('Username must be less than 20 characters');
+      setErrorMessage(t('onboarding.username.validation.tooLong'));
       return;
     }
 
     const validPattern = /^[a-zA-Z0-9_]+$/;
     if (!validPattern.test(trimmedUsername)) {
       setIsValid(false);
-      setErrorMessage(
-        'Username can only contain letters, numbers, and underscores',
-      );
+      setErrorMessage(t('onboarding.username.validation.invalidChars'));
       return;
     }
 
@@ -169,7 +169,7 @@ export default function UsernameScreen() {
     // Check if username is taken (only if we have query results)
     if (shouldCheckUsername && existingUser && existingUser.id !== user?.id) {
       setIsValid(false);
-      setErrorMessage('This username is already taken');
+      setErrorMessage(t('onboarding.username.validation.taken'));
       return;
     }
 
@@ -181,6 +181,7 @@ export default function UsernameScreen() {
     isCheckingUsername,
     shouldCheckUsername,
     user?.id,
+    t,
   ]);
 
   const handleContinue = async () => {
@@ -198,9 +199,9 @@ export default function UsernameScreen() {
       router.push('/(auth)/(onboarding)/avatar');
     } catch (error) {
       showAlert(
-        'Error',
-        'Failed to update username. Please try again.',
-        [{ text: 'OK', style: 'default' }],
+        t('common.error'),
+        t('onboarding.username.updateError'),
+        [{ text: t('common.ok'), style: 'default' }],
         'alert-circle',
         '#ef4444',
       );
@@ -242,7 +243,7 @@ export default function UsernameScreen() {
     const status = getInputStatus();
     switch (status) {
       case 'checking':
-        return 'time-outline';
+        return 'time';
       case 'valid':
         return 'checkmark-circle';
       case 'invalid':
@@ -330,7 +331,7 @@ export default function UsernameScreen() {
                 style={{ color: theme.colors.text.secondary }}
                 className="text-sm font-medium font-mainRegular"
               >
-                Step 1 of 2
+                {t('onboarding.username.stepLabel')}
               </Text>
             </BlurView>
           </View>
@@ -357,7 +358,7 @@ export default function UsernameScreen() {
           >
             {/* Title Section */}
             <View className="mb-10">
-              <View className="flex-row items-center gap-3 mb-4">
+              <View className="flex-row items-center gap-3">
                 <View
                   style={{ backgroundColor: theme.colors.primary }}
                   className="w-12 h-12 rounded-2xl items-center justify-center"
@@ -367,9 +368,9 @@ export default function UsernameScreen() {
                 <View className="flex-1">
                   <Text
                     style={{ color: theme.colors.text.primary }}
-                    className="text-2xl font-bold font-mainRegular"
+                    className="text-xl font-bold font-mainRegular"
                   >
-                    Choose Your Username
+                    {t('onboarding.username.title')}
                   </Text>
                 </View>
               </View>
@@ -393,7 +394,7 @@ export default function UsernameScreen() {
                   <TextInput
                     value={username}
                     onChangeText={setUsername}
-                    placeholder="Enter your username"
+                    placeholder={t('onboarding.username.placeholder')}
                     placeholderTextColor={theme.colors.text.tertiary}
                     style={{
                       color: theme.colors.text.primary,
@@ -433,7 +434,7 @@ export default function UsernameScreen() {
                         style={{ color: '#f59e0b' }}
                         className="text-sm font-mainRegular"
                       >
-                        Checking availability...
+                        {t('onboarding.username.checking')}
                       </Text>
                     </View>
                   ) : errorMessage ? (
@@ -457,7 +458,7 @@ export default function UsernameScreen() {
                         style={{ color: theme.colors.primary }}
                         className="text-sm font-mainRegular"
                       >
-                        Perfect! This username is available
+                        {t('onboarding.username.available')}
                       </Text>
                     </View>
                   ) : null}
@@ -469,7 +470,10 @@ export default function UsernameScreen() {
                     style={{ color: theme.colors.text.tertiary }}
                     className="text-sm font-mainRegular"
                   >
-                    {username.length}/20 characters
+                    {t('onboarding.username.characterCount', {
+                      current: username.length,
+                      max: 20,
+                    })}
                   </Text>
                   {username.length >= 18 && (
                     <View className="flex-row items-center gap-1">
@@ -478,7 +482,7 @@ export default function UsernameScreen() {
                         style={{ color: '#f59e0b' }}
                         className="text-xs font-mainRegular"
                       >
-                        Almost at limit
+                        {t('onboarding.username.almostLimit')}
                       </Text>
                     </View>
                   )}
@@ -511,7 +515,7 @@ export default function UsernameScreen() {
                       style={{ color: theme.colors.text.primary }}
                       className="font-semibold font-mainRegular"
                     >
-                      Need inspiration?
+                      {t('onboarding.username.needInspiration')}
                     </Text>
                   </View>
                   <View className="flex-row flex-wrap gap-3">
@@ -579,10 +583,10 @@ export default function UsernameScreen() {
                     className="font-mainRegular"
                   >
                     {isLoading
-                      ? 'Saving...'
+                      ? t('onboarding.username.saving')
                       : isCheckingUsername
-                        ? 'Checking...'
-                        : 'Continue Your Journey'}
+                        ? t('onboarding.username.checking')
+                        : t('onboarding.username.continueJourney')}
                   </Text>
                   {!isLoading && !isCheckingUsername && (
                     <Ionicons

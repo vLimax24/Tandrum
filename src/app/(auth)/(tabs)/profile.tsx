@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
 import type { RootStackParamList } from '@/types/navigation';
 import { AlertModal } from '@/components/Modals/AlertModal';
+import { useI18n, SupportedLanguage } from '@/contexts/i18nContext';
 
 const Profile = () => {
   const { user, isLoaded } = useUser();
@@ -23,6 +24,7 @@ const Profile = () => {
   const router = useRouter();
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
+  const { language, setLanguage, t } = useI18n();
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -108,15 +110,15 @@ const Profile = () => {
 
   const handleSignOut = async () => {
     showAlert(
-      'Sign Out',
-      'Are you sure you want to sign out of your account?',
+      t('profile.signOut.alertTitle'),
+      t('profile.signOut.alertMessage'),
       [
         {
-          text: 'Cancel',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Sign Out',
+          text: t('profile.signOut.button'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -136,9 +138,9 @@ const Profile = () => {
             } catch (error) {
               console.error('Sign out error:', error);
               showAlert(
-                'Error',
-                'Failed to sign out. Please try again.',
-                [{ text: 'OK', style: 'default' }],
+                t('common.error'),
+                t('profile.signOut.errorMessage'),
+                [{ text: t('common.ok'), style: 'default' }],
                 'alert-circle',
                 '#ef4444',
               );
@@ -165,24 +167,24 @@ const Profile = () => {
 
     // Check if the date is valid
     if (isNaN(joinDate.getTime())) {
-      return 'Recently joined';
+      return t('profile.accountInfo.recentlyJoined');
     }
 
     const diffTime = Math.abs(now.getTime() - joinDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) {
-      return 'Today';
+      return t('profile.accountInfo.today');
     } else if (diffDays === 1) {
-      return '1 day ago';
+      return t('profile.accountInfo.oneDayAgo');
     } else if (diffDays < 30) {
-      return `${diffDays} days ago`;
+      return t('profile.accountInfo.daysAgo', { count: diffDays });
     } else if (diffDays < 365) {
       const months = Math.floor(diffDays / 30);
-      return `${months} month${months > 1 ? 's' : ''} ago`;
+      return t('profile.accountInfo.monthsAgo', { count: months });
     } else {
       const years = Math.floor(diffDays / 365);
-      return `${years} year${years > 1 ? 's' : ''} ago`;
+      return t('profile.accountInfo.yearsAgo', { count: years });
     }
   };
 
@@ -254,7 +256,7 @@ const Profile = () => {
               }}
             >
               <Ionicons
-                name="settings-outline"
+                name="settings"
                 size={22}
                 color={theme.colors.text.primary}
               />
@@ -282,7 +284,7 @@ const Profile = () => {
               className="text-3xl font-bold mb-2 font-mainRegular text-center"
               style={{ color: theme.colors.text.primary }}
             >
-              {convexUser?.name || 'Loading...'}
+              {convexUser?.name || t('common.loading')}
             </Text>
             <Text
               className="text-base font-mainRegular text-center"
@@ -300,7 +302,7 @@ const Profile = () => {
             <View className="p-6">
               <View className="flex-row items-center mb-6">
                 <IconContainer
-                  icon="person-outline"
+                  icon="person"
                   color="#ffffff"
                   bgColor={theme.colors.primary}
                 />
@@ -309,13 +311,13 @@ const Profile = () => {
                     className="text-lg font-bold font-mainRegular"
                     style={{ color: theme.colors.text.primary }}
                   >
-                    Account Information
+                    {t('profile.accountInfo.title')}
                   </Text>
                   <Text
                     className="text-sm font-mainRegular"
                     style={{ color: theme.colors.text.tertiary }}
                   >
-                    Your profile details
+                    {t('profile.accountInfo.subtitle')}
                   </Text>
                 </View>
                 <View
@@ -326,7 +328,7 @@ const Profile = () => {
                     className="text-xs font-bold font-mainRegular"
                     style={{ color: theme.colors.primary }}
                   >
-                    VERIFIED
+                    {t('profile.accountInfo.verified')}
                   </Text>
                 </View>
               </View>
@@ -337,7 +339,7 @@ const Profile = () => {
                     className="text-sm font-medium font-mainRegular"
                     style={{ color: theme.colors.text.secondary }}
                   >
-                    Member Since
+                    {t('profile.accountInfo.memberSince')}
                   </Text>
                   <View className="items-end">
                     <Text
@@ -345,7 +347,7 @@ const Profile = () => {
                       style={{ color: theme.colors.text.primary }}
                     >
                       {new Date(convexUser.joined_at).toLocaleDateString(
-                        'en-US',
+                        language === 'de' ? 'de-DE' : 'en-US',
                         {
                           month: 'long',
                           day: 'numeric',
@@ -372,7 +374,7 @@ const Profile = () => {
                     className="text-sm font-medium font-mainRegular"
                     style={{ color: theme.colors.text.secondary }}
                   >
-                    Account Status
+                    {t('profile.accountInfo.accountStatus')}
                   </Text>
                   <View className="flex-row items-center">
                     <View
@@ -383,7 +385,7 @@ const Profile = () => {
                       className="text-sm font-semibold font-mainRegular"
                       style={{ color: theme.colors.primary }}
                     >
-                      Active
+                      {t('profile.accountInfo.active')}
                     </Text>
                   </View>
                 </View>
@@ -396,7 +398,7 @@ const Profile = () => {
             <View className="p-6">
               <View className="flex-row items-center mb-6">
                 <IconContainer
-                  icon="options-outline"
+                  icon="options"
                   color="#ffffff"
                   bgColor="#8b5cf6"
                 />
@@ -405,13 +407,13 @@ const Profile = () => {
                     className="text-lg font-bold font-mainRegular"
                     style={{ color: theme.colors.text.primary }}
                   >
-                    Preferences
+                    {t('profile.preferences.title')}
                   </Text>
                   <Text
                     className="text-sm font-mainRegular"
                     style={{ color: theme.colors.text.tertiary }}
                   >
-                    Your app settings
+                    {t('profile.preferences.subtitle')}
                   </Text>
                 </View>
               </View>
@@ -422,7 +424,7 @@ const Profile = () => {
                     className="text-sm font-medium font-mainRegular"
                     style={{ color: theme.colors.text.secondary }}
                   >
-                    Timezone
+                    {t('profile.preferences.timezone')}
                   </Text>
                   <Text
                     className="text-base font-semibold font-mainRegular"
@@ -442,7 +444,7 @@ const Profile = () => {
                     className="text-sm font-medium font-mainRegular"
                     style={{ color: theme.colors.text.secondary }}
                   >
-                    Language
+                    {t('profile.preferences.language')}
                   </Text>
                   <Text
                     className="text-base font-semibold font-mainRegular"
@@ -461,7 +463,7 @@ const Profile = () => {
               <View className="p-6">
                 <View className="flex-row items-center mb-6">
                   <IconContainer
-                    icon="document-text-outline"
+                    icon="document-text"
                     color="#ffffff"
                     bgColor="#10b981"
                   />
@@ -470,13 +472,13 @@ const Profile = () => {
                       className="text-lg font-bold font-mainRegular"
                       style={{ color: theme.colors.text.primary }}
                     >
-                      About Me
+                      {t('profile.bio.title')}
                     </Text>
                     <Text
                       className="text-sm font-mainRegular"
                       style={{ color: theme.colors.text.tertiary }}
                     >
-                      Your personal bio
+                      {t('profile.bio.subtitle')}
                     </Text>
                   </View>
                 </View>
@@ -495,23 +497,19 @@ const Profile = () => {
           <GlassCard>
             <View className="p-6">
               <View className="flex-row items-center mb-6">
-                <IconContainer
-                  icon="flash-outline"
-                  color="#ffffff"
-                  bgColor="#f59e0b"
-                />
+                <IconContainer icon="flash" color="#ffffff" bgColor="#f59e0b" />
                 <View className="ml-4">
                   <Text
                     className="text-lg font-bold font-mainRegular"
                     style={{ color: theme.colors.text.primary }}
                   >
-                    Quick Actions
+                    {t('profile.quickActions.title')}
                   </Text>
                   <Text
                     className="text-sm font-mainRegular"
                     style={{ color: theme.colors.text.tertiary }}
                   >
-                    Manage your profile
+                    {t('profile.quickActions.subtitle')}
                   </Text>
                 </View>
               </View>
@@ -526,7 +524,7 @@ const Profile = () => {
                   }}
                 >
                   <Ionicons
-                    name="create-outline"
+                    name="create"
                     size={20}
                     color={theme.colors.primary}
                     style={{ marginBottom: 4 }}
@@ -535,13 +533,13 @@ const Profile = () => {
                     className="text-base font-semibold mb-1 font-mainRegular"
                     style={{ color: theme.colors.primary }}
                   >
-                    Edit Profile
+                    {t('profile.quickActions.editProfile')}
                   </Text>
                   <Text
                     className="text-xs text-center font-mainRegular"
                     style={{ color: theme.colors.text.tertiary }}
                   >
-                    Update your information
+                    {t('profile.quickActions.editProfileSubtitle')}
                   </Text>
                 </TouchableOpacity>
 
@@ -554,7 +552,7 @@ const Profile = () => {
                   }}
                 >
                   <Ionicons
-                    name="settings-outline"
+                    name="settings"
                     size={20}
                     color="#8b5cf6"
                     style={{ marginBottom: 4 }}
@@ -563,13 +561,13 @@ const Profile = () => {
                     className="text-base font-semibold mb-1 font-mainRegular"
                     style={{ color: '#8b5cf6' }}
                   >
-                    Settings
+                    {t('profile.quickActions.settings')}
                   </Text>
                   <Text
                     className="text-xs text-center font-mainRegular"
                     style={{ color: theme.colors.text.tertiary }}
                   >
-                    Manage preferences
+                    {t('profile.quickActions.settingsSubtitle')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -585,13 +583,13 @@ const Profile = () => {
                 style={{ backgroundColor: '#ef4444' }}
               >
                 <Ionicons
-                  name="log-out-outline"
+                  name="log-out"
                   size={20}
                   color="#ffffff"
                   style={{ marginRight: 8 }}
                 />
                 <Text className="text-white text-base font-semibold font-mainRegular">
-                  Sign Out
+                  {t('profile.signOut.button')}
                 </Text>
               </TouchableOpacity>
 
@@ -599,7 +597,7 @@ const Profile = () => {
                 className="text-xs text-center mt-4 font-mainRegular"
                 style={{ color: theme.colors.text.tertiary }}
               >
-                You can always sign back in with your credentials
+                {t('profile.signOut.subtitle')}
               </Text>
             </View>
           </GlassCard>

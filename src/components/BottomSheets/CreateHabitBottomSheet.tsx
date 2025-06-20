@@ -419,7 +419,7 @@ const CreateHabitBottomSheet = React.forwardRef<
                   >
                     <View className="flex-row items-center gap-2 mb-2">
                       <Ionicons
-                        name="calendar-outline"
+                        name="calendar"
                         size={18}
                         color={
                           newFreq === 'weekly'

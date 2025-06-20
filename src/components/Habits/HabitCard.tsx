@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
+import { useI18n } from '@/contexts/i18nContext';
 
 interface HabitCardProps {
   habit: any;
@@ -26,6 +27,8 @@ export const HabitCard: React.FC<HabitCardProps> = ({
     return 'border-gray-200 bg-white';
   };
 
+  const { t } = useI18n();
+
   return (
     <View
       className={`rounded-xl p-4 mb-3 shadow-sm border ${getBorderColor()}`}
@@ -48,13 +51,15 @@ export const HabitCard: React.FC<HabitCardProps> = ({
                     : 'text-purple-800'
                 }`}
               >
-                {habit.frequency === 'daily' ? 'Daily' : 'Weekly'}
+                {habit.frequency === 'daily'
+                  ? t('habitCard.daily')
+                  : t('habitCard.weekly')}
               </Text>
             </View>
             {isDoneByMe && isDoneByPartner && (
               <View className="ml-2 px-2 py-1 rounded-full bg-green-100">
                 <Text className="text-xs font-medium text-green-800 font-mainRegular">
-                  Both completed! 🎉
+                  {t('habitCard.bothCompleted')}
                 </Text>
               </View>
             )}
@@ -99,7 +104,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({
                 isDoneByMe ? 'text-white' : 'text-gray-600'
               }`}
             >
-              {myName || 'You'}
+              {myName || t('habitCard.you')}
             </Text>
           </Pressable>
 
@@ -127,7 +132,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({
                 isDoneByPartner ? 'text-white' : 'text-gray-500'
               }`}
             >
-              {partnerName?.split(' ')[0] || 'Partner'}
+              {partnerName?.split(' ')[0] || t('habitCard.partner')}
             </Text>
           </View>
         </View>

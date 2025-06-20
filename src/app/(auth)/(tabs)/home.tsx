@@ -14,7 +14,6 @@ import { api } from '../../../../convex/_generated/api';
 import { getLevelData } from '@/utils/level';
 import { LinearGradient } from 'expo-linear-gradient';
 import LevelDisplay from '@/components/LevelDisplay';
-import { router } from 'expo-router';
 import { useDuo } from '@/hooks/useDuo';
 import { NewDuoModal } from '@/components/Modals/NewDuoModal';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,10 +26,12 @@ import { useNavigation } from '@react-navigation/native';
 import type { TabParamList } from '@/types/navigation';
 import type { NavigationProp } from '@react-navigation/native';
 import { AlertModal } from '@/components/Modals/AlertModal';
+import { useI18n, SupportedLanguage } from '@/contexts/i18nContext';
 
 const Page = () => {
   const { user } = useUser();
   const clerkId = user?.id;
+  const { language, setLanguage, t } = useI18n();
 
   const navigation = useNavigation<NavigationProp<TabParamList>>();
 
@@ -105,17 +106,17 @@ const Page = () => {
   useEffect(() => {
     if (incomingInvite) {
       showAlert(
-        'Duo Invite 📬',
-        'Someone wants to team up with you!',
+        t('home.invites.title'),
+        t('home.invites.message'),
         [
           {
-            text: 'Reject',
+            text: t('home.invites.reject'),
             style: 'destructive',
             onPress: () =>
               acceptInvite({ inviteId: incomingInvite._id, accept: false }),
           },
           {
-            text: 'Accept',
+            text: t('home.invites.accept'),
             onPress: () =>
               acceptInvite({ inviteId: incomingInvite._id, accept: true }),
           },
@@ -124,14 +125,7 @@ const Page = () => {
         theme.colors.primary,
       );
     }
-  }, [incomingInvite]);
-
-  const treeLabels = {
-    'tree-1': 'Sprout',
-    'tree-2': 'Small Tree',
-    'tree-3': 'Medium Tree',
-    'tree-4': 'Grown Tree',
-  };
+  }, [incomingInvite, t]);
 
   if (!convexUser || isUserInConnection === undefined) {
     return <LoadingState screen="home" />;
@@ -265,7 +259,7 @@ const Page = () => {
                     fontFamily: 'font-mainRegular',
                   }}
                 >
-                  Welcome back,
+                  {t('home.header.welcomeBack')}
                 </Text>
                 <Text
                   className="text-3xl font-bold"
@@ -274,7 +268,7 @@ const Page = () => {
                     fontFamily: 'font-mainRegular',
                   }}
                 >
-                  {convexUser.name || 'Partner'}
+                  {convexUser.name || t('home.header.defaultName')}
                 </Text>
               </View>
 
@@ -322,48 +316,48 @@ const Page = () => {
               <StatCard
                 icon="users"
                 value={activeDuos}
-                label="Active Duos"
+                label={t('home.stats.activeDuos')}
                 color="#3B82F6"
                 bgColor="rgba(59, 130, 246, 0.15)"
                 iconColor="#3B82F6"
                 iconName="people"
-                chipname={'ACTIVE'}
+                chipname={t('home.stats.chips.active')}
               />
 
               {/* Total Trust Score */}
               <StatCard
                 icon="trending"
                 value={totalTrustScore}
-                label="Total XP"
+                label={t('home.stats.totalXP')}
                 color={theme.colors.primary}
                 bgColor={`${theme.colors.primary}26`}
                 iconColor={theme.colors.primary}
                 iconName="trending-up"
-                chipname={'TRUST'}
+                chipname={t('home.stats.chips.trust')}
               />
 
               {/* Combined Streak */}
               <StatCard
                 icon="fire"
                 value={totalStreak}
-                label="Combined Days"
+                label={t('home.stats.combinedDays')}
                 color="#F97316"
                 bgColor="rgba(249, 115, 22, 0.15)"
                 iconColor="#F97316"
                 iconName="flame"
-                chipname={'STREAK'}
+                chipname={t('home.stats.chips.streak')}
               />
 
               {/* Average Level */}
               <StatCard
                 icon="star"
                 value={avgLevel}
-                label="Avg Level"
+                label={t('home.stats.avgLevel')}
                 color="#8B5CF6"
                 bgColor="rgba(139, 92, 246, 0.15)"
                 iconColor="#8B5CF6"
                 iconName="star"
-                chipname={'LEVEL'}
+                chipname={t('home.stats.chips.level')}
               />
             </View>
           </View>
@@ -378,7 +372,7 @@ const Page = () => {
                   fontFamily: 'font-mainRegular',
                 }}
               >
-                Active Partnerships
+                {t('home.partnerships.title')}
               </Text>
               {userConnections && userConnections.length > 0 && (
                 <View
@@ -396,7 +390,9 @@ const Page = () => {
                       fontFamily: 'font-mainRegular',
                     }}
                   >
-                    {userConnections.length} Active
+                    {t('home.partnerships.activeCount', {
+                      count: userConnections.length,
+                    })}
                   </Text>
                 </View>
               )}
@@ -461,7 +457,9 @@ const Page = () => {
                                   fontFamily: 'font-mainRegular',
                                 }}
                               >
-                                Partnership #{index + 1}
+                                {t('home.partnerships.partnershipNumber', {
+                                  number: index + 1,
+                                })}
                               </Text>
                             </View>
                           </View>
@@ -524,7 +522,7 @@ const Page = () => {
                                   fontFamily: 'font-mainRegular',
                                 }}
                               >
-                                Day Streak
+                                {t('home.partnerships.dayStreak')}
                               </Text>
                             </View>
 
@@ -570,7 +568,7 @@ const Page = () => {
                                   fontFamily: 'font-mainRegular',
                                 }}
                               >
-                                Experience
+                                {t('home.partnerships.experience')}
                               </Text>
                             </View>
                           </View>
@@ -603,7 +601,7 @@ const Page = () => {
                                   fontFamily: 'font-mainRegular',
                                 }}
                               >
-                                Tree Stage
+                                {t('home.partnerships.treeStage')}
                               </Text>
                               <Text
                                 className="font-bold text-2xl"
@@ -615,9 +613,11 @@ const Page = () => {
                                 adjustsFontSizeToFit={true}
                                 minimumFontScale={0.8}
                               >
-                                {treeLabels[conn.treeState] ??
-                                  conn.treeState ??
-                                  'Seed'}
+                                {t(
+                                  `home.partnerships.treeLabels.${conn.treeState}`,
+                                ) ||
+                                  conn.treeState ||
+                                  t('home.partnerships.treeLabels.seed')}
                               </Text>
                             </View>
                           </View>
@@ -648,7 +648,11 @@ const Page = () => {
                       : '#f1f5f9',
                   }}
                 >
-                  <Text className="text-3xl">🌱</Text>
+                  <Ionicons
+                    size={30}
+                    name="leaf"
+                    color={theme.colors.primaryLight}
+                  />
                 </View>
                 <Text
                   className="text-xl font-bold text-center mb-2"
@@ -657,7 +661,7 @@ const Page = () => {
                     fontFamily: 'font-mainRegular',
                   }}
                 >
-                  No Active Partnerships
+                  {t('home.partnerships.emptyState.title')}
                 </Text>
                 <Text
                   className="text-center text-base leading-6"
@@ -666,8 +670,7 @@ const Page = () => {
                     fontFamily: 'font-mainRegular',
                   }}
                 >
-                  Start your first duo partnership to begin building habits
-                  together and growing your shared tree!
+                  {t('home.partnerships.emptyState.subtitle')}
                 </Text>
               </View>
             )}
@@ -695,7 +698,7 @@ const Page = () => {
                     fontFamily: 'font-mainRegular',
                   }}
                 >
-                  Start New Partnership
+                  {t('home.actions.startNewPartnership')}
                 </Text>
                 <Ionicons
                   name="arrow-forward"
@@ -735,7 +738,7 @@ const Page = () => {
                     fontFamily: 'font-mainRegular',
                   }}
                 >
-                  View Trees
+                  {t('home.actions.viewTrees')}
                 </Text>
               </TouchableOpacity>
 
@@ -766,7 +769,7 @@ const Page = () => {
                     fontFamily: 'font-mainRegular',
                   }}
                 >
-                  My Habits
+                  {t('home.actions.myHabits')}
                 </Text>
               </TouchableOpacity>
             </View>

@@ -93,7 +93,7 @@ const TabBarIcon = ({
       case 'home':
         return {
           activeIcon: 'home',
-          inactiveIcon: 'home-outline',
+          inactiveIcon: 'home',
           accentColor: '#3b82f6',
           bgColor: focused
             ? isDarkMode
@@ -104,7 +104,7 @@ const TabBarIcon = ({
       case 'tree':
         return {
           activeIcon: 'leaf',
-          inactiveIcon: 'leaf-outline',
+          inactiveIcon: 'leaf',
           accentColor: theme.colors.primary,
           bgColor: focused
             ? isDarkMode
@@ -115,7 +115,7 @@ const TabBarIcon = ({
       case 'habits':
         return {
           activeIcon: 'checkmark-circle',
-          inactiveIcon: 'checkmark-circle-outline',
+          inactiveIcon: 'checkmark-circle',
           accentColor: '#8b5cf6',
           bgColor: focused
             ? isDarkMode
@@ -126,7 +126,7 @@ const TabBarIcon = ({
       case 'profile':
         return {
           activeIcon: 'people',
-          inactiveIcon: 'people-outline',
+          inactiveIcon: 'people',
           accentColor: '#f59e0b',
           bgColor: focused
             ? isDarkMode
@@ -136,8 +136,8 @@ const TabBarIcon = ({
         };
       default:
         return {
-          activeIcon: 'ellipse-outline',
-          inactiveIcon: 'ellipse-outline',
+          activeIcon: 'ellipse',
+          inactiveIcon: 'ellipse',
           accentColor: theme.colors.text.secondary,
           bgColor: 'transparent',
         };

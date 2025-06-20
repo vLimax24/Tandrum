@@ -103,11 +103,7 @@ const HabitActionBottomSheet = forwardRef<
               className="w-16 h-16 rounded-2xl items-center justify-center mb-4"
               style={{ backgroundColor: theme.colors.glass }}
             >
-              <Ionicons
-                name="options-outline"
-                size={28}
-                color={theme.colors.primary}
-              />
+              <Ionicons name="options" size={28} color={theme.colors.primary} />
             </View>
             <Text
               className="text-2xl font-bold text-center mb-2"
@@ -157,7 +153,7 @@ const HabitActionBottomSheet = forwardRef<
                       className="w-12 h-12 rounded-xl items-center justify-center mr-4"
                       style={{ backgroundColor: theme.colors.primary }}
                     >
-                      <Ionicons name="create-outline" size={24} color="white" />
+                      <Ionicons name="create" size={24} color="white" />
                     </View>
                     <View className="flex-1">
                       <Text
@@ -217,7 +213,7 @@ const HabitActionBottomSheet = forwardRef<
                       className="w-12 h-12 rounded-xl items-center justify-center mr-4"
                       style={{ backgroundColor: '#dc2626' }}
                     >
-                      <Ionicons name="trash-outline" size={24} color="white" />
+                      <Ionicons name="trash" size={24} color="white" />
                     </View>
                     <View className="flex-1">
                       <Text

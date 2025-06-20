@@ -5,6 +5,7 @@ import { HabitItem } from './HabitItem';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
 import { Ionicons } from '@expo/vector-icons';
+import { useI18n } from '@/contexts/i18nContext';
 
 interface HabitsGridProps {
   habits: any[];
@@ -49,6 +50,7 @@ export const HabitsGrid: React.FC<HabitsGridProps> = ({
   onShowAlert,
 }) => {
   const { isDarkMode } = useTheme();
+  const { t } = useI18n();
   const theme = createTheme(isDarkMode);
 
   if (habits.length === 0) {
@@ -116,9 +118,9 @@ export const HabitsGrid: React.FC<HabitsGridProps> = ({
                   console.error('Check-in error:', error);
                   setTimeout(() => {
                     onShowAlert(
-                      'Error',
-                      'Failed to update habit. Please try again.',
-                      [{ text: 'OK', style: 'default' }],
+                      t('common.error'),
+                      t('habits.checkIn.error'),
+                      [{ text: t('common.ok'), style: 'default' }],
                       'alert-circle',
                       '#ef4444',
                     );

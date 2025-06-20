@@ -27,6 +27,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
 import type { RootStackParamList } from '@/types/navigation';
 import { AlertModal } from '@/components/Modals/AlertModal';
+import { useI18n, SupportedLanguage } from '@/contexts/i18nContext';
 
 const { width } = Dimensions.get('window');
 const avatarSize = (width - 80) / 3 - 12;
@@ -35,6 +36,8 @@ export default function EditProfileScreen() {
   // Theme integration
   const { isDarkMode, toggleTheme } = useTheme();
   const theme = createTheme(isDarkMode);
+
+  const { language, setLanguage, t } = useI18n();
 
   // Updated state and tracking for changes
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
@@ -132,35 +135,33 @@ export default function EditProfileScreen() {
     }
 
     if (username.length < 3) {
-      setUsernameError('Username must be at least 3 characters');
+      setUsernameError(t('editProfile.username.validation.tooShort'));
       setIsUsernameValid(false);
       return;
     }
 
     if (username.length > 20) {
-      setUsernameError('Username must be less than 20 characters');
+      setUsernameError(t('editProfile.username.validation.tooLong'));
       setIsUsernameValid(false);
       return;
     }
 
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      setUsernameError(
-        'Username can only contain letters, numbers, and underscores',
-      );
+      setUsernameError(t('editProfile.username.validation.invalidChars'));
       setIsUsernameValid(false);
       return;
     }
 
     if (checkUsername !== undefined) {
       if (!checkUsername.available) {
-        setUsernameError('Username is already taken');
+        setUsernameError(t('editProfile.username.validation.taken'));
         setIsUsernameValid(false);
       } else {
         setUsernameError('');
         setIsUsernameValid(true);
       }
     }
-  }, [username, checkUsername]);
+  }, [username, checkUsername, t]);
 
   const hasChanges =
     username.trim() !== originalUsername ||
@@ -199,29 +200,28 @@ export default function EditProfileScreen() {
 
       setAlertConfig({
         visible: true,
-        title: 'Success',
-        message: 'Your profile has been updated successfully!',
+        title: t('editProfile.alerts.success.title'),
+        message: t('editProfile.alerts.success.message'),
         icon: 'checkmark-circle',
         iconColor: theme.colors.primary,
         buttons: [
           {
-            text: 'OK',
+            text: t('common.ok'),
             onPress: () => navigation.navigate('Tabs', { screen: 'profile' }),
             style: 'default',
           },
         ],
       });
     } catch (error) {
-      // Updated to use custom AlertModal instead of native Alert
       setAlertConfig({
         visible: true,
-        title: 'Error',
-        message: 'Failed to update profile. Please try again.',
+        title: t('editProfile.alerts.error.title'),
+        message: t('editProfile.alerts.error.message'),
         icon: 'alert-circle',
         iconColor: '#ef4444',
         buttons: [
           {
-            text: 'OK',
+            text: t('common.ok'),
             style: 'default',
           },
         ],
@@ -272,7 +272,7 @@ export default function EditProfileScreen() {
                   className="text-xl font-bold font-mainRegular"
                   style={{ color: theme.colors.text.primary }}
                 >
-                  Edit Profile
+                  {t('editProfile.title')}
                 </Text>
               </View>
 
@@ -304,7 +304,7 @@ export default function EditProfileScreen() {
                           color: canSave ? 'white' : theme.colors.text.tertiary,
                         }}
                       >
-                        Save
+                        {t('common.save')}
                       </Text>
                     </>
                   )}
@@ -349,13 +349,13 @@ export default function EditProfileScreen() {
                       className="text-lg font-bold font-mainRegular"
                       style={{ color: theme.colors.text.primary }}
                     >
-                      Avatar Selection
+                      {t('editProfile.avatar.section')}
                     </Text>
                     <Text
                       className="text-sm font-mainRegular"
                       style={{ color: theme.colors.text.secondary }}
                     >
-                      Choose your visual identity
+                      {t('editProfile.avatar.subtitle')}
                     </Text>
                   </View>
                 </View>
@@ -383,7 +383,7 @@ export default function EditProfileScreen() {
                       style={{ color: theme.colors.text.primary }}
                     >
                       {avatarOptions.find((a) => a.id === selectedAvatar)?.name}{' '}
-                      Avatar
+                      {t('editProfile.avatar.avatarLabel')}
                     </Text>
                   </View>
                 )}
@@ -465,13 +465,13 @@ export default function EditProfileScreen() {
                       className="text-lg font-bold font-mainRegular"
                       style={{ color: theme.colors.text.primary }}
                     >
-                      Username
+                      {t('editProfile.username.section')}
                     </Text>
                     <Text
                       className="text-sm font-mainRegular"
                       style={{ color: theme.colors.text.secondary }}
                     >
-                      Your unique tandrum identity
+                      {t('editProfile.username.subtitle')}
                     </Text>
                   </View>
                 </View>
@@ -481,7 +481,7 @@ export default function EditProfileScreen() {
                 <TextInput
                   value={username}
                   onChangeText={setUsername}
-                  placeholder="Enter your username"
+                  placeholder={t('editProfile.username.placeholder')}
                   placeholderTextColor={theme.colors.text.tertiary}
                   className="rounded-2xl px-4 py-4 font-mainRegular text-base"
                   style={{
@@ -516,7 +516,7 @@ export default function EditProfileScreen() {
                       className="font-mainRegular text-sm flex-1"
                       style={{ color: theme.colors.primary }}
                     >
-                      Username is available
+                      {t('editProfile.username.validation.available')}
                     </Text>
                   </View>
                 ) : null}
@@ -525,7 +525,7 @@ export default function EditProfileScreen() {
                   className="font-mainRegular text-xs mt-2"
                   style={{ color: theme.colors.text.tertiary }}
                 >
-                  3-20 characters, letters, numbers and underscores only
+                  {t('editProfile.username.hint')}
                 </Text>
               </View>
             </BlurView>
@@ -562,7 +562,7 @@ export default function EditProfileScreen() {
                         className="text-lg font-bold font-mainRegular"
                         style={{ color: theme.colors.text.primary }}
                       >
-                        Bio
+                        {t('editProfile.bio.section')}
                       </Text>
                       <Text
                         className="text-sm font-mainRegular px-2 py-1 rounded-full"
@@ -571,14 +571,14 @@ export default function EditProfileScreen() {
                           backgroundColor: theme.colors.glass,
                         }}
                       >
-                        Optional
+                        {t('editProfile.bio.optional')}
                       </Text>
                     </View>
                     <Text
                       className="text-sm font-mainRegular"
                       style={{ color: theme.colors.text.secondary }}
                     >
-                      Share your story with the community
+                      {t('editProfile.bio.subtitle')}
                     </Text>
                   </View>
                 </View>
@@ -588,7 +588,7 @@ export default function EditProfileScreen() {
                 <TextInput
                   value={bio}
                   onChangeText={setBio}
-                  placeholder="Tell others about yourself, your goals, or what motivates you..."
+                  placeholder={t('editProfile.bio.placeholder')}
                   placeholderTextColor={theme.colors.text.tertiary}
                   className="rounded-2xl px-4 py-4 font-mainRegular text-base"
                   style={{
@@ -609,14 +609,13 @@ export default function EditProfileScreen() {
                     className="font-mainRegular text-xs flex-1 mr-4"
                     style={{ color: theme.colors.text.tertiary }}
                   >
-                    Help others connect with you through shared interests and
-                    goals
+                    {t('editProfile.bio.hint')}
                   </Text>
                   <Text
                     className="font-mainRegular text-xs"
                     style={{ color: theme.colors.text.tertiary }}
                   >
-                    {bio.length}/200
+                    {t('editProfile.bio.characterCount', { count: bio.length })}
                   </Text>
                 </View>
               </View>
@@ -649,13 +648,13 @@ export default function EditProfileScreen() {
                       className="text-lg font-bold font-mainRegular"
                       style={{ color: theme.colors.text.primary }}
                     >
-                      Account Information
+                      {t('editProfile.accountInfo.section')}
                     </Text>
                     <Text
                       className="text-sm font-mainRegular"
                       style={{ color: theme.colors.text.secondary }}
                     >
-                      Your tandrum journey details
+                      {t('editProfile.accountInfo.subtitle')}
                     </Text>
                   </View>
                 </View>
@@ -673,7 +672,7 @@ export default function EditProfileScreen() {
                       className="font-medium font-mainRegular"
                       style={{ color: theme.colors.text.secondary }}
                     >
-                      Email
+                      {t('editProfile.accountInfo.email')}
                     </Text>
                   </View>
                   <Text
@@ -701,7 +700,7 @@ export default function EditProfileScreen() {
                       className="font-medium font-mainRegular"
                       style={{ color: theme.colors.text.secondary }}
                     >
-                      Member Since
+                      {t('editProfile.accountInfo.memberSince')}
                     </Text>
                   </View>
                   <Text
@@ -733,16 +732,14 @@ export default function EditProfileScreen() {
                   className="text-lg font-bold font-mainRegular flex-1"
                   style={{ color: theme.colors.text.primary }}
                 >
-                  Building Habits Together
+                  {t('editProfile.footer.title')}
                 </Text>
               </View>
               <Text
                 className="font-mainRegular text-base leading-6"
                 style={{ color: theme.colors.text.secondary }}
               >
-                Your profile helps connect you with like-minded habit builders.
-                Share your journey and inspire others in the tandrum community!
-                🚀
+                {t('editProfile.footer.description')}
               </Text>
             </View>
           </View>

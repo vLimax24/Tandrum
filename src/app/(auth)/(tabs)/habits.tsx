@@ -27,6 +27,7 @@ import {
   BottomSheetModal,
   BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
+import { useI18n } from '@/contexts/i18nContext';
 
 export default function HabitsSection() {
   const { user } = useUser();
@@ -34,6 +35,7 @@ export default function HabitsSection() {
   const { selectedIndex, setSelectedIndex } = useDuo();
   const { isDarkMode } = useTheme();
   const theme = createTheme(isDarkMode);
+  const { t } = useI18n();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [activeMenuHabitId, setActiveMenuHabitId] = useState<string | null>(
@@ -59,11 +61,6 @@ export default function HabitsSection() {
     message: '',
     buttons: [],
   });
-
-  const handleEditHabit = (habit: any) => {
-    setEditingHabit(habit);
-    editBottomSheetRef.current?.present();
-  };
 
   // Bottom sheet ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -127,10 +124,6 @@ export default function HabitsSection() {
     });
   };
 
-  const closeAlert = () => {
-    setAlertModal((prev) => ({ ...prev, visible: false }));
-  };
-
   const handleMenuPress = (event: any, habit: any) => {
     // Set the active habit and present the bottom sheet
     setActiveMenuHabitId(habit._id);
@@ -143,24 +136,24 @@ export default function HabitsSection() {
 
   const handleDeleteHabit = (habitId: Id<'duoHabits'>, habitTitle: string) => {
     showAlert(
-      'Delete Habit',
-      `Are you sure you want to delete "${habitTitle}"? This action cannot be undone.`,
+      t('habits.deleteHabit.title'),
+      t('habits.deleteHabit.message', { habitTitle }),
       [
         {
-          text: 'Cancel',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Delete',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               await deleteHabit({ habitId });
             } catch (error) {
               showAlert(
-                'Error',
-                'Failed to delete habit. Please try again.',
-                [{ text: 'OK', style: 'default' }],
+                t('common.error'),
+                t('habits.deleteHabit.error'),
+                [{ text: t('common.ok'), style: 'default' }],
                 'alert-circle',
                 '#ef4444',
               );
@@ -240,9 +233,9 @@ export default function HabitsSection() {
       console.error('Check-in error:', error);
       setTimeout(() => {
         showAlert(
-          'Error',
-          'Failed to update habit. Please try again.',
-          [{ text: 'OK', style: 'default' }],
+          t('common.error'),
+          t('habits.checkIn.error'),
+          [{ text: t('common.ok'), style: 'default' }],
           'alert-circle',
           '#ef4444',
         );

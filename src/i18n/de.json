@@ -161,5 +161,286 @@
       "languageChanged": "Sprache wurde geändert!",
       "languageChangeError": "Sprache konnte nicht geändert werden"
     }
+  },
+  "tree": {
+    "title": "Wachstumsbaum",
+    "subtitle": "Beobachte, wie das Vertrauen eures Duos durch tägliche Gewohnheiten und Verantwortlichkeit zu einem schönen Baum wächst",
+    "stats": {
+      "leaves": "Blätter",
+      "fruits": "Früchte"
+    },
+    "growthActivity": {
+      "title": "Wachstumsaktivität",
+      "subtitle": "Verfolge den Fortschritt eures Duos und feiert gemeinsam Meilensteine",
+      "activityCount": "{{count}} Aktivitäten",
+      "activityCount_one": "{{count}} Aktivität",
+      "activityNumber": "Aktivität #{{number}}",
+      "complete": "✓ Abgeschlossen"
+    },
+    "emptyState": {
+      "title": "Deine Wachstumsreise beginnt hier",
+      "subtitle": "Beginne gemeinsam mit deinem Duo-Partner Gewohnheiten aufzubauen. Jeder kleine Schritt zählt für das Wachstum eures Vertrauensbaums.",
+      "cta": "🚀 Starte heute deine erste Gewohnheit!"
+    },
+    "loading": {
+      "profile": "Lade dein Profil...",
+      "connections": "Lade Verbindungen..."
+    }
+  },
+  "profile": {
+    "accountInfo": {
+      "title": "Kontoinformationen",
+      "subtitle": "Deine Profildetails",
+      "verified": "VERIFIZIERT",
+      "memberSince": "Mitglied seit",
+      "accountStatus": "Kontostatus",
+      "active": "Aktiv",
+      "recentlyJoined": "Kürzlich beigetreten",
+      "today": "Heute",
+      "oneDayAgo": "Vor 1 Tag",
+      "daysAgo": "Vor {{count}} Tagen",
+      "monthsAgo": "Vor {{count}} Monat",
+      "monthsAgo_other": "Vor {{count}} Monaten",
+      "yearsAgo": "Vor {{count}} Jahr",
+      "yearsAgo_other": "Vor {{count}} Jahren"
+    },
+    "preferences": {
+      "title": "Einstellungen",
+      "subtitle": "Deine App-Einstellungen",
+      "timezone": "Zeitzone",
+      "language": "Sprache"
+    },
+    "bio": {
+      "title": "Über mich",
+      "subtitle": "Deine persönliche Biografie"
+    },
+    "quickActions": {
+      "title": "Schnellaktionen",
+      "subtitle": "Verwalte dein Profil",
+      "editProfile": "Profil bearbeiten",
+      "editProfileSubtitle": "Informationen aktualisieren",
+      "settings": "Einstellungen",
+      "settingsSubtitle": "Einstellungen verwalten"
+    },
+    "signOut": {
+      "button": "Abmelden",
+      "subtitle": "Du kannst dich jederzeit wieder mit deinen Zugangsdaten anmelden",
+      "alertTitle": "Abmelden",
+      "alertMessage": "Bist du sicher, dass du dich von deinem Konto abmelden möchtest?",
+      "errorMessage": "Abmeldung fehlgeschlagen. Bitte versuche es erneut."
+    }
+  },
+  "home": {
+    "header": {
+      "welcomeBack": "Willkommen zurück,",
+      "defaultName": "Partner"
+    },
+    "stats": {
+      "activeDuos": "Aktive Duos",
+      "totalXP": "Gesamt-XP",
+      "combinedDays": "Kombinierte Tage",
+      "avgLevel": "Durchschn. Level",
+      "chips": {
+        "active": "ACTIVE",
+        "trust": "TRUST",
+        "streak": "STREAK",
+        "level": "LEVEL"
+      }
+    },
+    "partnerships": {
+      "title": "Aktive Partnerschaften",
+      "activeCount": "{{count}} Aktiv",
+      "partnershipNumber": "Partnerschaft #{{number}}",
+      "dayStreak": "Tages-Serie",
+      "experience": "Erfahrung",
+      "treeStage": "Baumstadium",
+      "treeLabels": {
+        "tree-1": "Sprössling",
+        "tree-2": "Kleiner Baum",
+        "tree-3": "Mittlerer Baum",
+        "tree-4": "Großer Baum",
+        "seed": "Samen"
+      },
+      "emptyState": {
+        "title": "Keine aktiven Partnerschaften",
+        "subtitle": "Starte deine erste Duo-Partnerschaft, um gemeinsam Gewohnheiten aufzubauen und euren gemeinsamen Baum wachsen zu lassen!"
+      }
+    },
+    "actions": {
+      "startNewPartnership": "Neue Partnerschaft starten",
+      "viewTrees": "Bäume ansehen",
+      "myHabits": "Gewohnheiten"
+    },
+    "invites": {
+      "title": "Duo-Einladung 📬",
+      "message": "Jemand möchte mit dir zusammenarbeiten!",
+      "reject": "Ablehnen",
+      "accept": "Annehmen"
+    }
+  },
+  "habits": {
+    "title": "Gewohnheiten",
+    "subtitle": "Gemeinsam aufbauen, gemeinsam wachsen",
+    "progress": {
+      "today": "{{completed}}/{{total}} heute"
+    },
+    "streak": "Serie: {{days}} Tage",
+    "sections": {
+      "daily": "Tägliche Gewohnheiten",
+      "weekly": "Wöchentliche Gewohnheiten"
+    },
+    "emptyState": {
+      "daily": "Noch keine täglichen Gewohnheiten. Erstelle eine, um loszulegen!",
+      "weekly": "Noch keine wöchentlichen Gewohnheiten. Erstelle eine, um loszulegen!"
+    },
+    "deleteHabit": {
+      "title": "Gewohnheit löschen",
+      "message": "Bist du sicher, dass du \"{{habitTitle}}\" löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "error": "Gewohnheit konnte nicht gelöscht werden. Bitte versuche es erneut."
+    },
+    "checkIn": {
+      "error": "Gewohnheit konnte nicht aktualisiert werden. Bitte versuche es erneut."
+    }
+  },
+  "habitCard": {
+    "daily": "Täglich",
+    "weekly": "Wöchentlich",
+    "bothCompleted": "Beide abgeschlossen! 🎉",
+    "waitingForPartner": "Auf Partner warten...",
+    "you": "Du",
+    "partner": "Partner"
+  },
+  "editProfile": {
+    "title": "Profil bearbeiten",
+    "avatar": {
+      "section": "Avatar-Auswahl",
+      "subtitle": "Wähle deine visuelle Identität",
+      "avatarLabel": "Avatar"
+    },
+    "username": {
+      "section": "Benutzername",
+      "subtitle": "Deine einzigartige Tandrum-Identität",
+      "placeholder": "Gib deinen Benutzernamen ein",
+      "validation": {
+        "tooShort": "Benutzername muss mindestens 3 Zeichen haben",
+        "tooLong": "Benutzername muss weniger als 20 Zeichen haben",
+        "invalidChars": "Benutzername darf nur Buchstaben, Zahlen und Unterstriche enthalten",
+        "taken": "Benutzername ist bereits vergeben",
+        "available": "Benutzername ist verfügbar"
+      },
+      "hint": "3-20 Zeichen, nur Buchstaben, Zahlen und Unterstriche"
+    },
+    "bio": {
+      "section": "Biografie",
+      "subtitle": "Teile deine Geschichte mit der Community",
+      "placeholder": "Erzähle anderen von dir, deinen Zielen oder was dich motiviert...",
+      "optional": "Optional",
+      "hint": "Hilf anderen, sich durch gemeinsame Interessen und Ziele mit dir zu verbinden",
+      "characterCount": "{{count}}/200"
+    },
+    "accountInfo": {
+      "section": "Kontoinformationen",
+      "subtitle": "Deine Tandrum-Reise Details",
+      "email": "E-Mail",
+      "memberSince": "Mitglied seit"
+    },
+    "footer": {
+      "title": "Gemeinsam Gewohnheiten aufbauen",
+      "description": "Dein Profil hilft dir dabei, dich mit gleichgesinnten Gewohnheitsbildnern zu verbinden. Teile deine Reise und inspiriere andere in der Tandrum-Community! 🚀"
+    },
+    "alerts": {
+      "success": {
+        "title": "Erfolg",
+        "message": "Dein Profil wurde erfolgreich aktualisiert!"
+      },
+      "error": {
+        "title": "Fehler",
+        "message": "Profil konnte nicht aktualisiert werden. Bitte versuche es erneut."
+      }
+    }
+  },
+  "tutorial": {
+    "skip": "Überspringen",
+    "continue": "Weiter",
+    "getStarted": "Loslegen",
+    "pages": {
+      "buildHabits": {
+        "title": "Gemeinsam Gewohnheiten aufbauen",
+        "description": "Tritt einer Community bei, in der Verantwortung auf Motivation trifft. Verwandle deine täglichen Routinen mit der Kraft gemeinsamer Verpflichtung."
+      },
+      "trackGrowth": {
+        "title": "Verfolge dein Wachstum",
+        "description": "Visualisiere deinen Fortschritt mit schönen Einblicken und feiere jeden Meilenstein mit deinen Verantwortungspartnern."
+      },
+      "stayMotivated": {
+        "title": "Täglich motiviert bleiben",
+        "description": "Verwandle den Aufbau von Gewohnheiten in eine fesselnde Reise mit spielerischem Fortschritt und bedeutungsvollen Verbindungen, die dich am Laufen halten."
+      }
+    },
+    "auth": {
+      "welcome": {
+        "title": "Willkommen bei",
+        "appName": "Tandrum",
+        "subtitle": "Beginne mit dem Aufbau dauerhafter Gewohnheiten mit der Unterstützung einer großartigen Community. Deine Transformation beginnt hier."
+      },
+      "continueWithGoogle": "Mit Google fortfahren",
+      "disclaimer": "Durch Fortfahren stimmst du zu, gemeinsam mit unserer unterstützenden Community bessere Gewohnheiten aufzubauen",
+      "loginError": {
+        "title": "Anmeldung fehlgeschlagen",
+        "message": "Bei der Anmeldung ist ein Fehler aufgetreten. Bitte versuche es erneut."
+      }
+    }
+  },
+  "avatar": {
+    "title": "Wähle deinen Avatar",
+    "subtitle": "Wähle einen, der dich auf deiner Gewohnheitsreise repräsentiert",
+    "stepLabel": "Schritt 2 von 2",
+    "completeSetup": "Setup abschließen",
+    "settingUpProfile": "Richte dein Profil ein...",
+    "motivationalText": "Dein Avatar wird dich bei Team-Herausforderungen und Gewohnheitsverfolgung repräsentieren",
+    "errorSaving": "Avatar konnte nicht gespeichert werden. Bitte versuche es erneut."
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Willkommen bei",
+      "appName": "Tandrum",
+      "subtitle": "Verwandle dein Leben durch die Kraft der Gemeinschaft. Baue dauerhafte Gewohnheiten gemeinsam auf."
+    },
+    "features": {
+      "buildTogether": {
+        "title": "Gemeinsam aufbauen",
+        "description": "Schließe dich Freunden an und bleibe verantwortlich, während ihr gemeinsam lebensverändernde Gewohnheiten entwickelt."
+      },
+      "trackProgress": {
+        "title": "Fortschritt verfolgen",
+        "description": "Visualisiere dein Wachstum mit wunderschönen Diagrammen und feiere jeden erreichten Meilenstein."
+      },
+      "gamifiedExperience": {
+        "title": "Spielerische Erfahrung",
+        "description": "Verdiene Belohnungen, schalte Erfolge frei und mache den Gewohnheitsaufbau zu einer aufregenden Reise."
+      }
+    },
+    "cta": {
+      "startJourney": "Starte deine Reise"
+    },
+    "username": {
+      "stepLabel": "Schritt 1 von 2",
+      "title": "Wähle deinen Benutzernamen",
+      "placeholder": "Benutzername",
+      "checking": "Verfügbarkeit wird überprüft...",
+      "available": "Perfekt! Dieser Benutzername ist verfügbar",
+      "characterCount": "{{current}}/{{max}} Zeichen",
+      "almostLimit": "Fast am Limit",
+      "needInspiration": "Brauchst du Inspiration?",
+      "saving": "Speichern...",
+      "continueJourney": "Setze deine Reise fort",
+      "updateError": "Benutzername konnte nicht aktualisiert werden. Bitte versuche es erneut.",
+      "validation": {
+        "tooShort": "Benutzername muss mindestens 3 Zeichen haben",
+        "tooLong": "Benutzername muss weniger als 20 Zeichen haben",
+        "invalidChars": "Benutzername darf nur Buchstaben, Zahlen und Unterstriche enthalten",
+        "taken": "Dieser Benutzername ist bereits vergeben"
+      }
+    }
   }
 }

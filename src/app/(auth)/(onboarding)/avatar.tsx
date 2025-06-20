@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  Alert,
   Animated,
   Dimensions,
 } from 'react-native';
@@ -22,6 +21,7 @@ import { avatarOptions } from '@/utils/avatarImages';
 import { AlertModal } from '@/components/Modals/AlertModal';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
+import { useI18n } from '@/contexts/i18nContext';
 
 const { width, height } = Dimensions.get('window');
 const avatarSize = (width - 80) / 3 - 12; // 3 columns with better spacing
@@ -41,6 +41,7 @@ export default function AvatarScreen() {
   const scaleAnims = React.useRef(
     avatarOptions.map(() => new Animated.Value(0.8)),
   ).current;
+  const { t } = useI18n();
 
   const updateUser = useMutation(api.users.completeOnboarding);
   const getUserData = useQuery(
@@ -157,9 +158,9 @@ export default function AvatarScreen() {
       router.replace('/(auth)/(tabs)/home');
     } catch (error) {
       showAlert(
-        'Error',
-        'Failed to save avatar. Please try again.',
-        [{ text: 'OK', style: 'default' }],
+        t('common.error'),
+        t('avatar.errorSaving'),
+        [{ text: t('common.ok'), style: 'default' }],
         'alert-circle',
         '#ef4444',
       );
@@ -215,7 +216,7 @@ export default function AvatarScreen() {
               style={{ color: theme.colors.text.secondary }}
               className="text-sm font-medium font-mainRegular"
             >
-              Step 2 of 2
+              {t('avatar.stepLabel')}
             </Text>
           </BlurView>
         </Animated.View>
@@ -272,13 +273,13 @@ export default function AvatarScreen() {
                   className="text-2xl font-bold mb-1"
                   style={{ color: theme.colors.text.primary }}
                 >
-                  Pick Your Avatar
+                  {t('avatar.title')}
                 </Text>
                 <Text
                   className="text-base leading-5"
                   style={{ color: theme.colors.text.secondary }}
                 >
-                  Choose one that represents you in your habit journey
+                  {t('avatar.subtitle')}
                 </Text>
               </View>
             </View>
@@ -438,7 +439,7 @@ export default function AvatarScreen() {
                     className="text-lg font-semibold"
                     style={{ color: theme.colors.text.primary }}
                   >
-                    Setting up your profile...
+                    {t('avatar.settingUpProfile')}
                   </Text>
                 </View>
               ) : (
@@ -451,7 +452,7 @@ export default function AvatarScreen() {
                         : theme.colors.text.primary,
                     }}
                   >
-                    Complete Setup
+                    {t('avatar.completeSetup')}
                   </Text>
                   {selectedAvatar && (
                     <Ionicons
@@ -470,7 +471,7 @@ export default function AvatarScreen() {
             className="text-center text-sm mt-4 leading-5"
             style={{ color: theme.colors.text.tertiary }}
           >
-            Your avatar will represent you in team challenges and habit tracking
+            {t('avatar.motivationalText')}
           </Text>
         </View>
       </SafeAreaView>

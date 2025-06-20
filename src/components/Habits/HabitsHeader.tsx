@@ -5,6 +5,7 @@ import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useI18n } from '@/contexts/i18nContext';
 
 interface HabitsHeaderProps {
   daily?: any[];
@@ -25,6 +26,7 @@ export function HabitsHeader({
 }: HabitsHeaderProps) {
   const { isDarkMode, toggleTheme } = useTheme();
   const theme = createTheme(isDarkMode);
+  const { t } = useI18n();
 
   // Helper function to calculate today's completed habits
   const getTodayCompletedCount = () => {
@@ -97,7 +99,7 @@ export function HabitsHeader({
                 className="text-3xl font-bold tracking-tight"
                 style={{ color: theme.colors.text.primary }}
               >
-                Habits
+                {t('habits.title')}
               </Text>
             </View>
 
@@ -105,7 +107,7 @@ export function HabitsHeader({
               className="text-base font-medium opacity-80"
               style={{ color: theme.colors.text.secondary }}
             >
-              Build together, grow together
+              {t('habits.subtitle')}
             </Text>
           </View>
 
@@ -166,7 +168,10 @@ export function HabitsHeader({
               className="text-sm font-medium"
               style={{ color: theme.colors.text.secondary }}
             >
-              {getTodayCompletedCount()}/{daily.length} today
+              {t('habits.progress.today', {
+                completed: getTodayCompletedCount(),
+                total: daily.length,
+              })}
             </Text>
           </View>
         </View>
@@ -210,7 +215,7 @@ export function HabitsHeader({
               className="text-sm font-medium ml-2"
               style={{ color: theme.colors.primary }}
             >
-              Streak: {duo?.streak || 0} days
+              {t('habits.streak', { days: duo?.streak || 0 })}
             </Text>
           </View>
         </View>
