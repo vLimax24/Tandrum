@@ -49,25 +49,6 @@ const Profile = () => {
     user?.id ? { clerkId: user.id } : 'skip',
   );
 
-  // Use useFocusEffect to check auth state when screen comes into focus
-  useFocusEffect(
-    useCallback(() => {
-      // Small delay to ensure navigation is ready
-      const checkAuth = () => {
-        if (isLoaded && (!user || !isSignedIn)) {
-          try {
-            router.replace('/(public)/login');
-          } catch (error) {
-            // Retry after a short delay
-            setTimeout(checkAuth, 100);
-          }
-        }
-      };
-
-      checkAuth();
-    }, [user, isSignedIn, isLoaded, router]),
-  );
-
   const showAlert = (
     title: string,
     message: string,
