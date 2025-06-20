@@ -24,7 +24,7 @@ import { createTheme } from '@/utils/theme';
 import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
 import type { RootStackParamList } from '@/types/navigation';
-import { AlertModal } from '@/components/AlertModal';
+import { AlertModal } from '@/components/Modals/AlertModal';
 
 export default function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);

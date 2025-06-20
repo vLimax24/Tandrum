@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import { NewDuoModal } from '@/components/NewDuoModal';
+import { NewDuoModal } from '@/components/Modals/NewDuoModal';
 import { useQuery } from 'convex/react';
 import { api } from 'convex/_generated/api';
 import { useUser } from '@clerk/clerk-expo';

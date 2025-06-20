@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
 import type { RootStackParamList } from '@/types/navigation';
-import { AlertModal } from '@/components/AlertModal';
+import { AlertModal } from '@/components/Modals/AlertModal';
 
 const Profile = () => {
   const { user, isLoaded } = useUser();

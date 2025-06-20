@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from 'convex/_generated/api';
 import { useUser } from '@clerk/clerk-expo';
-import { AlertModal } from '@/components/AlertModal';
+import { AlertModal } from '@/components/Modals/AlertModal';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
 import { BlurView } from 'expo-blur';

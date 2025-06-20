@@ -21,12 +21,12 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from 'convex/react';
-import { api } from '../../convex/_generated/api';
+import { api } from '../../../convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
-import { TandrumBottomSheet } from '@/components/TandrumBottomSheet';
+import { TandrumBottomSheet } from '@/components/BottomSheets/TandrumBottomSheet';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
-import { AlertModal } from '@/components/AlertModal';
+import { AlertModal } from '@/components/Modals/AlertModal';
 
 interface NewDuoModalProps {
   visible: boolean;

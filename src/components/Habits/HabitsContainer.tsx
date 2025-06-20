@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { SectionHeader } from '@/components/SectionHeader';
-import { HabitsGrid } from '@/components/HabitsGrid';
-import { AlertModal } from './AlertModal';
+import { HabitsGrid } from '@/components/Habits/HabitsGrid';
+import { AlertModal } from '../Modals/AlertModal';
 
 interface HabitsContainerProps {
   daily: any[];

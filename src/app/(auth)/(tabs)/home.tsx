@@ -16,7 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import LevelDisplay from '@/components/LevelDisplay';
 import { router } from 'expo-router';
 import { useDuo } from '@/hooks/useDuo';
-import { NewDuoModal } from '@/components/NewDuoModal';
+import { NewDuoModal } from '@/components/Modals/NewDuoModal';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { images } from '@/utils/images';
@@ -26,7 +26,7 @@ import LoadingState from '@/components/LoadingState';
 import { useNavigation } from '@react-navigation/native';
 import type { TabParamList } from '@/types/navigation';
 import type { NavigationProp } from '@react-navigation/native';
-import { AlertModal } from '@/components/AlertModal';
+import { AlertModal } from '@/components/Modals/AlertModal';
 
 const Page = () => {
   const { user } = useUser();

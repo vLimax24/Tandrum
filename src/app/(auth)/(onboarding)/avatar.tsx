@@ -19,7 +19,7 @@ import { api } from 'convex/_generated/api';
 import { useUser } from '@clerk/clerk-expo';
 import { useMutation, useQuery } from 'convex/react';
 import { avatarOptions } from '@/utils/avatarImages';
-import { AlertModal } from '@/components/AlertModal';
+import { AlertModal } from '@/components/Modals/AlertModal';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
 

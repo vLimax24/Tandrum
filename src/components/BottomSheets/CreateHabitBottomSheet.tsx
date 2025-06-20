@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
 import { TandrumBottomSheet } from './TandrumBottomSheet';
-import { AlertModal } from './AlertModal';
+import { AlertModal } from '../Modals/AlertModal';
 
 interface CreateHabitBottomSheetProps {
   onCreate: any;

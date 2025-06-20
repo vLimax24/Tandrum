@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
-import DecorationDetailBottomSheet from './DecorationDetailBottomSheet';
+import DecorationDetailBottomSheet from './BottomSheets/DecorationDetailBottomSheet';
 import {
   BottomSheetModal,
   BottomSheetBackdrop,
@@ -14,7 +14,7 @@ import { getRarityColors } from '@/utils/rarities';
 import { images } from '@/utils/images';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
-import { AlertModal } from '@/components/AlertModal';
+import { AlertModal } from '@/components/Modals/AlertModal';
 
 interface TreeInventoryProps {
   treeData: {

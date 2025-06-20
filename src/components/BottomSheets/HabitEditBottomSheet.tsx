@@ -18,7 +18,7 @@ import { BottomSheetModal, BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
-import { TandrumBottomSheet } from './TandrumBottomSheet';
+import { TandrumBottomSheet } from '@/components/BottomSheets/TandrumBottomSheet';
 
 interface HabitEditBottomSheetProps {
   onSave: (data: {

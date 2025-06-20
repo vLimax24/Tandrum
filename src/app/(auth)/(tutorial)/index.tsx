@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
-import { AlertModal } from '@/components/AlertModal';
+import { AlertModal } from '@/components/Modals/AlertModal';
 import { useNavigationStore } from '@/stores/NavigationStore';
 
 const { width, height } = Dimensions.get('window');

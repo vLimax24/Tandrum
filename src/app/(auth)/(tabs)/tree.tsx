@@ -15,7 +15,7 @@ import { images } from '@/utils/images';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { DuoSelector } from '@/components/DuoSelector';
+import { DuoSelector } from '@/components/Modals/DuoSelector';
 import LoadingState from '@/components/LoadingState';
 
 export default function TreeSection() {

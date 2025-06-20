@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useQuery } from 'convex/react';
 import { api } from 'convex/_generated/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AlertModal } from '@/components/AlertModal';
+import { AlertModal } from '@/components/Modals/AlertModal';
 import { images } from '@/utils/images';
 
 export default function AuthPage() {
