@@ -7,7 +7,7 @@ import { Id } from 'convex/_generated/dataModel';
 import { getTreeStageForLevel, getLevelData } from '@/utils/level';
 import { LevelDisplay } from '@/components/LevelDisplay';
 import { useDuo } from '@/hooks/useDuo';
-import TreeInventory from '@/components/TreeInventory';
+import TreeInventory from '@/components/BottomSheets/TreeInventory';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { NoDuoScreen } from '@/components/NoDuoScreen';

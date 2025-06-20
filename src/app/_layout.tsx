@@ -25,7 +25,9 @@ import { DuoProvider } from '@/hooks/useDuo';
 import { useQuery } from 'convex/react';
 import { api } from 'convex/_generated/api';
 import { ThemeProvider } from '@/contexts/themeContext';
-import { useNavigationStore } from '@/stores/NavigationStore';
+// Import the new i18n provider
+import { I18nProvider, useI18n } from '@/contexts/i18nContext';
+import { useNavigationStore } from '@/stores/navigationStore';
 
 const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
@@ -50,6 +52,9 @@ const InitialLayout = () => {
   const segments = useSegments();
   const router = useRouter();
 
+  // Add i18n loading state
+  const { isLoading: i18nLoading } = useI18n();
+
   const { hasCompletedTutorial, isInitialized, initialize } =
     useNavigationStore();
 
@@ -68,8 +73,8 @@ const InitialLayout = () => {
 
   // Main navigation logic
   useEffect(() => {
-    // Wait for all necessary data to be loaded
-    if (!isLoaded || !fontsLoaded || !isInitialized) {
+    // Wait for all necessary data to be loaded (including i18n)
+    if (!isLoaded || !fontsLoaded || !isInitialized || i18nLoading) {
       return;
     }
 
@@ -122,6 +127,7 @@ const InitialLayout = () => {
     isLoaded,
     fontsLoaded,
     isInitialized,
+    i18nLoading, // Add i18n loading to dependencies
     hasCompletedTutorial,
     isSignedIn,
     onboardingStatus,
@@ -135,15 +141,24 @@ const InitialLayout = () => {
       fontsLoaded &&
       isLoaded &&
       isInitialized &&
+      !i18nLoading && // Include i18n loading state
       (isSignedIn ? onboardingStatus !== undefined : true);
 
     if (shouldHideSplash) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, isLoaded, isInitialized, isSignedIn, onboardingStatus]);
+  }, [
+    fontsLoaded,
+    isLoaded,
+    isInitialized,
+    i18nLoading,
+    isSignedIn,
+    onboardingStatus,
+  ]);
 
-  // Show loading screen only during SSO flow
-  const showLoadingScreen = isSignedIn && onboardingStatus === undefined;
+  // Show loading screen only during SSO flow or i18n loading
+  const showLoadingScreen =
+    (isSignedIn && onboardingStatus === undefined) || i18nLoading;
 
   if (showLoadingScreen) {
     return <LoadingScreen />;
@@ -163,11 +178,14 @@ export default function Layout() {
           <GestureHandlerRootView style={{ flex: 1 }}>
             <BottomSheetModalProvider>
               <ThemeProvider>
-                <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-                  <DuoProvider>
-                    <InitialLayout />
-                  </DuoProvider>
-                </ConvexProviderWithClerk>
+                {/* Wrap with I18nProvider */}
+                <I18nProvider>
+                  <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+                    <DuoProvider>
+                      <InitialLayout />
+                    </DuoProvider>
+                  </ConvexProviderWithClerk>
+                </I18nProvider>
               </ThemeProvider>
             </BottomSheetModalProvider>
           </GestureHandlerRootView>

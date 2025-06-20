@@ -17,7 +17,7 @@ import { BlurView } from 'expo-blur';
 import { useTheme } from '@/contexts/themeContext';
 import { createTheme } from '@/utils/theme';
 import { AlertModal } from '@/components/Modals/AlertModal';
-import { useNavigationStore } from '@/stores/NavigationStore';
+import { useNavigationStore } from '@/stores/navigationStore';
 
 const { width, height } = Dimensions.get('window');
 

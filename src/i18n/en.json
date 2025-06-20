@@ -1,0 +1,165 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "done": "Done",
+    "ok": "OK"
+  },
+  "streak": {
+    "currentStreak": "Current Streak",
+    "consecutiveDays": "{{count}} consecutive days of shared success",
+    "consecutiveDays_one": "{{count}} consecutive day of shared success",
+    "thisWeekJourney": "This Week's Journey",
+    "activeDays": "Active Days",
+    "nextMilestone": "Next milestone: {{target}} days ({{remaining}} to go)",
+    "milestones": {
+      "legend": "🏆 LEGEND",
+      "onFire": "🔥 ON FIRE",
+      "unstoppable": "⚡ UNSTOPPABLE",
+      "growing": "🌱 GROWING"
+    },
+    "dayLabels": {
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat",
+      "sunday": "Sun"
+    },
+    "dayAbbr": {
+      "monday": "M",
+      "tuesday": "T",
+      "wednesday": "W",
+      "thursday": "T",
+      "friday": "F",
+      "saturday": "S",
+      "sunday": "S"
+    },
+    "days": "DAYS",
+    "day": "DAY"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Customize your Tandrum experience 🎯",
+    "notifications": {
+      "section": "Notifications & Reminders",
+      "pushNotifications": {
+        "title": "Push Notifications",
+        "subtitle": "Stay updated with habit reminders and progress"
+      },
+      "dailyReminders": {
+        "title": "Daily Habit Reminders",
+        "subtitle": "Gentle nudges to keep your streaks alive"
+      },
+      "weeklyReports": {
+        "title": "Weekly Progress Reports",
+        "subtitle": "Celebrate your wins and plan ahead"
+      },
+      "partnerUpdates": {
+        "title": "Partner Activity Updates",
+        "subtitle": "Stay connected with your habit buddy"
+      }
+    },
+    "language": {
+      "section": "Language & Region",
+      "title": "Language",
+      "subtitle": "Choose your preferred language"
+    },
+    "experience": {
+      "section": "App Experience",
+      "darkMode": {
+        "title": "Dark Mode",
+        "subtitle": "Easy on the eyes, perfect for evening habits"
+      },
+      "sound": {
+        "title": "Sound Feedback",
+        "subtitle": "Satisfying audio cues for completed habits"
+      },
+      "haptic": {
+        "title": "Haptic Feedback",
+        "subtitle": "Feel the satisfaction with every tap"
+      }
+    },
+    "community": {
+      "section": "Community & Support",
+      "share": {
+        "title": "Share Tandrum",
+        "subtitle": "Invite friends to build habits together",
+        "message": "Join me on Tandrum! Let's build amazing habits together 🌱✨"
+      },
+      "rate": {
+        "title": "Rate Our App",
+        "subtitle": "Help us grow the Tandrum community",
+        "alertTitle": "Love Tandrum? 💚",
+        "alertMessage": "Your review helps us grow our community of habit builders!",
+        "maybeLater": "Maybe Later",
+        "rateNow": "Rate Now ⭐"
+      },
+      "support": {
+        "title": "Get Support",
+        "subtitle": "We're here to help you succeed",
+        "alertTitle": "We're Here to Help! 🤝",
+        "alertMessage": "How would you like to reach our support team?",
+        "emailSupport": "Email Support 📧",
+        "liveChat": "Live Chat 💬",
+        "comingSoon": "Coming Soon!",
+        "comingSoonMessage": "Live chat will be available in the next update! 🚀"
+      }
+    },
+    "privacy": {
+      "section": "Privacy & Legal",
+      "privacyPolicy": {
+        "title": "Privacy Policy",
+        "subtitle": "How we protect your personal data"
+      },
+      "termsOfService": {
+        "title": "Terms of Service",
+        "subtitle": "Our commitment to you"
+      },
+      "dataExport": {
+        "title": "Export My Data",
+        "subtitle": "Download your complete habit journey",
+        "alertTitle": "Export Your Journey 📊",
+        "alertMessage": "We'll prepare your habit data and progress history. You'll receive it within 24 hours!",
+        "requestExport": "Request Export 📤",
+        "exportRequested": "Export Requested! ✅",
+        "exportRequestedMessage": "Your data export is being prepared. Check your email within 24 hours."
+      }
+    },
+    "account": {
+      "section": "Account Management",
+      "deleteAccount": {
+        "title": "Delete My Account",
+        "subtitle": "Permanently remove your account and data",
+        "alertTitle": "Delete Account? 😢",
+        "alertMessage": "We're sorry to see you go! This will permanently remove your account and all progress data. This action cannot be undone.",
+        "keepAccount": "Keep My Account",
+        "deleteForever": "Delete Forever",
+        "finalConfirmation": "Final Confirmation ⚠️",
+        "finalConfirmationMessage": "This will permanently delete your account, habits, and all progress data. Are you absolutely sure?",
+        "iUnderstand": "I Understand, Delete Account",
+        "deleting": "Deleting Account...",
+        "deletingMessage": "Please wait while we process your request...",
+        "deleted": "Account Deleted ✅",
+        "deletedMessage": "Your account has been successfully deleted. Thank you for being part of our community.",
+        "error": "Oops! Something went wrong 😕",
+        "errorMessage": "We couldn't delete your account right now. Please try again or contact our support team."
+      }
+    },
+    "appInfo": {
+      "version": "Tandrum v1.0.0",
+      "tagline": "Building habits together, one day at a time",
+      "copyright": "© 2024 Tandrum • Made with 💚"
+    },
+    "alerts": {
+      "languageChanged": "Language changed!",
+      "languageChangeError": "Failed to change language"
+    }
+  }
+}

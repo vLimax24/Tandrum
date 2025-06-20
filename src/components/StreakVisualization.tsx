@@ -3,6 +3,8 @@ import { View, Text, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { useTheme } from '@/contexts/themeContext';
+// Import the translation hook
+import { useTranslation } from '@/contexts/i18nContext';
 import { createTheme } from '@/utils/theme';
 import { Doc } from '../../convex/_generated/dataModel';
 
@@ -49,6 +51,7 @@ const getStreakColors = (streak, isDarkMode) => {
 
 export const StreakVisualization = ({ duo }) => {
   const { isDarkMode } = useTheme();
+  const { t } = useTranslation(); // Get translation function
   const theme = createTheme(isDarkMode);
   const streakColors = getStreakColors(duo.streak || 0, isDarkMode);
   const { width: screenWidth } = Dimensions.get('window');
@@ -58,8 +61,27 @@ export const StreakVisualization = ({ duo }) => {
     const totalStreak = duo.streak || 0;
 
     const streakDisplay = [];
-    const daysOfWeek = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-    const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    // Use translated day abbreviations and labels
+    const daysOfWeek = [
+      t('streak.dayAbbr.monday'),
+      t('streak.dayAbbr.tuesday'),
+      t('streak.dayAbbr.wednesday'),
+      t('streak.dayAbbr.thursday'),
+      t('streak.dayAbbr.friday'),
+      t('streak.dayAbbr.saturday'),
+      t('streak.dayAbbr.sunday'),
+    ];
+
+    const dayLabels = [
+      t('streak.dayLabels.monday'),
+      t('streak.dayLabels.tuesday'),
+      t('streak.dayLabels.wednesday'),
+      t('streak.dayLabels.thursday'),
+      t('streak.dayLabels.friday'),
+      t('streak.dayLabels.saturday'),
+      t('streak.dayLabels.sunday'),
+    ];
 
     // Calculate circle size based on screen width with more spacing
     const circleSize = Math.min((screenWidth - 120) / 7 - 8, 40);
@@ -141,11 +163,13 @@ export const StreakVisualization = ({ duo }) => {
 
     return streakDisplay;
   };
+
+  // Use translated milestone texts
   const getMilestoneText = (streak) => {
-    if (streak >= 30) return '🏆 LEGEND';
-    if (streak >= 14) return '🔥 ON FIRE';
-    if (streak >= 7) return '⚡ UNSTOPPABLE';
-    return '🌱 GROWING';
+    if (streak >= 30) return t('streak.milestones.legend');
+    if (streak >= 14) return t('streak.milestones.onFire');
+    if (streak >= 7) return t('streak.milestones.unstoppable');
+    return t('streak.milestones.growing');
   };
 
   const getNextMilestone = (streak) => {
@@ -227,7 +251,7 @@ export const StreakVisualization = ({ duo }) => {
                     className="font-bold text-2xl tracking-tight"
                     style={{ color: theme.colors.text.primary }}
                   >
-                    Current Streak
+                    {t('streak.currentStreak')}
                   </Text>
                 </View>
 
@@ -238,7 +262,7 @@ export const StreakVisualization = ({ duo }) => {
                     lineHeight: 20,
                   }}
                 >
-                  {duo.streak || 0} consecutive days of shared success
+                  {t('streak.consecutiveDays', { count: duo.streak || 0 })}
                 </Text>
 
                 {/* Streak milestone indicator */}
@@ -299,7 +323,7 @@ export const StreakVisualization = ({ duo }) => {
                     {duo.streak || 0}
                   </Text>
                   <Text className="text-white text-xs font-semibold opacity-90 mt-1">
-                    {duo.streak > 1 ? 'DAYS' : 'DAY'}
+                    {duo.streak > 1 ? t('streak.days') : t('streak.day')}
                   </Text>
                 </LinearGradient>
               </View>
@@ -312,7 +336,7 @@ export const StreakVisualization = ({ duo }) => {
                   className="font-semibold text-sm flex-1"
                   style={{ color: theme.colors.text.primary }}
                 >
-                  This Week's Journey
+                  {t('streak.thisWeekJourney')}
                 </Text>
                 <View className="flex-row items-center gap-2">
                   <View
@@ -323,7 +347,7 @@ export const StreakVisualization = ({ duo }) => {
                     className="text-xs font-medium"
                     style={{ color: streakColors.primary }}
                   >
-                    Active Days
+                    {t('streak.activeDays')}
                   </Text>
                 </View>
               </View>
@@ -369,19 +393,10 @@ export const StreakVisualization = ({ duo }) => {
                       className="text-xs font-medium"
                       style={{ color: theme.colors.text.secondary }}
                     >
-                      Next milestone:{' '}
-                    </Text>
-                    <Text
-                      className="text-xs font-bold"
-                      style={{ color: streakColors.primary }}
-                    >
-                      {getNextMilestone(duo.streak || 0).target} days
-                    </Text>
-                    <Text
-                      className="text-xs font-medium ml-1"
-                      style={{ color: theme.colors.text.secondary }}
-                    >
-                      ({getNextMilestone(duo.streak || 0).remaining} to go)
+                      {t('streak.nextMilestone', {
+                        target: getNextMilestone(duo.streak || 0).target,
+                        remaining: getNextMilestone(duo.streak || 0).remaining,
+                      })}
                     </Text>
                   </BlurView>
                 </View>

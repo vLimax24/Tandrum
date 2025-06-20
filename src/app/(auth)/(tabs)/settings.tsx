@@ -25,6 +25,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
 import type { RootStackParamList } from '@/types/navigation';
 import { AlertModal } from '@/components/Modals/AlertModal';
+import { useI18n, SupportedLanguage } from '@/contexts/i18nContext';
 
 export default function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -34,6 +35,14 @@ export default function SettingsScreen() {
   const [dailyReminders, setDailyReminders] = useState(true);
   const [weeklyReports, setWeeklyReports] = useState(true);
   const [partnerUpdates, setPartnerUpdates] = useState(true);
+
+  const LANGUAGES = [
+    { code: 'en' as SupportedLanguage, name: 'English', flag: '🇺🇸' },
+    { code: 'de' as SupportedLanguage, name: 'Deutsch', flag: '🇩🇪' },
+  ];
+
+  const { language, setLanguage, t } = useI18n();
+  const [currentLanguage, setCurrentLanguage] = useState(language);
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -179,10 +188,55 @@ export default function SettingsScreen() {
     saveSetting('partnerUpdates', value);
   };
 
+  const handleLanguageChange = () => {
+    showAlert(
+      t('settings.language.title') || 'Language / Sprache',
+      t('settings.language.subtitle') || 'Choose your preferred language',
+      [
+        { text: t('common.cancel') || 'Cancel', style: 'cancel' },
+        ...LANGUAGES.map((lang) => ({
+          text: `${lang.flag} ${lang.name}`,
+          onPress: async () => {
+            if (lang.code === language) return;
+
+            try {
+              await setLanguage(lang.code);
+              setCurrentLanguage(lang.code);
+
+              const confirmationMessage =
+                lang.code === 'de'
+                  ? 'Sprache wurde geändert!'
+                  : 'Language changed!';
+
+              showAlert(
+                '✓',
+                confirmationMessage,
+                [{ text: 'OK', style: 'default' }],
+                'checkmark-circle',
+                '#10B981',
+              );
+            } catch (error) {
+              console.error('Error changing language:', error);
+              showAlert(
+                'Error',
+                'Failed to change language',
+                [{ text: 'OK', style: 'default' }],
+                'alert-circle',
+                '#EF4444',
+              );
+            }
+          },
+        })),
+      ],
+      'language',
+      '#8B5CF6',
+    );
+  };
+
   const handleShareApp = async () => {
     try {
       await Share.share({
-        message: "Join me on Tandrum! Let's build amazing habits together 🌱✨",
+        message: t('settings.community.share.message'),
         url: 'https://tandrum.app',
       });
     } catch (error) {
@@ -192,12 +246,12 @@ export default function SettingsScreen() {
 
   const handleRateApp = () => {
     showAlert(
-      'Love Tandrum? 💚',
-      'Your review helps us grow our community of habit builders!',
+      t('settings.community.rate.alertTitle'),
+      t('settings.community.rate.alertMessage'),
       [
-        { text: 'Maybe Later', style: 'cancel' },
+        { text: t('settings.community.rate.maybeLater'), style: 'cancel' },
         {
-          text: 'Rate Now ⭐',
+          text: t('settings.community.rate.rateNow'),
           onPress: () => {
             Linking.openURL('https://apps.apple.com/app/tandrum');
           },
@@ -210,20 +264,20 @@ export default function SettingsScreen() {
 
   const handleContactSupport = () => {
     showAlert(
-      "We're Here to Help! 🤝",
-      'How would you like to reach our support team?',
+      t('settings.community.support.alertTitle'),
+      t('settings.community.support.alertMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Email Support 📧',
+          text: t('settings.community.support.emailSupport'),
           onPress: () => Linking.openURL('mailto:support@tandrum.app'),
         },
         {
-          text: 'Live Chat 💬',
+          text: t('settings.community.support.liveChat'),
           onPress: () =>
             showAlert(
-              'Coming Soon!',
-              'Live chat will be available in the next update! 🚀',
+              t('settings.community.support.commingSoon'),
+              t('settings.community.support.comingSoonMessage'),
               [{ text: 'OK', style: 'default' }],
               'chatbubble-ellipses',
               '#10B981',
@@ -245,16 +299,16 @@ export default function SettingsScreen() {
 
   const handleDataExport = () => {
     showAlert(
-      'Export Your Journey 📊',
-      "We'll prepare your habit data and progress history. You'll receive it within 24 hours!",
+      t('settings.privacy.dataExport.alertTitle'),
+      t('settings.privacy.dataExport.alertMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Request Export 📤',
+          text: t('settings.privacy.dataExport.requestExport'),
           onPress: () =>
             showAlert(
-              'Export Requested! ✅',
-              'Your data export is being prepared. Check your email within 24 hours.',
+              t('settings.privacy.dataExport.exportRequested'),
+              t('settings.privacy.dataExport.exportRequestedMessage'),
               [{ text: 'OK', style: 'default' }],
               'checkmark-circle',
               '#10B981',
@@ -268,28 +322,46 @@ export default function SettingsScreen() {
 
   const handleDeleteAccount = () => {
     showAlert(
-      'Delete Account? 😢',
-      "We're sorry to see you go! This will permanently remove your account and all progress data. This action cannot be undone.",
+      t('settings.account.deleteAccount.alertTitle'),
+      t('settings.account.deleteAccount.alertMessage'),
       [
-        { text: 'Keep My Account', style: 'cancel' },
         {
-          text: 'Delete Forever',
+          text: t('settings.account.deleteAccount.keepAccount'),
+          style: 'cancel',
+        },
+        {
+          text: t('settings.account.deleteAccount.deleteForever'),
           style: 'destructive',
           onPress: () => {
-            showAlert(
-              'Final Confirmation ⚠️',
-              'This will permanently delete your account, habits, and all progress data. Are you absolutely sure?',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'I Understand, Delete Account',
-                  style: 'destructive',
-                  onPress: confirmDeleteAccount,
-                },
-              ],
-              'warning',
-              '#EF4444',
-            );
+            // Close the current alert first
+            closeAlert();
+            // Add a small delay to ensure the modal closes properly
+            setTimeout(() => {
+              showAlert(
+                t('settings.account.deleteAccount.finalConfirmation'),
+                t('settings.account.deleteAccount.finalConfirmationMessage'),
+                [
+                  {
+                    text: 'Cancel',
+                    style: 'cancel',
+                    onPress: () => closeAlert(),
+                  },
+                  {
+                    text: t('settings.account.deleteAccount.iUnderstand'),
+                    style: 'destructive',
+                    onPress: () => {
+                      closeAlert();
+                      // Add delay before executing delete to ensure modal closes
+                      setTimeout(() => {
+                        confirmDeleteAccount();
+                      }, 100);
+                    },
+                  },
+                ],
+                'warning',
+                '#EF4444',
+              );
+            }, 100);
           },
         },
       ],
@@ -299,53 +371,88 @@ export default function SettingsScreen() {
   };
 
   const confirmDeleteAccount = async () => {
-    if (!user) return;
+    if (!user) {
+      console.error('No user found');
+      return;
+    }
 
     try {
+      // Show loading state
       showAlert(
-        'Deleting Account...',
-        'Please wait while we process your request...',
+        t('settings.account.deleteAccount.deleting'),
+        t('settings.account.deleteAccount.deletingMessage'),
         [],
         'hourglass',
         '#6B7280',
       );
 
+      // Clear local storage first
       await AsyncStorage.multiRemove([
         'isFirstTime',
         'tutorialCompleted',
         'onboardingCompleted',
         'convexUser',
+        'notifications',
+        'darkMode',
+        'sound',
+        'vibration',
+        'dailyReminders',
+        'weeklyReports',
+        'partnerUpdates',
       ]);
 
+      // Delete from database
       await deleteAccountMutation({ clerkId: user.id });
+
+      // Delete from Clerk
       await user.delete();
+
+      // Sign out
       await signOut();
+
+      // Reset onboarding flags
       await AsyncStorage.setItem('isFirstTime', 'true');
       await AsyncStorage.setItem('tutorialCompleted', 'false');
 
-      showAlert(
-        'Account Deleted ✅',
-        'Your account has been successfully deleted. Thank you for being part of our community.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              router.replace('/(auth)/(tutorial)/');
+      // Close loading modal and show success
+      closeAlert();
+
+      setTimeout(() => {
+        showAlert(
+          t('settings.account.deleteAccount.deleted'),
+          t('settings.account.deleteAccount.deletedMessage'),
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                closeAlert();
+                // Navigate to tutorial
+                router.replace('/(auth)/(tutorial)/');
+              },
             },
-          },
-        ],
-        'checkmark-circle',
-        '#10B981',
-      );
+          ],
+          'checkmark-circle',
+          '#10B981',
+        );
+      }, 100);
     } catch (error) {
       console.error('Error deleting account:', error);
-      showAlert(
-        'Oops! Something went wrong 😕',
-        "We couldn't delete your account right now. Please try again or contact our support team.",
-        [{ text: 'OK' }],
-        'alert-circle',
-        '#EF4444',
-      );
+      closeAlert();
+
+      setTimeout(() => {
+        showAlert(
+          t('settings.account.deleteAccount.error'),
+          t('settings.account.deleteAccount.errorMessage'),
+          [
+            {
+              text: 'OK',
+              onPress: () => closeAlert(),
+            },
+          ],
+          'alert-circle',
+          '#EF4444',
+        );
+      }, 100);
     }
   };
 
@@ -427,24 +534,42 @@ export default function SettingsScreen() {
     gradientColors: [string, string];
     textColor: string;
   }) => (
-    <View className="mx-5 mb-2 mt-6">
+    <View className="mx-5 mb-0 mt-6">
       <BlurView
         intensity={20}
         tint={isDarkMode ? 'dark' : 'light'}
-        className="rounded-2xl overflow-hidden border"
-        style={{ borderColor: theme.colors.cardBorder }}
+        className="overflow-hidden border"
+        style={{
+          borderColor: theme.colors.cardBorder,
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
+        }}
       >
-        <LinearGradient colors={gradientColors} className="px-4 py-3">
+        <LinearGradient
+          colors={
+            gradientColors.map((color) => `${color}50`) as [
+              import('react-native').ColorValue,
+              import('react-native').ColorValue,
+            ]
+          } // 20% opacity in hex
+          className="px-7 py-5"
+        >
           <View className="flex-row items-center gap-3">
             <View
               className="w-8 h-8 rounded-xl justify-center items-center"
               style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
             >
-              <Ionicons name={icon as any} size={18} color={textColor} />
+              <Ionicons
+                name={icon as any}
+                size={18}
+                color={theme.colors.text.primary}
+              />
             </View>
             <Text
               className="text-base font-bold font-mainRegular"
-              style={{ color: textColor }}
+              style={{ color: theme.colors.text.primary }}
             >
               {title}
             </Text>
@@ -459,10 +584,15 @@ export default function SettingsScreen() {
       <BlurView
         intensity={20}
         tint={isDarkMode ? 'dark' : 'light'}
-        className="rounded-3xl overflow-hidden border"
+        className="overflow-hidden border"
         style={{
           borderColor: theme.colors.cardBorder,
           backgroundColor: theme.colors.cardBackground,
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
+          borderBottomLeftRadius: 24,
+          borderBottomRightRadius: 24,
+          borderTopWidth: 0,
         }}
       >
         {children}
@@ -505,13 +635,13 @@ export default function SettingsScreen() {
                   className="text-2xl font-bold font-mainRegular"
                   style={{ color: theme.colors.text.primary }}
                 >
-                  Settings
+                  {t('settings.title')}
                 </Text>
                 <Text
                   className="text-sm font-mainRegular mt-1"
                   style={{ color: theme.colors.text.secondary }}
                 >
-                  Customize your Tandrum experience 🎯
+                  {t('settings.subtitle')}
                 </Text>
               </View>
             </View>
@@ -520,19 +650,21 @@ export default function SettingsScreen() {
           <ScrollView
             className="flex-1 pt-2"
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={{ paddingBottom: 30 }}
           >
             {/* Notifications Section */}
             <SectionHeader
-              title="Notifications & Reminders"
+              title={t('settings.notifications.section')}
               icon="notifications-outline"
               gradientColors={['#3B82F6', '#1D4ED8']}
               textColor="#FFFFFF"
             />
             <SettingCard>
               <SettingItem
-                title="Push Notifications"
-                subtitle="Stay updated with habit reminders and progress"
+                title={t('settings.notifications.pushNotifications.title')}
+                subtitle={t(
+                  'settings.notifications.pushNotifications.subtitle',
+                )}
                 icon="notifications"
                 iconColor="#3B82F6"
                 rightElement={
@@ -548,8 +680,8 @@ export default function SettingsScreen() {
                 }
               />
               <SettingItem
-                title="Daily Habit Reminders"
-                subtitle="Gentle nudges to keep your streaks alive"
+                title={t('settings.notifications.dailyReminders.title')}
+                subtitle={t('settings.notifications.dailyReminders.subtitle')}
                 icon="alarm"
                 iconColor="#10B981"
                 rightElement={
@@ -565,8 +697,8 @@ export default function SettingsScreen() {
                 }
               />
               <SettingItem
-                title="Weekly Progress Reports"
-                subtitle="Celebrate your wins and plan ahead"
+                title={t('settings.notifications.weeklyReports.title')}
+                subtitle={t('settings.notifications.weeklyReports.subtitle')}
                 icon="stats-chart"
                 iconColor="#8B5CF6"
                 rightElement={
@@ -582,8 +714,8 @@ export default function SettingsScreen() {
                 }
               />
               <SettingItem
-                title="Partner Activity Updates"
-                subtitle="Stay connected with your habit buddy"
+                title={t('settings.notifications.partnerUpdates.title')}
+                subtitle={t('settings.notifications.partnerUpdates.subtitle')}
                 icon="people"
                 iconColor="#F59E0B"
                 rightElement={
@@ -601,17 +733,34 @@ export default function SettingsScreen() {
               />
             </SettingCard>
 
+            <SectionHeader
+              title={t('settings.language.section')}
+              icon="globe-outline"
+              gradientColors={['#8B5CF6', '#7C3AED']}
+              textColor="#FFFFFF"
+            />
+            <SettingCard>
+              <SettingItem
+                title={t('settings.language.title')}
+                subtitle={`${LANGUAGES.find((l) => l.code === currentLanguage)?.flag} ${LANGUAGES.find((l) => l.code === currentLanguage)?.name}`}
+                icon="language"
+                iconColor="#8B5CF6"
+                onPress={handleLanguageChange}
+                isLast
+              />
+            </SettingCard>
+
             {/* Experience Section */}
             <SectionHeader
-              title="App Experience"
+              title={t('settings.experience.section')}
               icon="color-palette-outline"
               gradientColors={[theme.colors.primary, theme.colors.primaryLight]}
               textColor="#FFFFFF"
             />
             <SettingCard>
               <SettingItem
-                title="Dark Mode"
-                subtitle="Easy on the eyes, perfect for evening habits"
+                title={t('settings.experience.darkMode.title')}
+                subtitle={t('settings.experience.darkMode.subtitle')}
                 icon="moon"
                 iconColor="#6B7280"
                 rightElement={
@@ -627,8 +776,8 @@ export default function SettingsScreen() {
                 }
               />
               <SettingItem
-                title="Sound Feedback"
-                subtitle="Satisfying audio cues for completed habits"
+                title={t('settings.experience.sound.title')}
+                subtitle={t('settings.experience.sound.subtitle')}
                 icon="volume-high"
                 iconColor="#EF4444"
                 rightElement={
@@ -644,8 +793,8 @@ export default function SettingsScreen() {
                 }
               />
               <SettingItem
-                title="Haptic Feedback"
-                subtitle="Feel the satisfaction with every tap"
+                title={t('settings.experience.haptic.title')}
+                subtitle={t('settings.experience.haptic.subtitle')}
                 icon="phone-portrait"
                 iconColor="#06B6D4"
                 rightElement={
@@ -665,29 +814,29 @@ export default function SettingsScreen() {
 
             {/* Community & Support Section */}
             <SectionHeader
-              title="Community & Support"
+              title={t('settings.community.section')}
               icon="heart-outline"
               gradientColors={['#8B5CF6', '#7C3AED']}
               textColor="#FFFFFF"
             />
             <SettingCard>
               <SettingItem
-                title="Share Tandrum"
-                subtitle="Invite friends to build habits together"
+                title={t('settings.community.share.title')}
+                subtitle={t('settings.community.share.subtitle')}
                 icon="share"
                 iconColor="#3B82F6"
                 onPress={handleShareApp}
               />
               <SettingItem
-                title="Rate Our App"
-                subtitle="Help us grow the Tandrum community"
+                title={t('settings.community.rate.title')}
+                subtitle={t('settings.community.rate.subtitle')}
                 icon="star"
                 iconColor="#F59E0B"
                 onPress={handleRateApp}
               />
               <SettingItem
-                title="Get Support"
-                subtitle="We're here to help you succeed"
+                title={t('settings.community.support.title')}
+                subtitle={t('settings.community.support.subtitle')}
                 icon="help-circle"
                 iconColor="#10B981"
                 onPress={handleContactSupport}
@@ -697,29 +846,29 @@ export default function SettingsScreen() {
 
             {/* Legal & Privacy Section */}
             <SectionHeader
-              title="Privacy & Legal"
+              title={t('settings.privacy.section')}
               icon="shield-checkmark-outline"
               gradientColors={['#059669', '#047857']}
               textColor="#FFFFFF"
             />
             <SettingCard>
               <SettingItem
-                title="Privacy Policy"
-                subtitle="How we protect your personal data"
+                title={t('settings.privacy.privacyPolicy.title')}
+                subtitle={t('settings.privacy.privacyPolicy.subtitle')}
                 icon="shield-checkmark"
                 iconColor="#8B5CF6"
                 onPress={handlePrivacyPolicy}
               />
               <SettingItem
-                title="Terms of Service"
-                subtitle="Our commitment to you"
+                title={t('settings.privacy.termsOfService.title')}
+                subtitle={t('settings.privacy.termsOfService.subtitle')}
                 icon="document-text"
                 iconColor="#6B7280"
                 onPress={handleTermsOfService}
               />
               <SettingItem
-                title="Export My Data"
-                subtitle="Download your complete habit journey"
+                title={t('settings.privacy.dataExport.title')}
+                subtitle={t('settings.privacy.dataExport.subtitle')}
                 icon="download"
                 iconColor="#059669"
                 onPress={handleDataExport}
@@ -729,15 +878,15 @@ export default function SettingsScreen() {
 
             {/* Account Section */}
             <SectionHeader
-              title="Account Management"
+              title={t('settings.account.section')}
               icon="person-outline"
               gradientColors={['#EF4444', '#DC2626']}
               textColor="#FFFFFF"
             />
             <SettingCard>
               <SettingItem
-                title="Delete My Account"
-                subtitle="Permanently remove your account and data"
+                title={t('settings.account.deleteAccount.title')}
+                subtitle={t('settings.account.deleteAccount.subtitle')}
                 icon="trash"
                 iconColor="#EF4444"
                 onPress={handleDeleteAccount}
@@ -753,20 +902,20 @@ export default function SettingsScreen() {
                   className="font-bold font-mainRegular"
                   style={{ color: theme.colors.text.secondary }}
                 >
-                  Tandrum v1.0.0
+                  {t('settings.appInfo.version')}
                 </Text>
               </View>
               <Text
-                className="text-xs font-mainRegular"
+                className="text-xs font-mainRegular text-center"
                 style={{ color: theme.colors.text.tertiary }}
               >
-                Building habits together, one day at a time
+                {t('settings.appInfo.tagline')}
               </Text>
               <Text
                 className="text-xs font-mainRegular"
                 style={{ color: theme.colors.text.tertiary }}
               >
-                © 2024 Tandrum • Made with 💚
+                {t('settings.appInfo.copyright')}
               </Text>
             </View>
           </ScrollView>

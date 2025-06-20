@@ -1,0 +1,165 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "retry": "Wiederholen",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "done": "Fertig",
+    "ok": "OK"
+  },
+  "streak": {
+    "currentStreak": "Aktuelle Serie",
+    "consecutiveDays": "{{count}} aufeinanderfolgende Tage gemeinsamen Erfolgs",
+    "consecutiveDays_one": "{{count}} aufeinanderfolgender Tag gemeinsamen Erfolgs",
+    "thisWeekJourney": "Diese Woche",
+    "activeDays": "Aktive Tage",
+    "nextMilestone": "Nächster Meilenstein: {{target}} Tage (noch {{remaining}})",
+    "milestones": {
+      "legend": "🏆 LEGENDE",
+      "onFire": "🔥 BRENNEND",
+      "unstoppable": "⚡ UNAUFHALTBAR",
+      "growing": "🌱 WACHSEND"
+    },
+    "dayLabels": {
+      "monday": "Mo",
+      "tuesday": "Di",
+      "wednesday": "Mi",
+      "thursday": "Do",
+      "friday": "Fr",
+      "saturday": "Sa",
+      "sunday": "So"
+    },
+    "dayAbbr": {
+      "monday": "M",
+      "tuesday": "D",
+      "wednesday": "M",
+      "thursday": "D",
+      "friday": "F",
+      "saturday": "S",
+      "sunday": "S"
+    },
+    "days": "TAGE",
+    "day": "TAG"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "subtitle": "Passe deine Tandrum-Erfahrung an 🎯",
+    "notifications": {
+      "section": "Benachrichtigungen & Erinnerungen",
+      "pushNotifications": {
+        "title": "Push-Benachrichtigungen",
+        "subtitle": "Bleibe über Gewohnheitserinnerungen und Fortschritte informiert"
+      },
+      "dailyReminders": {
+        "title": "Tägliche Gewohnheitserinnerungen",
+        "subtitle": "Sanfte Erinnerungen, um deine Serien am Leben zu erhalten"
+      },
+      "weeklyReports": {
+        "title": "Wöchentliche Fortschrittsberichte",
+        "subtitle": "Feiere deine Erfolge und plane voraus"
+      },
+      "partnerUpdates": {
+        "title": "Partner-Aktivitätsupdates",
+        "subtitle": "Bleibe mit deinem Gewohnheitspartner verbunden"
+      }
+    },
+    "language": {
+      "section": "Sprache & Region",
+      "title": "Sprache",
+      "subtitle": "Wähle deine bevorzugte Sprache"
+    },
+    "experience": {
+      "section": "App-Erlebnis",
+      "darkMode": {
+        "title": "Dunkler Modus",
+        "subtitle": "Schonend für die Augen, perfekt für Abendgewohnheiten"
+      },
+      "sound": {
+        "title": "Sound-Feedback",
+        "subtitle": "Befriedigende Audiohinweise für erledigte Gewohnheiten"
+      },
+      "haptic": {
+        "title": "Haptisches Feedback",
+        "subtitle": "Spüre die Zufriedenheit bei jedem Tippen"
+      }
+    },
+    "community": {
+      "section": "Community & Support",
+      "share": {
+        "title": "Tandrum teilen",
+        "subtitle": "Lade Freunde ein, gemeinsam Gewohnheiten aufzubauen",
+        "message": "Begleite mich bei Tandrum! Lass uns gemeinsam großartige Gewohnheiten aufbauen 🌱✨"
+      },
+      "rate": {
+        "title": "App bewerten",
+        "subtitle": "Hilf uns, die Tandrum-Community zu vergrößern",
+        "alertTitle": "Liebst du Tandrum? 💚",
+        "alertMessage": "Deine Bewertung hilft uns, unsere Community von Gewohnheitsbildnern zu vergrößern!",
+        "maybeLater": "Vielleicht später",
+        "rateNow": "Jetzt bewerten ⭐"
+      },
+      "support": {
+        "title": "Support erhalten",
+        "subtitle": "Wir sind hier, um dir zum Erfolg zu verhelfen",
+        "alertTitle": "Wir sind da, um zu helfen! 🤝",
+        "alertMessage": "Wie möchtest du unser Support-Team erreichen?",
+        "emailSupport": "E-Mail-Support 📧",
+        "liveChat": "Live-Chat 💬",
+        "comingSoon": "Kommt bald!",
+        "comingSoonMessage": "Live-Chat wird im nächsten Update verfügbar sein! 🚀"
+      }
+    },
+    "privacy": {
+      "section": "Datenschutz & Rechtliches",
+      "privacyPolicy": {
+        "title": "Datenschutzrichtlinie",
+        "subtitle": "Wie wir deine persönlichen Daten schützen"
+      },
+      "termsOfService": {
+        "title": "Nutzungsbedingungen",
+        "subtitle": "Unser Engagement für dich"
+      },
+      "dataExport": {
+        "title": "Meine Daten exportieren",
+        "subtitle": "Lade deine komplette Gewohnheitsreise herunter",
+        "alertTitle": "Exportiere deine Reise 📊",
+        "alertMessage": "Wir bereiten deine Gewohnheitsdaten und Fortschrittsverlauf vor. Du erhältst sie innerhalb von 24 Stunden!",
+        "requestExport": "Export anfordern 📤",
+        "exportRequested": "Export angefordert! ✅",
+        "exportRequestedMessage": "Dein Datenexport wird vorbereitet. Überprüfe deine E-Mails innerhalb von 24 Stunden."
+      }
+    },
+    "account": {
+      "section": "Kontoverwaltung",
+      "deleteAccount": {
+        "title": "Mein Konto löschen",
+        "subtitle": "Entferne dein Konto und deine Daten dauerhaft",
+        "alertTitle": "Konto löschen? 😢",
+        "alertMessage": "Es tut uns leid, dich gehen zu sehen! Dies wird dein Konto und alle Fortschrittsdaten dauerhaft entfernen. Diese Aktion kann nicht rückgängig gemacht werden.",
+        "keepAccount": "Mein Konto behalten",
+        "deleteForever": "Für immer löschen",
+        "finalConfirmation": "Letzte Bestätigung ⚠️",
+        "finalConfirmationMessage": "Dies wird dein Konto, deine Gewohnheiten und alle Fortschrittsdaten dauerhaft löschen. Bist du dir absolut sicher?",
+        "iUnderstand": "Ich verstehe, Konto löschen",
+        "deleting": "Konto wird gelöscht...",
+        "deletingMessage": "Bitte warte, während wir deine Anfrage bearbeiten...",
+        "deleted": "Konto gelöscht ✅",
+        "deletedMessage": "Dein Konto wurde erfolgreich gelöscht. Danke, dass du Teil unserer Community warst.",
+        "error": "Ups! Etwas ist schiefgelaufen 😕",
+        "errorMessage": "Wir konnten dein Konto gerade nicht löschen. Bitte versuche es erneut oder kontaktiere unser Support-Team."
+      }
+    },
+    "appInfo": {
+      "version": "Tandrum v1.0.0",
+      "tagline": "Gewohnheiten gemeinsam aufbauen, einen Tag nach dem anderen",
+      "copyright": "© 2024 Tandrum • Mit 💚 gemacht"
+    },
+    "alerts": {
+      "languageChanged": "Sprache wurde geändert!",
+      "languageChangeError": "Sprache konnte nicht geändert werden"
+    }
+  }
+}
