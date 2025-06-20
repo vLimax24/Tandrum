@@ -646,7 +646,7 @@ export default function TutorialScreen() {
                   </View>
 
                   {/* Enhanced Decorative Image */}
-                  <View className="mb-8 opacity-90">
+                  <View className="opacity-90">
                     <Image
                       source={page.image}
                       style={{
