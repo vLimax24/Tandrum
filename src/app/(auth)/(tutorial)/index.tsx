@@ -584,7 +584,6 @@ export default function TutorialScreen() {
                 }}
                 className="items-center"
               >
-                {/* Enhanced Hero Icon Section */}
                 <View className="items-center mb-12">
                   <View className="relative items-center justify-center mb-5">
                     {/* Main glassmorphic background */}
