@@ -495,10 +495,10 @@ const Profile = () => {
                 </View>
               </View>
 
-              <View className="flex-row gap-4">
+              <View className="flex-col gap-4">
                 <TouchableOpacity
                   onPress={handleEditProfile}
-                  className="flex-1 rounded-2xl py-4 px-4 items-center border"
+                  className="flex-1 rounded-2xl py-4 px-4 items-center border flex-row gap-5"
                   style={{
                     backgroundColor: `${theme.colors.primary}15`,
                     borderColor: `${theme.colors.primary}30`,
@@ -508,25 +508,30 @@ const Profile = () => {
                     name="create"
                     size={20}
                     color={theme.colors.primary}
-                    style={{ marginBottom: 4 }}
+                    style={{
+                      marginBottom: 4,
+                    }}
+                    className={'ml-2'}
                   />
-                  <Text
-                    className="text-base font-semibold mb-1 font-mainRegular"
-                    style={{ color: theme.colors.primary }}
-                  >
-                    {t('profile.quickActions.editProfile')}
-                  </Text>
-                  <Text
-                    className="text-xs text-center font-mainRegular"
-                    style={{ color: theme.colors.text.tertiary }}
-                  >
-                    {t('profile.quickActions.editProfileSubtitle')}
-                  </Text>
+                  <View className="flex-col text-left">
+                    <Text
+                      className="text-base font-semibold mb-1 font-mainRegular"
+                      style={{ color: theme.colors.primary }}
+                    >
+                      {t('profile.quickActions.editProfile')}
+                    </Text>
+                    <Text
+                      className="text-xs text-center font-mainRegular"
+                      style={{ color: theme.colors.text.tertiary }}
+                    >
+                      {t('profile.quickActions.editProfileSubtitle')}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   onPress={handleSettings}
-                  className="flex-1 rounded-2xl py-4 px-4 items-center border"
+                  className="flex-1 rounded-2xl py-4 px-4 items-center border flex-row gap-5"
                   style={{
                     backgroundColor: '#8b5cf615',
                     borderColor: '#8b5cf630',
@@ -537,19 +542,22 @@ const Profile = () => {
                     size={20}
                     color="#8b5cf6"
                     style={{ marginBottom: 4 }}
+                    className="ml-2"
                   />
-                  <Text
-                    className="text-base font-semibold mb-1 font-mainRegular"
-                    style={{ color: '#8b5cf6' }}
-                  >
-                    {t('profile.quickActions.settings')}
-                  </Text>
-                  <Text
-                    className="text-xs text-center font-mainRegular"
-                    style={{ color: theme.colors.text.tertiary }}
-                  >
-                    {t('profile.quickActions.settingsSubtitle')}
-                  </Text>
+                  <View className="flex-col text-left">
+                    <Text
+                      className="text-base font-semibold mb-1 font-mainRegular"
+                      style={{ color: '#8b5cf6' }}
+                    >
+                      {t('profile.quickActions.settings')}
+                    </Text>
+                    <Text
+                      className="text-xs text-center font-mainRegular"
+                      style={{ color: theme.colors.text.tertiary }}
+                    >
+                      {t('profile.quickActions.settingsSubtitle')}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               </View>
             </View>
